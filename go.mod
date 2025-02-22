@@ -1,6 +1,6 @@
 module github.com/compoundinvest/stockfundamentals
 
-go 1.23.1
+go 1.24
 
 require (
 	github.com/compoundinvest/invest-core v0.0.0-20241123195519-243c5c8da62f
