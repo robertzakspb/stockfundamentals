@@ -9,13 +9,13 @@ const (
 )
 
 type MoexSecurity struct {
-	Ticker       string
-	ShortName    string
+	Ticker       string `sql:"share_ticker"`
+	ShortName    string `sql:"company_name"`
 	FullName     string
 	EnglishName  string
-	LotSize      float64
+	LotSize      int64
 	FaceValue    float64
-	SharesIssued float64
-	ISIN         string
-	SecurityType SecurityType
+	SharesIssued int64 `sql:"share_count"`
+	ISIN         string `sql:"isin"`
+	SecurityType SecurityType `sql:"security_type"`
 }

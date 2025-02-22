@@ -12,7 +12,7 @@ import (
 func FetchSecuritiesInfo(db *sql.DB) error {
 	polygon.DelayRequestIfAPILimitReached()
 
-	endpointURL := "https://api.polygon.io/v3/reference/tickers?market=stocks&active=true&order=asc&limit=1000&sort=ticker&apiKey=" + polygon.APIKey
+	endpointURL := "https://api.polygon.io/v3/reference/tickers?market=stocks&active=true&order=asc&limit=1000&sort=ticker&apiKey=" //TODO: the API key here
 	response, err := http.Get(endpointURL)
 	if err != nil {
 		fmt.Println("Unable to fetch securities info")
@@ -28,7 +28,7 @@ func FetchSecuritiesInfo(db *sql.DB) error {
 	for apiDTO.NextURL != "" {
 		polygon.DelayRequestIfAPILimitReached()
 
-		response, err := http.Get(apiDTO.NextURL + "&apiKey=" + polygon.APIKey)
+		response, err := http.Get(apiDTO.NextURL + "&apiKey=") //Missing the API key here
 		if err != nil {
 			fmt.Println("Unable to fetch securities info")
 			break

@@ -8,8 +8,8 @@ import (
 	typeconverter "github.com/compoundinvest/stockfundamentals/Utilities/converters"
 )
 
-func FetchSecuritiesInfoFromMoex() {
-	endpointURL := "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json?iss.meta=off&iss.only=securities"
+func FetchSecuritiesInfoFromMoex() []MoexSecurity {
+	const endpointURL string = "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json?iss.meta=off&iss.only=securities"
 
 	response, err := http.Get(endpointURL)
 	if err != nil {
@@ -30,7 +30,6 @@ func FetchSecuritiesInfoFromMoex() {
 		fullName := security[9].(string)
 		englishName := security[20].(string)
 		lotSize, _ := typeconverter.GetFloat(security[4])
-		faceValue, _ := typeconverter.GetFloat(security[5])
 		sharesIssued, _ := typeconverter.GetFloat(security[18])
 		isin := security[19].(string)
 		securityType := parseSecurityType(security[24])
@@ -40,16 +39,15 @@ func FetchSecuritiesInfoFromMoex() {
 			ShortName:    shortName,
 			FullName:     fullName,
 			EnglishName:  englishName,
-			LotSize:      lotSize,
-			FaceValue:    faceValue,
-			SharesIssued: sharesIssued,
+			LotSize:      int64(lotSize),
+			SharesIssued: int64(sharesIssued),
 			ISIN:         isin,
 			SecurityType: securityType,
 		}
 		parsedSecurities = append(parsedSecurities, parsedSecurity)
 	}
 
-	saveMoexSecuritiesToDB(parsedSecurities)
+	return parsedSecurities
 }
 
 func parseSecurityType(moexSecurityType interface{}) SecurityType {

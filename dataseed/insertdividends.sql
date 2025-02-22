@@ -1,4 +1,4 @@
-INSERT INTO dividend_payment(id, company_id, actual_DPS, expected_DPS, currency, ex_div_date, payout_date, payment_period, management_comment) VALUES
+INSERT INTO dividend_payment(id, security_id, actual_DPS, expected_DPS, currency, record_date, payout_date, payment_period, management_comment) VALUES
 -- Serbia: NIS
 ('c0671faa-5a35-4b4f-9284-aed6867e94b0', '9f45ae88-70bd-48ef-aadc-aa6f01377b76', 75.83, 45.5, 'RSD', Date('2013-06-08'), Date('2013-08-20'), 'fy2012', NULL),
 ('5c77a15e-ac3e-4e84-8358-b5812361ab56', '9f45ae88-70bd-48ef-aadc-aa6f01377b76', 80.22, 48.13, 'RSD', Date('2014-06-20'), Date('2014-11-25'), 'fy2013', NULL),
@@ -11,7 +11,8 @@ INSERT INTO dividend_payment(id, company_id, actual_DPS, expected_DPS, currency,
 ('e7fbacf3-7505-46ca-b506-b776e63c9b27', '9f45ae88-70bd-48ef-aadc-aa6f01377b76', 6.14, 0, 'RSD', Date('2021-06-19'), Date('2021-08-31'), 'fy2020', NULL),
 ('e1810da0-cc85-4bf6-9ebf-396845d700ec', '9f45ae88-70bd-48ef-aadc-aa6f01377b76', 35.46, 21.28, 'RSD', Date('2022-06-19'), Date('2022-08-22'), 'fy2021', NULL),
 ('85ac4f83-513d-4342-94cb-8770737426f2', '9f45ae88-70bd-48ef-aadc-aa6f01377b76', 143.29, 85.97, 'RSD', Date('2023-06-19'), Date('2023-08-24'), 'fy2022', NULL),
-('6f3beb5d-82de-4c6d-90e5-91258ac02aeb', '9f45ae88-70bd-48ef-aadc-aa6f01377b76', NULL, 67.77, 'RSD', NULL, NULL, 'fy2023', NULL)
+('6f3beb5d-82de-4c6d-90e5-91258ac02aeb', '9f45ae88-70bd-48ef-aadc-aa6f01377b76', 64.26, 67.77, 'RSD', Date('2023-06-17'), Date('2023-08-28'), 'fy2023', NULL),
+('fdb2bbe1-2d86-4bfe-a32b-cfa6af53caa2', '9f45ae88-70bd-48ef-aadc-aa6f01377b76', NULL, 28.2, 'RSD', NULL, NULL, 'fy2024', NULL),
 
 -- Serbia: Dunav Osiguranje
 ('12415403-e0ce-469b-bae1-9303d76558ca', '4f96e511-34db-4f00-9bf5-0975cef04c2b', 359.63, NULL, 'RSD', Date('2021-04-14'), Date('2021-07-07'), 'fy2020', NULL),
@@ -20,7 +21,16 @@ INSERT INTO dividend_payment(id, company_id, actual_DPS, expected_DPS, currency,
 ('500e1b60-4915-4954-b17c-6ba94600ca77', '4f96e511-34db-4f00-9bf5-0975cef04c2b', NULL, NULL, 'RSD', NULL, NULL, 'fy20223', NULL),
 
 -- Serbia: Metalac
-('f26e70b1-4f31-4485-85ec-1851d0c5ec83', '8f0161f0-083d-431a-9fff-89deb073ce0f', NULL, NULL, 'RSD', NULL, NULL, 'fy20223', NULL),
+('f26e70b1-4f31-4485-85ec-1851d0c5ec83', '8f0161f0-083d-431a-9fff-89deb073ce0f', 150, NULL, 'RSD', Date('2015-04-14'), Date('2015-10-31'), 'fy2014', NULL),
+('dcb2d8ef-7c5a-492c-92af-6993190ea49e', '8f0161f0-083d-431a-9fff-89deb073ce0f', 155, NULL, 'RSD', Date('2016-05-17'), NULL, 'fy2015', NULL),
+('dbf22edb-4ea4-4cf7-87d3-58547caffbd1', '8f0161f0-083d-431a-9fff-89deb073ce0f', 80, NULL, 'RSD', Date('2017-04-18'), NULL, 'fy2016', NULL),
+('85f313aa-2224-4ac7-b732-71209c77770d', '8f0161f0-083d-431a-9fff-89deb073ce0f', 85, NULL, 'RSD', Date('2018-04-16'), NULL, 'fy2017', NULL),
+('0f688d8b-9a07-4d53-96b0-52162ad98cf6', '8f0161f0-083d-431a-9fff-89deb073ce0f', 85, NULL, 'RSD', Date('2019-04-14'), NULL, 'fy2018', NULL),
+('23ad03cb-6cf0-4771-ba2c-d3b69320460f', '8f0161f0-083d-431a-9fff-89deb073ce0f', 85, NULL, 'RSD', Date('2020-06-16'), NULL, 'fy2019', NULL),
+('ed44e2ae-9e7f-4789-b57f-01d8c6eaf80f', '8f0161f0-083d-431a-9fff-89deb073ce0f', 65, NULL, 'RSD', Date('2021-04-18'), NULL, 'fy2020', NULL),
+('0a3baef2-ee61-4141-a27f-55a674aa951b', '8f0161f0-083d-431a-9fff-89deb073ce0f', 85, NULL, 'RSD', Date('2022-05-16'), NULL, 'fy2021', NULL),
+('b45f5c93-7ba1-41cf-afb6-f11adc799a73', '8f0161f0-083d-431a-9fff-89deb073ce0f', 90, NULL, 'RSD', Date('2023-05-09'), NULL, 'fy2022', NULL),
+('8c389a54-3442-4975-a584-0ddf3b9716ae', '8f0161f0-083d-431a-9fff-89deb073ce0f', 90, NULL, 'RSD', Date('2023-05-25'), NULL, 'fy2023', NULL),
 
 -- Serbia: Jedinstvo iz Sevojna
 ('c1e03512-9234-4700-b781-ba3eb5cf703a', 'dd194350-4c61-4643-8c74-1120ceca8fae', 600, NULL, 'RSD', Date('2010-12-29'), Date('2011-04-11'), 'fy2010', NULL),

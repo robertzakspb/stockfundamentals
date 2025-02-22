@@ -4,8 +4,6 @@ import (
 	"time"
 )
 
-const APIKey = "kATfwcnbHHRPIxQgOKRF0iFYT0hWx62i"
-
 // Logs the timestamps of requests to Polygon API
 var requestTimeStamps []time.Time
 

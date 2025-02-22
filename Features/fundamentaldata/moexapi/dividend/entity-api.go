@@ -1,9 +1,10 @@
-package moexdividends
+package dividend
 
 import (
 	"fmt"
-	"github.com/compoundinvest/stockfundamentals/Utilities/dateutils"
 	"time"
+
+	"github.com/compoundinvest/stockfundamentals/Utilities/dateutils"
 )
 
 type MoexDividendDTO []struct {
@@ -16,22 +17,20 @@ type MoexDividendDTO []struct {
 	} `json:"dividends,omitempty"`
 }
 
-func (dividend MoexDividendDTO) asDividends() Dividends {
+func (dividend MoexDividendDTO) asDividends() []Dividend {
 
 	var parsedDividends []Dividend
 	for i := 0; i < len(dividend[0].Dividends); i++ {
 		parsedDividends = append(parsedDividends, Dividend{
+			Isin:       dividend[0].Dividends[0].Isin,
+			Ticker:     dividend[0].Dividends[0].Secid,
 			AmountPaid: dividend[0].Dividends[i].Value,
 			Currency:   dividend[0].Dividends[i].Currencyid,
 			Date:       dividend[0].Dividends[i].Registryclosedate.Time,
 		})
 	}
 
-	return Dividends{
-		Isin:      dividend[0].Dividends[0].Isin,
-		Ticker:    dividend[0].Dividends[0].Secid,
-		Dividends: parsedDividends,
-	}
+	return parsedDividends
 }
 
 // Ancillary struct used to decode datetimes returned in the responses of MOEX API

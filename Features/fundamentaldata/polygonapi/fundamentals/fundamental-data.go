@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
-	polygon "github.com/compoundinvest/stockfundamentals/Features/fundamentaldata/polygonapi"
 )
 
 func FetchFundamentalDataFor(ticker string) (fundamentals StockFundamentals, err error) {
@@ -22,7 +20,7 @@ func FetchFundamentalDataFor(ticker string) (fundamentals StockFundamentals, err
 
 func fetchFundamentalDataFor(ticker string) (fundamentals PolygonFundamentalDataDTO, err error) {
 
-	endpointURL := "https://api.polygon.io/vX/reference/financials?ticker=" + ticker + "&timeframe=annual&order=asc&limit=100&sort=period_of_report_date&apiKey=" + polygon.APIKey
+	endpointURL := "https://api.polygon.io/vX/reference/financials?ticker=" + ticker + "&timeframe=annual&order=asc&limit=100&sort=period_of_report_date&apiKey=" //Missing the API key here
 
 	response, err := http.Get(endpointURL)
 	if err != nil {

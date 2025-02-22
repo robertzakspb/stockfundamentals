@@ -2,7 +2,6 @@ package lot
 
 import (
 	"database/sql"
-	"sort"
 )
 
 func GetLotsFromDB(db *sql.DB) ([]Lot, error) {
@@ -15,7 +14,7 @@ func GetLotsFromDB(db *sql.DB) ([]Lot, error) {
 	lots := []Lot{}
 	for rows.Next() {
 		var lot Lot
-		if err := rows.Scan(&lot.CompanyName, &lot.Ticker, &lot.Quantity, &lot.CostBasis, &lot.BrokerName, &lot.OpeningDate); err != nil {
+		if err := rows.Scan(&lot.CompanyName, &lot.Ticker, &lot.Quantity, &lot.OpeningPrice, &lot.BrokerName); err != nil {
 			continue
 		}
 		lots = append(lots, lot)
@@ -24,11 +23,6 @@ func GetLotsFromDB(db *sql.DB) ([]Lot, error) {
 	if err = rows.Err(); err != nil {
 		return lots, err
 	}
-
-	CalculateLotsAnnualizedReturns(lots)
-	sort.Slice(lots, func(i, j int) bool {
-		return lots[i].AnnualizedReturn < lots[j].AnnualizedReturn
-	})
 
 	return lots, nil
 }

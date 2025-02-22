@@ -1,18 +1,30 @@
-package moexdividends
+package dividend
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/ydb-platform/ydb-go-sdk/v3"
 )
 
-func FetchDividendsFor(ticker string) (Dividends, error) {
-	return fetchDividendsFor(ticker)
+func FetchandSaveAllDividends(db *ydb.Driver, ctx context.Context) error {
+	// err := db.Query().Do(
+	// 	ctx,
+		
+	// 	query.WithIdempotent()
+	// )
+   	// if err != nil {
+   	// 	return err // for auto-retry with driver
+   	// }
+
+	return nil
 }
 
-func fetchDividendsFor(ticker string) (Dividends, error) {
+func FetchDividendsFor(ticker string) ([]Dividend, error) {
 	if ticker == "" {
-		return Dividends{}, fmt.Errorf("empty ticker provided when fetching moex dividends")
+		return []Dividend{}, fmt.Errorf("empty ticker provided when fetching moex dividends")
 	}
 
 	endpointURL := generateDividendURL(ticker)
@@ -20,7 +32,7 @@ func fetchDividendsFor(ticker string) (Dividends, error) {
 	response, err := http.Get(endpointURL)
 	if err != nil {
 		fmt.Println("Unable to fetch moex dividends for ", ticker, ". ", err)
-		return Dividends{}, err
+		return []Dividend{}, err
 	}
 	defer response.Body.Close()
 
@@ -41,7 +53,7 @@ func fetchDividendsFor(ticker string) (Dividends, error) {
 	dividendArryIsEmpty := len(dividendDTO[0].Dividends) == 0
 	if JSONisEmpty || dividendArryIsEmpty {
 		fmt.Println("Missing dividend information for", ticker)
-		return Dividends{}, nil
+		return []Dividend{}, nil
 	}
 
 	dividends := dividendDTO.asDividends()

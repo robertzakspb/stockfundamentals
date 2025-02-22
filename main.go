@@ -1,30 +1,26 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
+	// "path"
 
-	"github.com/compoundinvest/stockfundamentals/Features/company"
-	"github.com/compoundinvest/stockfundamentals/Features/portfolio/lot"
-	ginconfig "github.com/compoundinvest/stockfundamentals/gin"
-	"github.com/gin-gonic/gin"
-	_ "github.com/lib/pq"
+	// "github.com/compoundinvest/stockfundamentals/Features/fundamentaldata/moexapi/securityinfo"
+	"github.com/compoundinvest/stockfundamentals/Features/portfolio"
+	"github.com/compoundinvest/stockfundamentals/dataseed"
 )
 
+type Stock struct {
+	Id            string `sql:"id"`
+	Company_name  string `sql:"company_name"`
+	Is_public     bool   `sql:"is_public"`
+	Isin          string `sql:"isin"`
+	Security_type string `sql:"security_type"`
+	Country_iso2  string `sql:"country_iso2"`
+	Ticker        string `sql:"ticker"`
+	Share_count   uint64 `sql:"share_count"`
+	Sector        string `sql:"sector"`
+}
+
 func main() {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+" dbname=%s sslmode=disable", ginconfig.DBHost, ginconfig.DBPort, ginconfig.DBUser, ginconfig.DBName)
-	db, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		fmt.Println("Failed to initilalize the database: ", err)
-	}
-	defer db.Close()
-
-	router := gin.Default()
-	router.Use(ginconfig.CORSMiddleware())
-	router.Use(ginconfig.Database(db))
-
-	router.GET("/lots", lot.GetLots)
-	router.GET("/security", company.GetCompanyFromDB)
-
-	router.Run("localhost:8080")
+	portfolio.GeMyPortfolio().PrintAllPositions()
+	dataseed.InitialSeed()
 }

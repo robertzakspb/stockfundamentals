@@ -1,0 +1,12 @@
+-- Metalac
+INSERT INTO corporate_financials(id, security_id, financial_metric, reporting_period, metric_value, metric_currency) VALUES
+('21ae6e32-a72d-47ee-b9bb-1cbd4e0547a3', '8f0161f0-083d-431a-9fff-89deb073ce0f', 'netincome', 'fy2014', 240986000, 'RSD'),
+('e4f0f233-2b40-4f2f-b159-90488658cbad', '8f0161f0-083d-431a-9fff-89deb073ce0f', 'netincome', 'fy2015', 254427000, 'RSD'),
+('286794c1-2757-45f0-a48e-ba3827c7867b', '8f0161f0-083d-431a-9fff-89deb073ce0f', 'netincome', 'fy2016', 258457000, 'RSD'),
+('40caad38-dcb5-4f16-bdae-77f4e306c715', '8f0161f0-083d-431a-9fff-89deb073ce0f', 'netincome', 'fy2017', 476516000, 'RSD'),
+('59c78d07-fb81-4131-bd7f-85585b6c007d', '8f0161f0-083d-431a-9fff-89deb073ce0f', 'netincome', 'fy2018', 452194000, 'RSD'),
+('2c2e31bc-0029-4671-80c3-6ec45f635a9c', '8f0161f0-083d-431a-9fff-89deb073ce0f', 'netincome', 'fy2019', 419386000, 'RSD'),
+('906fe124-49ef-4972-80b0-3c11979a33e5', '8f0161f0-083d-431a-9fff-89deb073ce0f', 'netincome', 'fy2020', 440440000, 'RSD'),
+('acc55503-a1a5-494e-919e-ac08e40764bf', '8f0161f0-083d-431a-9fff-89deb073ce0f', 'netincome', 'fy2021', 595368000, 'RSD'),
+('74b3ace7-efca-4802-964a-75a6e6694e71', '8f0161f0-083d-431a-9fff-89deb073ce0f', 'netincome', 'fy2022', 616283000, 'RSD'),
+('9a9552c8-e8df-44bb-b9a1-84657fa1cd42', '8f0161f0-083d-431a-9fff-89deb073ce0f', 'netincome', 'fy2023', 678438000, 'RSD'),
