@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
@@ -19,14 +20,18 @@ import (
 )
 
 const DB_CONNECTION_STRING = "grpc://localhost:2136/local"
+const INSERT_SCRIPTS_FOLDER = "dataseed/yql_scripts/insert_scripts/"
 
 func InitialSeed() {
-	ctx := context.TODO()
-	db, err := ydb.Open(context.TODO(), DB_CONNECTION_STRING, ydb.WithDialTimeout(10))
+	ctx, cancel := context.WithTimeout(context.TODO(), 60*time.Second)
+	defer cancel()
+
+	db, err := ydb.Open(context.TODO(), DB_CONNECTION_STRING)
 	if err != nil {
 		log.Fatal(err)
 		panic("Failed to connect to the database")
 	}
+
 	createTables(ctx, db)
 	populateTables(ctx, db)
 }
@@ -35,27 +40,27 @@ const STOCK_DIRECTORY_PREFIX = "stockfundamentals/stocks"
 
 func createTables(ctx context.Context, db *ydb.Driver) {
 	client := db.Table()
-	createCompanyTable(ctx, db, client)
+	createAllTables(ctx, db, client)
 }
 
 func populateTables(ctx context.Context, db *ydb.Driver) error {
 	client := db.Query()
-	err := populateCompanyTable(ctx, client)
+
+	err := populateAllTables(ctx, client)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	
+
 	return nil
 }
 
-func createCompanyTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
+func createAllTables(ctx context.Context, db *ydb.Driver, c table.Client) error {
 	prefix := path.Join(db.Name(), STOCK_DIRECTORY_PREFIX)
-	const stockTableName = "stock"
 
 	return c.Do(ctx,
 		func(ctx context.Context, s table.Session) error {
-			err := s.CreateTable(ctx, path.Join(prefix, stockTableName),
+			err := s.CreateTable(ctx, path.Join(prefix, "stock"),
 				options.WithColumn("id", types.TypeUTF8),
 				options.WithColumn("company_name", types.Optional(types.TypeUTF8)),
 				options.WithColumn("is_public", types.TypeBool),
@@ -72,81 +77,68 @@ func createCompanyTable(ctx context.Context, db *ydb.Driver, c table.Client) err
 				return err
 			}
 
+			err = s.CreateTable(ctx, path.Join(prefix, "dividend_payment"),
+				options.WithColumn("id", types.TypeUTF8),
+				options.WithColumn("stock_id", types.TypeUTF8),
+				options.WithColumn("actual_DPS", types.TypeDouble),
+				options.WithColumn("expected_DPS", types.Optional(types.TypeDouble)),
+				options.WithColumn("currency", types.TypeUTF8),
+				options.WithColumn("announcement_date", types.Optional(types.TypeDate)),
+				options.WithColumn("record_date", types.TypeDate),
+				options.WithColumn("payout_date", types.Optional(types.TypeDate)),
+				options.WithColumn("payment_period", types.TypeUTF8),
+				options.WithColumn("management_comment", types.Optional(types.TypeUTF8)),
+				options.WithPrimaryKeyColumn("id"),
+			)
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+
+			err = s.CreateTable(ctx, path.Join(prefix, "corporate_financials"),
+				options.WithColumn("id", types.TypeUTF8),
+				options.WithColumn("stock_id", types.TypeUTF8),
+				options.WithColumn("financial_metric", types.TypeUTF8),
+				options.WithColumn("reporting_period", types.TypeUTF8),
+				options.WithColumn("metric_value", types.TypeDouble),
+				options.WithColumn("metric_currency", types.TypeUTF8),
+				options.WithPrimaryKeyColumn("id"),
+			)
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+
 			return nil
 		})
 }
 
+func populateAllTables(ctx context.Context, c query.Client) error {
+	files, _ := os.ReadDir(INSERT_SCRIPTS_FOLDER)
+	for _, file := range files {
+		insertScriptData, err := os.Open(INSERT_SCRIPTS_FOLDER + file.Name())
+		if err != nil {
+			fmt.Println(err)
+		}
 
+		var buffer strings.Builder
+		_, err = io.Copy(&buffer, insertScriptData)
+		if err != nil {
+			fmt.Println(err)
+		}
+		insertScriptYQL := buffer.String()
 
-func populateCompanyTable(ctx context.Context, c query.Client) error {
-
-	insertSecuritiesData, err := os.Open("dataseed/insertstock.yql")
-	if err != nil {
-		fmt.Println(err)
+		c.Exec(ctx, insertScriptYQL)
 	}
-
-	var buffer strings.Builder
-	_, err = io.Copy(&buffer, insertSecuritiesData)
-	if err != nil {
-		fmt.Println(err)
-	}
-	insertSecuritiesYQL := buffer.String()
-
-	c.Exec(ctx, insertSecuritiesYQL)
 
 	return c.Do(ctx,
 		func(ctx context.Context, s query.Session) (err error) {
 			return nil
 		})
-
 }
 
-// Example from the SDK; to be deleted
-func createTabless(ctx context.Context, c table.Client, prefix string) error {
-	return c.Do(ctx,
-		func(ctx context.Context, s table.Session) error {
-			err := s.CreateTable(ctx, path.Join(prefix, "series"),
-				options.WithColumn("series_id", types.Optional(types.TypeUint64)),
-				options.WithColumn("title", types.Optional(types.TypeUTF8)),
-				options.WithColumn("series_info", types.Optional(types.TypeUTF8)),
-				options.WithColumn("release_date", types.Optional(types.TypeUint64)),
-				options.WithColumn("comment", types.Optional(types.TypeUTF8)),
-				options.WithPrimaryKeyColumn("series_id"),
-			)
-			if err != nil {
-				return err
-			}
 
-			err = s.CreateTable(ctx, path.Join(prefix, "seasons"),
-				options.WithColumn("series_id", types.Optional(types.TypeUint64)),
-				options.WithColumn("season_id", types.Optional(types.TypeUint64)),
-				options.WithColumn("title", types.Optional(types.TypeUTF8)),
-				options.WithColumn("first_aired", types.Optional(types.TypeUint64)),
-				options.WithColumn("last_aired", types.Optional(types.TypeUint64)),
-				options.WithPrimaryKeyColumn("series_id", "season_id"),
-			)
-			if err != nil {
-				return err
-			}
-
-			err = s.CreateTable(ctx, path.Join(prefix, "episodes"),
-				options.WithColumn("series_id", types.Optional(types.TypeUint64)),
-				options.WithColumn("season_id", types.Optional(types.TypeUint64)),
-				options.WithColumn("episode_id", types.Optional(types.TypeUint64)),
-				options.WithColumn("title", types.Optional(types.TypeUTF8)),
-				options.WithColumn("air_date", types.Optional(types.TypeUint64)),
-				options.WithPrimaryKeyColumn("series_id", "season_id", "episode_id"),
-			)
-			if err != nil {
-				return err
-			}
-
-			return nil
-		},
-	)
-}
-
-// Example from the YDB SDK
+// TODO: Delete. Example from the YDB SDK
 func read(ctx context.Context, c query.Client) error {
 	return c.Do(ctx,
 		func(ctx context.Context, s query.Session) (err error) {

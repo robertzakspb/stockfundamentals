@@ -1,4 +1,4 @@
-INSERT INTO dividend_payment(id, security_id, actual_DPS, expected_DPS, currency, record_date, payout_date, payment_period, management_comment) VALUES
+INSERT INTO `stockfundamentals/stocks/dividend_payment`(id, stock_id, actual_DPS, expected_DPS, currency, record_date, payout_date, payment_period, management_comment) VALUES
 -- Serbia: NIS
 ('c0671faa-5a35-4b4f-9284-aed6867e94b0', '9f45ae88-70bd-48ef-aadc-aa6f01377b76', 75.83, 45.5, 'RSD', Date('2013-06-08'), Date('2013-08-20'), 'fy2012', NULL),
 ('5c77a15e-ac3e-4e84-8358-b5812361ab56', '9f45ae88-70bd-48ef-aadc-aa6f01377b76', 80.22, 48.13, 'RSD', Date('2014-06-20'), Date('2014-11-25'), 'fy2013', NULL),
@@ -12,13 +12,12 @@ INSERT INTO dividend_payment(id, security_id, actual_DPS, expected_DPS, currency
 ('e1810da0-cc85-4bf6-9ebf-396845d700ec', '9f45ae88-70bd-48ef-aadc-aa6f01377b76', 35.46, 21.28, 'RSD', Date('2022-06-19'), Date('2022-08-22'), 'fy2021', NULL),
 ('85ac4f83-513d-4342-94cb-8770737426f2', '9f45ae88-70bd-48ef-aadc-aa6f01377b76', 143.29, 85.97, 'RSD', Date('2023-06-19'), Date('2023-08-24'), 'fy2022', NULL),
 ('6f3beb5d-82de-4c6d-90e5-91258ac02aeb', '9f45ae88-70bd-48ef-aadc-aa6f01377b76', 64.26, 67.77, 'RSD', Date('2023-06-17'), Date('2023-08-28'), 'fy2023', NULL),
-('fdb2bbe1-2d86-4bfe-a32b-cfa6af53caa2', '9f45ae88-70bd-48ef-aadc-aa6f01377b76', NULL, 28.2, 'RSD', NULL, NULL, 'fy2024', NULL),
+-- ('fdb2bbe1-2d86-4bfe-a32b-cfa6af53caa2', '9f45ae88-70bd-48ef-aadc-aa6f01377b76', NULL, 28.2, 'RSD', NULL, NULL, 'fy2024', NULL),
 
 -- Serbia: Dunav Osiguranje
 ('12415403-e0ce-469b-bae1-9303d76558ca', '4f96e511-34db-4f00-9bf5-0975cef04c2b', 359.63, NULL, 'RSD', Date('2021-04-14'), Date('2021-07-07'), 'fy2020', NULL),
 ('da0e26f5-7bd5-42e1-8ca4-db99b0baa942', '4f96e511-34db-4f00-9bf5-0975cef04c2b', 103.44, NULL, 'RSD', Date('2022-04-26'), Date('2022-07-07'), 'fy2021', NULL),
 ('2472315b-ee7a-4322-a664-8e1bb57f4d14', '4f96e511-34db-4f00-9bf5-0975cef04c2b', 33.89, NULL, 'RSD', Date('2023-04-13'), Date('2023-07-07'), 'fy2022', NULL),
-('500e1b60-4915-4954-b17c-6ba94600ca77', '4f96e511-34db-4f00-9bf5-0975cef04c2b', NULL, NULL, 'RSD', NULL, NULL, 'fy20223', NULL),
 
 -- Serbia: Metalac
 ('f26e70b1-4f31-4485-85ec-1851d0c5ec83', '8f0161f0-083d-431a-9fff-89deb073ce0f', 150, NULL, 'RSD', Date('2015-04-14'), Date('2015-10-31'), 'fy2014', NULL),
@@ -34,10 +33,4 @@ INSERT INTO dividend_payment(id, security_id, actual_DPS, expected_DPS, currency
 
 -- Serbia: Jedinstvo iz Sevojna
 ('c1e03512-9234-4700-b781-ba3eb5cf703a', 'dd194350-4c61-4643-8c74-1120ceca8fae', 600, NULL, 'RSD', Date('2010-12-29'), Date('2011-04-11'), 'fy2010', NULL),
-('c1e03512-9234-4700-b781-ba3eb5cf703a', 'dd194350-4c61-4643-8c74-1120ceca8fae', 500, NULL, 'RSD', Date('2011-12-29'), Date('2012-04-11'), 'fy2011', NULL),
-
-
-
-
-
-
+('7a83557b-5306-4cbd-b457-39c5b2695c02', 'dd194350-4c61-4643-8c74-1120ceca8fae', 500, NULL, 'RSD', Date('2011-12-29'), Date('2012-04-11'), 'fy2011', NULL)

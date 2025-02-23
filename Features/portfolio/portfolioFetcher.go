@@ -24,7 +24,7 @@ func getExternalStockPositions() []Lot {
 }
 
 func getTinkoffStockPositions() []Lot {
-	config, err := tinkoffapi.LoadConfig("config.yaml")
+	config, err := tinkoffapi.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
 		println("Failed to initialize the configuration file: ", err)
 	}

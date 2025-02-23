@@ -3,6 +3,7 @@
 .DS_Store
 ydb_certs/ca.pem
 *.pem
+*.data
 ydb_data/netData.tsv
 ydb_data/pdisk1bay2vccg.data
 ydb_data/pdisk1jtki6wl9.data
@@ -13,3 +14,4 @@ ydb_data/ydb_database.txt
 ydb_data/pdisk1vl3u5vth.data
 ydb_data/pdisk1q8kvdboy.data
 ydb_data/pdisk1nx3y6fvu.data
+ydb_data/pdisk1wu0_ayzt.data

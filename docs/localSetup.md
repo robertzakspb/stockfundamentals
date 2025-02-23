@@ -1,7 +1,30 @@
+## Setting Up the Project
+1. Run the following commands:
+
+```console
+go mod tidy
+```
+
+## Setting up the configuration files
+1. Create a tinkoffAPIconfig.yaml file in the main directory and add the following content to it:
+
+```yaml
+AccountId: ""
+APIToken: "t.H_tAb3x6AG4kRi53wPNILvKsWSjPILTUtUQ_xbaBVwdxM_lJ2MJphNxKIGNmBht6Vh0T9VEgLtTMEtncaXiTrA"
+EndPoint: invest-public-api.tinkoff.ru:443
+AppName: invest-api-go-sdk
+DisableResourceExhaustedRetry: false
+DisableAllRetry: false
+MaxRetries: 3
+```
+
+
+
 ## Starting the Database Locally
 1. Start Docker Desktop
 2. Execute the following command to start the container. If the image is not available locally, docker will install it for you:
-```
+
+```console
 docker run -d --rm --name ydb-local -h localhost \
   --platform linux/amd64 \
   -p 2135:2135 -p 2136:2136 -p 8765:8765 -p 9092:9092 \
