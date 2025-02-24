@@ -2,7 +2,6 @@ package portfolio
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
 	"github.com/compoundinvest/stockfundamentals/Features/portfolio/lot"
@@ -75,6 +74,10 @@ func (portfolio Portfolio) PrintAllPositions() {
 				stockQuote = quote.Quote()
 			}
 		}
-		fmt.Println(lot.Ticker, "Quantity:", lot.Quantity, "Quote:", stockQuote, "AVG Price:", lot.OpeningPrice, " Profit:", strconv.Itoa(int(profitOrLoss*100)) + "%", " Percentage of portfolio: ", lot.MarketValue(stockQuote) / totalPortfolioValue * 100, "%")
+		fmt.Printf("%-6s", lot.Ticker)
+		fmt.Printf("Quantity: %.0f | ", lot.Quantity)
+		fmt.Printf("Opening Price: %.1f | ", lot.OpeningPrice)
+		fmt.Printf("Profit: %.2f | ", profitOrLoss*100)
+		fmt.Printf("Percentage of portfolio: %.2f %% |\n", lot.MarketValue(stockQuote) / totalPortfolioValue * 100) 
 	}
 }

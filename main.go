@@ -4,6 +4,8 @@ import (
 	// "path"
 
 	// "github.com/compoundinvest/stockfundamentals/Features/fundamentaldata/moexapi/securityinfo"
+	"fmt"
+
 	"github.com/compoundinvest/stockfundamentals/Features/portfolio"
 	"github.com/compoundinvest/stockfundamentals/dataseed"
 )
@@ -21,6 +23,12 @@ type Stock struct {
 }
 
 func main() {
-	portfolio.GeMyPortfolio().PrintAllPositions()
+	// portfolio.GeMyPortfolio().PrintAllPositions()
+	totalSum := 0.0
+	for _, dividend := range portfolio.GeMyPortfolio().UpcomingDividends() {
+		fmt.Println("Ticker:", dividend.Ticker, "| Payout:", dividend.GrossPayout())
+		totalSum += dividend.GrossPayout()
+	}
+	fmt.Printf("Total projected payout: %.1f", totalSum)
 	dataseed.InitialSeed()
 }
