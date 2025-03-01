@@ -23,9 +23,11 @@ type Stock struct {
 }
 
 func main() {
-	// portfolio.GeMyPortfolio().PrintAllPositions()
+	myPorfolio := portfolio.GeMyPortfolio()
+	myPorfolio.PrintAllPositions()
+
 	totalSum := 0.0
-	for _, dividend := range portfolio.GeMyPortfolio().UpcomingDividends() {
+	for _, dividend := range myPorfolio.UpcomingDividends() {
 		fmt.Println("Ticker:", dividend.Ticker, "| Payout:", dividend.GrossPayout())
 		totalSum += dividend.GrossPayout()
 	}

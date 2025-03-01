@@ -10,7 +10,7 @@ go mod tidy
 
 ```yaml
 AccountId: ""
-APIToken: "t.H_tAb3x6AG4kRi53wPNILvKsWSjPILTUtUQ_xbaBVwdxM_lJ2MJphNxKIGNmBht6Vh0T9VEgLtTMEtncaXiTrA"
+APIToken: "The token"
 EndPoint: invest-public-api.tinkoff.ru:443
 AppName: invest-api-go-sdk
 DisableResourceExhaustedRetry: false
