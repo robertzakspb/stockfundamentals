@@ -30,7 +30,7 @@ INSERT INTO `stockfundamentals/stocks/dividend_payment`(id, stock_id, actual_DPS
 ('ed44e2ae-9e7f-4789-b57f-01d8c6eaf80f', '8f0161f0-083d-431a-9fff-89deb073ce0f', 65, NULL, 'RSD', Date('2021-04-18'), NULL, 'fy2020', NULL),
 ('0a3baef2-ee61-4141-a27f-55a674aa951b', '8f0161f0-083d-431a-9fff-89deb073ce0f', 85, NULL, 'RSD', Date('2022-05-16'), NULL, 'fy2021', NULL),
 ('b45f5c93-7ba1-41cf-afb6-f11adc799a73', '8f0161f0-083d-431a-9fff-89deb073ce0f', 90, NULL, 'RSD', Date('2023-05-09'), NULL, 'fy2022', NULL),
-('8c389a54-3442-4975-a584-0ddf3b9716ae', '8f0161f0-083d-431a-9fff-89deb073ce0f', 90, NULL, 'RSD', Date('2023-05-25'), NULL, 'fy2023', NULL),
+('8c389a54-3442-4975-a584-0ddf3b9716ae', '8f0161f0-083d-431a-9fff-89deb073ce0f', 90, NULL, 'RSD', Date('2024-05-25'), NULL, 'fy2023', NULL),
 
 -- Serbia: Jedinstvo iz Sevojna
 ('d090e857-9cf1-4a55-a851-b0c417e95eff', 'dd194350-4c61-4643-8c74-1120ceca8fae', 411.76, NULL, 'RSD', Date('2018-12-29'), Date('2019-08-05'), 'fy2018', NULL),
