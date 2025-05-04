@@ -42,15 +42,15 @@ func FetchDividendsFor(ticker string) ([]Dividend, error) {
 		fmt.Println(err)
 	}
 
-	for i := 0; i < len(dividendDTO); i++ {
-		if len(dividendDTO[i].Dividends) == 0 {
-			dividendDTO[i] = dividendDTO[len(dividendDTO)-1]
-			dividendDTO = dividendDTO[:len(dividendDTO)-1]
-		}
-	}
+	// for i, _ := range dividendDTO {
+	// 	if len(dividendDTO[i].Dividends) == 0 {
+	// 		dividendDTO[i] = dividendDTO[len(dividendDTO)-1]
+	// 		dividendDTO = dividendDTO[:len(dividendDTO)-1]
+	// 	}
+	// }
 
 	JSONisEmpty := len(dividendDTO) == 0
-	dividendArryIsEmpty := len(dividendDTO[0].Dividends) == 0
+	dividendArryIsEmpty := len(dividendDTO[1].Dividends) == 0
 	if JSONisEmpty || dividendArryIsEmpty {
 		fmt.Println("Missing dividend information for", ticker)
 		return []Dividend{}, nil

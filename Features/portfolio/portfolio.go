@@ -13,6 +13,16 @@ type Portfolio struct {
 	Lots []Lot `json:"lots"`
 }
 
+func (portfolio Portfolio) GetPositionByTicker(ticker string) (Lot, error) {
+	for _, position := range portfolio.UniquePositions() {
+		if position.Ticker == ticker {
+			return position, nil
+		}
+	}
+
+	return Lot{}, fmt.Errorf("didn't find a position with ticker %s", ticker)
+}
+
 func (portfolio Portfolio) UniquePositions() []Lot {
 	uniquePositions := []Lot{}
 	for _, lot := range portfolio.Lots {
@@ -78,6 +88,7 @@ func (portfolio Portfolio) PrintAllPositions() {
 		fmt.Printf("Quantity: %.0f | ", lot.Quantity)
 		fmt.Printf("Opening Price: %.1f | ", lot.OpeningPrice)
 		fmt.Printf("Profit: %.2f | ", profitOrLoss*100)
-		fmt.Printf("Percentage of portfolio: %.2f %% |\n", lot.MarketValue(stockQuote) / totalPortfolioValue * 100) 
+		fmt.Printf("Percentage of portfolio: %.2f %% | ", lot.MarketValue(stockQuote) / totalPortfolioValue * 100) 
+		fmt.Printf("Market value: %.0f\n", lot.MarketValue(stockQuote))
 	}
 }

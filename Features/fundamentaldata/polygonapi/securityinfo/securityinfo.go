@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	polygon "github.com/compoundinvest/stockfundamentals/Features/fundamentaldata/polygonapi"
+	polygon "github.com/compoundinvest/stockfundamentals/features/fundamentaldata/polygonapi"
 )
 
 func FetchSecuritiesInfo(db *sql.DB) error {

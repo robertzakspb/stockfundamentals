@@ -20,14 +20,15 @@ type MoexDividendDTO []struct {
 func (dividend MoexDividendDTO) asDividends() []Dividend {
 
 	var parsedDividends []Dividend
-	for i := 0; i < len(dividend[0].Dividends); i++ {
-		parsedDividends = append(parsedDividends, Dividend{
-			Isin:       dividend[0].Dividends[0].Isin,
-			Ticker:     dividend[0].Dividends[0].Secid,
-			AmountPaid: dividend[0].Dividends[i].Value,
-			Currency:   dividend[0].Dividends[i].Currencyid,
-			Date:       dividend[0].Dividends[i].Registryclosedate.Time,
-		})
+	for _, dividendItem := range dividend[1].Dividends {
+		newDividend := Dividend{
+			Isin:       dividendItem.Isin,
+			Ticker:     dividendItem.Secid,
+			AmountPaid: dividendItem.Value,
+			Currency:   dividendItem.Currencyid,
+			Date:       dividendItem.Registryclosedate.Time,
+		}
+		parsedDividends = append(parsedDividends, newDividend)
 	}
 
 	return parsedDividends

@@ -17,7 +17,7 @@ DisableResourceExhaustedRetry: false
 DisableAllRetry: false
 MaxRetries: 3
 ```
-
+*MAKE SURE TO ADD IT TO GITIGNORE!!*
 
 
 ## Starting the Database Locally

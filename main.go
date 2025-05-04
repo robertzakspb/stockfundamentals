@@ -5,9 +5,12 @@ import (
 
 	// "github.com/compoundinvest/stockfundamentals/Features/fundamentaldata/moexapi/securityinfo"
 	"fmt"
-
-	"github.com/compoundinvest/stockfundamentals/Features/portfolio"
+	// "github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
+	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
+	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/dividend"
+	// "github.com/compoundinvest/stockfundamentals/features/fundamentaldata/tinkoffapi"
 	"github.com/compoundinvest/stockfundamentals/dataseed"
+	"github.com/compoundinvest/stockfundamentals/features/portfolio"
 )
 
 func main() {
@@ -19,6 +22,22 @@ func main() {
 		fmt.Println("Ticker:", dividend.Ticker, "| Payout:", dividend.GrossPayout())
 		totalSum += dividend.GrossPayout()
 	}
-	fmt.Printf("Total projected payout: %.1f", totalSum)
+	fmt.Printf("Total projected payout: %.1f\n", totalSum)
 	dataseed.InitialSeed()
+
+	// security.FetchSecuritiesFromDB()
+	// security.FetchAndSaveSecurities()
+	// stocks, err := security.FetchSecuritiesFromDB()
+	// if err != nil {
+		// fmt.Println(err.Error())
+	// }
+	
+	// security.FetchSecuritiesFromDB()
+	// dividend.FetchAndSaveDividendsForAllStocks()
+	fetchExternalData()
+}
+
+func fetchExternalData() {
+	security.FetchAndSaveSecurities()
+	dividend.FetchAndSaveAllDividends()
 }

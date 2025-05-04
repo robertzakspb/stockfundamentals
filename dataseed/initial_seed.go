@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/compoundinvest/stockfundamentals/infrastructure/config"
+
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
@@ -18,29 +20,41 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/options"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
-
-const DB_CONNECTION_STRING = "grpc://localhost:2136/local"
 const INSERT_SCRIPTS_FOLDER = "dataseed/yql_scripts/insert_scripts/"
 
-func InitialSeed() {
-	ctx, cancel := context.WithTimeout(context.TODO(), 60*time.Second)
+func InitialSeed() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	db, err := ydb.Open(context.TODO(), DB_CONNECTION_STRING)
+	config, err := config.LoadConfig()
 	if err != nil {
-		log.Fatal(err)
+		return err
+	}
+
+	db, err := ydb.Open(ctx, config.DB.ConnectionString)
+	if err != nil {
 		panic("Failed to connect to the database")
 	}
 
-	createTables(ctx, db)
-	populateTables(ctx, db)
+	err = createTables(ctx, db)
+	if err != nil {
+		return err
+	}
+	
+	err = populateTables(ctx, db)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 const STOCK_DIRECTORY_PREFIX = "stockfundamentals/stocks"
 
-func createTables(ctx context.Context, db *ydb.Driver) {
+func createTables(ctx context.Context, db *ydb.Driver) error {
 	client := db.Table()
-	createAllTables(ctx, db, client)
+	err := createAllTables(ctx, db, client)
+	return err
 }
 
 func populateTables(ctx context.Context, db *ydb.Driver) error {
@@ -62,15 +76,16 @@ func createAllTables(ctx context.Context, db *ydb.Driver, c table.Client) error 
 		func(ctx context.Context, s table.Session) error {
 			err := s.CreateTable(ctx, path.Join(prefix, "stock"),
 				options.WithColumn("id", types.TypeUTF8),
+				options.WithColumn("figi", types.Optional(types.TypeUTF8)),
 				options.WithColumn("company_name", types.Optional(types.TypeUTF8)),
 				options.WithColumn("is_public", types.TypeBool),
 				options.WithColumn("isin", types.TypeUTF8),
 				options.WithColumn("security_type", types.TypeUTF8),
 				options.WithColumn("country_iso2", types.TypeUTF8),
 				options.WithColumn("ticker", types.TypeUTF8),
-				options.WithColumn("share_count", types.TypeUint64),
+				options.WithColumn("issue_size", types.TypeInt64),
 				options.WithColumn("sector", types.Optional(types.TypeUTF8)),
-				options.WithPrimaryKeyColumn("id", "isin", "ticker"),
+				options.WithPrimaryKeyColumn( "isin"),
 			)
 			if err != nil {
 				fmt.Println(err)

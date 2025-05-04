@@ -2,11 +2,12 @@ package portfolio
 
 import (
 	"context"
-	"fmt"
 	"os/signal"
 	"syscall"
 
-	tinkoffapi "github.com/russianinvestments/invest-api-go-sdk/investgo"
+	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+
+	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
 	pb "github.com/russianinvestments/invest-api-go-sdk/proto"
 )
 
@@ -24,7 +25,7 @@ func getExternalStockPositions() []Lot {
 }
 
 func getTinkoffStockPositions() []Lot {
-	config, err := tinkoffapi.LoadConfig("tinkoffAPIconfig.yaml")
+	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
 		println("Failed to initialize the configuration file: ", err)
 	}
@@ -32,36 +33,49 @@ func getTinkoffStockPositions() []Lot {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 	defer cancel()
 
-	client, err := tinkoffapi.NewClient(ctx, config, nil)
+	client, err := tinkoff.NewClient(ctx, config, nil)
 	if err != nil {
-		fmt.Println("Failed to initialize the Tinkoff API client: ", err)
+		logger.Log("Failed to initialize the Tinkoff API client: ", logger.ALERT)
 	}
 
 	usersService := client.NewUsersServiceClient()
 	status := pb.AccountStatus_ACCOUNT_STATUS_ALL
 	accsResp, err := usersService.GetAccounts(&status)
 	if err != nil {
-		fmt.Println(err.Error())
+		logger.Log(err.Error(), logger.ALERT)
 	}
 
 	accounts := accsResp.GetAccounts()
 	if len(accounts) == 0 {
-		fmt.Println("No accounts found in Tinkoff API")
+		logger.Log("No accounts found in Tinkoff API", logger.ALERT)
 	}
-	defaultAccountID := accounts[0].GetId()
-
-	securityService := client.NewInstrumentsServiceClient()
-
+	
 	positionService := client.NewOperationsServiceClient()
-	portfolio, _ := positionService.GetPortfolio(defaultAccountID, pb.PortfolioRequest_RUB)
-
-	lots := []Lot{}
-	for _, position := range portfolio.GetPositions() {
-		if position.GetInstrumentType() != "share" {
+	allPositions := []*pb.PortfolioPosition{}
+	for _, account := range accounts {
+		if account == nil {
 			continue
 		}
 
-		asset, _ := securityService.ShareByFigi(position.GetFigi())
+		portfolio, err := positionService.GetPortfolio(account.GetId(), pb.PortfolioRequest_RUB)
+		if err != nil {
+			logger.Log(err.Error(), logger.ALERT)
+		}
+		allPositions = append(allPositions, portfolio.GetPositions()...)
+	}
+
+	securityService := client.NewInstrumentsServiceClient()
+	lots := []Lot{}
+	for _, position := range allPositions {
+		if position.GetInstrumentType() != "share" {
+			continue //Skipping the cash position until it is handled separately
+		}
+
+		asset, err := securityService.ShareByFigi(position.GetFigi())
+		if err != nil {
+			logger.Log(err.Error(), logger.ERROR)
+		}
+		
 		ticker := asset.Instrument.GetTicker()
 		newLot := Lot{
 			SecurityID:   "",

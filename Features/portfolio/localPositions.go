@@ -13,8 +13,8 @@ func getHardCodedStockPositions() []Lot {
 			MIC:          "XBEL",
 		},
 		{
-			Quantity:     25,
-			OpeningPrice: 1296,
+			Quantity:     419,
+			OpeningPrice: 1407.30,
 			Currency:     "RSD",
 			Ticker:       "DNOS",
 			CompanyName:  "Dunav Osiguranje",
@@ -22,8 +22,8 @@ func getHardCodedStockPositions() []Lot {
 			MIC:          "XBEL",
 		},
 		{
-			Quantity:     13,
-			OpeningPrice: 1949,
+			Quantity:     156,
+			OpeningPrice: 1961.57,
 			Currency:     "RSD",
 			Ticker:       "MTLC",
 			CompanyName:  "Metalac",
@@ -38,36 +38,6 @@ func getHardCodedStockPositions() []Lot {
 			CompanyName:  "NIS",
 			BrokerName:   "NLB",
 			MIC:          "XBEL",
-		},
-	}
-
-	sberbankStocks := []Lot{
-		{
-			Quantity:     598,
-			OpeningPrice: 1620,
-			Currency:     "RUB",
-			Ticker:       "MBNK",
-			CompanyName:  "МТС Банк",
-			BrokerName:   "Sberbank",
-			MIC:          "MISX",
-		},
-		{
-			Quantity:     3010,
-			OpeningPrice: 54.6,
-			Currency:     "RUB",
-			Ticker:       "SNGSP",
-			CompanyName:  "Сургутнефтегаз-п",
-			BrokerName:   "Sberbank",
-			MIC:          "MISX",
-		},
-		{
-			Quantity:     37,
-			OpeningPrice: 4079,
-			Currency:     "RUB",
-			Ticker:       "HEAD",
-			CompanyName:  "HeadHunter",
-			BrokerName:   "Sberbank",
-			MIC:          "MISX",
 		},
 	}
 
@@ -92,8 +62,7 @@ func getHardCodedStockPositions() []Lot {
 		BrokerName:   "Rosselhoz",
 		MIC:          "MISX",
 	}
-	allStocks := append(serbianStocks, sberbankStocks...)
-	allStocks = append(allStocks, americanStocks...)
+	allStocks := append(serbianStocks, americanStocks...)
 	allStocks = append(allStocks, rosselhozStocks)
 
 	return allStocks

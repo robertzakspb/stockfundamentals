@@ -38,7 +38,7 @@ func projectedDPSFor(ticker string) float64 {
 		"ROSN": 60,
 		"NMTP": 1,
 		"JESV": 647,
-		"DNOS": 70,
+		"DNOS": 121,
 		"MTLC": 100,
 		"NIIS": 30,
 	}
