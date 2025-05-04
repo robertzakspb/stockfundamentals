@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
-	"github.com/compoundinvest/stockfundamentals/Features/portfolio/lot"
+	"github.com/compoundinvest/stockfundamentals/features/portfolio/lot"
 )
 
 type Lot = lot.Lot
