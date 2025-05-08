@@ -88,7 +88,7 @@ func (portfolio Portfolio) PrintAllPositions() {
 		fmt.Printf("Quantity: %.0f | ", lot.Quantity)
 		fmt.Printf("Opening Price: %.1f | ", lot.OpeningPrice)
 		fmt.Printf("Profit: %.2f | ", profitOrLoss*100)
-		fmt.Printf("Percentage of portfolio: %.2f %% | ", lot.MarketValue(stockQuote) / totalPortfolioValue * 100) 
+		fmt.Printf("Percentage of portfolio: %.2f %% | ", lot.MarketValue(stockQuote)/totalPortfolioValue*100)
 		fmt.Printf("Market value: %.0f\n", lot.MarketValue(stockQuote))
 	}
 }

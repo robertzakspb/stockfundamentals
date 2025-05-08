@@ -49,7 +49,7 @@ func getTinkoffStockPositions() []Lot {
 	if len(accounts) == 0 {
 		logger.Log("No accounts found in Tinkoff API", logger.ALERT)
 	}
-	
+
 	positionService := client.NewOperationsServiceClient()
 	allPositions := []*pb.PortfolioPosition{}
 	for _, account := range accounts {
@@ -75,7 +75,7 @@ func getTinkoffStockPositions() []Lot {
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 		}
-		
+
 		ticker := asset.Instrument.GetTicker()
 		newLot := Lot{
 			SecurityID:   "",

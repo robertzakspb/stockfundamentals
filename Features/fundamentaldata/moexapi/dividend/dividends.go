@@ -12,12 +12,12 @@ import (
 func FetchandSaveAllDividends(db *ydb.Driver, ctx context.Context) error {
 	// err := db.Query().Do(
 	// 	ctx,
-		
+
 	// 	query.WithIdempotent()
 	// )
-   	// if err != nil {
-   	// 	return err // for auto-retry with driver
-   	// }
+	// if err != nil {
+	// 	return err // for auto-retry with driver
+	// }
 
 	return nil
 }

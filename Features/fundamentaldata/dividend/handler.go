@@ -10,7 +10,6 @@ import (
 )
 
 func FetchAndSaveAllDividends() error {
-
 	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancel()
 

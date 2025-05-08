@@ -13,7 +13,7 @@ func getHardCodedStockPositions() []Lot {
 			MIC:          "XBEL",
 		},
 		{
-			Quantity:     419,
+			Quantity:     431,
 			OpeningPrice: 1407.30,
 			Currency:     "RSD",
 			Ticker:       "DNOS",
@@ -22,7 +22,7 @@ func getHardCodedStockPositions() []Lot {
 			MIC:          "XBEL",
 		},
 		{
-			Quantity:     156,
+			Quantity:     277,
 			OpeningPrice: 1961.57,
 			Currency:     "RSD",
 			Ticker:       "MTLC",

@@ -4,16 +4,16 @@ type SecurityType string
 
 const (
 	Unspecified       SecurityType = "unspecified"
-	OrdinaryShare     SecurityType = "ordinaryStock"
+	OrdinaryShare     SecurityType = "commonStock"
 	PreferredShare    SecurityType = "preferredStock"
 	DepositoryReceipt SecurityType = "depositoryReceipt"
 )
 
-var(
-	securityTypeMap = map[string]SecurityType {
-		"unspecified": Unspecified,
-		"ordinaryStock": OrdinaryShare,
-		"preferredStock": PreferredShare,
+var (
+	securityTypeMap = map[string]SecurityType{
+		"unspecified":       Unspecified,
+		"commonStock":       OrdinaryShare,
+		"preferredStock":    PreferredShare,
 		"depositoryReceipt": DepositoryReceipt,
 	}
 )
@@ -37,8 +37,8 @@ type Stock struct {
 	Figi         string
 	CompanyName  string
 	IsPublic     bool
-	SecurityType SecurityType 
-	Country      string       
+	SecurityType SecurityType
+	Country      string
 	Ticker       string
 	IssueSize    int
 	Sector       string
@@ -53,11 +53,11 @@ type StockDbModel struct {
 	SecurityType string `sql:"security_type"`
 	Country      string `sql:"country_iso2"`
 	Ticker       string `sql:"ticker"`
-	IssueSize    int `sql:"issue_size"`
+	IssueSize    int64  `sql:"issue_size"`
 	Sector       string `sql:"sector"`
 }
 
-//Implementing the Security interface
+// Implementing the Security interface
 func (stock Stock) GetId() string {
 	return stock.Id
 }

@@ -3,6 +3,7 @@ package dividend
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
@@ -14,23 +15,26 @@ import (
 )
 
 func fetchDividendsForAllStocks(db *ydb.Driver) []Dividend {
-	stocks, err := security.FetchSecuritiesFromDB(db)
+	stocks, err := security.FetchSecuritiesFromDBWithDriver(db)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 	}
 
 	allDividends := []Dividend{}
 
-	rateLimit := time.Second * 3
+	rateLimit := time.Second / 1
 	throttle := time.Tick(rateLimit)
 	for _, stock := range stocks {
-		fmt.Println("Attempting to fetch a dividend at: ", time.Now())
+		//TODO: - Delete this after testing the throttle functionality
+		fmt.Println("Attempting to fetch dividends at:", time.Now(), "for", stock.CompanyName)
 		switch stock.GetCountry() {
 		case "RU":
-			dividends := fetchTinkoffDividendsFor(stock)
-			allDividends = append(dividends, dividends...)
+			//TODO: Fix this once you figure out what the problem is!
+			dividends := FetchTinkoffDividendsFor(security.Stock{Figi: "TCS00A0ZZAC4"})
+			allDividends = append(allDividends, dividends...)
+			logger.Log("Dividends fetched so far: "+strconv.Itoa(len(allDividends)), logger.INFORMATION)
 		default:
-			logger.Log("No data provider may provide dividends for "+stock.GetCountry(), logger.INFORMATION)
+			logger.Log("No data provider may provide dividends for "+stock.GetCompanyName(), logger.INFORMATION)
 		}
 		<-throttle
 	}
@@ -38,7 +42,7 @@ func fetchDividendsForAllStocks(db *ydb.Driver) []Dividend {
 	return allDividends
 }
 
-func fetchTinkoffDividendsFor(stock security.Security) []Dividend {
+func FetchTinkoffDividendsFor(stock security.Security) []Dividend {
 	//TODO: Extract the file name into an environment variable
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
@@ -93,15 +97,19 @@ func mapTinkoffDividendToDividend(tinkoffDiv *investapi.Dividend, stockID string
 		logger.Log("Missing stock ID in the provided stock for tinkoff dividend: "+tinkoffDiv.GetDeclaredDate().String()+tinkoffDiv.GetRecordDate().String(), logger.WARNING)
 	}
 
+	fmt.Println("Record date: ", time.Unix(tinkoffDiv.GetRecordDate().GetSeconds(), 0).String())
+	fmt.Println("Announcement date: ", time.Unix(tinkoffDiv.GetDeclaredDate().GetSeconds(), 0).String())
+	fmt.Println("Payment date: ", time.Unix(tinkoffDiv.GetPaymentDate().GetSeconds(), 0).String())
+
 	return Dividend{
 		Id:                uuid.New().String(),
 		StockID:           stockID,
 		ActualDPS:         tinkoffDiv.DividendNet.ToFloat(),
 		ExpectedDPS:       0,
 		Currency:          tinkoffDiv.DividendNet.GetCurrency(),
-		AnnouncementDate:  time.Unix(tinkoffDiv.RecordDate.Seconds, 0),
-		RecordDate:        time.Unix(tinkoffDiv.GetRecordDate().Seconds, 0),
-		PayoutDate:        time.Unix(tinkoffDiv.GetPaymentDate().Seconds, 0),
+		AnnouncementDate:  time.Unix(tinkoffDiv.GetDeclaredDate().GetSeconds(), 0),
+		RecordDate:        time.Unix(tinkoffDiv.GetRecordDate().GetSeconds(), 0),
+		PayoutDate:        time.Unix(tinkoffDiv.GetPaymentDate().GetSeconds(), 0),
 		PaymentPeriod:     "", //TODO: Fix
 		ManagementComment: "",
 	}

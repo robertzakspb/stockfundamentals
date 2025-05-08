@@ -57,7 +57,7 @@ func saveSecuritiesToDB(securities []Security, db *ydb.Driver) error {
 	return nil
 }
 
-func FetchSecuritiesFromDB(db *ydb.Driver) ([]Stock, error) {
+func FetchSecuritiesFromDBWithDriver(db *ydb.Driver) ([]Stock, error) {
 	dbStocks := []StockDbModel{}
 	parsedStocks := []Stock{}
 	err := db.Query().Do(context.TODO(),
@@ -129,7 +129,7 @@ func mapYdbStockToStock(dbStock StockDbModel) Stock {
 	}
 
 	stock := Stock{
-		Id:           "",
+		Id:           dbStock.Id,
 		CompanyName:  dbStock.CompanyName,
 		IsPublic:     true,
 		Isin:         dbStock.Isin,
@@ -137,7 +137,7 @@ func mapYdbStockToStock(dbStock StockDbModel) Stock {
 		SecurityType: securityType,
 		Country:      dbStock.Country,
 		Ticker:       dbStock.Ticker,
-		IssueSize:    dbStock.IssueSize,
+		IssueSize:    int(dbStock.IssueSize),
 		Sector:       dbStock.Sector,
 	}
 

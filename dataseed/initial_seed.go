@@ -20,6 +20,7 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/options"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
+
 const INSERT_SCRIPTS_FOLDER = "dataseed/yql_scripts/insert_scripts/"
 
 func InitialSeed() error {
@@ -40,7 +41,7 @@ func InitialSeed() error {
 	if err != nil {
 		return err
 	}
-	
+
 	err = populateTables(ctx, db)
 	if err != nil {
 		return err
@@ -85,7 +86,7 @@ func createAllTables(ctx context.Context, db *ydb.Driver, c table.Client) error 
 				options.WithColumn("ticker", types.TypeUTF8),
 				options.WithColumn("issue_size", types.TypeInt64),
 				options.WithColumn("sector", types.Optional(types.TypeUTF8)),
-				options.WithPrimaryKeyColumn( "isin"),
+				options.WithPrimaryKeyColumn("isin"),
 			)
 			if err != nil {
 				fmt.Println(err)
@@ -151,7 +152,6 @@ func populateAllTables(ctx context.Context, c query.Client) error {
 			return nil
 		})
 }
-
 
 // TODO: Delete. Example from the YDB SDK
 func read(ctx context.Context, c query.Client) error {

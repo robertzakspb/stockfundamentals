@@ -3,10 +3,11 @@ package logger
 import "fmt"
 
 type LOG_LEVEL int
+
 const (
 	INFORMATION LOG_LEVEL = iota
-	WARNING 
-	ERROR 
+	WARNING
+	ERROR
 	ALERT
 )
 

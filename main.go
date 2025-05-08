@@ -1,15 +1,10 @@
 package main
 
 import (
-	// "path"
-
-	// "github.com/compoundinvest/stockfundamentals/Features/fundamentaldata/moexapi/securityinfo"
 	"fmt"
-	// "github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
-	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
-	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/dividend"
-	// "github.com/compoundinvest/stockfundamentals/features/fundamentaldata/tinkoffapi"
 	"github.com/compoundinvest/stockfundamentals/dataseed"
+	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/dividend"
+	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
 	"github.com/compoundinvest/stockfundamentals/features/portfolio"
 )
 
@@ -25,16 +20,17 @@ func main() {
 	fmt.Printf("Total projected payout: %.1f\n", totalSum)
 	dataseed.InitialSeed()
 
-	// security.FetchSecuritiesFromDB()
+	fetchExternalData()
+	security.FetchSecuritiesFromDB()
 	// security.FetchAndSaveSecurities()
 	// stocks, err := security.FetchSecuritiesFromDB()
 	// if err != nil {
-		// fmt.Println(err.Error())
+	// fmt.Println(err.Error())
 	// }
-	
+
 	// security.FetchSecuritiesFromDB()
 	// dividend.FetchAndSaveDividendsForAllStocks()
-	fetchExternalData()
+	// fetchExternalData()
 }
 
 func fetchExternalData() {

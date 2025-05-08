@@ -26,7 +26,7 @@ func FetchAndSaveSecurities() error {
 		logger.Log(err.Error(), logger.ALERT)
 		panic("Failed to connect to the database")
 	}
-	stocks := fetchAllSecurities()
+	stocks := fetchTinkoffSecurities()
 	if len(stocks) == 0 {
 		logger.Log("Fetched 0 securities from Tinkoff API, this is unexpected", logger.ERROR)
 	}
@@ -41,7 +41,7 @@ func FetchAndSaveSecurities() error {
 	return nil
 }
 
-func fetchAllSecurities() []Stock {
+func fetchTinkoffSecurities() []Stock {
 
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
