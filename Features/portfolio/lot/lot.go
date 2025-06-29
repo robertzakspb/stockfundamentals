@@ -4,6 +4,7 @@ import "fmt"
 
 type Lot struct {
 	SecurityID   string
+	ISIN         string
 	Ticker       string  `json:"ticker"`
 	Quantity     float64 `json:"quantity"`
 	OpeningPrice float64 `json:"openingPrice"`
@@ -24,6 +25,7 @@ func (lot Lot) MergeWith(newLot Lot) (Lot, error) {
 
 	return Lot{
 		"",
+		lot.ISIN,
 		lot.Ticker,
 		newQuantity,
 		newOpeningPrice,

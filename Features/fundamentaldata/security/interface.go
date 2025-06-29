@@ -1,5 +1,7 @@
 package security
 
+import "github.com/google/uuid"
+
 type SecurityType string
 
 const (
@@ -10,7 +12,7 @@ const (
 )
 
 var (
-	securityTypeMap = map[string]SecurityType{
+	SecurityTypeMap = map[string]SecurityType{
 		"unspecified":       Unspecified,
 		"commonStock":       OrdinaryShare,
 		"preferredStock":    PreferredShare,
@@ -19,7 +21,7 @@ var (
 )
 
 type Security interface {
-	GetId() string
+	GetId() uuid.UUID
 	GetCompanyName() string
 	GetIsPublic() bool
 	GetIsin() string
@@ -32,7 +34,7 @@ type Security interface {
 }
 
 type Stock struct {
-	Id           string
+	Id           uuid.UUID
 	Isin         string
 	Figi         string
 	CompanyName  string
@@ -45,7 +47,7 @@ type Stock struct {
 }
 
 type StockDbModel struct {
-	Id           string `sql:"id"`
+	Id           uuid.UUID `sql:"id"`
 	Isin         string `sql:"isin"`
 	Figi         string `sql:"figi"`
 	CompanyName  string `sql:"company_name"`
@@ -58,7 +60,7 @@ type StockDbModel struct {
 }
 
 // Implementing the Security interface
-func (stock Stock) GetId() string {
+func (stock Stock) GetId() uuid.UUID {
 	return stock.Id
 }
 

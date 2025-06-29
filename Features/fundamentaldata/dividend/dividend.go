@@ -3,7 +3,7 @@ package dividend
 import (
 	"context"
 	"fmt"
-	"strconv"
+	"strings"
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
@@ -14,6 +14,19 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 )
 
+type Dividend struct {
+	Id                uuid.UUID `sql:"id"`
+	StockID           uuid.UUID `sql:"stock_id"`
+	ActualDPS         float64   `sql:"actual_DPS"`
+	ExpectedDPS       float64   `sql:"expected_DPS"`
+	Currency          string    `sql:"currency"`
+	AnnouncementDate  time.Time `sql:"announcement_date"`
+	RecordDate        time.Time `sql:"record_date"`
+	PayoutDate        time.Time `sql:"payout_date"`
+	PaymentPeriod     string    `sql:"payment_period"`
+	ManagementComment string    `sql:"management_comment"`
+}
+
 func fetchDividendsForAllStocks(db *ydb.Driver) []Dividend {
 	stocks, err := security.FetchSecuritiesFromDBWithDriver(db)
 	if err != nil {
@@ -22,19 +35,18 @@ func fetchDividendsForAllStocks(db *ydb.Driver) []Dividend {
 
 	allDividends := []Dividend{}
 
-	rateLimit := time.Second / 1
+	rateLimit := time.Second / 2
 	throttle := time.Tick(rateLimit)
+
 	for _, stock := range stocks {
-		//TODO: - Delete this after testing the throttle functionality
-		fmt.Println("Attempting to fetch dividends at:", time.Now(), "for", stock.CompanyName)
 		switch stock.GetCountry() {
 		case "RU":
-			//TODO: Fix this once you figure out what the problem is!
-			dividends := FetchTinkoffDividendsFor(security.Stock{Figi: "TCS00A0ZZAC4"})
+			dividends := fetchTinkoffDividendsFor(stock)
 			allDividends = append(allDividends, dividends...)
-			logger.Log("Dividends fetched so far: "+strconv.Itoa(len(allDividends)), logger.INFORMATION)
+			logger.Log(fmt.Sprintf("Fetched %d dividends for %s", len(dividends), stock.CompanyName), logger.INFORMATION)
 		default:
 			logger.Log("No data provider may provide dividends for "+stock.GetCompanyName(), logger.INFORMATION)
+			continue
 		}
 		<-throttle
 	}
@@ -42,7 +54,7 @@ func fetchDividendsForAllStocks(db *ydb.Driver) []Dividend {
 	return allDividends
 }
 
-func FetchTinkoffDividendsFor(stock security.Security) []Dividend {
+func fetchTinkoffDividendsFor(stock security.Security) []Dividend {
 	//TODO: Extract the file name into an environment variable
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
@@ -69,6 +81,7 @@ func FetchTinkoffDividendsFor(stock security.Security) []Dividend {
 
 	for _, dividend := range tinkoffDividends.GetDividends() {
 		if dividend == nil || !dividendIsValid(dividend) {
+			logger.Log("The provided dividend is invalid: "+dividend.String(), logger.ERROR)
 			continue
 		}
 
@@ -91,26 +104,24 @@ func dividendIsValid(dividend *investapi.Dividend) bool {
 	return dividendIsValid
 }
 
-func mapTinkoffDividendToDividend(tinkoffDiv *investapi.Dividend, stockID string) Dividend {
+func mapTinkoffDividendToDividend(tinkoffDiv *investapi.Dividend, stockID uuid.UUID) Dividend {
 
-	if stockID == "" {
+	if len(stockID) == 0 {
 		logger.Log("Missing stock ID in the provided stock for tinkoff dividend: "+tinkoffDiv.GetDeclaredDate().String()+tinkoffDiv.GetRecordDate().String(), logger.WARNING)
 	}
 
-	fmt.Println("Record date: ", time.Unix(tinkoffDiv.GetRecordDate().GetSeconds(), 0).String())
-	fmt.Println("Announcement date: ", time.Unix(tinkoffDiv.GetDeclaredDate().GetSeconds(), 0).String())
-	fmt.Println("Payment date: ", time.Unix(tinkoffDiv.GetPaymentDate().GetSeconds(), 0).String())
-
-	return Dividend{
-		Id:                uuid.New().String(),
+	dividend := Dividend{
+		Id:                uuid.New(),
 		StockID:           stockID,
 		ActualDPS:         tinkoffDiv.DividendNet.ToFloat(),
 		ExpectedDPS:       0,
-		Currency:          tinkoffDiv.DividendNet.GetCurrency(),
+		Currency:          strings.ToUpper(tinkoffDiv.DividendNet.GetCurrency()),
 		AnnouncementDate:  time.Unix(tinkoffDiv.GetDeclaredDate().GetSeconds(), 0),
 		RecordDate:        time.Unix(tinkoffDiv.GetRecordDate().GetSeconds(), 0),
 		PayoutDate:        time.Unix(tinkoffDiv.GetPaymentDate().GetSeconds(), 0),
 		PaymentPeriod:     "", //TODO: Fix
 		ManagementComment: "",
 	}
+
+	return dividend
 }

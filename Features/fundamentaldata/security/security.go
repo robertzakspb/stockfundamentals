@@ -6,6 +6,7 @@ import (
 
 	"github.com/compoundinvest/stockfundamentals/infrastructure/config"
 	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+	"github.com/google/uuid"
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
 	investapi "github.com/russianinvestments/invest-api-go-sdk/proto"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
@@ -36,13 +37,12 @@ func FetchAndSaveSecurities() error {
 		securities = append(securities, stock)
 	}
 
-	saveSecuritiesToDB(securities, db)
+	SaveSecuritiesToDB(securities, db)
 
 	return nil
 }
 
 func fetchTinkoffSecurities() []Stock {
-
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
@@ -74,7 +74,7 @@ func fetchTinkoffSecurities() []Stock {
 		}
 
 		russianStock := Stock{
-			Id:           "",
+			Id:           uuid.New(),
 			CompanyName:  tinkoffStock.Name,
 			IsPublic:     true,
 			Isin:         tinkoffStock.Isin,

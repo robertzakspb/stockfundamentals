@@ -1,18 +1,17 @@
-package security
+package financials
 
 import (
 	"context"
-	// "time"
 
 	"github.com/compoundinvest/stockfundamentals/infrastructure/config"
 	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 )
 
-func FetchSecuritiesFromDB() ([]Stock, error) {
+func FetchFinancialsFromDB() ([]FinancialMetric, error) {
 	config, err := config.LoadConfig()
 	if err != nil {
-		return []Stock{}, err
+		return []FinancialMetric{}, err
 	}
 
 	db, err := ydb.Open(context.TODO(), config.DB.ConnectionString)
@@ -22,5 +21,5 @@ func FetchSecuritiesFromDB() ([]Stock, error) {
 		panic("Failed to connect to the database")
 	}
 
-	return FetchSecuritiesFromDBWithDriver(db)
+	return fetchFinancialMetricsFromDbWithDriver(db)
 }

@@ -8,9 +8,6 @@ import (
 	"io"
 	"path"
 
-	// "time"
-
-	// "github.com/compoundinvest/stockfundamentals/infrastructure/config"
 	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
 
 	"github.com/google/uuid"
@@ -22,14 +19,19 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 )
 
-const STOCK_DIRECTORY_PREFIX = "stockfundamentals/stocks"
-const STOCK_TABLE_NAME = "/stock"
+const stock_directory_prefix = "stockfundamentals/stocks"
+const stock_table_name = "stock"
 
-func saveSecuritiesToDB(securities []Security, db *ydb.Driver) error {
+func SaveSecuritiesToDB(securities []Security, db *ydb.Driver) error {
 	ydbStocks := []types.Value{}
 	for _, stock := range securities {
+		var id = stock.GetId()
+		if stock.GetId() == uuid.Nil {
+			id = uuid.New()
+		}
+
 		ydbStock := types.StructValue(
-			types.StructFieldValue("id", types.TextValue(uuid.New().String())),
+			types.StructFieldValue("id", types.UuidValue(id)),
 			types.StructFieldValue("company_name", types.TextValue(stock.GetCompanyName())),
 			types.StructFieldValue("is_public", types.BoolValue(true)),
 			types.StructFieldValue("isin", types.TextValue(stock.GetIsin())),
@@ -44,7 +46,7 @@ func saveSecuritiesToDB(securities []Security, db *ydb.Driver) error {
 		ydbStocks = append(ydbStocks, ydbStock)
 	}
 
-	securityTableName := path.Join(db.Name(), STOCK_DIRECTORY_PREFIX) + STOCK_TABLE_NAME
+	securityTableName := path.Join(db.Name(), stock_directory_prefix, stock_table_name)
 	err := db.Table().BulkUpsert(
 		context.TODO(),
 		securityTableName,
@@ -76,7 +78,7 @@ func FetchSecuritiesFromDBWithDriver(db *ydb.Driver) ([]Stock, error) {
 							sector
 						FROM
 							%s
-					`, "`"+path.Join(STOCK_DIRECTORY_PREFIX, STOCK_TABLE_NAME)+"`"),
+					`, "`"+path.Join(stock_directory_prefix, stock_table_name)+"`"),
 				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
 			)
 			if err != nil {
@@ -99,10 +101,8 @@ func FetchSecuritiesFromDBWithDriver(db *ydb.Driver) ([]Stock, error) {
 
 				for row, err := range sugar.UnmarshalRows[StockDbModel](resultSet.Rows(ctx)) {
 					if err != nil {
-						fmt.Println(err, row)
 						return err
 					}
-					fmt.Println(row)
 
 					dbStocks = append(dbStocks, row)
 				}
@@ -123,7 +123,7 @@ func FetchSecuritiesFromDBWithDriver(db *ydb.Driver) ([]Stock, error) {
 }
 
 func mapYdbStockToStock(dbStock StockDbModel) Stock {
-	securityType, found := securityTypeMap[dbStock.SecurityType]
+	securityType, found := SecurityTypeMap[dbStock.SecurityType]
 	if !found {
 		logger.Log("Unable to parse the security type from the value: "+dbStock.SecurityType, logger.ERROR)
 	}

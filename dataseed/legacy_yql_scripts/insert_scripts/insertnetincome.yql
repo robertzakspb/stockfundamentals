@@ -1,0 +1,12 @@
+-- Metalac
+INSERT INTO `stockfundamentals/stocks/financial_metric` (id, stock_id, metric, reporting_period, year, metric_value, metric_currency) VALUES
+(Unwrap(CAST ('21ae6e32-a72d-47ee-b9bb-1cbd4e0547a3' as Uuid)), Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'netincome', 'fy', 2014, 240986000, 'RSD'),
+(Unwrap(CAST ('e4f0f233-2b40-4f2f-b159-90488658cbad' as Uuid)), Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'netincome', 'fy', 2015, 254427000, 'RSD'),
+(Unwrap(CAST ('286794c1-2757-45f0-a48e-ba3827c7867b' as Uuid)), Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'netincome', 'fy', 2016, 258457000, 'RSD'),
+(Unwrap(CAST ('40caad38-dcb5-4f16-bdae-77f4e306c715' as Uuid)), Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'netincome', 'fy', 2017, 476516000, 'RSD'),
+(Unwrap(CAST ('59c78d07-fb81-4131-bd7f-85585b6c007d' as Uuid)), Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'netincome', 'fy', 2018, 452194000, 'RSD'),
+(Unwrap(CAST ('2c2e31bc-0029-4671-80c3-6ec45f635a9c' as Uuid)), Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'netincome', 'fy', 2019, 419386000, 'RSD'),
+(Unwrap(CAST ('906fe124-49ef-4972-80b0-3c11979a33e5' as Uuid)), Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'netincome', 'fy', 2020, 440440000, 'RSD'),
+(Unwrap(CAST ('acc55503-a1a5-494e-919e-ac08e40764bf' as Uuid)), Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'netincome', 'fy', 2021, 595368000, 'RSD'),
+(Unwrap(CAST ('74b3ace7-efca-4802-964a-75a6e6694e71' as Uuid)), Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'netincome', 'fy', 2022, 616283000, 'RSD'),
+(Unwrap(CAST ('9a9552c8-e8df-44bb-b9a1-84657fa1cd42' as Uuid)), Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'netincome', 'fy', 2023, 678438000, 'RSD')

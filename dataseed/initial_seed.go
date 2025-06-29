@@ -2,20 +2,24 @@ package dataseed
 
 import (
 	"context"
-	"errors"
+	"encoding/csv"
 	"fmt"
-	"io"
-	"log"
 	"os"
 	"path"
-	"strings"
+	"strconv"
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/infrastructure/config"
+	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+	"github.com/google/uuid"
+
+	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/dividend"
+	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/financials"
+	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
 
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
-	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
+
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/options"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
@@ -25,6 +29,7 @@ const INSERT_SCRIPTS_FOLDER = "dataseed/yql_scripts/insert_scripts/"
 
 func InitialSeed() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	// ctx, cancel := context.WithTimeout(context.TODO())
 	defer cancel()
 
 	config, err := config.LoadConfig()
@@ -50,33 +55,41 @@ func InitialSeed() error {
 	return nil
 }
 
-const STOCK_DIRECTORY_PREFIX = "stockfundamentals/stocks"
-
 func createTables(ctx context.Context, db *ydb.Driver) error {
 	client := db.Table()
-	err := createAllTables(ctx, db, client)
-	return err
-}
 
-func populateTables(ctx context.Context, db *ydb.Driver) error {
-	client := db.Query()
-
-	err := populateAllTables(ctx, client)
+	err := createStockTables(ctx, db, client)
 	if err != nil {
-		fmt.Println(err)
+		return err
+	}
+
+	err = createMarketDataTables(ctx, db, client)
+	if err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createAllTables(ctx context.Context, db *ydb.Driver, c table.Client) error {
-	prefix := path.Join(db.Name(), STOCK_DIRECTORY_PREFIX)
+func populateTables(ctx context.Context, db *ydb.Driver) error {
+	client := db.Query()
+
+	err := populateAllTables(ctx, client, db)
+	if err != nil {
+		logger.Log(err.Error(), logger.ALERT)
+		return err
+	}
+
+	return nil
+}
+
+func createStockTables(ctx context.Context, db *ydb.Driver, c table.Client) error {
+	prefix := path.Join(db.Name(), "stockfundamentals/stocks")
 
 	return c.Do(ctx,
 		func(ctx context.Context, s table.Session) error {
 			err := s.CreateTable(ctx, path.Join(prefix, "stock"),
-				options.WithColumn("id", types.TypeUTF8),
+				options.WithColumn("id", types.TypeUUID),
 				options.WithColumn("figi", types.Optional(types.TypeUTF8)),
 				options.WithColumn("company_name", types.Optional(types.TypeUTF8)),
 				options.WithColumn("is_public", types.TypeBool),
@@ -89,108 +102,309 @@ func createAllTables(ctx context.Context, db *ydb.Driver, c table.Client) error 
 				options.WithPrimaryKeyColumn("isin"),
 			)
 			if err != nil {
-				fmt.Println(err)
+				logger.Log(err.Error(), logger.ALERT)
 				return err
 			}
 
 			err = s.CreateTable(ctx, path.Join(prefix, "dividend_payment"),
-				options.WithColumn("id", types.TypeUTF8),
-				options.WithColumn("stock_id", types.TypeUTF8),
-				options.WithColumn("actual_DPS", types.TypeDouble),
-				options.WithColumn("expected_DPS", types.Optional(types.TypeDouble)),
+				options.WithColumn("id", types.TypeUUID),
+				options.WithColumn("stock_id", types.TypeUUID),
+				options.WithColumn("actual_DPS", types.TypeInt64),
+				options.WithColumn("expected_DPS", types.Optional(types.TypeInt64)),
 				options.WithColumn("currency", types.TypeUTF8),
 				options.WithColumn("announcement_date", types.Optional(types.TypeDate)),
 				options.WithColumn("record_date", types.TypeDate),
 				options.WithColumn("payout_date", types.Optional(types.TypeDate)),
 				options.WithColumn("payment_period", types.TypeUTF8),
 				options.WithColumn("management_comment", types.Optional(types.TypeUTF8)),
-				options.WithPrimaryKeyColumn("id"),
+				options.WithPrimaryKeyColumn("stock_id", "record_date", "actual_DPS"),
 			)
 			if err != nil {
-				fmt.Println(err)
+				logger.Log(err.Error(), logger.ALERT)
 				return err
 			}
 
-			err = s.CreateTable(ctx, path.Join(prefix, "corporate_financials"),
-				options.WithColumn("id", types.TypeUTF8),
-				options.WithColumn("stock_id", types.TypeUTF8),
-				options.WithColumn("financial_metric", types.TypeUTF8),
+			err = s.CreateTable(ctx, path.Join(prefix, "financial_metric"),
+				options.WithColumn("id", types.TypeUUID),
+				options.WithColumn("stock_id", types.TypeUUID),
+				options.WithColumn("metric", types.TypeUTF8),
 				options.WithColumn("reporting_period", types.TypeUTF8),
-				options.WithColumn("metric_value", types.TypeDouble),
+				options.WithColumn("year", types.TypeInt64),
+				options.WithColumn("metric_value", types.TypeInt64),
 				options.WithColumn("metric_currency", types.TypeUTF8),
 				options.WithPrimaryKeyColumn("id"),
 			)
 			if err != nil {
-				fmt.Println(err)
+				logger.Log(err.Error(), logger.ALERT)
 				return err
 			}
-
 			return nil
 		})
 }
 
-func populateAllTables(ctx context.Context, c query.Client) error {
-	files, _ := os.ReadDir(INSERT_SCRIPTS_FOLDER)
-	for _, file := range files {
-		insertScriptData, err := os.Open(INSERT_SCRIPTS_FOLDER + file.Name())
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		var buffer strings.Builder
-		_, err = io.Copy(&buffer, insertScriptData)
-		if err != nil {
-			fmt.Println(err)
-		}
-		insertScriptYQL := buffer.String()
-
-		c.Exec(ctx, insertScriptYQL)
-	}
+func createMarketDataTables(ctx context.Context, db *ydb.Driver, c table.Client) error {
+	prefix := path.Join(db.Name(), "marketdata/timeseries")
 
 	return c.Do(ctx,
-		func(ctx context.Context, s query.Session) (err error) {
-			return nil
-		})
-}
-
-// TODO: Delete. Example from the YDB SDK
-func read(ctx context.Context, c query.Client) error {
-	return c.Do(ctx,
-		func(ctx context.Context, s query.Session) (err error) {
-			result, err := s.Query(ctx, fmt.Sprintf(`
-					SELECT
-						*
-					FROM
-						%s`, "`"+path.Join(STOCK_DIRECTORY_PREFIX, "stock")+"`"),
-				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
+		func(ctx context.Context, s table.Session) error {
+			err := s.CreateTable(ctx, path.Join(prefix, "time_series"),
+				options.WithColumn("isin", types.TypeUTF8),
+				options.WithColumn("close_price", types.TypeDouble),
+				options.WithColumn("date", types.TypeDate),
+				options.WithPrimaryKeyColumn("isin", "date"),
 			)
 			if err != nil {
+				logger.Log(err.Error(), logger.ALERT)
 				return err
 			}
 
-			defer func() {
-				_ = result.Close(ctx)
-			}()
-
-			for {
-				resultSet, err := result.NextResultSet(ctx)
-				if err != nil {
-					if errors.Is(err, io.EOF) {
-						break
-					}
-
-					return err
-				}
-				for row, err := range sugar.UnmarshalRows[string](resultSet.Rows(ctx)) {
-					if err != nil {
-						fmt.Println(err)
-						return err
-					}
-
-					log.Printf("%v:", row)
-				}
-			}
 			return nil
-		},
-	)
+		})
+
+}
+
+const seedDataFolder = "dataseed/seed-data/"
+
+func populateAllTables(ctx context.Context, c query.Client, db *ydb.Driver) error {
+	// files, _ := os.ReadDir(INSERT_SCRIPTS_FOLDER)
+	// //TODO: Remove this block after transitioning to file ingestion from CSV
+	// for _, file := range files {
+	// 	if file.Name() == "insertstock.yql" ||
+	// 		file.Name() == "insertdividends.yql" ||
+	// 		file.Name() == "insertnetincome.yql" ||
+	// 		file.Name() == "insertrevenue.yql" {
+	// 		fmt.Println("Skipping this file")
+	// 		continue
+	// 	}
+
+	// 	insertScriptData, err := os.Open(INSERT_SCRIPTS_FOLDER + file.Name())
+	// 	if err != nil {
+	// 		logger.Log(err.Error(), logger.ALERT)
+	// 	}
+	// 	defer insertScriptData.Close()
+
+	// 	var buffer strings.Builder
+	// 	_, err = io.Copy(&buffer, insertScriptData)
+	// 	if err != nil {
+	// 		logger.Log(err.Error(), logger.ALERT)
+	// 	}
+	// 	insertScriptYQL := buffer.String()
+
+	// 	err = c.Exec(ctx, insertScriptYQL)
+	// 	if err != nil {
+	// 		logger.Log(err.Error(), logger.ALERT)
+	// 	}
+	// }
+
+	files, err := os.ReadDir(seedDataFolder)
+	if err != nil {
+		logger.Log(err.Error(), logger.ALERT)
+	}
+
+	for _, file := range files {
+		fileName := seedDataFolder + file.Name()
+		file, err := os.Open(fileName)
+		if err != nil {
+			logger.Log(err.Error(), logger.ALERT)
+		}
+		defer file.Close()
+
+		csvReader := csv.NewReader(file)
+		csvReader.Comma = '|'
+
+		var seedError error = nil
+		switch fileName {
+		case seedDataFolder + "security-seed.csv":
+			seedError = populateStockTable(csvReader, db)
+		case seedDataFolder + "dividend-seed.csv":
+			seedError = populateDividendTable(csvReader, db)
+		case seedDataFolder + "revenue-income-seed.csv":
+			seedError = populateFinancialMetricsTable(csvReader, db)
+		default:
+			logger.Log("Attempting to seed data from an unknow file: "+fileName, logger.ALERT)
+		}
+		if seedError != nil {
+			return seedError
+		}
+	}
+
+	return nil
+}
+
+func populateStockTable(reader *csv.Reader, db *ydb.Driver) error {
+	seedRecords, err := reader.ReadAll()
+	if err != nil {
+		logger.Log(err.Error(), logger.ALERT)
+	}
+
+	serbianStocks := []security.Security{}
+	recordsLessHeader := seedRecords[1:]
+	for _, record := range recordsLessHeader {
+		parsedUuid, err := uuid.Parse(record[0])
+		if err != nil {
+			logger.Log("Failed to parse a UUID from value "+record[0]+" in the stock seed file", logger.ALERT)
+			continue
+		}
+
+		isPublic, err := strconv.ParseBool(record[2])
+		if err != nil {
+			logger.Log("Failed to parse the is public flag "+record[2]+" in the stock seed file", logger.ALERT)
+			continue
+		}
+
+		securityType, found := security.SecurityTypeMap[record[4]]
+		if !found {
+			logger.Log("Failed to parse the security type"+record[4]+" in the stock seed file", logger.ALERT)
+			continue
+		}
+
+		issueSize, err := strconv.Atoi(record[7])
+		if err != nil {
+			logger.Log("Failed to parse the issue size "+record[7]+" in the stock seed file", logger.ALERT)
+			continue
+		}
+
+		stock := security.Stock{
+			Id:           parsedUuid,
+			Isin:         record[3],
+			Figi:         "", //TODO: Should this be added too? Where does one source the data?
+			CompanyName:  record[1],
+			IsPublic:     isPublic,
+			SecurityType: securityType,
+			Country:      record[5],
+			Ticker:       record[6],
+			IssueSize:    issueSize,
+			Sector:       record[8],
+		}
+		serbianStocks = append(serbianStocks, stock)
+	}
+
+	err = security.SaveSecuritiesToDB(serbianStocks, db)
+	if err != nil {
+		logger.Log(err.Error(), logger.ALERT)
+		return err
+	}
+
+	return nil
+}
+
+func populateDividendTable(reader *csv.Reader, db *ydb.Driver) error {
+	seedRecords, err := reader.ReadAll()
+	if err != nil {
+		logger.Log(err.Error(), logger.ALERT)
+	}
+
+	dividends := []dividend.Dividend{}
+	csvDividends := seedRecords[1:]
+
+	for _, csvDividend := range csvDividends {
+		parsedId, err := uuid.Parse(csvDividend[0])
+		if err != nil {
+			logger.Log("Failed to parse the dividend ID from value "+csvDividend[0]+" in the dividend seed file", logger.ALERT)
+			continue
+		}
+
+		parsedStockId, err := uuid.Parse(csvDividend[1])
+		if err != nil {
+			logger.Log("Failed to parse the stock ID from value "+csvDividend[1]+" in the dividend seed file", logger.ALERT)
+			continue
+		}
+
+		actualDPS, err := strconv.ParseFloat(csvDividend[2], 64)
+		if err != nil {
+			logger.Log("Failed to parse the actual DPS from value "+csvDividend[2]+" in the dividend seed file", logger.ALERT)
+			continue
+		}
+
+		expectedDPS, err := strconv.ParseFloat(csvDividend[3], 64)
+		if err != nil {
+			logger.Log("Failed to parse the expected DPS from value "+csvDividend[3]+" in the dividend seed file", logger.ALERT)
+			continue
+		}
+
+		recordDate, err := time.Parse("2006-01-02", csvDividend[5])
+		if err != nil {
+			logger.Log("Failed to parse the record date from value "+csvDividend[5]+" in the dividend seed file", logger.ALERT)
+			continue
+		}
+
+		payoutDate, err := time.Parse("2006-01-02", csvDividend[6])
+		if err != nil {
+			logger.Log("Failed to parse the payout date from value "+csvDividend[6]+" in the dividend seed file", logger.ALERT)
+			payoutDate = time.Unix(0, 0)
+		}
+
+		div := dividend.Dividend{
+			Id:            parsedId,
+			StockID:       parsedStockId,
+			ActualDPS:     actualDPS,
+			ExpectedDPS:   expectedDPS,
+			Currency:      csvDividend[4],
+			RecordDate:    recordDate,
+			PayoutDate:    payoutDate,
+			PaymentPeriod: csvDividend[7],
+		}
+		dividends = append(dividends, div)
+	}
+
+	err = dividend.SaveDividendsToDB(dividends, db)
+	if err != nil {
+		logger.Log(err.Error(), logger.ALERT)
+		return err
+	}
+
+	return nil
+}
+
+func populateFinancialMetricsTable(reader *csv.Reader, db *ydb.Driver) error {
+	seedRecords, err := reader.ReadAll()
+	if err != nil {
+		logger.Log(err.Error(), logger.ALERT)
+	}
+
+	csvMetrics := seedRecords[1:]
+	metrics := []financials.FinancialMetric{}
+
+	for _, csvMetric := range csvMetrics {
+		parsedId, err := uuid.Parse(csvMetric[0])
+		if err != nil {
+			logger.Log("Failed to parse the metric ID from value "+csvMetric[0]+" in the revenue-income seed file", logger.ALERT)
+			continue
+		}
+
+		parsedStockId, err := uuid.Parse(csvMetric[1])
+		if err != nil {
+			logger.Log("Failed to parse the stock ID from value "+csvMetric[1]+" in the revenue-income seed file", logger.ALERT)
+			continue
+		}
+
+		parsedYear, err := strconv.ParseInt(csvMetric[4], 0, 64)
+		if err != nil {
+			logger.Log("Failed to parse the year from value "+csvMetric[4]+" in the revenue-income seed file", logger.ALERT)
+			continue
+		}
+
+		parsedValue, err := strconv.ParseInt(csvMetric[5], 0, 64)
+		if err != nil {
+			logger.Log("Failed to parse the metric value from value "+csvMetric[5]+" in the revenue-income seed file", logger.ALERT)
+			continue
+		}
+
+		metrics = append(metrics, financials.FinancialMetric{
+			Id:       parsedId,
+			StockId:  parsedStockId,
+			Name:     csvMetric[2],
+			Period:   financials.ReportingPeriodMap[csvMetric[3]],
+			Year:     int(parsedYear),
+			Value:    int(parsedValue),
+			Currency: csvMetric[6],
+		})
+	}
+
+	err = financials.SaveFinancialMetricsToDb(metrics, db)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -1,0 +1,51 @@
+package timeseries
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/compoundinvest/invest-core/quote/entity"
+	tinkoffapi "github.com/compoundinvest/invest-core/quote/tinkoffmd"
+	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
+	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
+)
+
+// type HistoricalReturn struct {
+// 	Ticker      string
+// 	FirstQuote  tinkoffapi.TinkoffQuote
+// 	LastQuote   tinkoffapi.TinkoffQuote
+// 	TotalReturn float64
+// }
+
+func FetchAndSaveHistoricalQuotes() {
+	stocks, _ := security.FetchSecuritiesFromDB()
+	quotes := []entity.SimpleQuote{}
+
+	rateLimit := time.Second / 2
+	throttle := time.Tick(rateLimit)
+	for _, stock := range stocks { 
+		if stock.Country != "RU" {
+			continue
+		}
+		config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
+		if err != nil {
+			panic("Unable to initialize the Tinkoff API config file")
+		}
+
+		fmt.Println("Fetching historical quotes for:", stock.Ticker)
+		tQuotes, _ := tinkoffapi.FetchAllHistoricalQuotesFor(entity.SecurityID{Figi: stock.Figi, ISIN: stock.Isin}, config)
+
+		interfaceStructs := make([]entity.SimpleQuote, len(tQuotes))
+		for i, _ := range tQuotes {
+			interfaceStructs[i] = tQuotes[i]
+		}
+		quotes = append(quotes, interfaceStructs...)
+
+		if len(quotes) == 0 {
+			continue
+		}
+		<-throttle
+	}
+
+	saveTimeSeriesToDB(quotes)
+}

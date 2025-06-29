@@ -3,6 +3,8 @@ package portfolio
 // Returns positions that cannot be fetched from some external API and must thus be hardcoded here
 func getHardCodedStockPositions() []Lot {
 	serbianStocks := []Lot{
+		//TODO: - Fill out the ISINs
+		//TODO: Update after the Jun/July? updates
 		{
 			Quantity:     5,
 			OpeningPrice: 7772,

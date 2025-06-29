@@ -1,0 +1,11 @@
+
+-- Jedinstvo iz Sevojna
+INSERT INTO `stockfundamentals/stocks/financial_metric`(id, stock_id, metric, reporting_period, year, metric_value, metric_currency) VALUES
+(Unwrap(CAST ('a0de3d29-7ed2-4696-ba41-c8f4b80ade07' as Uuid)), Unwrap(CAST ('dd194350-4c61-4643-8c74-1120ceca8fae' as Uuid)), 'revenue', 'fy', 2009, 4110977000, 'RSD'),
+
+--Metalac
+(Unwrap(CAST ('7d7890da-e7f7-41ce-b4ec-0e2fb05f388b' as Uuid)), Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'revenue', 'fy', 2014, 7824790000, 'RSD'),
+(Unwrap(CAST ('1127aaff-ff53-41d3-b24a-f0c7bb36d618' as Uuid)), Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'revenue', 'fy', 2015, 8284390000, 'RSD'),
+(Unwrap(CAST ('a1dc421a-63b3-4568-b439-e1f28b501206' as Uuid)), Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'revenue', 'fy', 2016, 8700000000, 'RSD'),
+(Unwrap(CAST ('7b06ef91-7ec2-4bcd-a45b-d8498042633d' as Uuid)), Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'revenue', 'fy', 2017, 9341870000, 'RSD'),
+(Unwrap(CAST ('f4715455-e936-4768-a8e4-de28ec2c6dad' as Uuid)), Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'revenue', 'fy', 2018, 9994852000, 'RSD')

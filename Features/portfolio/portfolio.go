@@ -3,6 +3,7 @@ package portfolio
 import (
 	"fmt"
 
+	// "github.com/compoundinvest/invest-core/"
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
 	"github.com/compoundinvest/stockfundamentals/features/portfolio/lot"
 )
@@ -11,6 +12,7 @@ type Lot = lot.Lot
 
 type Portfolio struct {
 	Lots []Lot `json:"lots"`
+	Cash float64
 }
 
 func (portfolio Portfolio) GetPositionByTicker(ticker string) (Lot, error) {
