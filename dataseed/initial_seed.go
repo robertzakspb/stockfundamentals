@@ -3,7 +3,6 @@ package dataseed
 import (
 	"context"
 	"encoding/csv"
-	"fmt"
 	"os"
 	"path"
 	"strconv"
