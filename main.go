@@ -9,26 +9,19 @@ import (
 	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/dividend"
 	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/financials"
 	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
-	"github.com/compoundinvest/stockfundamentals/features/portfolio"
+	// "github.com/compoundinvest/stockfundamentals/features/portfolio"
 )
 
 func main() {
-
-	portfolio.GeMyPortfolio().PrintAllPositions()
+	// portfolio.GeMyPortfolio().PrintAllPositions()
 	dataseed.InitialSeed()
 	fetchExternalData()
-
-	// convertStockYqltoCSV()
-	// convertdividendYqlToCsv()
-	convertStockAndRevenueYqlToCSV()
-
 }
 
 func fetchExternalData() {
-
-	// security.FetchAndSaveSecurities()
+	security.FetchAndSaveSecurities()
+	dividend.FetchAndSaveAllDividends()
 	// timeseries.FetchAndSaveHistoricalQuotes()
-	// dividend.FetchAndSaveAllDividends()
 }
 
 func convertStockYqltoCSV() {
