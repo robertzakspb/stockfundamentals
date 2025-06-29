@@ -1,6 +1,0 @@
-INSERT INTO `stockfundamentals/stocks/stock`(id, company_name, is_public, isin, security_type, country_iso2, ticker, issue_size, sector) VALUES
---Serbian companies
-(Unwrap(CAST ('9f45ae88-70bd-48ef-aadc-aa6f01377b76' as Uuid)), 'NIS', true, 'RSNISHE79420', 'commonStock', 'RS', 'NIIS', 163060400, 'Oil'),
-(Unwrap(CAST ('4f96e511-34db-4f00-9bf5-0975cef04c2b' as Uuid)), 'Dunav Osiguranje', true, 'RSDNOSE74915', 'commonStock', 'RS', 'DNOS', 15189202, 'Insurance'),
-(Unwrap(CAST ('8f0161f0-083d-431a-9fff-89deb073ce0f' as Uuid)), 'Metalac', true, 'RSMETAE71629', 'commonStock', 'RS', 'MTLC', 2040000, 'Utensils'),
-(Unwrap(CAST ('dd194350-4c61-4643-8c74-1120ceca8fae' as Uuid)), 'Jedinstvo iz Sevojna', true, 'RSJESVE87017', 'commonStock', 'RS', 'JESV', 232703,'Construction')
