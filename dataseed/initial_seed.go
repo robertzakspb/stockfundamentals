@@ -98,7 +98,7 @@ func createStockTables(ctx context.Context, db *ydb.Driver, c table.Client) erro
 				options.WithColumn("ticker", types.TypeUTF8),
 				options.WithColumn("issue_size", types.TypeInt64),
 				options.WithColumn("sector", types.Optional(types.TypeUTF8)),
-				options.WithPrimaryKeyColumn("isin"),
+				options.WithPrimaryKeyColumn("figi"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)
@@ -147,10 +147,10 @@ func createMarketDataTables(ctx context.Context, db *ydb.Driver, c table.Client)
 	return c.Do(ctx,
 		func(ctx context.Context, s table.Session) error {
 			err := s.CreateTable(ctx, path.Join(prefix, "time_series"),
-				options.WithColumn("isin", types.TypeUTF8),
+				options.WithColumn("figi", types.TypeUTF8),
 				options.WithColumn("close_price", types.TypeDouble),
 				options.WithColumn("date", types.TypeDate),
-				options.WithPrimaryKeyColumn("isin", "date"),
+				options.WithPrimaryKeyColumn("figi", "date"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)

@@ -1,12 +1,12 @@
 package timeseries
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	tinkoffapi "github.com/compoundinvest/invest-core/quote/tinkoffmd"
 	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
+	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
 )
 
@@ -32,11 +32,10 @@ func FetchAndSaveHistoricalQuotes() {
 			panic("Unable to initialize the Tinkoff API config file")
 		}
 
-		fmt.Println("Fetching historical quotes for:", stock.Ticker)
-		tQuotes, _ := tinkoffapi.FetchAllHistoricalQuotesFor(entity.SecurityID{Figi: stock.Figi, ISIN: stock.Isin}, config)
+		tQuotes, _ := tinkoffapi.FetchAllHistoricalQuotesFor(entity.Security{Figi: stock.Figi, ISIN: stock.Isin}, config)
 
 		interfaceStructs := make([]entity.SimpleQuote, len(tQuotes))
-		for i, _ := range tQuotes {
+		for i := range tQuotes {
 			interfaceStructs[i] = tQuotes[i]
 		}
 		quotes = append(quotes, interfaceStructs...)
@@ -47,5 +46,8 @@ func FetchAndSaveHistoricalQuotes() {
 		<-throttle
 	}
 
-	saveTimeSeriesToDB(quotes)
+	err := saveTimeSeriesToDB(quotes)
+	if err != nil {
+		logger.Log("Failed to fetch timeseries via Tinkoff API due to: " + err.Error(), logger.ALERT)
+	}
 }

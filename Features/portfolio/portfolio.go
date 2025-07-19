@@ -2,10 +2,12 @@ package portfolio
 
 import (
 	"fmt"
+	"strconv"
 
-	// "github.com/compoundinvest/invest-core/"
+	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
 	"github.com/compoundinvest/stockfundamentals/features/portfolio/lot"
+	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
 )
 
 type Lot = lot.Lot
@@ -53,25 +55,35 @@ func (portfolio Portfolio) UniquePositions() []Lot {
 	return uniquePositions
 }
 
-// Lists all tickers present in the portfolio
 func (portfolio Portfolio) PrintAllPositions() {
 
 	positions := portfolio.UniquePositions()
 
 	//Fetching quotes
-	tickersWithExchanges := []quotefetcher.TickerWithMarket{}
+	securities := []entity.Security{}
 	for _, lot := range positions {
-		tickersWithExchanges = append(tickersWithExchanges, quotefetcher.TickerWithMarket{Ticker: lot.Ticker, MIC: lot.MIC})
+		securities = append(securities, entity.Security{
+			Figi: lot.Figi,
+			Ticker: lot.Ticker, 
+			MIC: lot.MIC})
 	}
 
-	quotes := quotefetcher.FetchQuotesFor(tickersWithExchanges)
+	quotes := quotefetcher.FetchQuotesFor(securities)
 
 	//Calculating the total portfolio value
 	totalPortfolioValue := 0.0
 	for _, lot := range positions {
 		for _, quote := range quotes {
-			if lot.Ticker == quote.Ticker() {
-				totalPortfolioValue += lot.MarketValue(quote.Quote())
+			//TODO: Refactor this abomination
+			if lot.Figi == "" {
+				logger.Log("Position is missing figi. Ticker: " + lot.Ticker + ". Quantity: " + strconv.FormatFloat(lot.Quantity, 'E', -1, 64), logger.ERROR)
+			}
+			if lot.Figi == quote.Figi() {
+				if lot.Figi == "BBG00RM6M4V5" {
+					fmt.Println("Let's see...")
+				}
+				marketValue, _ := lot.MarketValue(quote)
+				totalPortfolioValue += marketValue
 			}
 		}
 	}
@@ -79,18 +91,25 @@ func (portfolio Portfolio) PrintAllPositions() {
 	//Displaying the portfolio
 	for _, lot := range positions {
 		profitOrLoss := 0.0
-		stockQuote := 0.0
+		var stockQuote entity.SimpleQuote 
+		didFindQuote := false
 		for _, quote := range quotes {
-			if lot.Ticker == quote.Ticker() {
-				profitOrLoss = lot.CurrentReturn(quote.Quote())
-				stockQuote = quote.Quote()
+			if lot.Figi == quote.Figi() {
+				profitOrLoss = lot.CurrentReturn(quote)
+				stockQuote = quote
+				didFindQuote = true
 			}
+		}
+		if !didFindQuote {
+			fmt.Println("Unable to fetch quotes for ", lot.Ticker, "Quantity: ", lot.Quantity, "Spent on position:", lot.Quantity * lot.OpeningPrice)
+			continue
 		}
 		fmt.Printf("%-6s", lot.Ticker)
 		fmt.Printf("Quantity: %.0f | ", lot.Quantity)
 		fmt.Printf("Opening Price: %.1f | ", lot.OpeningPrice)
 		fmt.Printf("Profit: %.2f | ", profitOrLoss*100)
-		fmt.Printf("Percentage of portfolio: %.2f %% | ", lot.MarketValue(stockQuote)/totalPortfolioValue*100)
-		fmt.Printf("Market value: %.0f\n", lot.MarketValue(stockQuote))
+		mv, _ := lot.MarketValue(stockQuote)
+		fmt.Printf("Percentage of portfolio: %.2f %% | ",mv / totalPortfolioValue * 100)
+		fmt.Printf("Market value: %.0f\n", mv)
 	}
 }

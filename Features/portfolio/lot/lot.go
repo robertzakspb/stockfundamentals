@@ -1,10 +1,16 @@
 package lot
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/compoundinvest/invest-core/quote/entity"
+	"github.com/compoundinvest/stockfundamentals/features/marketdata/forex"
+	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+)
 
 type Lot struct {
 	SecurityID   string
-	ISIN         string
+	Figi         string
 	Ticker       string  `json:"ticker"`
 	Quantity     float64 `json:"quantity"`
 	OpeningPrice float64 `json:"openingPrice"`
@@ -17,7 +23,6 @@ type Lot struct {
 func (lot Lot) MergeWith(newLot Lot) (Lot, error) {
 	if lot.Ticker != newLot.Ticker {
 		return Lot{}, fmt.Errorf("attempting to merge two lots with a different underlying security")
-
 	}
 
 	newQuantity := lot.Quantity + newLot.Quantity
@@ -25,7 +30,7 @@ func (lot Lot) MergeWith(newLot Lot) (Lot, error) {
 
 	return Lot{
 		"",
-		lot.ISIN,
+		lot.Figi,
 		lot.Ticker,
 		newQuantity,
 		newOpeningPrice,
@@ -37,13 +42,23 @@ func (lot Lot) MergeWith(newLot Lot) (Lot, error) {
 }
 
 // Returns the current profit on the lot given a quote (expressed as a percentage)
-func (lot Lot) CurrentReturn(quote float64) float64 {
+func (lot Lot) CurrentReturn(quote entity.SimpleQuote) float64 {
 	if lot.OpeningPrice == 0 {
 		return 0
 	}
-	return (quote - lot.OpeningPrice) / lot.OpeningPrice
+	return (quote.Quote() - lot.OpeningPrice) / lot.OpeningPrice
 }
 
-func (lot Lot) MarketValue(quote float64) float64 {
-	return lot.Quantity * quote
+func (lot Lot) MarketValue(quote entity.SimpleQuote) (float64, error) {
+	if quote == nil {
+		logger.Log("Quote is nil for position " + lot.Figi, logger.ERROR)
+	}
+	
+	const targetCur = "EUR"
+	quoteInTargerCurrency, err := forex.ConvertPriceToDifferentCurrency(quote.Quote(), quote.Currency(), targetCur)
+	if err != nil {
+		return 0, err
+	}
+
+	return lot.Quantity * quoteInTargerCurrency, nil
 }

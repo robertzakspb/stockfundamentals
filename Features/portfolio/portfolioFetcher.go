@@ -76,10 +76,10 @@ func getTinkoffStockPositions() []Lot {
 			logger.Log(err.Error(), logger.ERROR)
 		}
 
-		ticker := asset.Instrument.GetTicker()
 		newLot := Lot{
 			SecurityID:   "",
-			Ticker:       ticker,
+			Ticker:       asset.Instrument.GetTicker(),
+			Figi:         position.GetFigi(),
 			Quantity:     float64(position.Quantity.ToFloat()),
 			OpeningPrice: position.AveragePositionPrice.ToFloat(),
 			Currency:     position.AveragePositionPrice.Currency,

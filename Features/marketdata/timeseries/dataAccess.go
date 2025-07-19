@@ -32,7 +32,7 @@ func saveTimeSeriesToDB(quotes []entity.SimpleQuote) error {
 	ydbQuotes := []types.Value{}
 	for _, quote := range quotes {
 		ydbQuote := types.StructValue(
-			types.StructFieldValue("isin", types.TextValue(quote.ISIN())),
+			types.StructFieldValue("figi", types.TextValue(quote.Figi())),
 			types.StructFieldValue("close_price", types.DoubleValue(quote.Quote())),
 			types.StructFieldValue("date", convertToYdbDate(quote.Timestamp())),
 		)
