@@ -5,7 +5,7 @@ func getHardCodedStockPositions() []Lot {
 	serbianStocks := []Lot{
 		{
 			Quantity:     25,
-			OpeningPrice: 8424.28,
+			PricePerUnit: 8424.28,
 			Currency:     "RSD",
 			Ticker:       "JESV",
 			Figi:         "BBG000BS7XH7",
@@ -15,7 +15,7 @@ func getHardCodedStockPositions() []Lot {
 		},
 		{
 			Quantity:     534,
-			OpeningPrice: 1484.5,
+			PricePerUnit: 1484.5,
 			Currency:     "RSD",
 			Ticker:       "DNOS",
 			Figi:         "BBG000BMX476",
@@ -25,7 +25,7 @@ func getHardCodedStockPositions() []Lot {
 		},
 		{
 			Quantity:     289,
-			OpeningPrice: 2018.78,
+			PricePerUnit: 2018.78,
 			Currency:     "RSD",
 			Ticker:       "MTLC",
 			Figi:         "BBG000HP5RC7",
@@ -35,7 +35,7 @@ func getHardCodedStockPositions() []Lot {
 		},
 		{
 			Quantity:     380,
-			OpeningPrice: 838.91,
+			PricePerUnit: 838.91,
 			Currency:     "RSD",
 			Ticker:       "NIIS",
 			Figi:         "BBG0015L55D4",
@@ -45,7 +45,7 @@ func getHardCodedStockPositions() []Lot {
 		},
 		{
 			Quantity:     18,
-			OpeningPrice: 7939.21,
+			PricePerUnit: 7939.21,
 			Currency:     "RSD",
 			Ticker:       "IMPL",
 			Figi:         "BBG000HGH3F4",
@@ -58,7 +58,7 @@ func getHardCodedStockPositions() []Lot {
 	americanStocks := []Lot{
 		{
 			Quantity:     1373,
-			OpeningPrice: 15.07,
+			PricePerUnit: 15.07,
 			Currency:     "USD",
 			Ticker:       "CSIQ",
 			Figi:         "BBG000K1JFJ0",
@@ -70,7 +70,7 @@ func getHardCodedStockPositions() []Lot {
 
 	rosselhozStocks := Lot{
 		Quantity:     3459,
-		OpeningPrice: 84,
+		PricePerUnit: 84,
 		Currency:     "RUB",
 		Ticker:       "ETLN",
 		Figi:         "BBG00RM6M4V5", //TODO: Update it once the ISIN changes from US29760G1031 to RU000A10C1L6

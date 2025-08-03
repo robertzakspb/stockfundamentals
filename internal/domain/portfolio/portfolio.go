@@ -2,11 +2,12 @@ package portfolio
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
-	"github.com/compoundinvest/stockfundamentals/features/portfolio/lot"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/portfolio/lot"
 	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
 )
 
@@ -88,6 +89,11 @@ func (portfolio Portfolio) PrintAllPositions() {
 		}
 	}
 
+	slices.SortFunc(positions, func (a Lot, b Lot) int {
+		
+		return 1
+	})
+
 	//Displaying the portfolio
 	for _, lot := range positions {
 		profitOrLoss := 0.0
@@ -101,12 +107,12 @@ func (portfolio Portfolio) PrintAllPositions() {
 			}
 		}
 		if !didFindQuote {
-			fmt.Println("Unable to fetch quotes for ", lot.Ticker, "Quantity: ", lot.Quantity, "Spent on position:", lot.Quantity * lot.OpeningPrice)
+			fmt.Println("Unable to fetch quotes for ", lot.Ticker, "Quantity: ", lot.Quantity, "Spent on position: ", lot.CostBasis())
 			continue
 		}
 		fmt.Printf("%-6s", lot.Ticker)
 		fmt.Printf("Quantity: %.0f | ", lot.Quantity)
-		fmt.Printf("Opening Price: %.1f | ", lot.OpeningPrice)
+		fmt.Printf("Opening Price: %.1f | ", lot.PricePerUnit)
 		fmt.Printf("Profit: %.2f | ", profitOrLoss*100)
 		mv, _ := lot.MarketValue(stockQuote)
 		fmt.Printf("Percentage of portfolio: %.2f %% | ",mv / totalPortfolioValue * 100)

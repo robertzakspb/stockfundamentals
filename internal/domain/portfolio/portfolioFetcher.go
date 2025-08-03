@@ -81,7 +81,7 @@ func getTinkoffStockPositions() []Lot {
 			Ticker:       asset.Instrument.GetTicker(),
 			Figi:         position.GetFigi(),
 			Quantity:     float64(position.Quantity.ToFloat()),
-			OpeningPrice: position.AveragePositionPrice.ToFloat(),
+			PricePerUnit: position.AveragePositionPrice.ToFloat(),
 			Currency:     position.AveragePositionPrice.Currency,
 			CompanyName:  "",
 			BrokerName:   "Tinkoff",

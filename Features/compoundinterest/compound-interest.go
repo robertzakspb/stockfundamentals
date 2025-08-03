@@ -25,7 +25,7 @@ func Compound(capital float64, numberOfYears int, annualGrowthRate float64, annu
 // Compares long-term portoflio returns depending on the provided annual growth rates (e.g. 10%, 20%, 30%, etc.)
 func CompareDifferentGrowthRates(rates []float64, annualContribution float64, numberOfYears int) []PortfolioReturn {
 	returns := []PortfolioReturn{}
-	for i := 0; i < len(rates); i++ {
+	for i := range rates {
 		portfolioReturn := Compound(1_000_000, numberOfYears, rates[i], annualContribution)
 		returns = append(returns, PortfolioReturn{
 			portfolioReturn,
