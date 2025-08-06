@@ -16,7 +16,7 @@ import (
 const market_date_directory_prefix = "marketdata/timeseries"
 const time_series_table_name = "time_series"
 
-func saveTimeSeriesToDB(quotes []entity.SimpleQuote) error {
+func SaveTimeSeriesToDB(quotes []entity.SimpleQuote) error {
 	config, err := config.LoadConfig()
 	if err != nil {
 		return err

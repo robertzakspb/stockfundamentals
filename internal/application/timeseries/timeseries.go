@@ -6,7 +6,7 @@ import (
 	"github.com/compoundinvest/invest-core/quote/entity"
 	tinkoffapi "github.com/compoundinvest/invest-core/quote/tinkoffmd"
 
-	// "github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/marketdata"
 	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
@@ -41,7 +41,7 @@ func FetchAndSaveHistoricalQuotes() {
 		<-throttle
 	}
 
-	err := saveTimeSeriesToDB(quotes)
+	err := timeseries.SaveTimeSeriesToDB(quotes)
 	if err != nil {
 		logger.Log("Failed to fetch timeseries via Tinkoff API due to: "+err.Error(), logger.ALERT)
 	}
