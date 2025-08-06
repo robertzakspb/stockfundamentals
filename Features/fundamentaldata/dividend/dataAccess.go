@@ -123,10 +123,6 @@ func mapDbModelToDividend(dividends []dividendDbModel) []Dividend {
 }
 
 func getAllDividends(db *ydb.Driver) ([]Dividend, error) {
-
-	//TODO: - Refactor to fetch positions for that exact user
-	// positions :=
-
 	userDividendsDbModels := []dividendDbModel{}
 
 	err := db.Query().Do(context.TODO(),
