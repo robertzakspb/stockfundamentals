@@ -2,22 +2,21 @@ package main
 
 import (
 
-	// "github.com/compoundinvest/stockfundamentals/dataseed"
+	"github.com/compoundinvest/stockfundamentals/dataseed"
 	// "fmt"
-	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/dividend"
+	// "github.com/compoundinvest/stockfundamentals/features/fundamentaldata/dividend"
 	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/portfolio"
 )
 
 func main() {
-	portfolio.GeMyPortfolio().PrintAllPositions()
-	// dataseed.InitialSeed()
+	dataseed.InitialSeed()
 	fetchExternalData()
+	portfolio.GeMyPortfolio().PrintAllPositions()
 }
-
 
 func fetchExternalData() {
 	security.FetchAndSaveSecurities()
-	dividend.FetchAndSaveAllDividends()
+	// dividend.FetchAndSaveAllDividends()
 	// timeseries.FetchAndSaveHistoricalQuotes()
 }

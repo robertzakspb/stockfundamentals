@@ -1,6 +1,10 @@
 package logger
 
-import "fmt"
+import (
+	"fmt"
+)
+
+var CURRENT_LOGGING_LEVELS = [...]LOG_LEVEL{ERROR}
 
 type LOG_LEVEL int
 
@@ -12,7 +16,16 @@ const (
 )
 
 func Log(message string, level LOG_LEVEL) error {
-	fmt.Println(message)
+	shouldLog := false
+	for _, l := range CURRENT_LOGGING_LEVELS {
+		if level == l {
+			shouldLog = true
+		}
+	}
+
+	if shouldLog {
+		fmt.Println(message)
+	}
 
 	return nil
 }

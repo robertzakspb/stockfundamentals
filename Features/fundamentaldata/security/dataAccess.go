@@ -2,21 +2,24 @@ package security
 
 import (
 	"context"
+	"strings"
+	"time"
 
 	"errors"
 	"fmt"
 	"io"
 	"path"
 
+	"github.com/compoundinvest/stockfundamentals/infrastructure/config"
 	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+	"github.com/ydb-platform/ydb-go-sdk/v3"
 
 	"github.com/google/uuid"
-	"github.com/ydb-platform/ydb-go-sdk/v3"
+
+	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
-
-	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 )
 
 const stock_directory_prefix = "stockfundamentals/stocks"
@@ -41,6 +44,7 @@ func SaveSecuritiesToDB(securities []Security, db *ydb.Driver) error {
 			types.StructFieldValue("ticker", types.TextValue(stock.GetTicker())),
 			types.StructFieldValue("issue_size", types.Int64Value(int64(stock.GetIssueSize()))),
 			types.StructFieldValue("sector", types.TextValue(stock.GetSector())),
+			types.StructFieldValue("MIC", types.TextValue(stock.GetMic())),
 		)
 
 		ydbStocks = append(ydbStocks, ydbStock)
@@ -59,28 +63,38 @@ func SaveSecuritiesToDB(securities []Security, db *ydb.Driver) error {
 	return nil
 }
 
-func FetchSecuritiesFromDBWithDriver(db *ydb.Driver) ([]Stock, error) {
+func GetAllSecuritiesFromDB() ([]Stock, error) {
+	return FetchSecuritiesFromDBWithDriver(getSecuritiesBaseQuery())
+}
+
+func GetSecuritiesFilteredByFigi(figis []string) ([]Stock, error) {
+	return FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByFigiQuery(figis))
+}
+
+func FetchSecuritiesFromDBWithDriver(yqlQuery string) ([]Stock, error) {
+
+	config, err := config.LoadConfig()
+	if err != nil {
+		return []Stock{}, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*15)
+	defer cancel()
+	db, err := ydb.Open(ctx, config.DB.ConnectionString)
+
+	if err != nil {
+		logger.Log(err.Error(), logger.ALERT)
+		panic("Failed to connect to the database")
+	}
+
 	dbStocks := []StockDbModel{}
 	parsedStocks := []Stock{}
-	err := db.Query().Do(context.TODO(),
+	err = db.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
-			result, err := s.Query(ctx, fmt.Sprintf(`
-						SELECT
-							id,
-							isin,
-							figi,
-							company_name,
-							is_public,
-							security_type,
-							country_iso2,
-							ticker,
-							issue_size,
-							sector
-						FROM
-							%s
-					`, "`"+path.Join(stock_directory_prefix, stock_table_name)+"`"),
-				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
+			result, err := s.Query(ctx,
+				yqlQuery,
 			)
+
 			if err != nil {
 				return err
 			}
@@ -122,6 +136,40 @@ func FetchSecuritiesFromDBWithDriver(db *ydb.Driver) ([]Stock, error) {
 	return parsedStocks, nil
 }
 
+func getSecuritiesBaseQuery() string {
+	yqlQuery := fmt.Sprintf(`
+						SELECT
+							id,
+							isin,
+							figi,
+							company_name,
+							is_public,
+							security_type,
+							country_iso2,
+							ticker,
+							issue_size,
+							sector,
+							MIC
+						FROM
+							%s
+					`, securityPath())
+	return yqlQuery
+}
+
+func getSecuritiesFilteredByFigiQuery(figis []string) string {
+	yqlQuery := getSecuritiesBaseQuery()
+
+	if len(figis) > 0 {
+		yqlQuery += "WHERE figi IN " + convertSliceToYqlInExpression(figis)
+	}
+
+	return yqlQuery
+}
+
+func securityPath() string {
+	return "`" + path.Join(stock_directory_prefix, stock_table_name) + "`"
+}
+
 func mapYdbStockToStock(dbStock StockDbModel) Stock {
 	securityType, found := SecurityTypeMap[dbStock.SecurityType]
 	if !found {
@@ -139,7 +187,21 @@ func mapYdbStockToStock(dbStock StockDbModel) Stock {
 		Ticker:       dbStock.Ticker,
 		IssueSize:    int(dbStock.IssueSize),
 		Sector:       dbStock.Sector,
+		MIC:          dbStock.MIC,
 	}
 
 	return stock
+}
+
+// Converts slices like ["apple", "banana"] to an IN expression like IN ('apple', 'banana') for YQL filtering
+func convertSliceToYqlInExpression(filterSlice []string) string {
+	var sb strings.Builder
+	sb.WriteString("(")
+
+	for _, value := range filterSlice {
+		sb.WriteString("'" + value + "', ")
+	}
+
+	str := sb.String()[:sb.Len()-2] + ")"
+	return str
 }

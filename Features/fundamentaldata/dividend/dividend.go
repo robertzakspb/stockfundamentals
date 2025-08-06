@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
 	investapi "github.com/russianinvestments/invest-api-go-sdk/proto"
-	"github.com/ydb-platform/ydb-go-sdk/v3"
 )
 
 type Dividend struct {
@@ -27,8 +26,8 @@ type Dividend struct {
 	ManagementComment string    `sql:"management_comment"`
 }
 
-func fetchDividendsForAllStocks(db *ydb.Driver) []Dividend {
-	stocks, err := security.FetchSecuritiesFromDBWithDriver(db)
+func fetchDividendsForAllStocks() []Dividend {
+	stocks, err := security.GetAllSecuritiesFromDB()
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 	}

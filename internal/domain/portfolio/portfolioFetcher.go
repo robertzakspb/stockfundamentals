@@ -5,6 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
 	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
 
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
@@ -64,31 +65,44 @@ func getTinkoffStockPositions() []Lot {
 		allPositions = append(allPositions, portfolio.GetPositions()...)
 	}
 
-	securityService := client.NewInstrumentsServiceClient()
+	// securityService := client.NewInstrumentsServiceClient()
 	lots := []Lot{}
+	securities := fetchPositionSecurities(allPositions)
 	for _, position := range allPositions {
 		if position.GetInstrumentType() != "share" {
 			continue //Skipping the cash position until it is handled separately
 		}
 
-		asset, err := securityService.ShareByFigi(position.GetFigi())
+		security, err := security.FindStockByFigi(securities, position.GetFigi())
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 		}
 
 		newLot := Lot{
-			SecurityID:   "",
-			Ticker:       asset.Instrument.GetTicker(),
-			Figi:         position.GetFigi(),
+			//TODO: Use the NewLot method
 			Quantity:     float64(position.Quantity.ToFloat()),
 			PricePerUnit: position.AveragePositionPrice.ToFloat(),
 			Currency:     position.AveragePositionPrice.Currency,
-			CompanyName:  "",
-			BrokerName:   "Tinkoff",
-			MIC:          "MISX",
+			AccountId:    tinkoffIisId,
+			Security: security,
 		}
 		lots = append(lots, newLot)
 	}
 
 	return lots
+}
+
+func fetchPositionSecurities(positions []*pb.PortfolioPosition) []security.Stock {
+	figis := []string{}
+	for _, position := range positions {
+		figis = append(figis, position.Figi)
+	}
+
+	securities, err := security.GetSecuritiesFilteredByFigi(figis)
+	if err != nil || len(securities) == 0 {
+		logger.Log("Failed to find positions with the required figis: ", logger.ERROR)
+		return []security.Stock{}
+	}
+
+	return  securities
 }

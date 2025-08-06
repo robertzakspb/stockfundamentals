@@ -17,7 +17,6 @@ import (
 	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
 
 	"github.com/ydb-platform/ydb-go-sdk/v3"
-	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/options"
@@ -28,7 +27,6 @@ const INSERT_SCRIPTS_FOLDER = "dataseed/yql_scripts/insert_scripts/"
 
 func InitialSeed() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	// ctx, cancel := context.WithTimeout(context.TODO())
 	defer cancel()
 
 	config, err := config.LoadConfig()
@@ -46,7 +44,7 @@ func InitialSeed() error {
 		return err
 	}
 
-	err = populateTables(ctx, db)
+	err = populateTables(db)
 	if err != nil {
 		return err
 	}
@@ -70,10 +68,8 @@ func createTables(ctx context.Context, db *ydb.Driver) error {
 	return nil
 }
 
-func populateTables(ctx context.Context, db *ydb.Driver) error {
-	client := db.Query()
-
-	err := populateAllTables(ctx, client, db)
+func populateTables(db *ydb.Driver) error {
+	err := populateAllTables(db)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 		return err
@@ -95,10 +91,11 @@ func createStockTables(ctx context.Context, db *ydb.Driver, c table.Client) erro
 				options.WithColumn("isin", types.TypeUTF8),
 				options.WithColumn("security_type", types.TypeUTF8),
 				options.WithColumn("country_iso2", types.TypeUTF8),
+				options.WithColumn("MIC", types.TypeUTF8),
 				options.WithColumn("ticker", types.TypeUTF8),
 				options.WithColumn("issue_size", types.TypeInt64),
 				options.WithColumn("sector", types.Optional(types.TypeUTF8)),
-				options.WithPrimaryKeyColumn("figi"),
+				options.WithPrimaryKeyColumn("id"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)
@@ -164,37 +161,7 @@ func createMarketDataTables(ctx context.Context, db *ydb.Driver, c table.Client)
 
 const seedDataFolder = "dataseed/seed-data/"
 
-func populateAllTables(ctx context.Context, c query.Client, db *ydb.Driver) error {
-	// files, _ := os.ReadDir(INSERT_SCRIPTS_FOLDER)
-	// //TODO: Remove this block after transitioning to file ingestion from CSV
-	// for _, file := range files {
-	// 	if file.Name() == "insertstock.yql" ||
-	// 		file.Name() == "insertdividends.yql" ||
-	// 		file.Name() == "insertnetincome.yql" ||
-	// 		file.Name() == "insertrevenue.yql" {
-	// 		fmt.Println("Skipping this file")
-	// 		continue
-	// 	}
-
-	// 	insertScriptData, err := os.Open(INSERT_SCRIPTS_FOLDER + file.Name())
-	// 	if err != nil {
-	// 		logger.Log(err.Error(), logger.ALERT)
-	// 	}
-	// 	defer insertScriptData.Close()
-
-	// 	var buffer strings.Builder
-	// 	_, err = io.Copy(&buffer, insertScriptData)
-	// 	if err != nil {
-	// 		logger.Log(err.Error(), logger.ALERT)
-	// 	}
-	// 	insertScriptYQL := buffer.String()
-
-	// 	err = c.Exec(ctx, insertScriptYQL)
-	// 	if err != nil {
-	// 		logger.Log(err.Error(), logger.ALERT)
-	// 	}
-	// }
-
+func populateAllTables(db *ydb.Driver) error {
 	files, err := os.ReadDir(seedDataFolder)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
@@ -266,7 +233,7 @@ func populateStockTable(reader *csv.Reader, db *ydb.Driver) error {
 		stock := security.Stock{
 			Id:           parsedUuid,
 			Isin:         record[3],
-			Figi:         "", //TODO: Should this be added too? Where does one source the data?
+			Figi:         record[9],
 			CompanyName:  record[1],
 			IsPublic:     isPublic,
 			SecurityType: securityType,
@@ -274,6 +241,7 @@ func populateStockTable(reader *csv.Reader, db *ydb.Driver) error {
 			Ticker:       record[6],
 			IssueSize:    issueSize,
 			Sector:       record[8],
+			MIC:          record[10],
 		}
 		serbianStocks = append(serbianStocks, stock)
 	}
@@ -329,7 +297,7 @@ func populateDividendTable(reader *csv.Reader, db *ydb.Driver) error {
 
 		payoutDate, err := time.Parse("2006-01-02", csvDividend[6])
 		if err != nil {
-			logger.Log("Failed to parse the payout date from value "+csvDividend[6]+" in the dividend seed file", logger.ALERT)
+			logger.Log("Failed to parse the payout date from value "+csvDividend[6]+" in the dividend seed file", logger.WARNING)
 			payoutDate = time.Unix(0, 0)
 		}
 

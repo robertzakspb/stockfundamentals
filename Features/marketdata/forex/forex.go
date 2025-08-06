@@ -1,10 +1,13 @@
 package forex
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func GetExchangeRateUsdTo(currency string) (float64, error) {
 	if currency == "USD" {
-		return  1, nil
+		return 1, nil
 	}
 
 	cur, found := currencyName[currency]
@@ -42,6 +45,11 @@ func ConvertPriceToDifferentCurrency(price float64, priceCur string, targetCur s
 	}
 
 	return price / exRate, nil
+}
+
+func IsSupportedCurrency(cur string) bool {
+	_, found := currencyName[strings.ToUpper(cur)]
+	return found
 }
 
 var exchangeRateUsdTo = map[Currency]float64{

@@ -1,5 +1,7 @@
-id|company_name|is_public|isin|security_type|country_iso2|ticker|issue_size|sector
-4f96e511-34db-4f00-9bf5-0975cef04c2b|Dunav Osiguranje|true|RSDNOSE74915|commonStock|RS|DNOS|15189202|Insurance
-dd194350-4c61-4643-8c74-1120ceca8fae|Jedinstvo iz Sevojna|true|RSJESVE87017|commonStock|RS|JESV|232703|Construction
-8f0161f0-083d-431a-9fff-89deb073ce0f|Metalac|true|RSMETAE71629|commonStock|RS|MTLC|2040000|Utensils
-9f45ae88-70bd-48ef-aadc-aa6f01377b76|NIS|true|RSNISHE79420|commonStock|RS|NIIS|163060400|Oil
+id|company_name|is_public|isin|security_type|country_iso2|ticker|issue_size|sector|figi|MIC
+4f96e511-34db-4f00-9bf5-0975cef04c2b|Dunav Osiguranje|true|RSDNOSE74915|commonStock|RS|DNOS|15189202|Insurance|BBG000BMX476|XBEL
+dd194350-4c61-4643-8c74-1120ceca8fae|Jedinstvo iz Sevojna|true|RSJESVE87017|commonStock|RS|JESV|232703|Construction|BBG000BS7XH7|XBEL
+8f0161f0-083d-431a-9fff-89deb073ce0f|Metalac|true|RSMETAE71629|commonStock|RS|MTLC|2040000|Utensils|BBG000HP5RC7|XBEL
+9f45ae88-70bd-48ef-aadc-aa6f01377b76|NIS|true|RSNISHE79420|commonStock|RS|NIIS|163060400|Oil|BBG0015L55D4|XBEL
+d281b3b3-ac2a-49d2-9265-d030fe4142a9|Impol Seval|true|RSIMPLE20713|commonStock|RS|IMPL|942287|Metallurgy|BBG000HGH3F4|XBEL
+6acbe4cc-80e1-4ab1-9256-d16661c7001a|Canadian Solar|true|CA1366351098|commonStock|US|CSIQ|670000000|Renewables|BBG000K1JMX9|XNAS

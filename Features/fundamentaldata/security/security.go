@@ -2,6 +2,7 @@ package security
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/infrastructure/config"
@@ -84,12 +85,23 @@ func fetchTinkoffSecurities() []Stock {
 			Ticker:       tinkoffStock.Ticker,
 			IssueSize:    int(tinkoffStock.GetIssueSize()),
 			Sector:       tinkoffStock.Sector,
+			MIC:          "MISX",
 		}
 
 		russianStocks = append(russianStocks, russianStock)
 	}
 
 	return russianStocks
+}
+
+func FindStockByFigi(securities []Stock, figi string) (Stock, error) {
+	for _, stock := range securities {
+		if stock.GetFigi() == figi {
+			return stock, nil
+		}
+	}
+
+	return Stock{}, fmt.Errorf("failed to find a security with figi %s", figi)
 }
 
 func mapTinkoffSecurityTypeToInternal(shareType investapi.ShareType) SecurityType {

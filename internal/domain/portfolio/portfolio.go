@@ -7,8 +7,8 @@ import (
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
-	"github.com/compoundinvest/stockfundamentals/internal/domain/portfolio/lot"
 	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/portfolio/lot"
 )
 
 type Lot = lot.Lot
@@ -20,7 +20,7 @@ type Portfolio struct {
 
 func (portfolio Portfolio) GetPositionByTicker(ticker string) (Lot, error) {
 	for _, position := range portfolio.UniquePositions() {
-		if position.Ticker == ticker {
+		if position.Security.GetTicker() == ticker {
 			return position, nil
 		}
 	}
@@ -34,7 +34,7 @@ func (portfolio Portfolio) UniquePositions() []Lot {
 		foundLotWithSameTicker := false
 		lotWithSameTickerIndex := 0
 		for i, uniquePosition := range uniquePositions {
-			if lot.Ticker == uniquePosition.Ticker {
+			if lot.Security.GetFigi() == uniquePosition.Security.GetFigi() {
 				foundLotWithSameTicker = true
 				lotWithSameTickerIndex = i
 			}
@@ -64,9 +64,10 @@ func (portfolio Portfolio) PrintAllPositions() {
 	securities := []entity.Security{}
 	for _, lot := range positions {
 		securities = append(securities, entity.Security{
-			Figi: lot.Figi,
-			Ticker: lot.Ticker, 
-			MIC: lot.MIC})
+			Figi:   lot.Security.GetFigi(),
+			Ticker: lot.Security.GetTicker(),
+			MIC:    lot.Security.GetMic(),
+		})
 	}
 
 	quotes := quotefetcher.FetchQuotesFor(securities)
@@ -76,46 +77,43 @@ func (portfolio Portfolio) PrintAllPositions() {
 	for _, lot := range positions {
 		for _, quote := range quotes {
 			//TODO: Refactor this abomination
-			if lot.Figi == "" {
-				logger.Log("Position is missing figi. Ticker: " + lot.Ticker + ". Quantity: " + strconv.FormatFloat(lot.Quantity, 'E', -1, 64), logger.ERROR)
+			if lot.Security.GetFigi() == "" {
+				logger.Log("Position is missing figi. Ticker: "+lot.Security.GetTicker()+". Quantity: "+strconv.FormatFloat(lot.Quantity, 'E', -1, 64), logger.ERROR)
 			}
-			if lot.Figi == quote.Figi() {
-				if lot.Figi == "BBG00RM6M4V5" {
-					fmt.Println("Let's see...")
-				}
+			if lot.Security.GetFigi() == quote.Figi() {
 				marketValue, _ := lot.MarketValue(quote)
 				totalPortfolioValue += marketValue
 			}
 		}
 	}
 
-	slices.SortFunc(positions, func (a Lot, b Lot) int {
-		
+	slices.SortFunc(positions, func(a Lot, b Lot) int {
+
 		return 1
 	})
 
 	//Displaying the portfolio
 	for _, lot := range positions {
 		profitOrLoss := 0.0
-		var stockQuote entity.SimpleQuote 
+		var stockQuote entity.SimpleQuote
 		didFindQuote := false
 		for _, quote := range quotes {
-			if lot.Figi == quote.Figi() {
+			if lot.Security.GetFigi() == quote.Figi() {
 				profitOrLoss = lot.CurrentReturn(quote)
 				stockQuote = quote
 				didFindQuote = true
 			}
 		}
 		if !didFindQuote {
-			fmt.Println("Unable to fetch quotes for ", lot.Ticker, "Quantity: ", lot.Quantity, "Spent on position: ", lot.CostBasis())
+			fmt.Println("Unable to fetch quotes for ", lot.Security.GetTicker(), "Quantity: ", lot.Quantity, "Spent on position: ", lot.CostBasis())
 			continue
 		}
-		fmt.Printf("%-6s", lot.Ticker)
+		fmt.Printf("%-6s", lot.Security.GetTicker())
 		fmt.Printf("Quantity: %.0f | ", lot.Quantity)
 		fmt.Printf("Opening Price: %.1f | ", lot.PricePerUnit)
 		fmt.Printf("Profit: %.2f | ", profitOrLoss*100)
 		mv, _ := lot.MarketValue(stockQuote)
-		fmt.Printf("Percentage of portfolio: %.2f %% | ",mv / totalPortfolioValue * 100)
+		fmt.Printf("Percentage of portfolio: %.2f %% | ", mv/totalPortfolioValue*100)
 		fmt.Printf("Market value: %.0f\n", mv)
 	}
 }

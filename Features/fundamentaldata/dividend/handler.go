@@ -26,7 +26,7 @@ func FetchAndSaveAllDividends() error {
 		panic("Failed to connect to the database")
 	}
 
-	dividends := fetchDividendsForAllStocks(db)
+	dividends := fetchDividendsForAllStocks()
 
 	err = SaveDividendsToDB(dividends, db)
 	if err != nil {
