@@ -7,8 +7,8 @@ import (
 	tinkoffapi "github.com/compoundinvest/invest-core/quote/tinkoffmd"
 
 	// "github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
+	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/security"
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
 )
 
@@ -16,7 +16,7 @@ func FetchAndSaveHistoricalQuotes() {
 	stocks, _ := securitydb.GetAllSecuritiesFromDB()
 	quotes := []entity.SimpleQuote{}
 
-	rateLimit := time.Second / 2
+	rateLimit := time.Second / 2 //So as not not overload the Tinkoff API
 	throttle := time.Tick(rateLimit)
 	for _, stock := range stocks {
 		if stock.Country != "RU" {

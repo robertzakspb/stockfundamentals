@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
+	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/security"
 	"github.com/google/uuid"
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
 	investapi "github.com/russianinvestments/invest-api-go-sdk/proto"

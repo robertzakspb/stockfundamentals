@@ -15,7 +15,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/dividend"
 	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/financials"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
-	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/security"
+	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 
