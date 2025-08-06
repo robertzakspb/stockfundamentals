@@ -5,7 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"

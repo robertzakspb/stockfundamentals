@@ -7,7 +7,7 @@ import (
 	tinkoffapi "github.com/compoundinvest/invest-core/quote/tinkoffmd"
 
 	// "github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
-	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/security"
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
 )

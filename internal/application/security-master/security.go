@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/infrastructure/config"
-	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/security"
 	"github.com/google/uuid"
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"

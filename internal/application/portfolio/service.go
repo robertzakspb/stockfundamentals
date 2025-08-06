@@ -1,9 +1,9 @@
 package portfolio
 
 import (
-	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	pb "github.com/russianinvestments/invest-api-go-sdk/proto"
 )
 

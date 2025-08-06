@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
-	"github.com/compoundinvest/stockfundamentals/infrastructure/config"
-	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"

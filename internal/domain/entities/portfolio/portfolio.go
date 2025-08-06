@@ -7,8 +7,8 @@ import (
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
-	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
 
 type Portfolio struct {

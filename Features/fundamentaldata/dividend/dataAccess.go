@@ -8,7 +8,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
@@ -24,8 +24,8 @@ type dividendDbModel struct {
 	Id      uuid.UUID `sql:"id"`
 	StockID uuid.UUID `sql:"stock_id"`
 	//For DB-related reasons, expected and actual DPS are converted to integers to remove the fractional part. Multiplied by a million for maximum accuracy. When reading the value, it must similarly be divided by a million
-	ExpectedDpsTimesMillion int64       `sql:"expected_DPS"`
-	ActualDPSTimesMillion   int64      `sql:"actual_DPS"`
+	ExpectedDpsTimesMillion int64     `sql:"expected_DPS"`
+	ActualDPSTimesMillion   int64     `sql:"actual_DPS"`
 	Currency                string    `sql:"currency"`
 	AnnouncementDate        time.Time `sql:"announcement_date"`
 	RecordDate              time.Time `sql:"record_date"`
@@ -44,7 +44,7 @@ func SaveDividendsToDB(dividends []Dividend, db *ydb.Driver) error {
 	ydbDividends := []types.Value{}
 	for _, dividend := range dbModels {
 		ydbDividend := types.StructValue(
-			types.StructFieldValue("id", types.UuidValue(dividend.Id)), 
+			types.StructFieldValue("id", types.UuidValue(dividend.Id)),
 			types.StructFieldValue("stock_id", types.UuidValue(dividend.StockID)),
 			types.StructFieldValue("actual_DPS", types.Int64Value(int64(dividend.ActualDPSTimesMillion))),
 			types.StructFieldValue("expected_DPS", types.Int64Value(int64(dividend.ExpectedDpsTimesMillion))),

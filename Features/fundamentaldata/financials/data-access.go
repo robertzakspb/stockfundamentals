@@ -7,7 +7,7 @@ import (
 	"io"
 	"path"
 
-	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
@@ -113,12 +113,12 @@ func fetchFinancialMetricsFromDbWithDriver(db *ydb.Driver) ([]FinancialMetric, e
 
 func mapYdbMetricToMetric(dbMetric FinancialMetricDbModel) FinancialMetric {
 	return FinancialMetric{
-		Id: dbMetric.Id,
-		StockId: dbMetric.StockId,
-		Name: dbMetric.Name,
-		Period: ReportingPeriodMap[dbMetric.Period],
-		Year: int(dbMetric.Year),
-		Value: int(dbMetric.Value),
+		Id:       dbMetric.Id,
+		StockId:  dbMetric.StockId,
+		Name:     dbMetric.Name,
+		Period:   ReportingPeriodMap[dbMetric.Period],
+		Year:     int(dbMetric.Year),
+		Value:    int(dbMetric.Value),
 		Currency: dbMetric.Currency,
 	}
 }

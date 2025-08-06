@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/infrastructure/config"
-	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 )
 
@@ -53,6 +53,6 @@ func GetAllDividends() ([]Dividend, error) {
 		panic("Failed to connect to the database")
 	}
 	dividends, _ := getAllDividends(db)
-	
+
 	return dividends, nil
 }

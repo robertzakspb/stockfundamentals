@@ -3,8 +3,8 @@ package financials
 import (
 	"context"
 
-	"github.com/compoundinvest/stockfundamentals/infrastructure/config"
-	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 )
 

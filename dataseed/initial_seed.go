@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/infrastructure/config"
-	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 
 	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/dividend"
