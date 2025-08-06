@@ -1,12 +1,9 @@
 package main
 
 import (
-
 	"github.com/compoundinvest/stockfundamentals/dataseed"
-	// "fmt"
-	// "github.com/compoundinvest/stockfundamentals/features/fundamentaldata/dividend"
-	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
-	"github.com/compoundinvest/stockfundamentals/internal/domain/portfolio"
+	"github.com/compoundinvest/stockfundamentals/internal/application/security-master"
+	"github.com/compoundinvest/stockfundamentals/internal/application/portfolio"
 )
 
 func main() {
@@ -16,7 +13,7 @@ func main() {
 }
 
 func fetchExternalData() {
-	security.FetchAndSaveSecurities()
+	security_master.FetchAndSaveSecurities()
 	// dividend.FetchAndSaveAllDividends()
 	// timeseries.FetchAndSaveHistoricalQuotes()
 }

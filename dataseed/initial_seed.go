@@ -14,7 +14,8 @@ import (
 
 	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/dividend"
 	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/financials"
-	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
+	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/security"
 
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 
@@ -246,7 +247,7 @@ func populateStockTable(reader *csv.Reader, db *ydb.Driver) error {
 		serbianStocks = append(serbianStocks, stock)
 	}
 
-	err = security.SaveSecuritiesToDB(serbianStocks, db)
+	err = securitydb.SaveSecuritiesToDB(serbianStocks, db)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 		return err

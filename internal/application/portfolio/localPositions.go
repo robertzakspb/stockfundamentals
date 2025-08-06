@@ -1,14 +1,15 @@
 package portfolio
 
 import (
-	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/google/uuid"
 )
 
 var tinkoffIisId, _ = uuid.Parse("3315bd1c-12a4-444e-a294-84ef339e26e1")
 
 // Returns positions that cannot be fetched from some external API and must thus be hardcoded here
-func getHardCodedStockPositions() []Lot {
+func getHardCodedStockPositions() []lot.Lot {
 	//TODO: Move this elsewhere:
 
 	rosselHozId, _ := uuid.Parse("5e3e1fdb-5c18-43a5-a7c6-f898aff2d17f")
@@ -22,7 +23,7 @@ func getHardCodedStockPositions() []Lot {
 	impolId, _ := uuid.Parse("d281b3b3-ac2a-49d2-9265-d030fe4142a9")
 	csiqId, _ := uuid.Parse("6acbe4cc-80e1-4ab1-9256-d16661c7001a")
 
-	serbianStocks := []Lot{
+	serbianStocks := []lot.Lot{
 
 		{
 			Quantity:     25,
@@ -91,7 +92,7 @@ func getHardCodedStockPositions() []Lot {
 		},
 	}
 
-	americanStocks := []Lot{
+	americanStocks := []lot.Lot{
 		{
 			Quantity:     1373,
 			PricePerUnit: 15.07,
@@ -107,7 +108,7 @@ func getHardCodedStockPositions() []Lot {
 		},
 	}
 
-	rosselhozStocks := Lot{
+	rosselhozStocks := lot.Lot{
 		Quantity:     3459,
 		PricePerUnit: 84,
 		Currency:     "RUB",

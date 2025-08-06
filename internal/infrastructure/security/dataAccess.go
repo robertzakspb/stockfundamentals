@@ -16,6 +16,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
@@ -25,7 +26,7 @@ import (
 const stock_directory_prefix = "stockfundamentals/stocks"
 const stock_table_name = "stock"
 
-func SaveSecuritiesToDB(securities []Security, db *ydb.Driver) error {
+func SaveSecuritiesToDB(securities []security.Security, db *ydb.Driver) error {
 	ydbStocks := []types.Value{}
 	for _, stock := range securities {
 		var id = stock.GetId()
@@ -63,19 +64,19 @@ func SaveSecuritiesToDB(securities []Security, db *ydb.Driver) error {
 	return nil
 }
 
-func GetAllSecuritiesFromDB() ([]Stock, error) {
+func GetAllSecuritiesFromDB() ([]security.Stock, error) {
 	return FetchSecuritiesFromDBWithDriver(getSecuritiesBaseQuery())
 }
 
-func GetSecuritiesFilteredByFigi(figis []string) ([]Stock, error) {
+func GetSecuritiesFilteredByFigi(figis []string) ([]security.Stock, error) {
 	return FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByFigiQuery(figis))
 }
 
-func FetchSecuritiesFromDBWithDriver(yqlQuery string) ([]Stock, error) {
+func FetchSecuritiesFromDBWithDriver(yqlQuery string) ([]security.Stock, error) {
 
 	config, err := config.LoadConfig()
 	if err != nil {
-		return []Stock{}, err
+		return []security.Stock{}, err
 	}
 
 	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*15)
@@ -88,7 +89,7 @@ func FetchSecuritiesFromDBWithDriver(yqlQuery string) ([]Stock, error) {
 	}
 
 	dbStocks := []StockDbModel{}
-	parsedStocks := []Stock{}
+	parsedStocks := []security.Stock{}
 	err = db.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
 			result, err := s.Query(ctx,
@@ -130,7 +131,7 @@ func FetchSecuritiesFromDBWithDriver(yqlQuery string) ([]Stock, error) {
 		},
 	)
 	if err != nil {
-		return []Stock{}, err
+		return []security.Stock{}, err
 	}
 
 	return parsedStocks, nil
@@ -170,13 +171,13 @@ func securityPath() string {
 	return "`" + path.Join(stock_directory_prefix, stock_table_name) + "`"
 }
 
-func mapYdbStockToStock(dbStock StockDbModel) Stock {
-	securityType, found := SecurityTypeMap[dbStock.SecurityType]
+func mapYdbStockToStock(dbStock StockDbModel) security.Stock {
+	securityType, found := security.SecurityTypeMap[dbStock.SecurityType]
 	if !found {
 		logger.Log("Unable to parse the security type from the value: "+dbStock.SecurityType, logger.ERROR)
 	}
 
-	stock := Stock{
+	stock := security.Stock{
 		Id:           dbStock.Id,
 		CompanyName:  dbStock.CompanyName,
 		IsPublic:     true,

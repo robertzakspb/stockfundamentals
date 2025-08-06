@@ -5,25 +5,20 @@ import (
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	tinkoffapi "github.com/compoundinvest/invest-core/quote/tinkoffmd"
-	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
+
+	// "github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/security"
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
 )
 
-// type HistoricalReturn struct {
-// 	Ticker      string
-// 	FirstQuote  tinkoffapi.TinkoffQuote
-// 	LastQuote   tinkoffapi.TinkoffQuote
-// 	TotalReturn float64
-// }
-
 func FetchAndSaveHistoricalQuotes() {
-	stocks, _ := security.FetchSecuritiesFromDB()
+	stocks, _ := securitydb.GetAllSecuritiesFromDB()
 	quotes := []entity.SimpleQuote{}
 
 	rateLimit := time.Second / 2
 	throttle := time.Tick(rateLimit)
-	for _, stock := range stocks { 
+	for _, stock := range stocks {
 		if stock.Country != "RU" {
 			continue
 		}
@@ -48,6 +43,6 @@ func FetchAndSaveHistoricalQuotes() {
 
 	err := saveTimeSeriesToDB(quotes)
 	if err != nil {
-		logger.Log("Failed to fetch timeseries via Tinkoff API due to: " + err.Error(), logger.ALERT)
+		logger.Log("Failed to fetch timeseries via Tinkoff API due to: "+err.Error(), logger.ALERT)
 	}
 }

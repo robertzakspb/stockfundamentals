@@ -8,28 +8,26 @@ import (
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
 	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
-	"github.com/compoundinvest/stockfundamentals/internal/domain/portfolio/lot"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 )
 
-type Lot = lot.Lot
-
 type Portfolio struct {
-	Lots []Lot `json:"lots"`
+	Lots []lot.Lot `json:"lots"`
 	Cash float64
 }
 
-func (portfolio Portfolio) GetPositionByTicker(ticker string) (Lot, error) {
+func (portfolio Portfolio) GetPositionByTicker(ticker string) (lot.Lot, error) {
 	for _, position := range portfolio.UniquePositions() {
 		if position.Security.GetTicker() == ticker {
 			return position, nil
 		}
 	}
 
-	return Lot{}, fmt.Errorf("didn't find a position with ticker %s", ticker)
+	return lot.Lot{}, fmt.Errorf("didn't find a position with ticker %s", ticker)
 }
 
-func (portfolio Portfolio) UniquePositions() []Lot {
-	uniquePositions := []Lot{}
+func (portfolio Portfolio) UniquePositions() []lot.Lot {
+	uniquePositions := []lot.Lot{}
 	for _, lot := range portfolio.Lots {
 		foundLotWithSameTicker := false
 		lotWithSameTickerIndex := 0
@@ -87,7 +85,7 @@ func (portfolio Portfolio) PrintAllPositions() {
 		}
 	}
 
-	slices.SortFunc(positions, func(a Lot, b Lot) int {
+	slices.SortFunc(positions, func(a lot.Lot, b lot.Lot) int {
 
 		return 1
 	})

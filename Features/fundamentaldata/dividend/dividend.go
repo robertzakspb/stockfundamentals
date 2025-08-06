@@ -6,7 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/security"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
+	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/security"
 	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
 	"github.com/google/uuid"
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
@@ -27,7 +28,7 @@ type Dividend struct {
 }
 
 func fetchDividendsForAllStocks() []Dividend {
-	stocks, err := security.GetAllSecuritiesFromDB()
+	stocks, err := securitydb.GetAllSecuritiesFromDB()
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 	}

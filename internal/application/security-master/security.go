@@ -1,4 +1,4 @@
-package security
+package security_master
 
 import (
 	"context"
@@ -7,6 +7,8 @@ import (
 
 	"github.com/compoundinvest/stockfundamentals/infrastructure/config"
 	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
+	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/security"
 	"github.com/google/uuid"
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
 	investapi "github.com/russianinvestments/invest-api-go-sdk/proto"
@@ -33,48 +35,56 @@ func FetchAndSaveSecurities() error {
 		logger.Log("Fetched 0 securities from Tinkoff API, this is unexpected", logger.ERROR)
 	}
 
-	securities := []Security{}
+	securities := []security.Security{}
 	for _, stock := range stocks {
 		securities = append(securities, stock)
 	}
 
-	SaveSecuritiesToDB(securities, db)
+	securitydb.SaveSecuritiesToDB(securities, db)
 
 	return nil
 }
 
-func fetchTinkoffSecurities() []Stock {
+func GetAllSecuritiesFromDB() ([]security.Stock, error) {
+	return securitydb.GetAllSecuritiesFromDB()
+}
+
+func GetSecuritiesFilteredByFigi(figis []string) ([]security.Stock, error) {
+	return securitydb.GetSecuritiesFilteredByFigi(figis)
+}
+
+func fetchTinkoffSecurities() []security.Stock {
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
-		return []Stock{}
+		return []security.Stock{}
 	}
 
 	client, err := tinkoff.NewClient(context.TODO(), config, nil)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
-		return []Stock{}
+		return []security.Stock{}
 	}
 
 	securityService := client.NewInstrumentsServiceClient()
 	if securityService == nil {
 		logger.Log("Security service is nil!", logger.ALERT)
-		return []Stock{}
+		return []security.Stock{}
 	}
 
 	securities, err := securityService.Shares(investapi.InstrumentStatus_INSTRUMENT_STATUS_BASE)
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
-		return []Stock{}
+		return []security.Stock{}
 	}
 
-	russianStocks := []Stock{}
+	russianStocks := []security.Stock{}
 	for _, tinkoffStock := range securities.Instruments {
 		if tinkoffStock.CountryOfRisk != "RU" {
 			continue //Only Russian stocks are being imported for now
 		}
 
-		russianStock := Stock{
+		russianStock := security.Stock{
 			Id:           uuid.New(),
 			CompanyName:  tinkoffStock.Name,
 			IsPublic:     true,
@@ -94,25 +104,25 @@ func fetchTinkoffSecurities() []Stock {
 	return russianStocks
 }
 
-func FindStockByFigi(securities []Stock, figi string) (Stock, error) {
+func FindStockByFigi(securities []security.Stock, figi string) (security.Stock, error) {
 	for _, stock := range securities {
 		if stock.GetFigi() == figi {
 			return stock, nil
 		}
 	}
 
-	return Stock{}, fmt.Errorf("failed to find a security with figi %s", figi)
+	return security.Stock{}, fmt.Errorf("failed to find a security with figi %s", figi)
 }
 
-func mapTinkoffSecurityTypeToInternal(shareType investapi.ShareType) SecurityType {
+func mapTinkoffSecurityTypeToInternal(shareType investapi.ShareType) security.SecurityType {
 	switch shareType {
 	case investapi.ShareType_SHARE_TYPE_COMMON:
-		return OrdinaryShare
+		return security.OrdinaryShare
 	case investapi.ShareType_SHARE_TYPE_PREFERRED:
-		return PreferredShare
+		return security.PreferredShare
 	case investapi.ShareType_SHARE_TYPE_ADR, investapi.ShareType_SHARE_TYPE_GDR:
-		return DepositoryReceipt
+		return security.DepositoryReceipt
 	default:
-		return Unspecified
+		return security.Unspecified
 	}
 }
