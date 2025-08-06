@@ -1,3 +1,4 @@
+//DISCLAIMER: THIS PACKAGE IS NO LONGER IN USE, IT MAY EVENTUALLY BE DELETED
 package securityinfo
 
 type MoexSecuritiesDTO struct {

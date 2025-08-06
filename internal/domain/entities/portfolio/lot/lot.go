@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
-	"github.com/compoundinvest/stockfundamentals/features/marketdata/forex"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/forex"
 	"github.com/compoundinvest/stockfundamentals/infrastructure/logger"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/google/uuid"
