@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/compoundinvest/stockfundamentals/dataseed"
-	"github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/application/portfolio"
+	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/dataseed"
 )
 
 func main() {
