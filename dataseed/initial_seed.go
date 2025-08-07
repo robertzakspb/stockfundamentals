@@ -12,7 +12,8 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 
-	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/dividend"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
+	"github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
 	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/financials"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
@@ -315,7 +316,7 @@ func populateDividendTable(reader *csv.Reader, db *ydb.Driver) error {
 		dividends = append(dividends, div)
 	}
 
-	err = dividend.SaveDividendsToDB(dividends, db)
+	err = dbdividend.SaveDividendsToDB(dividends, db)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 		return err
