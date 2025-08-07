@@ -27,7 +27,7 @@ type Dividend struct {
 	ManagementComment string    `sql:"management_comment"`
 }
 
-func fetchDividendsForAllStocks() []Dividend {
+func FetchDividendsForAllStocks() []Dividend {
 	stocks, err := securitydb.GetAllSecuritiesFromDB()
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)

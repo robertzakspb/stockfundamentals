@@ -1,10 +1,12 @@
-package dividend
+package apidividend
 
 import (
 	"context"
 	"time"
 
+	"github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 )
@@ -26,9 +28,9 @@ func FetchAndSaveAllDividends() error {
 		panic("Failed to connect to the database")
 	}
 
-	dividends := fetchDividendsForAllStocks()
+	dividends := dividend.FetchDividendsForAllStocks()
 
-	err = SaveDividendsToDB(dividends, db)
+	err = dbdividend.SaveDividendsToDB(dividends, db)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 		return err
@@ -37,13 +39,13 @@ func FetchAndSaveAllDividends() error {
 	return nil
 }
 
-func GetAllDividends() ([]Dividend, error) {
+func GetAllDividends() ([]dividend.Dividend, error) {
 	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancel()
 
 	config, err := config.LoadConfig()
 	if err != nil {
-		return []Dividend{}, err
+		return []dividend.Dividend{}, err
 	}
 
 	db, err := ydb.Open(ctx, config.DB.ConnectionString)
@@ -52,7 +54,7 @@ func GetAllDividends() ([]Dividend, error) {
 		logger.Log(err.Error(), logger.ALERT)
 		panic("Failed to connect to the database")
 	}
-	dividends, _ := getAllDividends(db)
+	dividends, _ := dbdividend.GetAllDividends(db)
 
 	return dividends, nil
 }

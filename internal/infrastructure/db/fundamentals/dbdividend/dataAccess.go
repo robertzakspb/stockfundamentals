@@ -1,4 +1,4 @@
-package dividend
+package dbdividend
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"path"
 	"time"
 
+	"github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
@@ -23,7 +24,7 @@ const DIVIDEND_PAYMENT_TABLE_NAME = "dividend_payment"
 type dividendDbModel struct {
 	Id      uuid.UUID `sql:"id"`
 	StockID uuid.UUID `sql:"stock_id"`
-	//For DB-related reasons, expected and actual DPS are converted to integers to remove the fractional part. Multiplied by a million for maximum accuracy. When reading the value, it must similarly be divided by a million
+	//For DB-related reasons, expected and actual DPS are converted to integers to remove the fractional part. Multiplied by a million for maximum accuracy. When reading the value, it must consequently be divided by a million
 	ExpectedDpsTimesMillion int64     `sql:"expected_DPS"`
 	ActualDPSTimesMillion   int64     `sql:"actual_DPS"`
 	Currency                string    `sql:"currency"`
@@ -34,7 +35,7 @@ type dividendDbModel struct {
 	ManagementComment       string    `sql:"management_comment"`
 }
 
-func SaveDividendsToDB(dividends []Dividend, db *ydb.Driver) error {
+func SaveDividendsToDB(dividends []dividend.Dividend, db *ydb.Driver) error {
 	if db == nil {
 		logger.Log("Database driver is nil while attempting to save dividends to the DB", logger.ALERT)
 	}
@@ -80,7 +81,7 @@ func convertToOptionalYDBdate(date time.Time) types.Value {
 	return types.DateValue(uint32(date.Unix() / secondsInADay))
 }
 
-func mapDividendToDbModel(dividends []Dividend) []dividendDbModel {
+func mapDividendToDbModel(dividends []dividend.Dividend) []dividendDbModel {
 	dbModels := []dividendDbModel{}
 	for _, dividend := range dividends {
 		dbModel := dividendDbModel{
@@ -101,28 +102,28 @@ func mapDividendToDbModel(dividends []Dividend) []dividendDbModel {
 	return dbModels
 }
 
-func mapDbModelToDividend(dividends []dividendDbModel) []Dividend {
-	dbModels := []Dividend{}
-	for _, dividend := range dividends {
-		dbModel := Dividend{
-			Id:                dividend.Id,
-			StockID:           dividend.StockID,
-			ExpectedDPS:       float64(dividend.ExpectedDpsTimesMillion) / 1_000_000,
-			ActualDPS:         float64(dividend.ActualDPSTimesMillion) / 1_000_000,
-			Currency:          dividend.Currency,
-			AnnouncementDate:  dividend.AnnouncementDate,
-			RecordDate:        dividend.RecordDate,
-			PayoutDate:        dividend.PayoutDate,
-			PaymentPeriod:     dividend.PaymentPeriod,
-			ManagementComment: dividend.ManagementComment,
+func mapDbModelToDividend(dbModelds []dividendDbModel) []dividend.Dividend {
+	dividends := []dividend.Dividend{}
+	for _, dbModel := range dbModelds {
+		newDiv := dividend.Dividend{
+			Id:                dbModel.Id,
+			StockID:           dbModel.StockID,
+			ExpectedDPS:       float64(dbModel.ExpectedDpsTimesMillion) / 1_000_000,
+			ActualDPS:         float64(dbModel.ActualDPSTimesMillion) / 1_000_000,
+			Currency:          dbModel.Currency,
+			AnnouncementDate:  dbModel.AnnouncementDate,
+			RecordDate:        dbModel.RecordDate,
+			PayoutDate:        dbModel.PayoutDate,
+			PaymentPeriod:     dbModel.PaymentPeriod,
+			ManagementComment: dbModel.ManagementComment,
 		}
-		dbModels = append(dbModels, dbModel)
+		dividends = append(dividends, newDiv)
 	}
 
-	return dbModels
+	return dividends
 }
 
-func getAllDividends(db *ydb.Driver) ([]Dividend, error) {
+func GetAllDividends(db *ydb.Driver) ([]dividend.Dividend, error) {
 	userDividendsDbModels := []dividendDbModel{}
 
 	err := db.Query().Do(context.TODO(),
@@ -176,7 +177,7 @@ func getAllDividends(db *ydb.Driver) ([]Dividend, error) {
 	)
 	if err != nil {
 		fmt.Println(err)
-		return []Dividend{}, err
+		return []dividend.Dividend{}, err
 	}
 
 	return mapDbModelToDividend(userDividendsDbModels), nil
