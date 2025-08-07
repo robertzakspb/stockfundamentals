@@ -26,8 +26,8 @@ func getHardCodedStockPositions() []lot.Lot {
 	serbianStocks := []lot.Lot{
 
 		{
-			Quantity:     25,
-			PricePerUnit: 8424.28,
+			Quantity:     43,
+			PricePerUnit: 8457.9,
 			Currency:     "RSD",
 			AccountId:    nlbId,
 			Security: security.Stock{
@@ -39,8 +39,8 @@ func getHardCodedStockPositions() []lot.Lot {
 			},
 		},
 		{
-			Quantity:     534,
-			PricePerUnit: 1484.5,
+			Quantity:     567,
+			PricePerUnit: 1495.58,
 			Currency:     "RSD",
 			AccountId:    nlbId,
 			Security: security.Stock{
@@ -78,8 +78,8 @@ func getHardCodedStockPositions() []lot.Lot {
 			},
 		},
 		{
-			Quantity:     18,
-			PricePerUnit: 7939.21,
+			Quantity:     28,
+			PricePerUnit: 7960.4,
 			Currency:     "RSD",
 			AccountId:    nlbId,
 			Security: security.Stock{
