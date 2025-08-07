@@ -1,4 +1,4 @@
-package financials
+package dbfinancials
 
 import (
 	"context"
@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"io"
 	"path"
+	"time"
 
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-
+	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
@@ -20,9 +23,19 @@ import (
 const stock_directory_prefix = "stockfundamentals/stocks"
 const financial_metrics_table_name = "financial_metric"
 
-func SaveFinancialMetricsToDb(metrics []FinancialMetric, db *ydb.Driver) error {
+type FinancialMetricDbModel struct {
+	Id       uuid.UUID `sql:"id"`
+	StockId  uuid.UUID `sql:"stock_id"`
+	Name     string    `sql:"metric"`
+	Period   string    `sql:"reporting_period"`
+	Year     int64     `sql:"year"`
+	Value    int64     `sql:"metric_value"`
+	Currency string    `sql:"metric_currency"`
+}
+
+func SaveFinancialMetricsToDb(metrics []entity.FinancialMetric, db *ydb.Driver) error {
 	ydbFinancials := []types.Value{}
-	dbModels := mapFinancialMetricModelToDbModel(metrics)
+	dbModels := MapFinancialMetricModelToDbModel(metrics)
 
 	for _, metric := range dbModels {
 		ydbMetric := types.StructValue(
@@ -50,11 +63,21 @@ func SaveFinancialMetricsToDb(metrics []FinancialMetric, db *ydb.Driver) error {
 	return nil
 }
 
-func fetchFinancialMetricsFromDbWithDriver(db *ydb.Driver) ([]FinancialMetric, error) {
-	dbMetrics := []FinancialMetricDbModel{}
-	parsedMetrics := []FinancialMetric{}
+func FetchFinancialMetrics() ([]entity.FinancialMetric, error) {
+	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
+	defer cancel()
 
-	err := db.Query().Do(context.TODO(),
+	config, err := config.LoadConfig()
+	if err != nil {
+		return []entity.FinancialMetric{}, err
+	}
+
+	db, err := ydb.Open(ctx, config.DB.ConnectionString)
+
+	dbMetrics := []FinancialMetricDbModel{}
+	parsedMetrics := []entity.FinancialMetric{}
+
+	err = db.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
 			result, err := s.Query(ctx, fmt.Sprintf(`
 						SELECT
@@ -105,20 +128,38 @@ func fetchFinancialMetricsFromDbWithDriver(db *ydb.Driver) ([]FinancialMetric, e
 		},
 	)
 	if err != nil {
-		return []FinancialMetric{}, err
+		return []entity.FinancialMetric{}, err
 	}
 
 	return parsedMetrics, nil
 }
 
-func mapYdbMetricToMetric(dbMetric FinancialMetricDbModel) FinancialMetric {
-	return FinancialMetric{
+func mapYdbMetricToMetric(dbMetric FinancialMetricDbModel) entity.FinancialMetric {
+	return entity.FinancialMetric{
 		Id:       dbMetric.Id,
 		StockId:  dbMetric.StockId,
 		Name:     dbMetric.Name,
-		Period:   ReportingPeriodMap[dbMetric.Period],
+		Period:   entity.ReportingPeriodMap[dbMetric.Period],
 		Year:     int(dbMetric.Year),
 		Value:    int(dbMetric.Value),
 		Currency: dbMetric.Currency,
 	}
+}
+
+func MapFinancialMetricModelToDbModel(metrics []entity.FinancialMetric) []FinancialMetricDbModel {
+	dbModels := []FinancialMetricDbModel{}
+	for _, metric := range metrics {
+		dbModel := FinancialMetricDbModel{
+			Id:       metric.Id,
+			StockId:  metric.StockId,
+			Name:     metric.Name,
+			Period:   string(metric.Period),
+			Year:     int64(metric.Year),
+			Value:    int64(metric.Value),
+			Currency: metric.Currency,
+		}
+		dbModels = append(dbModels, dbModel)
+	}
+
+	return dbModels
 }

@@ -12,11 +12,12 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
 	"github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
-	"github.com/compoundinvest/stockfundamentals/features/fundamentaldata/financials"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
-	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
+	dbfinancials "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/financials"
+	dbsecurity "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 
@@ -248,7 +249,7 @@ func populateStockTable(reader *csv.Reader, db *ydb.Driver) error {
 		serbianStocks = append(serbianStocks, stock)
 	}
 
-	err = securitydb.SaveSecuritiesToDB(serbianStocks, db)
+	err = dbsecurity.SaveSecuritiesToDB(serbianStocks, db)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 		return err
@@ -332,7 +333,7 @@ func populateFinancialMetricsTable(reader *csv.Reader, db *ydb.Driver) error {
 	}
 
 	csvMetrics := seedRecords[1:]
-	metrics := []financials.FinancialMetric{}
+	metrics := []entity.FinancialMetric{}
 
 	for _, csvMetric := range csvMetrics {
 		parsedId, err := uuid.Parse(csvMetric[0])
@@ -359,18 +360,18 @@ func populateFinancialMetricsTable(reader *csv.Reader, db *ydb.Driver) error {
 			continue
 		}
 
-		metrics = append(metrics, financials.FinancialMetric{
+		metrics = append(metrics, entity.FinancialMetric{
 			Id:       parsedId,
 			StockId:  parsedStockId,
 			Name:     csvMetric[2],
-			Period:   financials.ReportingPeriodMap[csvMetric[3]],
+			Period:   entity.ReportingPeriodMap[csvMetric[3]],
 			Year:     int(parsedYear),
 			Value:    int(parsedValue),
 			Currency: csvMetric[6],
 		})
 	}
 
-	err = financials.SaveFinancialMetricsToDb(metrics, db)
+	err = dbfinancials.SaveFinancialMetricsToDb(metrics, db)
 	if err != nil {
 		return err
 	}
