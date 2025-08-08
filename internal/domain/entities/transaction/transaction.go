@@ -1,36 +1,47 @@
 package transaction
 
-import "github.com/google/uuid"
+import (
+	"fmt"
+	"time"
 
-type Transaction struct {
+	"github.com/google/uuid"
+)
+
+type OrderExecution struct {
 	Id          uuid.UUID
 	AccountId   uuid.UUID
-	Type        TransactionType
+	SecurityId uuid.UUID
+	Timestamp time.Time
 	Quantity    float64
-	Price       float64
+	Price       float64 
 	Description string
 }
 
-type TransactionType string
+func NewTransaction(accountId uuid.UUID, 
+					securityId uuid.UUID,
+					timestamp time.Time,
+					quantity float64, 
+					price float64, 
+					description string) (OrderExecution, error) {
+	if quantity < 0 {
+		return  OrderExecution{}, fmt.Errorf("quantity is smaller than 0: %f", quantity)
+	}
+	if price < 0 {
+		return  OrderExecution{}, fmt.Errorf("price is smaller than 0: %f", price)
+	}
 
-const (
-	OrderExecution TransactionType = "OrderExecution"
-	Dividend       TransactionType = "Dividend"
-	Deposit        TransactionType = "Deposit"
-	Withdrawal     TransactionType = "Withdrawal"
-)
+	if len(description) > 1000 {
+		return  OrderExecution{}, fmt.Errorf("description cannot contain more than 1000 characters")
+	}
 
-var TransactionTypeMap = map[string]TransactionType{
-	"OrderExecution": OrderExecution,
-	"Dividend":       Dividend,
-	"Deposit":        Deposit,
-	"Withdrawal":     Withdrawal,
-}
+	return OrderExecution{
+		Id: uuid.New(),
+		AccountId: accountId,
+		SecurityId: securityId,
+		Timestamp: timestamp,
+		Quantity: quantity,
+		Price: price,
+		Description: description,
+	}, nil
 
-func (t *Transaction) isBuyOrder() bool {
-	return t.Quantity > 0
-}
-
-func (t *Transaction) isSellOrder() bool {
-	return t.Quantity < 0
 }
