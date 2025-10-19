@@ -2,7 +2,6 @@ package security_master
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
@@ -104,14 +103,8 @@ func fetchTinkoffSecurities() []security.Stock {
 	return russianStocks
 }
 
-func FindStockByFigi(securities []security.Stock, figi string) (security.Stock, error) {
-	for _, stock := range securities {
-		if stock.GetFigi() == figi {
-			return stock, nil
-		}
-	}
-
-	return security.Stock{}, fmt.Errorf("failed to find a security with figi %s", figi)
+func GetSecuritiesById(ids uuid.UUIDs) ([]security.Security, error) {
+	return securitydb.GetSecuritiesFilteredById(ids)
 }
 
 func mapTinkoffSecurityTypeToInternal(shareType investapi.ShareType) security.SecurityType {

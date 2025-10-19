@@ -6,7 +6,6 @@ import (
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/forex"
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 )
@@ -18,15 +17,11 @@ type Lot struct {
 	Quantity     float64 `json:"quantity"`
 	PricePerUnit float64 `json:"PricePerUnit"`
 	Currency     string  `json:"currency"`
-	AccountId    uuid.UUID
-	// CompanyName  string `json:"companyName"`
-	Security security.Security
-	// Figi         string
-	// Ticker       string `json:"ticker"`
-	// MIC          string `json:"MIC"`
+	AccountId    uuid.UUID `json:"accountId"`
+	SecurityId   uuid.UUID `json:"securityId"`
 }
 
-func NewLot(security security.Security, quantity float64, pricePerUnit float64, currency string, accountId uuid.UUID) (Lot, error) {
+func NewLot(securityId uuid.UUID, quantity float64, pricePerUnit float64, currency string, accountId uuid.UUID) (Lot, error) {
 	newLot := Lot{
 		Id:           uuid.New(),
 		CreatedAt:    time.Now(),
@@ -35,7 +30,7 @@ func NewLot(security security.Security, quantity float64, pricePerUnit float64, 
 		PricePerUnit: pricePerUnit,
 		Currency:     currency,
 		AccountId:    accountId,
-		Security:     security,
+		SecurityId:   securityId,
 	}
 
 	if err := newLot.validate(); err != nil {
@@ -55,7 +50,7 @@ func (lot *Lot) validate() error {
 	if !forex.IsSupportedCurrency(lot.Currency) {
 		return fmt.Errorf("Position with ID %v has an unsupported currency", lot.Currency)
 	}
-	if lot.Security == nil {
+	if lot.SecurityId == uuid.Nil {
 		return fmt.Errorf("Position with ID does not have a corresponding security")
 	}
 
@@ -67,14 +62,14 @@ func (lot Lot) CostBasis() float64 {
 }
 
 func (lot Lot) MergeWith(newLot Lot) (Lot, error) {
-	if lot.Security.GetFigi() != newLot.Security.GetFigi() {
+	if lot.SecurityId.String() != newLot.SecurityId.String() {
 		return Lot{}, fmt.Errorf("attempting to merge two lots with a different underlying security")
 	}
 
 	newQuantity := lot.Quantity + newLot.Quantity
 	newOpeningPrice := (lot.Quantity*lot.PricePerUnit + newLot.Quantity*newLot.PricePerUnit) / newQuantity
 
-	validatedLot, err := NewLot(lot.Security, newQuantity, newOpeningPrice, lot.Currency, lot.AccountId)
+	validatedLot, err := NewLot(lot.SecurityId, newQuantity, newOpeningPrice, lot.Currency, lot.AccountId)
 
 	return validatedLot, err
 }
@@ -89,7 +84,7 @@ func (lot Lot) CurrentReturn(quote entity.SimpleQuote) float64 {
 
 func (lot Lot) MarketValue(quote entity.SimpleQuote) (float64, error) {
 	if quote == nil {
-		logger.Log("Quote is nil for position "+lot.Security.GetFigi(), logger.ERROR)
+		logger.Log("Quote is nil for position "+lot.SecurityId.String(), logger.ERROR)
 	}
 
 	const targetCur = "EUR"

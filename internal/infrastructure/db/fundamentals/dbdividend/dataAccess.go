@@ -8,7 +8,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3"

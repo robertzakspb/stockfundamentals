@@ -11,8 +11,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
-
-	"github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
@@ -98,7 +97,7 @@ func createStockTables(ctx context.Context, db *ydb.Driver, c table.Client) erro
 				options.WithColumn("ticker", types.TypeUTF8),
 				options.WithColumn("issue_size", types.TypeInt64),
 				options.WithColumn("sector", types.Optional(types.TypeUTF8)),
-				options.WithPrimaryKeyColumn("id"),
+				options.WithPrimaryKeyColumn("isin"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)

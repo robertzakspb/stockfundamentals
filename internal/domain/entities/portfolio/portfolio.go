@@ -2,28 +2,20 @@ package portfolio
 
 import (
 	"fmt"
-	"slices"
 	"strconv"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
+	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"github.com/google/uuid"
 )
 
 type Portfolio struct {
 	Lots []lot.Lot `json:"lots"`
 	Cash float64
-}
-
-func (portfolio Portfolio) GetPositionByTicker(ticker string) (lot.Lot, error) {
-	for _, position := range portfolio.UniquePositions() {
-		if position.Security.GetTicker() == ticker {
-			return position, nil
-		}
-	}
-
-	return lot.Lot{}, fmt.Errorf("didn't find a position with ticker %s", ticker)
 }
 
 func (portfolio Portfolio) UniquePositions() []lot.Lot {
@@ -32,7 +24,7 @@ func (portfolio Portfolio) UniquePositions() []lot.Lot {
 		foundLotWithSameTicker := false
 		lotWithSameTickerIndex := 0
 		for i, uniquePosition := range uniquePositions {
-			if lot.Security.GetFigi() == uniquePosition.Security.GetFigi() {
+			if lot.SecurityId.String() == uniquePosition.SecurityId.String() {
 				foundLotWithSameTicker = true
 				lotWithSameTickerIndex = i
 			}
@@ -54,63 +46,101 @@ func (portfolio Portfolio) UniquePositions() []lot.Lot {
 	return uniquePositions
 }
 
+type LotWithSecurity struct {
+	lot   lot.Lot
+	stock security.Stock
+}
+
 func (portfolio Portfolio) PrintAllPositions() {
-
 	positions := portfolio.UniquePositions()
+	lotsWithSecurities := []LotWithSecurity{}
 
-	//Fetching quotes
-	securities := []entity.Security{}
-	for _, lot := range positions {
-		securities = append(securities, entity.Security{
-			Figi:   lot.Security.GetFigi(),
-			Ticker: lot.Security.GetTicker(),
-			MIC:    lot.Security.GetMic(),
+	ids := uuid.UUIDs{}
+	for _, p := range positions {
+		ids = append(ids, p.SecurityId)
+	}
+	securities, err := security_master.GetSecuritiesById(ids)
+	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
+	}
+
+	entitySecurities := []entity.Security{}
+	for _, s := range securities {
+		if s.GetId() == uuid.Nil {
+			continue
+		}
+		entitySecurities = append(entitySecurities, entity.Security{
+			Figi:   s.GetFigi(),
+			ISIN:   s.GetIsin(),
+			Ticker: s.GetTicker(),
+			MIC:    s.GetMic(),
 		})
 	}
 
-	quotes := quotefetcher.FetchQuotesFor(securities)
+	quotes := quotefetcher.FetchQuotesFor(entitySecurities)
 
 	//Calculating the total portfolio value
 	totalPortfolioValue := 0.0
 	for _, lot := range positions {
 		for _, quote := range quotes {
-			//TODO: Refactor this abomination
-			if lot.Security.GetFigi() == "" {
-				logger.Log("Position is missing figi. Ticker: "+lot.Security.GetTicker()+". Quantity: "+strconv.FormatFloat(lot.Quantity, 'E', -1, 64), logger.ERROR)
+			var stock security.Stock
+			for _, s := range securities {
+				if s.GetId() == lot.SecurityId {
+					stock = security.Stock{
+						Id:           s.GetId(),
+						CompanyName:  s.GetCompanyName(),
+						Figi:         s.GetFigi(),
+						Isin:         s.GetIsin(),
+						SecurityType: s.GetSecurityType(),
+						Country:      s.GetCountry(),
+						Ticker:       s.GetTicker(),
+						IssueSize:    s.GetIssueSize(),
+						Sector:       s.GetSector(),
+						MIC:          s.GetMic(),
+					}
+					lotsWithSecurities = append(lotsWithSecurities, LotWithSecurity{lot: lot, stock: stock})
+				}
 			}
-			if lot.Security.GetFigi() == quote.Figi() {
+			if stock.GetId() == uuid.Nil {
+				logger.Log("Failed to find the security for a quote for "+quote.Figi(), logger.ERROR)
+			}
+
+			if stock.GetFigi() == "" {
+				logger.Log("Position is missing figi. Ticker: "+stock.GetTicker()+". Quantity: "+strconv.FormatFloat(lot.Quantity, 'E', -1, 64), logger.ERROR)
+			}
+
+			if stock.GetFigi() == quote.Figi() {
 				marketValue, _ := lot.MarketValue(quote)
 				totalPortfolioValue += marketValue
 			}
 		}
 	}
 
-	slices.SortFunc(positions, func(a lot.Lot, b lot.Lot) int {
-
-		return 1
-	})
+	// slices.SortFunc(positions, func(a lot.Lot, b lot.Lot) int {
+	// 	return 1
+	// })
 
 	//Displaying the portfolio
-	for _, lot := range positions {
+	for _, lot := range lotsWithSecurities {
 		profitOrLoss := 0.0
 		var stockQuote entity.SimpleQuote
 		didFindQuote := false
 		for _, quote := range quotes {
-			if lot.Security.GetFigi() == quote.Figi() {
-				profitOrLoss = lot.CurrentReturn(quote)
+			if lot.stock.GetFigi() == quote.Figi() {
+				profitOrLoss = lot.lot.CurrentReturn(quote)
 				stockQuote = quote
 				didFindQuote = true
 			}
 		}
 		if !didFindQuote {
-			fmt.Println("Unable to fetch quotes for ", lot.Security.GetTicker(), "Quantity: ", lot.Quantity, "Spent on position: ", lot.CostBasis())
+			fmt.Println("Unable to fetch quotes for ", lot.stock.GetTicker(), "Quantity: ", lot.lot.Quantity, "Spent on position: ", lot.lot.CostBasis())
 			continue
 		}
-		fmt.Printf("%-6s", lot.Security.GetTicker())
-		fmt.Printf("Quantity: %.0f | ", lot.Quantity)
-		fmt.Printf("Opening Price: %.1f | ", lot.PricePerUnit)
+		fmt.Printf("%-6s", lot.stock.GetTicker())
+		fmt.Printf("Quantity: %.0f | ", lot.lot.Quantity)
+		fmt.Printf("Opening Price: %.1f | ", lot.lot.PricePerUnit)
 		fmt.Printf("Profit: %.2f | ", profitOrLoss*100)
-		mv, _ := lot.MarketValue(stockQuote)
+		mv, _ := lot.lot.MarketValue(stockQuote)
 		fmt.Printf("Percentage of portfolio: %.2f %% | ", mv/totalPortfolioValue*100)
 		fmt.Printf("Market value: %.0f\n", mv)
 	}

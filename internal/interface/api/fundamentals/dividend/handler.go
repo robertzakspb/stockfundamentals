@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -28,7 +29,7 @@ func FetchAndSaveAllDividends() error {
 		panic("Failed to connect to the database")
 	}
 
-	dividends := dividend.FetchDividendsForAllStocks()
+	dividends := appdividend.FetchDividendsForAllStocks()
 
 	err = dbdividend.SaveDividendsToDB(dividends, db)
 	if err != nil {

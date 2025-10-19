@@ -72,8 +72,22 @@ func GetSecuritiesFilteredByFigi(figis []string) ([]security.Stock, error) {
 	return FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByFigiQuery(figis))
 }
 
-func FetchSecuritiesFromDBWithDriver(yqlQuery string) ([]security.Stock, error) {
+func GetSecuritiesFilteredById(ids uuid.UUIDs) ([]security.Security, error) {
+	stocks, err := FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByIdQuery(ids))
+	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
+		return []security.Security{}, err
+	}
 
+	securities := []security.Security{}
+	for _, s := range stocks {
+		securities = append(securities, s)
+	}
+	return securities, err
+}
+
+func FetchSecuritiesFromDBWithDriver(yqlQuery string) ([]security.Stock, error) {
+	fmt.Println(yqlQuery)
 	config, err := config.LoadConfig()
 	if err != nil {
 		return []security.Stock{}, err
@@ -161,7 +175,17 @@ func getSecuritiesFilteredByFigiQuery(figis []string) string {
 	yqlQuery := getSecuritiesBaseQuery()
 
 	if len(figis) > 0 {
-		yqlQuery += "WHERE figi IN " + convertSliceToYqlInExpression(figis)
+		yqlQuery += "WHERE figi IN " + convertStringsToYqlInExpression(figis)
+	}
+
+	return yqlQuery
+}
+
+func getSecuritiesFilteredByIdQuery(ids uuid.UUIDs) string {
+	yqlQuery := getSecuritiesBaseQuery()
+
+	if len(ids) > 0 {
+		yqlQuery += "WHERE id IN " + convertUuidsToYqlInExpression(ids)
 	}
 
 	return yqlQuery
@@ -195,12 +219,25 @@ func mapYdbStockToStock(dbStock StockDbModel) security.Stock {
 }
 
 // Converts slices like ["apple", "banana"] to an IN expression like IN ('apple', 'banana') for YQL filtering
-func convertSliceToYqlInExpression(filterSlice []string) string {
+func convertStringsToYqlInExpression(filterSlice []string) string {
 	var sb strings.Builder
 	sb.WriteString("(")
 
 	for _, value := range filterSlice {
 		sb.WriteString("'" + value + "', ")
+	}
+
+	str := sb.String()[:sb.Len()-2] + ")"
+	return str
+}
+
+func convertUuidsToYqlInExpression(filterSlice uuid.UUIDs) string {
+	var sb strings.Builder
+	sb.WriteString("(")
+
+	for _, value := range filterSlice {
+		sb.WriteString("CAST('" + value.String() + "' AS Uuid)")
+		sb.WriteString(", ")
 	}
 
 	str := sb.String()[:sb.Len()-2] + ")"

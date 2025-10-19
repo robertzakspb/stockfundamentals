@@ -5,10 +5,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
-	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"github.com/google/uuid"
 
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
 	pb "github.com/russianinvestments/invest-api-go-sdk/proto"
@@ -67,7 +67,6 @@ func getTinkoffStockPositions() []lot.Lot {
 		allPositions = append(allPositions, portfolio.GetPositions()...)
 	}
 
-	// securityService := client.NewInstrumentsServiceClient()
 	lots := []lot.Lot{}
 	securities := FetchPositionSecurities(allPositions)
 	for _, position := range allPositions {
@@ -75,19 +74,27 @@ func getTinkoffStockPositions() []lot.Lot {
 			continue //Skipping the cash position until it is handled separately
 		}
 
-		security, err := security_master.FindStockByFigi(securities, position.GetFigi())
+		var stockId uuid.UUID
+		for _, s := range securities {
+			if s.GetFigi() == position.Figi {
+				stockId = s.Id
+			}
+		}
+		if stockId == uuid.Nil {
+			logger.Log("Failed to find the stockId for " + position.Figi, logger.ERROR)
+		}
+
+		var tinkoffIisId, _ = uuid.Parse("3315bd1c-12a4-444e-a294-84ef339e26e1")
+		newLot, err := lot.NewLot(stockId, 
+			float64(position.Quantity.ToFloat()),
+			position.AveragePositionPrice.ToFloat(),
+			position.AveragePositionPrice.Currency,
+			tinkoffIisId,
+		)
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 		}
-
-		newLot := lot.Lot{
-			//TODO: Use the NewLot method
-			Quantity:     float64(position.Quantity.ToFloat()),
-			PricePerUnit: position.AveragePositionPrice.ToFloat(),
-			Currency:     position.AveragePositionPrice.Currency,
-			AccountId:    tinkoffIisId,
-			Security:     security,
-		}
+		
 		lots = append(lots, newLot)
 	}
 

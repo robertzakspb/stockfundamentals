@@ -1,4 +1,4 @@
-package dividend
+package appdividend
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
@@ -14,26 +15,15 @@ import (
 	investapi "github.com/russianinvestments/invest-api-go-sdk/proto"
 )
 
-type Dividend struct {
-	Id                uuid.UUID `sql:"id"`
-	StockID           uuid.UUID `sql:"stock_id"`
-	ActualDPS         float64   `sql:"actual_DPS"`
-	ExpectedDPS       float64   `sql:"expected_DPS"`
-	Currency          string    `sql:"currency"`
-	AnnouncementDate  time.Time `sql:"announcement_date"`
-	RecordDate        time.Time `sql:"record_date"`
-	PayoutDate        time.Time `sql:"payout_date"`
-	PaymentPeriod     string    `sql:"payment_period"`
-	ManagementComment string    `sql:"management_comment"`
-}
 
-func FetchDividendsForAllStocks() []Dividend {
+
+func FetchDividendsForAllStocks() []dividend.Dividend {
 	stocks, err := securitydb.GetAllSecuritiesFromDB()
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 	}
 
-	allDividends := []Dividend{}
+	allDividends := []dividend.Dividend{}
 
 	rateLimit := time.Second / 2
 	throttle := time.Tick(rateLimit)
@@ -54,29 +44,29 @@ func FetchDividendsForAllStocks() []Dividend {
 	return allDividends
 }
 
-func fetchTinkoffDividendsFor(stock security.Security) []Dividend {
+func fetchTinkoffDividendsFor(stock security.Security) []dividend.Dividend {
 	//TODO: Extract the file name into an environment variable
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
-		return []Dividend{}
+		return []dividend.Dividend{}
 	}
 
 	client, err := tinkoff.NewClient(context.TODO(), config, nil)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
-		return []Dividend{}
+		return []dividend.Dividend{}
 	}
 
 	securityService := client.NewInstrumentsServiceClient()
-	parsedDividends := []Dividend{}
+	parsedDividends := []dividend.Dividend{}
 	earliestDividendDate := time.Date(1971, 1, 1, 0, 0, 0, 0, time.UTC)
 	upcomingDividendDate := time.Now().AddDate(2, 0, 0)
 
 	tinkoffDividends, err := securityService.GetDividents(stock.GetFigi(), earliestDividendDate, upcomingDividendDate)
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
-		return []Dividend{}
+		return []dividend.Dividend{}
 	}
 
 	for _, dividend := range tinkoffDividends.GetDividends() {
@@ -104,13 +94,13 @@ func dividendIsValid(dividend *investapi.Dividend) bool {
 	return dividendIsValid
 }
 
-func mapTinkoffDividendToDividend(tinkoffDiv *investapi.Dividend, stockID uuid.UUID) Dividend {
+func mapTinkoffDividendToDividend(tinkoffDiv *investapi.Dividend, stockID uuid.UUID) dividend.Dividend {
 
 	if len(stockID) == 0 {
 		logger.Log("Missing stock ID in the provided stock for tinkoff dividend: "+tinkoffDiv.GetDeclaredDate().String()+tinkoffDiv.GetRecordDate().String(), logger.WARNING)
 	}
 
-	dividend := Dividend{
+	dividend := dividend.Dividend{
 		Id:                uuid.New(),
 		StockID:           stockID,
 		ActualDPS:         tinkoffDiv.DividendNet.ToFloat(),
