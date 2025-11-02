@@ -2,8 +2,6 @@ package portfolio
 
 import (
 	"fmt"
-	"strconv"
-
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
@@ -100,13 +98,6 @@ func (portfolio Portfolio) PrintAllPositions() {
 					}
 					lotsWithSecurities = append(lotsWithSecurities, LotWithSecurity{lot: lot, stock: stock})
 				}
-			}
-			if stock.GetId() == uuid.Nil {
-				logger.Log("Failed to find the security for a quote for "+quote.Figi(), logger.ERROR)
-			}
-
-			if stock.GetFigi() == "" {
-				logger.Log("Position is missing figi. Ticker: "+stock.GetTicker()+". Quantity: "+strconv.FormatFloat(lot.Quantity, 'E', -1, 64), logger.ERROR)
 			}
 
 			if stock.GetFigi() == quote.Figi() {

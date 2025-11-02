@@ -25,8 +25,6 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
-const INSERT_SCRIPTS_FOLDER = "dataseed/yql_scripts/insert_scripts/"
-
 func InitialSeed() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
@@ -161,7 +159,7 @@ func createMarketDataTables(ctx context.Context, db *ydb.Driver, c table.Client)
 
 }
 
-const seedDataFolder = "dataseed/seed-data/"
+const seedDataFolder = "internal/infrastructure/db/dataseed/seed-data/"
 
 func populateAllTables(db *ydb.Driver) error {
 	files, err := os.ReadDir(seedDataFolder)

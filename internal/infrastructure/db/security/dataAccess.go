@@ -87,7 +87,6 @@ func GetSecuritiesFilteredById(ids uuid.UUIDs) ([]security.Security, error) {
 }
 
 func FetchSecuritiesFromDBWithDriver(yqlQuery string) ([]security.Stock, error) {
-	fmt.Println(yqlQuery)
 	config, err := config.LoadConfig()
 	if err != nil {
 		return []security.Stock{}, err

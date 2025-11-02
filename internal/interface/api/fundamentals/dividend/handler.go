@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
+	appdividend "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
@@ -13,6 +13,8 @@ import (
 )
 
 func FetchAndSaveAllDividends() error {
+	dividends := appdividend.FetchDividendsForAllStocks()
+
 	//TODO: Extract the DB initialization in a single method
 	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancel()
@@ -28,8 +30,6 @@ func FetchAndSaveAllDividends() error {
 		logger.Log(err.Error(), logger.ALERT)
 		panic("Failed to connect to the database")
 	}
-
-	dividends := appdividend.FetchDividendsForAllStocks()
 
 	err = dbdividend.SaveDividendsToDB(dividends, db)
 	if err != nil {

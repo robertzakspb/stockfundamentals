@@ -53,8 +53,8 @@ func IsSupportedCurrency(cur string) bool {
 }
 
 var exchangeRateUsdTo = map[Currency]float64{
-	RUB: 79,
-	EUR: 0.85,
+	RUB: 80,
+	EUR: 0.86,
 	RSD: 99.54,
 }
 
