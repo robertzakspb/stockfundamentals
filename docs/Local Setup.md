@@ -1,4 +1,5 @@
 ## Setting Up the Project
+
 1. Run the following commands:
 
 ```console
@@ -6,6 +7,7 @@ go mod tidy
 ```
 
 ## Setting up the configuration files
+
 1. Create a tinkoffAPIconfig.yaml file in the main directory and add the following content to it:
 
 ```yaml
@@ -17,10 +19,17 @@ DisableResourceExhaustedRetry: false
 DisableAllRetry: false
 MaxRetries: 3
 ```
-*MAKE SURE TO ADD IT TO GITIGNORE!!*
 
+_MAKE SURE TO ADD IT TO GITIGNORE!!_
 
-## Starting the Database Locally
+2. Create a dev.env file and add the following configurations to it:
+
+```text
+DB_CONNECTION_STRING=grpc://localhost:2136/Root/test
+```
+
+## Starting the Database Locally (macOS only)
+
 1. Start Docker Desktop
 2. Execute the following command to start the container. If the image is not available locally, docker will install it for you:
 
@@ -33,9 +42,5 @@ docker run -d --rm --name ydb-local -h localhost \
   -e YDB_KAFKA_PROXY_PORT=9092 \
   ydbplatform/local-ydb:latest
 ```
+
 4. The database management console will be available at http://localhost:8765/
-
-
-
-
-
