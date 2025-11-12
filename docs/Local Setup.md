@@ -24,6 +24,14 @@ _MAKE SURE TO ADD IT TO GITIGNORE!!_
 
 2. Create a dev.env file and add the following configurations to it:
 
+For macOS:
+
+```text
+DB_CONNECTION_STRING=grpc://localhost:2136/local
+```
+
+For Linux:
+
 ```text
 DB_CONNECTION_STRING=grpc://localhost:2136/Root/test
 ```
