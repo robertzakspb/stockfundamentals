@@ -230,6 +230,7 @@ func convertStringsToYqlInExpression(filterSlice []string) string {
 	return str
 }
 
+//TODO: Convert to a common function
 func convertUuidsToYqlInExpression(filterSlice uuid.UUIDs) string {
 	var sb strings.Builder
 	sb.WriteString("(")

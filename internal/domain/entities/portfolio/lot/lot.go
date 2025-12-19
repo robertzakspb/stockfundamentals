@@ -11,14 +11,15 @@ import (
 )
 
 type Lot struct {
-	Id           uuid.UUID
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	Quantity     float64 `json:"quantity"`
-	PricePerUnit float64 `json:"PricePerUnit"`
-	Currency     string  `json:"currency"`
+	Id           uuid.UUID `json:"id"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+	Quantity     float64   `json:"quantity"`
+	PricePerUnit float64   `json:"pricePerUnit"`
+	Currency     string    `json:"currency"`
 	AccountId    uuid.UUID `json:"accountId"`
 	SecurityId   uuid.UUID `json:"securityId"`
+	CurrentPL    float64   `json:"currentPL"`
 }
 
 func NewLot(securityId uuid.UUID, quantity float64, pricePerUnit float64, currency string, accountId uuid.UUID) (Lot, error) {

@@ -18,15 +18,15 @@ type Security interface {
 
 type Stock struct {
 	Id           uuid.UUID
-	Isin         string
-	Figi         string
-	CompanyName  string
+	Isin         string `json:"isin"`
+	Figi         string 
+	CompanyName  string  `json:"companyName"`
 	IsPublic     bool
 	SecurityType SecurityType
 	Country      string
-	Ticker       string
+	Ticker       string  `json:"ticker"`
 	IssueSize    int
-	Sector       string
+	Sector       string  `json:"sector"`
 	MIC          string
 }
 
