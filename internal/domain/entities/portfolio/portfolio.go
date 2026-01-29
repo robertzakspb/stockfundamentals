@@ -9,12 +9,11 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	"github.com/google/uuid"
 )
 
 type Portfolio struct {
 	Lots []lot.Lot `json:"lots"`
-	Cash float64   `json:"cash"` //TODO: Implement the reading of this value
+	Cash []CashPosition `json:"cashPositions"` //TODO: Populate this
 }
 
 func (portfolio Portfolio) UniquePositions() []lot.Lot {
@@ -23,7 +22,7 @@ func (portfolio Portfolio) UniquePositions() []lot.Lot {
 		foundLotWithSameTicker := false
 		lotWithSameTickerIndex := 0
 		for i, uniquePosition := range uniquePositions {
-			if lot.SecurityId.String() == uniquePosition.SecurityId.String() {
+			if lot.SecurityId == uniquePosition.SecurityId {
 				foundLotWithSameTicker = true
 				lotWithSameTickerIndex = i
 			}
@@ -54,18 +53,18 @@ func (portfolio Portfolio) WithPLs() []LotWithSecurity {
 	positions := portfolio.UniquePositions()
 	lotsWithSecurities := []LotWithSecurity{}
 
-	ids := uuid.UUIDs{}
+	ids := []string{}
 	for _, p := range positions {
 		ids = append(ids, p.SecurityId)
 	}
-	securities, err := security_master.GetSecuritiesById(ids)
+	securities, err := security_master.GetSecuritiesFilteredByFigi(ids)
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
 	}
 
 	entitySecurities := []entity.Security{}
 	for _, s := range securities {
-		if s.GetId() == uuid.Nil {
+		if s.GetId() == "" {
 			continue
 		}
 		entitySecurities = append(entitySecurities, entity.Security{
@@ -86,7 +85,6 @@ func (portfolio Portfolio) WithPLs() []LotWithSecurity {
 			for _, s := range securities {
 				if s.GetId() == lot.SecurityId {
 					stock = security.Stock{
-						Id:           s.GetId(),
 						CompanyName:  s.GetCompanyName(),
 						Figi:         s.GetFigi(),
 						Isin:         s.GetIsin(),

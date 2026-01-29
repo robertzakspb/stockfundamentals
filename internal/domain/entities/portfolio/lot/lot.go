@@ -17,12 +17,12 @@ type Lot struct {
 	Quantity     float64   `json:"quantity"`
 	PricePerUnit float64   `json:"pricePerUnit"`
 	Currency     string    `json:"currency"`
-	AccountId    uuid.UUID `json:"accountId"`
-	SecurityId   uuid.UUID `json:"securityId"`
+	AccountId    uuid.UUID `json:"accountId"` //ID of the corresponding brokerage account
+	SecurityId   string    `json:"securityId"`
 	CurrentPL    float64   `json:"currentPL"`
 }
 
-func NewLot(securityId uuid.UUID, quantity float64, pricePerUnit float64, currency string, accountId uuid.UUID) (Lot, error) {
+func NewLot(securityId string, quantity float64, pricePerUnit float64, currency string, accountId uuid.UUID) (Lot, error) {
 	newLot := Lot{
 		Id:           uuid.New(),
 		CreatedAt:    time.Now(),
@@ -51,7 +51,7 @@ func (lot *Lot) validate() error {
 	if !forex.IsSupportedCurrency(lot.Currency) {
 		return fmt.Errorf("Position with ID %v has an unsupported currency", lot.Currency)
 	}
-	if lot.SecurityId == uuid.Nil {
+	if lot.SecurityId == "" {
 		return fmt.Errorf("Position with ID does not have a corresponding security")
 	}
 
@@ -63,7 +63,7 @@ func (lot Lot) CostBasis() float64 {
 }
 
 func (lot Lot) MergeWith(newLot Lot) (Lot, error) {
-	if lot.SecurityId.String() != newLot.SecurityId.String() {
+	if lot.SecurityId != newLot.SecurityId {
 		return Lot{}, fmt.Errorf("attempting to merge two lots with a different underlying security")
 	}
 
@@ -85,7 +85,7 @@ func (lot Lot) CurrentReturn(quote entity.SimpleQuote) float64 {
 
 func (lot Lot) MarketValue(quote entity.SimpleQuote) (float64, error) {
 	if quote == nil {
-		logger.Log("Quote is nil for position "+lot.SecurityId.String(), logger.ERROR)
+		logger.Log("Quote is nil for position "+lot.SecurityId, logger.ERROR)
 	}
 
 	const targetCur = "EUR"

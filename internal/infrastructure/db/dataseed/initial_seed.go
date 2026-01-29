@@ -8,15 +8,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	"github.com/google/uuid"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
+	entity "github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
 	dbfinancials "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/financials"
 	dbsecurity "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"github.com/google/uuid"
 
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 
@@ -65,6 +65,11 @@ func createTables(ctx context.Context, db *ydb.Driver) error {
 		return err
 	}
 
+	err = createPortfolioTable(ctx, db, client)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -84,8 +89,7 @@ func createStockTables(ctx context.Context, db *ydb.Driver, c table.Client) erro
 	return c.Do(ctx,
 		func(ctx context.Context, s table.Session) error {
 			err := s.CreateTable(ctx, path.Join(prefix, "stock"),
-				options.WithColumn("id", types.TypeUUID),
-				options.WithColumn("figi", types.Optional(types.TypeUTF8)),
+				options.WithColumn("figi", types.TypeUTF8),
 				options.WithColumn("company_name", types.Optional(types.TypeUTF8)),
 				options.WithColumn("is_public", types.TypeBool),
 				options.WithColumn("isin", types.TypeUTF8),
@@ -95,7 +99,7 @@ func createStockTables(ctx context.Context, db *ydb.Driver, c table.Client) erro
 				options.WithColumn("ticker", types.TypeUTF8),
 				options.WithColumn("issue_size", types.TypeInt64),
 				options.WithColumn("sector", types.Optional(types.TypeUTF8)),
-				options.WithPrimaryKeyColumn("isin"),
+				options.WithPrimaryKeyColumn("figi"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)
@@ -104,7 +108,7 @@ func createStockTables(ctx context.Context, db *ydb.Driver, c table.Client) erro
 
 			err = s.CreateTable(ctx, path.Join(prefix, "dividend_payment"),
 				options.WithColumn("id", types.TypeUUID),
-				options.WithColumn("stock_id", types.TypeUUID),
+				options.WithColumn("stock_id", types.TypeText),
 				options.WithColumn("actual_DPS", types.TypeInt64),
 				options.WithColumn("expected_DPS", types.Optional(types.TypeInt64)),
 				options.WithColumn("currency", types.TypeUTF8),
@@ -139,7 +143,7 @@ func createStockTables(ctx context.Context, db *ydb.Driver, c table.Client) erro
 }
 
 func createMarketDataTables(ctx context.Context, db *ydb.Driver, c table.Client) error {
-	prefix := path.Join(db.Name(), "marketdata/timeseries")
+	prefix := path.Join(db.Name(), "marketdata/")
 
 	return c.Do(ctx,
 		func(ctx context.Context, s table.Session) error {
@@ -157,6 +161,30 @@ func createMarketDataTables(ctx context.Context, db *ydb.Driver, c table.Client)
 			return nil
 		})
 
+}
+
+func createPortfolioTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
+	prefix := path.Join(db.Name(), "user/")
+	return c.Do(ctx,
+		func(ctx context.Context, s table.Session) error {
+			err := s.CreateTable(ctx, path.Join(prefix, "portfolio"),
+				options.WithColumn("id", types.TypeUUID),
+				options.WithColumn("figi", types.TypeUTF8),
+				options.WithColumn("accountId", types.TypeUUID),
+				options.WithColumn("created_at", types.TypeDatetime),
+				options.WithColumn("updated_at", types.TypeDatetime),
+				options.WithColumn("quantity", types.TypeInt64),
+				options.WithColumn("price_per_unit", types.TypeDouble),
+				options.WithColumn("currency", types.TypeUTF8),
+				options.WithPrimaryKeyColumn("figi", "date"),
+			)
+			if err != nil {
+				logger.Log(err.Error(), logger.ALERT)
+				return err
+			}
+
+			return nil
+		})
 }
 
 const seedDataFolder = "internal/infrastructure/db/dataseed/seed-data/"
@@ -206,12 +234,6 @@ func populateStockTable(reader *csv.Reader, db *ydb.Driver) error {
 	serbianStocks := []security.Security{}
 	recordsLessHeader := seedRecords[1:]
 	for _, record := range recordsLessHeader {
-		parsedUuid, err := uuid.Parse(record[0])
-		if err != nil {
-			logger.Log("Failed to parse a UUID from value "+record[0]+" in the stock seed file", logger.ALERT)
-			continue
-		}
-
 		isPublic, err := strconv.ParseBool(record[2])
 		if err != nil {
 			logger.Log("Failed to parse the is public flag "+record[2]+" in the stock seed file", logger.ALERT)
@@ -231,7 +253,6 @@ func populateStockTable(reader *csv.Reader, db *ydb.Driver) error {
 		}
 
 		stock := security.Stock{
-			Id:           parsedUuid,
 			Isin:         record[3],
 			Figi:         record[9],
 			CompanyName:  record[1],
@@ -271,12 +292,6 @@ func populateDividendTable(reader *csv.Reader, db *ydb.Driver) error {
 			continue
 		}
 
-		parsedStockId, err := uuid.Parse(csvDividend[1])
-		if err != nil {
-			logger.Log("Failed to parse the stock ID from value "+csvDividend[1]+" in the dividend seed file", logger.ALERT)
-			continue
-		}
-
 		actualDPS, err := strconv.ParseFloat(csvDividend[2], 64)
 		if err != nil {
 			logger.Log("Failed to parse the actual DPS from value "+csvDividend[2]+" in the dividend seed file", logger.ALERT)
@@ -303,7 +318,7 @@ func populateDividendTable(reader *csv.Reader, db *ydb.Driver) error {
 
 		div := dividend.Dividend{
 			Id:            parsedId,
-			StockID:       parsedStockId,
+			Figi:          csvDividend[1],
 			ActualDPS:     actualDPS,
 			ExpectedDPS:   expectedDPS,
 			Currency:      csvDividend[4],

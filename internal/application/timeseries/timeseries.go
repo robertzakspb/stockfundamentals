@@ -1,6 +1,7 @@
 package timeseries
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
@@ -28,6 +29,7 @@ func FetchAndSaveHistoricalQuotes() {
 		}
 
 		tQuotes, _ := tinkoffapi.FetchAllHistoricalQuotesFor(entity.Security{Figi: stock.Figi, ISIN: stock.Isin}, config)
+		logger.Log("Fetched "+strconv.Itoa(len(tQuotes)) + " quotes for: "+stock.Ticker, logger.INFORMATION)
 
 		interfaceStructs := make([]entity.SimpleQuote, len(tQuotes))
 		for i := range tQuotes {

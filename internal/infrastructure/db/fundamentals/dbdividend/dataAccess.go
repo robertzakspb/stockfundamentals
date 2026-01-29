@@ -22,8 +22,8 @@ const STOCK_DIRECTORY_PREFIX = "stockfundamentals/stocks"
 const DIVIDEND_PAYMENT_TABLE_NAME = "dividend_payment"
 
 type dividendDbModel struct {
-	Id      uuid.UUID `sql:"id"`
-	StockID uuid.UUID `sql:"stock_id"`
+	Id   uuid.UUID `sql:"id"`
+	Figi string    `sql:"figi"`
 	//For DB-related reasons, expected and actual DPS are converted to integers to remove the fractional part. Multiplied by a million for maximum accuracy. When reading the value, it must consequently be divided by a million
 	ExpectedDpsTimesMillion int64     `sql:"expected_DPS"`
 	ActualDPSTimesMillion   int64     `sql:"actual_DPS"`
@@ -36,6 +36,9 @@ type dividendDbModel struct {
 }
 
 func SaveDividendsToDB(dividends []dividend.Dividend, db *ydb.Driver) error {
+	if (len(dividends) == 0) {
+		logger.Log("Attempting to save 0 dividends", logger.WARNING)
+	}
 	if db == nil {
 		logger.Log("Database driver is nil while attempting to save dividends to the DB", logger.ALERT)
 	}
@@ -46,7 +49,7 @@ func SaveDividendsToDB(dividends []dividend.Dividend, db *ydb.Driver) error {
 	for _, dividend := range dbModels {
 		ydbDividend := types.StructValue(
 			types.StructFieldValue("id", types.UuidValue(dividend.Id)),
-			types.StructFieldValue("stock_id", types.UuidValue(dividend.StockID)),
+			types.StructFieldValue("stock_id", types.TextValue(dividend.Figi)),
 			types.StructFieldValue("actual_DPS", types.Int64Value(int64(dividend.ActualDPSTimesMillion))),
 			types.StructFieldValue("expected_DPS", types.Int64Value(int64(dividend.ExpectedDpsTimesMillion))),
 			types.StructFieldValue("currency", types.TextValue(dividend.Currency)),
@@ -58,6 +61,10 @@ func SaveDividendsToDB(dividends []dividend.Dividend, db *ydb.Driver) error {
 		)
 		ydbDividends = append(ydbDividends, ydbDividend)
 	}
+
+	//TODO: - Delete this before commit
+	fmt.Println(dividends[0].Figi)
+	fmt.Println(ydbDividends[0])
 
 	tableName := path.Join(db.Name(), STOCK_DIRECTORY_PREFIX, DIVIDEND_PAYMENT_TABLE_NAME)
 	err := db.Table().BulkUpsert(
@@ -86,7 +93,7 @@ func mapDividendToDbModel(dividends []dividend.Dividend) []dividendDbModel {
 	for _, dividend := range dividends {
 		dbModel := dividendDbModel{
 			Id:                      dividend.Id,
-			StockID:                 dividend.StockID,
+			Figi:                    dividend.Figi,
 			ExpectedDpsTimesMillion: int64(dividend.ExpectedDPS * 1_000_000),
 			ActualDPSTimesMillion:   int64(dividend.ActualDPS * 1_000_000),
 			Currency:                dividend.Currency,
@@ -107,7 +114,7 @@ func mapDbModelToDividend(dbModelds []dividendDbModel) []dividend.Dividend {
 	for _, dbModel := range dbModelds {
 		newDiv := dividend.Dividend{
 			Id:                dbModel.Id,
-			StockID:           dbModel.StockID,
+			Figi:              dbModel.Figi,
 			ExpectedDPS:       float64(dbModel.ExpectedDpsTimesMillion) / 1_000_000,
 			ActualDPS:         float64(dbModel.ActualDPSTimesMillion) / 1_000_000,
 			Currency:          dbModel.Currency,

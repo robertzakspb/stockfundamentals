@@ -6,16 +6,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
 	investapi "github.com/russianinvestments/invest-api-go-sdk/proto"
 )
-
-
 
 func FetchDividendsForAllStocks() []dividend.Dividend {
 	stocks, err := securitydb.GetAllSecuritiesFromDB()
@@ -94,15 +92,15 @@ func dividendIsValid(dividend *investapi.Dividend) bool {
 	return dividendIsValid
 }
 
-func mapTinkoffDividendToDividend(tinkoffDiv *investapi.Dividend, stockID uuid.UUID) dividend.Dividend {
+func mapTinkoffDividendToDividend(tinkoffDiv *investapi.Dividend, figi string) dividend.Dividend {
 
-	if len(stockID) == 0 {
+	if figi != "" {
 		logger.Log("Missing stock ID in the provided stock for tinkoff dividend: "+tinkoffDiv.GetDeclaredDate().String()+tinkoffDiv.GetRecordDate().String(), logger.WARNING)
 	}
 
 	dividend := dividend.Dividend{
 		Id:                uuid.New(),
-		StockID:           stockID,
+		Figi:              figi,
 		ActualDPS:         tinkoffDiv.DividendNet.ToFloat(),
 		ExpectedDPS:       0,
 		Currency:          strings.ToUpper(tinkoffDiv.DividendNet.GetCurrency()),

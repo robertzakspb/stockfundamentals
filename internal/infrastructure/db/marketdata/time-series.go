@@ -13,7 +13,7 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
-const market_date_directory_prefix = "marketdata/timeseries"
+const market_date_directory_prefix = "marketdata/"
 const time_series_table_name = "time_series"
 
 func SaveTimeSeriesToDB(quotes []entity.SimpleQuote) error {

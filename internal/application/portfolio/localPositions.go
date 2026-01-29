@@ -14,12 +14,13 @@ func getHardCodedStockPositions() []lot.Lot {
 	rosselHozId, _ := uuid.Parse("5e3e1fdb-5c18-43a5-a7c6-f898aff2d17f")
 	nlbId, _ := uuid.Parse("3b450479-a136-4ecd-9f34-8bfac6488101")
 
-	jesvId, _ := uuid.Parse("dd194350-4c61-4643-8c74-1120ceca8fae")
-	dunavId, _ := uuid.Parse("4f96e511-34db-4f00-9bf5-0975cef04c2b")
-	mtlcId, _ := uuid.Parse("8f0161f0-083d-431a-9fff-89deb073ce0f")
-	nisId, _ := uuid.Parse("9f45ae88-70bd-48ef-aadc-aa6f01377b76")
-	impolId, _ := uuid.Parse("d281b3b3-ac2a-49d2-9265-d030fe4142a9")
-	etalonId, _ := uuid.Parse("08192dec-4141-4798-a342-0b62894285a2")
+	jesvId := "BBG000BS7XH7"
+	dunavId := "BBG000BMX476"
+	mtlcId := "BBG000HP5RC7"
+	nisId := "BBG0015L55D4"
+	impolId := "BBG000HGH3F4"
+	//TODO: Look it the figi in the DB
+	etalonId := "08192dec-4141-4798-a342-0b62894285a2"
 
 	serbianStocks := []lot.Lot{
 

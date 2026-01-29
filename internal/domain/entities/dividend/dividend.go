@@ -8,7 +8,7 @@ import (
 
 type Dividend struct {
 	Id                uuid.UUID `sql:"id"`
-	StockID           uuid.UUID `sql:"stock_id"`
+	Figi              string    `sql:"figi"`
 	ActualDPS         float64   `sql:"actual_DPS"`
 	ExpectedDPS       float64   `sql:"expected_DPS"`
 	Currency          string    `sql:"currency"`

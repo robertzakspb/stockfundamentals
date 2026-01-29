@@ -2,11 +2,9 @@ package api_security
 
 import (
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
-	"github.com/google/uuid"
 )
 
 type SecurityDTO struct {
-	Id           uuid.UUID
 	Isin         string
 	Figi         string
 	CompanyName  string
@@ -20,8 +18,7 @@ type SecurityDTO struct {
 }
 
 func mapStockToDto(stock security.Stock) SecurityDTO {
-	return  SecurityDTO{
-		Id:           stock.Id,
+	return SecurityDTO{
 		Isin:         stock.Isin,
 		Figi:         stock.Figi,
 		CompanyName:  stock.CompanyName,

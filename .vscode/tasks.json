@@ -1,0 +1,44 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "go",
+            "label": "go: build package",
+            "command": "build",
+            "args": ["${fileDirname}"],
+            "problemMatcher": ["$go"],
+            "group": "build",
+            "detail": "cd /Users/robert/Documents/Programming/Investing/stockfundamentals; go build ${fileDirname}"
+        },
+        {
+            "label": "Start_DB",
+            "dependsOrder": "sequence",
+            "dependsOn": ["Open_Docker", "Start_DB_Container", "Open_YDB_UI", "Restore_Latest_Backup"]
+        },
+        {
+            "type": "shell",
+            "label": "Open_Docker",
+            "command": "open -a Docker && sleep 3"
+        },
+        {
+            "type": "shell",
+            "label": "Start_DB_Container",
+            "command": "docker run -d --rm --name ydb-local -h localhost --platform linux/amd64 -p 2135:2135 -p 2136:2136 -p 8765:8765 -p 9092:9092 -v $(pwd)/ydb_certs:/ydb_certs -v $(pwd)/ydb_data:/ydb_data -e GRPC_TLS_PORT=2135 -e GRPC_PORT=2136 -e MON_PORT=8765 -e YDB_KAFKA_PROXY_PORT=9092 ydbplatform/local-ydb:latest && sleep 3"
+        },
+        {
+            "type": "shell",
+            "label": "Open_YDB_UI",
+            "command": "open http://localhost:8765/"
+        },
+        {
+            "type": "shell",
+            "label": "Restore_Latest_Backup",
+            "command": "ydb -e \"grpc://localhost:2136\" -d \"/local\" tools restore -i \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\" -p \".\""
+        },
+        {
+            "type": "shell",
+            "label": "Make_DB_Backup",
+            "command": "rm -rf  \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\" && ydb -e \"grpc://localhost:2136\" -d \"/local\" tools dump -o \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\""
+        }
+    ]
+}

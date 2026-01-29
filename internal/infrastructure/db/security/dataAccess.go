@@ -14,8 +14,6 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 
-	"github.com/google/uuid"
-
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
@@ -29,17 +27,11 @@ const stock_table_name = "stock"
 func SaveSecuritiesToDB(securities []security.Security, db *ydb.Driver) error {
 	ydbStocks := []types.Value{}
 	for _, stock := range securities {
-		var id = stock.GetId()
-		if stock.GetId() == uuid.Nil {
-			id = uuid.New()
-		}
-
 		ydbStock := types.StructValue(
-			types.StructFieldValue("id", types.UuidValue(id)),
+			types.StructFieldValue("figi", types.TextValue(stock.GetFigi())),
 			types.StructFieldValue("company_name", types.TextValue(stock.GetCompanyName())),
 			types.StructFieldValue("is_public", types.BoolValue(true)),
 			types.StructFieldValue("isin", types.TextValue(stock.GetIsin())),
-			types.StructFieldValue("figi", types.TextValue(stock.GetFigi())),
 			types.StructFieldValue("security_type", types.TextValue(string(stock.GetSecurityType()))),
 			types.StructFieldValue("country_iso2", types.TextValue(stock.GetCountry())),
 			types.StructFieldValue("ticker", types.TextValue(stock.GetTicker())),
@@ -72,19 +64,19 @@ func GetSecuritiesFilteredByFigi(figis []string) ([]security.Stock, error) {
 	return FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByFigiQuery(figis))
 }
 
-func GetSecuritiesFilteredById(ids uuid.UUIDs) ([]security.Security, error) {
-	stocks, err := FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByIdQuery(ids))
-	if err != nil {
-		logger.Log(err.Error(), logger.ERROR)
-		return []security.Security{}, err
-	}
+// func GetSecuritiesFilteredById(ids []string) ([]security.Security, error) {
+// 	stocks, err := FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByIdQuery(ids))
+// 	if err != nil {
+// 		logger.Log(err.Error(), logger.ERROR)
+// 		return []security.Security{}, err
+// 	}
 
-	securities := []security.Security{}
-	for _, s := range stocks {
-		securities = append(securities, s)
-	}
-	return securities, err
-}
+// 	securities := []security.Security{}
+// 	for _, s := range stocks {
+// 		securities = append(securities, s)
+// 	}
+// 	return securities, err
+// }
 
 func FetchSecuritiesFromDBWithDriver(yqlQuery string) ([]security.Stock, error) {
 	config, err := config.LoadConfig()
@@ -153,7 +145,6 @@ func FetchSecuritiesFromDBWithDriver(yqlQuery string) ([]security.Stock, error) 
 func getSecuritiesBaseQuery() string {
 	yqlQuery := fmt.Sprintf(`
 						SELECT
-							id,
 							isin,
 							figi,
 							company_name,
@@ -180,15 +171,15 @@ func getSecuritiesFilteredByFigiQuery(figis []string) string {
 	return yqlQuery
 }
 
-func getSecuritiesFilteredByIdQuery(ids uuid.UUIDs) string {
-	yqlQuery := getSecuritiesBaseQuery()
+// func getSecuritiesFilteredByIdQuery(ids []string) string {
+// 	yqlQuery := getSecuritiesBaseQuery()
 
-	if len(ids) > 0 {
-		yqlQuery += "WHERE id IN " + convertUuidsToYqlInExpression(ids)
-	}
+// 	if len(ids) > 0 {
+// 		yqlQuery += "WHERE id IN " + convertUuidsToYqlInExpression(ids)
+// 	}
 
-	return yqlQuery
-}
+// 	return yqlQuery
+// }
 
 func securityPath() string {
 	return "`" + path.Join(stock_directory_prefix, stock_table_name) + "`"
@@ -201,7 +192,6 @@ func mapYdbStockToStock(dbStock StockDbModel) security.Stock {
 	}
 
 	stock := security.Stock{
-		Id:           dbStock.Id,
 		CompanyName:  dbStock.CompanyName,
 		IsPublic:     true,
 		Isin:         dbStock.Isin,
@@ -230,16 +220,16 @@ func convertStringsToYqlInExpression(filterSlice []string) string {
 	return str
 }
 
-//TODO: Convert to a common function
-func convertUuidsToYqlInExpression(filterSlice uuid.UUIDs) string {
-	var sb strings.Builder
-	sb.WriteString("(")
+// TODO: Convert to a common function
+// func convertUuidsToYqlInExpression(filterSlice []string) string {
+// 	var sb strings.Builder
+// 	sb.WriteString("(")
 
-	for _, value := range filterSlice {
-		sb.WriteString("CAST('" + value.String() + "' AS Uuid)")
-		sb.WriteString(", ")
-	}
+// 	for _, value := range filterSlice {
+// 		sb.WriteString(value)
+// 		sb.WriteString(", ")
+// 	}
 
-	str := sb.String()[:sb.Len()-2] + ")"
-	return str
-}
+// 	str := sb.String()[:sb.Len()-2] + ")"
+// 	return str
+// }

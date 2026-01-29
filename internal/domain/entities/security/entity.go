@@ -1,9 +1,7 @@
 package security
 
-import "github.com/google/uuid"
-
 type Security interface {
-	GetId() uuid.UUID
+	GetId() string
 	GetCompanyName() string
 	GetIsPublic() bool
 	GetIsin() string
@@ -17,16 +15,15 @@ type Security interface {
 }
 
 type Stock struct {
-	Id           uuid.UUID
+	Figi         string
 	Isin         string `json:"isin"`
-	Figi         string 
-	CompanyName  string  `json:"companyName"`
+	CompanyName  string `json:"companyName"`
 	IsPublic     bool
 	SecurityType SecurityType
 	Country      string
-	Ticker       string  `json:"ticker"`
+	Ticker       string `json:"ticker"`
 	IssueSize    int
-	Sector       string  `json:"sector"`
+	Sector       string `json:"sector"`
 	MIC          string
 }
 
@@ -48,10 +45,9 @@ var (
 	}
 )
 
-
 // Implementing the Security interface
-func (stock Stock) GetId() uuid.UUID {
-	return stock.Id
+func (stock Stock) GetId() string {
+	return stock.Figi
 }
 
 func (stock Stock) GetCompanyName() string {

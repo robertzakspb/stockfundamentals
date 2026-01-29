@@ -30,7 +30,7 @@ func getExternalStockPositions() []lot.Lot {
 func getTinkoffStockPositions() []lot.Lot {
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
-		println("Failed to initialize the configuration file: ", err)
+		logger.Log("Failed to initialize the configuration file", logger.ALERT)
 	}
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
@@ -74,18 +74,18 @@ func getTinkoffStockPositions() []lot.Lot {
 			continue //Skipping the cash position until it is handled separately
 		}
 
-		var stockId uuid.UUID
+		var stockId string
 		for _, s := range securities {
 			if s.GetFigi() == position.Figi {
-				stockId = s.Id
+				stockId = s.Figi
 			}
 		}
-		if stockId == uuid.Nil {
-			logger.Log("Failed to find the stockId for " + position.Figi, logger.ERROR)
+		if stockId == "" {
+			logger.Log("Failed to find the stockId for "+position.Figi, logger.ERROR)
 		}
 
 		var tinkoffIisId, _ = uuid.Parse("3315bd1c-12a4-444e-a294-84ef339e26e1")
-		newLot, err := lot.NewLot(stockId, 
+		newLot, err := lot.NewLot(stockId,
 			float64(position.Quantity.ToFloat()),
 			position.AveragePositionPrice.ToFloat(),
 			position.AveragePositionPrice.Currency,
@@ -94,7 +94,7 @@ func getTinkoffStockPositions() []lot.Lot {
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 		}
-		
+
 		lots = append(lots, newLot)
 	}
 

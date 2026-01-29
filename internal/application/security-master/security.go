@@ -8,7 +8,6 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	"github.com/google/uuid"
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
 	investapi "github.com/russianinvestments/invest-api-go-sdk/proto"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
@@ -84,7 +83,6 @@ func fetchTinkoffSecurities() []security.Stock {
 		}
 
 		russianStock := security.Stock{
-			Id:           uuid.New(),
 			CompanyName:  tinkoffStock.Name,
 			IsPublic:     true,
 			Isin:         tinkoffStock.Isin,
@@ -103,9 +101,9 @@ func fetchTinkoffSecurities() []security.Stock {
 	return russianStocks
 }
 
-func GetSecuritiesById(ids uuid.UUIDs) ([]security.Security, error) {
-	return securitydb.GetSecuritiesFilteredById(ids)
-}
+// func GetSecuritiesById(ids []string) ([]security.Security, error) {
+// 	return securitydb.GetSecuritiesFilteredById(ids)
+// }
 
 func mapTinkoffSecurityTypeToInternal(shareType investapi.ShareType) security.SecurityType {
 	switch shareType {
