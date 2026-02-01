@@ -14,17 +14,21 @@
         {
             "label": "Start_DB",
             "dependsOrder": "sequence",
-            "dependsOn": ["Open_Docker", "Start_DB_Container", "Open_YDB_UI", "Restore_Latest_Backup"]
+            "dependsOn": ["Open_Docker", "Start_DB", "Open_YDB_UI", "Restore_Latest_Backup"]
         },
         {
             "type": "shell",
             "label": "Open_Docker",
-            "command": "open -a Docker && sleep 3"
+            "osx": { "command": "open -a Docker && sleep 3" },
+            "linux": { "command": "" }
         },
         {
             "type": "shell",
-            "label": "Start_DB_Container",
-            "command": "docker run -d --rm --name ydb-local -h localhost --platform linux/amd64 -p 2135:2135 -p 2136:2136 -p 8765:8765 -p 9092:9092 -v $(pwd)/ydb_certs:/ydb_certs -v $(pwd)/ydb_data:/ydb_data -e GRPC_TLS_PORT=2135 -e GRPC_PORT=2136 -e MON_PORT=8765 -e YDB_KAFKA_PROXY_PORT=9092 ydbplatform/local-ydb:latest && sleep 3"
+            "label": "Start_DB",
+            "osx": {
+                "command": "docker run -d --rm --name ydb-local -h localhost --platform linux/amd64 -p 2135:2135 -p 2136:2136 -p 8765:8765 -p 9092:9092 -v $(pwd)/ydb_certs:/ydb_certs -v $(pwd)/ydb_data:/ydb_data -e GRPC_TLS_PORT=2135 -e GRPC_PORT=2136 -e MON_PORT=8765 -e YDB_KAFKA_PROXY_PORT=9092 ydbplatform/local-ydb:latest && sleep 3"
+            },
+            "linux": { "command": "cd ~/ydbd && ./start.sh disk" }
         },
         {
             "type": "shell",
@@ -34,28 +38,39 @@
         {
             "type": "shell",
             "label": "Restore_Latest_Backup",
-            "command": "ydb -e \"grpc://localhost:2136\" -d \"/local\" tools restore -i \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\" -p \".\""
+            "osx": {
+                "command": "ydb -e \"grpc://localhost:2136\" -d \"/local\" tools restore -i \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\" -p \".\""
+            },
+            "linux": { "command": "" }
         },
         //POST-DEBUG TASK THAT QUITS DOCKER AND CREATES THE REQUIRED BACKUPS
         {
             "label": "Make_DB_Backup",
             "dependsOrder": "sequence",
-            "dependsOn": ["Remove_Old_Latest_Backup", "Make_2_Backups", "Quit_Docker"]
+            "dependsOn": ["Remove_Old_Latest_Backup", "Make_Backups", "Quit_Docker"]
         },
         {
             "type": "shell",
             "label": "Remove_Old_Latest_Backup",
-            "command": "rm -rf  \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\""
+            "osx": {
+                "command": "rm -rf  \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\""
+            },
+            "linux": { "command": "" }
         },
         {
             "type": "shell",
-            "label": "Make_2_Backups",
-            "command": "ydb -e \"grpc://localhost:2136\" -d \"/local\" tools dump -o \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\" && ydb -e \"grpc://localhost:2136\" -d \"/local\" tools dump -o \"/Users/robert/Documents/backups/compound\""
+            "label": "Make_Backups",
+            "osx": {
+                "command": "ydb -e \"grpc://localhost:2136\" -d \"/local\" tools dump -o \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\" && ydb -e \"grpc://localhost:2136\" -d \"/local\" tools dump -o \"/Users/robert/Documents/backups/compound\""
+            },
+            "linux": { "command": "ydb -e \"grpc://localhost:2136\" -d \"/Root/test\" tools dump -o \"/home/robert/Documents/backups/compound/$(date +%Y%m%d_%H%M%S)\"" }
         },
         {
             "type": "shell",
             "label": "Quit_Docker",
-            "command": ""
+            //TODO: Test and implement
+            "osx": {"command": "kill docker"},
+            "linux": {"command": ""}
         }
     ]
 }
