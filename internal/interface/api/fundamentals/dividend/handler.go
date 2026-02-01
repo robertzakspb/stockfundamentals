@@ -2,6 +2,7 @@ package apidividend
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	appdividend "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
@@ -9,10 +10,11 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"github.com/gin-gonic/gin"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 )
 
-func FetchAndSaveAllDividends() error {
+func FetchAndSaveAllDividends(c *gin.Context) {
 	dividends := appdividend.FetchDividendsForAllStocks()
 
 	//TODO: Extract the DB initialization in a single method
@@ -21,23 +23,21 @@ func FetchAndSaveAllDividends() error {
 
 	config, err := config.LoadConfig()
 	if err != nil {
-		return err
+		c.JSON(http.StatusInternalServerError, "Unable to fetch dividends due to internal configuration issues")
 	}
 
 	db, err := ydb.Open(ctx, config.DB.ConnectionString)
 
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
-		panic("Failed to connect to the database")
+		c.JSON(http.StatusInternalServerError, "Unable to fetch dividends due to internal database issues")
 	}
 
 	err = dbdividend.SaveDividendsToDB(dividends, db)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
-		return err
+		c.JSON(http.StatusInternalServerError, err.Error())
 	}
-
-	return nil
 }
 
 func GetAllDividends() ([]dividend.Dividend, error) {

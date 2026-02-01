@@ -2,24 +2,26 @@ package security_master
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"github.com/gin-gonic/gin"
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
 	investapi "github.com/russianinvestments/invest-api-go-sdk/proto"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 )
 
-func FetchAndSaveSecurities() error {
+func FetchAndSaveSecurities(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancel()
 
 	config, err := config.LoadConfig()
 	if err != nil {
-		return err
+		c.JSON(http.StatusInternalServerError, "Unable to fetch dividends due to internal configuration issues")
 	}
 
 	db, err := ydb.Open(ctx, config.DB.ConnectionString)
@@ -39,8 +41,6 @@ func FetchAndSaveSecurities() error {
 	}
 
 	securitydb.SaveSecuritiesToDB(securities, db)
-
-	return nil
 }
 
 func GetAllSecuritiesFromDB() ([]security.Stock, error) {

@@ -1,11 +1,13 @@
 package timeseries
 
 import (
+	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	tinkoffapi "github.com/compoundinvest/invest-core/quote/tinkoffmd"
+	"github.com/gin-gonic/gin"
 
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/marketdata"
 	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
@@ -13,7 +15,7 @@ import (
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
 )
 
-func FetchAndSaveHistoricalQuotes() {
+func FetchAndSaveHistoricalQuotes(c *gin.Context) {
 	stocks, _ := securitydb.GetAllSecuritiesFromDB()
 	quotes := []entity.SimpleQuote{}
 
@@ -25,7 +27,7 @@ func FetchAndSaveHistoricalQuotes() {
 		}
 		config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 		if err != nil {
-			panic("Unable to initialize the Tinkoff API config file")
+			c.JSON(http.StatusInternalServerError, "Unable to fetch dividends due to internal configuration issues")
 		}
 
 		tQuotes, _ := tinkoffapi.FetchAllHistoricalQuotesFor(entity.Security{Figi: stock.Figi, ISIN: stock.Isin}, config)
@@ -46,5 +48,6 @@ func FetchAndSaveHistoricalQuotes() {
 	err := timeseries.SaveTimeSeriesToDB(quotes)
 	if err != nil {
 		logger.Log("Failed to fetch timeseries via Tinkoff API due to: "+err.Error(), logger.ALERT)
+		c.JSON(http.StatusInternalServerError, "Failed to fetch time series due to: " + err.Error())
 	}
 }

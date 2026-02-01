@@ -36,11 +36,12 @@ type dividendDbModel struct {
 }
 
 func SaveDividendsToDB(dividends []dividend.Dividend, db *ydb.Driver) error {
-	if (len(dividends) == 0) {
+	if len(dividends) == 0 {
 		logger.Log("Attempting to save 0 dividends", logger.WARNING)
 	}
 	if db == nil {
 		logger.Log("Database driver is nil while attempting to save dividends to the DB", logger.ALERT)
+		return errors.New("Database issues")
 	}
 
 	dbModels := mapDividendToDbModel(dividends)
@@ -62,10 +63,6 @@ func SaveDividendsToDB(dividends []dividend.Dividend, db *ydb.Driver) error {
 		ydbDividends = append(ydbDividends, ydbDividend)
 	}
 
-	//TODO: - Delete this before commit
-	fmt.Println(dividends[0].Figi)
-	fmt.Println(ydbDividends[0])
-
 	tableName := path.Join(db.Name(), STOCK_DIRECTORY_PREFIX, DIVIDEND_PAYMENT_TABLE_NAME)
 	err := db.Table().BulkUpsert(
 		context.TODO(),
@@ -73,7 +70,7 @@ func SaveDividendsToDB(dividends []dividend.Dividend, db *ydb.Driver) error {
 		table.BulkUpsertDataRows(types.ListValue(ydbDividends...)))
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
-		return err
+		return errors.New("Failed to save dividends to the database")
 	}
 
 	return nil

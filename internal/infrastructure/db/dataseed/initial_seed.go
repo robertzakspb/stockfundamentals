@@ -3,6 +3,7 @@ package dataseed
 import (
 	"context"
 	"encoding/csv"
+	"net/http"
 	"os"
 	"path"
 	"strconv"
@@ -16,6 +17,7 @@ import (
 	dbfinancials "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/financials"
 	dbsecurity "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
 	"github.com/ydb-platform/ydb-go-sdk/v3"
@@ -25,31 +27,30 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
-func InitialSeed() error {
+func InitialSeed(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
 	config, err := config.LoadConfig()
 	if err != nil {
-		return err
+		c.JSON(http.StatusInternalServerError, "Unable to proceed due to internal configuration issues")
 	}
 
 	db, err := ydb.Open(ctx, config.DB.ConnectionString)
 	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Unable to proceed due to database issues")
 		panic("Failed to connect to the database")
 	}
 
 	err = createTables(ctx, db)
 	if err != nil {
-		return err
+		c.JSON(http.StatusInternalServerError, "Failed to create tables")
 	}
 
 	err = populateTables(db)
 	if err != nil {
-		return err
+		c.JSON(http.StatusInternalServerError, "Failed to populate tables")
 	}
-
-	return nil
 }
 
 func createTables(ctx context.Context, db *ydb.Driver) error {
@@ -170,13 +171,13 @@ func createPortfolioTable(ctx context.Context, db *ydb.Driver, c table.Client) e
 			err := s.CreateTable(ctx, path.Join(prefix, "portfolio"),
 				options.WithColumn("id", types.TypeUUID),
 				options.WithColumn("figi", types.TypeUTF8),
-				options.WithColumn("accountId", types.TypeUUID),
+				options.WithColumn("account_id", types.TypeUUID),
 				options.WithColumn("created_at", types.TypeDatetime),
 				options.WithColumn("updated_at", types.TypeDatetime),
 				options.WithColumn("quantity", types.TypeInt64),
 				options.WithColumn("price_per_unit", types.TypeDouble),
 				options.WithColumn("currency", types.TypeUTF8),
-				options.WithPrimaryKeyColumn("figi", "date"),
+				options.WithPrimaryKeyColumn("id"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)

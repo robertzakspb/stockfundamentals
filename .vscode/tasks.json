@@ -10,6 +10,7 @@
             "group": "build",
             "detail": "cd /Users/robert/Documents/Programming/Investing/stockfundamentals; go build ${fileDirname}"
         },
+        //PRE-DEBUG TASKS THAT START DOCKER CONTAINERS AND RESTORE THE LATEST BACKUP FOR CONVENIENCE
         {
             "label": "Start_DB",
             "dependsOrder": "sequence",
@@ -35,10 +36,26 @@
             "label": "Restore_Latest_Backup",
             "command": "ydb -e \"grpc://localhost:2136\" -d \"/local\" tools restore -i \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\" -p \".\""
         },
+        //POST-DEBUG TASK THAT QUITS DOCKER AND CREATES THE REQUIRED BACKUPS
+        {
+            "label": "Make_DB_Backup",
+            "dependsOrder": "sequence",
+            "dependsOn": ["Remove_Old_Latest_Backup", "Make_2_Backups", "Quit_Docker"]
+        },
         {
             "type": "shell",
-            "label": "Make_DB_Backup",
-            "command": "rm -rf  \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\" && ydb -e \"grpc://localhost:2136\" -d \"/local\" tools dump -o \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\""
+            "label": "Remove_Old_Latest_Backup",
+            "command": "rm -rf  \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\""
+        },
+        {
+            "type": "shell",
+            "label": "Make_2_Backups",
+            "command": "ydb -e \"grpc://localhost:2136\" -d \"/local\" tools dump -o \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\" && ydb -e \"grpc://localhost:2136\" -d \"/local\" tools dump -o \"/Users/robert/Documents/backups/compound\""
+        },
+        {
+            "type": "shell",
+            "label": "Quit_Docker",
+            "command": ""
         }
     ]
 }
