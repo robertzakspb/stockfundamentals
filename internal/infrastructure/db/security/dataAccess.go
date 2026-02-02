@@ -2,6 +2,7 @@ package dbsecurity
 
 import (
 	"context"
+	"strconv"
 	"strings"
 	"time"
 
@@ -52,6 +53,8 @@ func SaveSecuritiesToDB(securities []security.Security, db *ydb.Driver) error {
 		logger.Log(err.Error(), logger.ERROR)
 		return err
 	}
+
+	logger.Log("Saved " + strconv.Itoa(len(ydbStocks)) + " securities to the database", logger.INFORMATION)
 
 	return nil
 }

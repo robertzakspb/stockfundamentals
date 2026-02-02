@@ -1,21 +1,20 @@
 package timeseries
 
 import (
-	"net/http"
+	"errors"
 	"strconv"
 	"time"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	tinkoffapi "github.com/compoundinvest/invest-core/quote/tinkoffmd"
-	"github.com/gin-gonic/gin"
 
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/marketdata"
+	timeseries "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/marketdata"
 	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
 )
 
-func FetchAndSaveHistoricalQuotes(c *gin.Context) {
+func FetchAndSaveHistoricalQuotes() error {
 	stocks, _ := securitydb.GetAllSecuritiesFromDB()
 	quotes := []entity.SimpleQuote{}
 
@@ -27,11 +26,11 @@ func FetchAndSaveHistoricalQuotes(c *gin.Context) {
 		}
 		config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, "Unable to fetch dividends due to internal configuration issues")
+			return errors.New("Unable to fetch dividends due to internal configuration issues")
 		}
 
 		tQuotes, _ := tinkoffapi.FetchAllHistoricalQuotesFor(entity.Security{Figi: stock.Figi, ISIN: stock.Isin}, config)
-		logger.Log("Fetched "+strconv.Itoa(len(tQuotes)) + " quotes for: "+stock.Ticker, logger.INFORMATION)
+		logger.Log("Fetched "+strconv.Itoa(len(tQuotes))+" quotes for: "+stock.Ticker, logger.INFORMATION)
 
 		interfaceStructs := make([]entity.SimpleQuote, len(tQuotes))
 		for i := range tQuotes {
@@ -48,6 +47,8 @@ func FetchAndSaveHistoricalQuotes(c *gin.Context) {
 	err := timeseries.SaveTimeSeriesToDB(quotes)
 	if err != nil {
 		logger.Log("Failed to fetch timeseries via Tinkoff API due to: "+err.Error(), logger.ALERT)
-		c.JSON(http.StatusInternalServerError, "Failed to fetch time series due to: " + err.Error())
+		return errors.New("Failed to fetch time series due to: " + err.Error())
 	}
+
+	return nil
 }

@@ -3,9 +3,9 @@ package main
 import (
 	"net/http"
 
-	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
+	api_security "github.com/compoundinvest/stockfundamentals/internal/interface/api/security"
+	timeseries "github.com/compoundinvest/stockfundamentals/internal/interface/api/time-series"
 
-	"github.com/compoundinvest/stockfundamentals/internal/application/timeseries"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/dataseed"
 
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/account/portfolio"
@@ -25,9 +25,9 @@ func addEndpoints(router *gin.Engine) {
 	router.GET("/health-check", healthCheck)
 	router.GET("/portfolio", portfolio.GetPortfolio)
 	router.POST("/migration/initial-seed", dataseed.InitialSeed)
-	router.POST("/fetch/dividends", dividend.FetchAndSaveAllDividends)
-	router.POST("/fetch/securities", security_master.FetchAndSaveSecurities)   //TODO: User the handler from the api layer
-	router.POST("/fetch/time-series", timeseries.FetchAndSaveHistoricalQuotes) //TODO: User the handler from the api layer
+	router.POST("/fetch/dividends", dividend.FetchAndSaveAllDividends) //TODO: Refactor to user a go routine
+	router.POST("/fetch/securities", api_security.StartSecurityMasterImportJob)
+	router.POST("/fetch/time-series", timeseries.StartTimeSeriesImportJob)
 }
 
 func healthCheck(c *gin.Context) {

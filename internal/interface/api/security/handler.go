@@ -1,8 +1,17 @@
 package api_security
 
 import (
-	"github.com/compoundinvest/stockfundamentals/internal/application/security-master"
+	"net/http"
+
+	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
+	"github.com/gin-gonic/gin"
 )
+
+func StartSecurityMasterImportJob(c *gin.Context) {
+	go security_master.FetchAndSaveSecurities()
+
+	c.JSON(http.StatusOK, "Successfully started the security import job")
+}
 
 func FetchSecuritiesFromDB() ([]SecurityDTO, error) {
 	securities, err := security_master.GetAllSecuritiesFromDB()
