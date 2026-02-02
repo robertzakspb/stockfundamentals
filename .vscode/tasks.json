@@ -48,7 +48,7 @@
         {
             "label": "Make_DB_Backup",
             "dependsOrder": "sequence",
-            "dependsOn": ["Remove_Old_Latest_Backup", "Make_Backups", "Quit_Docker"]
+            "dependsOn": ["Remove_Old_Latest_Backup", "Make_Backups", "Stop_DB"]
         },
         {
             "type": "shell",
@@ -68,9 +68,9 @@
         },
         {
             "type": "shell",
-            "label": "Quit_Docker",
+            "label": "Stop_DB",
             //TODO: Test and implement
-            "osx": { "command": "kill docker" },
+            "osx": { "command": "" },
             "linux": { "command": "cd ~/ydbd && ./stop.sh" }
         }
     ]
