@@ -64,7 +64,7 @@
             "osx": {
                 "command": "ydb -e \"grpc://localhost:2136\" -d \"/local\" tools dump -o \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\" && ydb -e \"grpc://localhost:2136\" -d \"/local\" tools dump -o \"/Users/robert/Documents/backups/compound\""
             },
-            "linux": { "command": "ydb -e \"grpc://localhost:2136\" -d \"/Root/test\" tools dump -o \"/home/robert/Documents/backups/compound/$(date +%Y%m%d_%H%M%S)\"" }
+            "linux": { "command": "ydb -e \"grpc://localhost:2136\" -d \"/Root/test\" tools dump -o \"/home/rob/Documents/backups/compound/$(date +%Y%m%d_%H%M%S)\"" }
         },
         {
             "type": "shell",
@@ -75,4 +75,3 @@
         }
     ]
 }
-
