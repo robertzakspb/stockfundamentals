@@ -4,7 +4,7 @@ import (
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	pb "github.com/russianinvestments/invest-api-go-sdk/proto"
+	pb "opensource.tbank.ru/invest/invest-go/proto"
 )
 
 func FetchPositionSecurities(positions []*pb.PortfolioPosition) []security.Stock {

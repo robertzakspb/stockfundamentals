@@ -10,8 +10,8 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 
-	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
-	pb "github.com/russianinvestments/invest-api-go-sdk/proto"
+	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
+	pb "opensource.tbank.ru/invest/invest-go/proto"
 )
 
 func GeMyPortfolio() portfolio.Portfolio {

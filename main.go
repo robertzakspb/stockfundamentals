@@ -28,8 +28,8 @@ func addEndpoints(router *gin.Engine) {
 	router.GET("/health-check", healthCheck)
 
 	router.GET("/portfolio", portfolio.GetPortfolio)
-	
-	router.POST("/fetch/dividends", dividend.FetchAndSaveAllDividends) //TODO: Refactor to user a go routine
+
+	router.POST("/fetch/dividends", dividend.StartDividendFetchingJob)
 	router.POST("/fetch/securities", api_security.StartSecurityMasterImportJob)
 	router.POST("/fetch/time-series", timeseries.StartTimeSeriesImportJob)
 }

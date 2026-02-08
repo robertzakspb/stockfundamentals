@@ -9,9 +9,9 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	tinkoff "github.com/russianinvestments/invest-api-go-sdk/investgo"
-	investapi "github.com/russianinvestments/invest-api-go-sdk/proto"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
+	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
+	investapi "opensource.tbank.ru/invest/invest-go/proto"
 )
 
 func FetchAndSaveSecurities() error {
