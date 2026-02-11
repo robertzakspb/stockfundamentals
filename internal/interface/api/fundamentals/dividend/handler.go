@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	appdividend "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,23 +14,24 @@ func StartDividendFetchingJob(c *gin.Context) {
 	c.JSON(http.StatusOK, "Successfully started the dividend fetching job")
 }
 
-//Refactor to use gin
-// func GetAllDividends() ([]dividend.Dividend, error) {
-// 	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
-// 	defer cancel()
+func GetAllDividends(c *gin.Context) {
+	dividends, err := dbdividend.GetAllDividends() //FIXME: Refactor the use the service
+	dtos := convertDividendToDTO(dividends)
 
-// 	config, err := config.LoadConfig()
-// 	if err != nil {
-// 		return []dividend.Dividend{}, err
-// 	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+	}
 
-// 	db, err := ydb.Open(ctx, config.DB.ConnectionString)
+	c.JSON(http.StatusOK, dtos)
+}
 
-// 	if err != nil {
-// 		logger.Log(err.Error(), logger.ALERT)
-// 		panic("Failed to connect to the database")
-// 	}
-// 	dividends, _ := dbdividend.GetAllDividends(db)
+func GetUpcomingDividends(c *gin.Context) {
+	upcomingDividends, err := dbdividend.GetUpcomingDividends() //FIXME: Refactor the use the service
+	dtos := convertDividendToDTO(upcomingDividends)
 
-// 	return dividends, nil
-// }
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	c.JSON(http.StatusOK, dtos)
+}
