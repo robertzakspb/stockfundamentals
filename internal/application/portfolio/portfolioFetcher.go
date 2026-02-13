@@ -7,7 +7,9 @@ import (
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/portfoliodb"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+
 	"github.com/google/uuid"
 
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
@@ -20,6 +22,19 @@ func GeMyPortfolio() portfolio.Portfolio {
 
 	allPositions := append(hardCodedPositions, externalPositions...)
 	return portfolio.Portfolio{Lots: allPositions}
+}
+
+func GetAccountPortfolio(accountIDs uuid.UUIDs) (portfolio.Portfolio, error) {
+	dbLots, err := portfoliodb.GetAccountPortfolio(accountIDs)
+	if err != nil {
+		return portfolio.Portfolio{}, err
+	}
+	lots := []lot.Lot{}
+	for _, lot := range dbLots {
+		lots = append(lots, mapLotDbToLot(lot))
+	}
+
+	return portfolio.Portfolio{Lots: lots}, nil
 }
 
 func getExternalStockPositions() []lot.Lot {

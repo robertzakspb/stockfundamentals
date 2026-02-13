@@ -8,7 +8,7 @@ import (
 	"path"
 	"strconv"
 	"time"
-
+"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	entity "github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
@@ -161,14 +161,13 @@ func createMarketDataTables(ctx context.Context, db *ydb.Driver, c table.Client)
 
 			return nil
 		})
-
 }
 
 func createPortfolioTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
-	prefix := path.Join(db.Name(), "user/")
+	prefix := path.Join(db.Name(), shared.USER_DIRECTORY_PREFIX)
 	return c.Do(ctx,
 		func(ctx context.Context, s table.Session) error {
-			err := s.CreateTable(ctx, path.Join(prefix, "portfolio"),
+			err := s.CreateTable(ctx, path.Join(prefix, shared.POSITION_LOT_TABLE_NAME),
 				options.WithColumn("id", types.TypeUUID),
 				options.WithColumn("figi", types.TypeUTF8),
 				options.WithColumn("account_id", types.TypeUUID),
