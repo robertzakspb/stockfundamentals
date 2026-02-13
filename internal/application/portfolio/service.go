@@ -2,10 +2,15 @@ package portfolio
 
 import (
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/portfoliodb"	
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	pb "opensource.tbank.ru/invest/invest-go/proto"
 )
+
+func GetLocalPortfolio() error {
+	return portfoliodb.UpdateLocalPortfolio(portfolio)
+}
 
 func FetchPositionSecurities(positions []*pb.PortfolioPosition) []security.Stock {
 	figis := []string{}

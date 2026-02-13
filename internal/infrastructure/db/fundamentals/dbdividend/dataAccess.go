@@ -19,7 +19,7 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
-const STOCK_DIRECTORY_PREFIX = "stockfundamentals/stocks"
+const STOCK_DIRECTORY_PREFIX = "stockfundamentals/stocks" //FIXME: Extract into shared
 const DIVIDEND_PAYMENT_TABLE_NAME = "dividend_payment"
 
 type dividendDbModel struct {
