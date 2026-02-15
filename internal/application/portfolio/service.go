@@ -1,15 +1,22 @@
 package portfolio
 
 import (
+	"errors"
+
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/portfoliodb"	
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/portfoliodb"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	pb "opensource.tbank.ru/invest/invest-go/proto"
 )
 
-func GetLocalPortfolio() error {
-	return portfoliodb.UpdateLocalPortfolio(portfolio)
+func UpdatePortfolio() error {
+	portfolio := GeMyPortfolio()
+	if len(portfolio.Lots) == 0 {
+		return errors.New("The new portfolio is empty")
+	}
+
+	return portfoliodb.UpdateLocalPortfolio(mapLotToDbLot(portfolio.Lots))
 }
 
 func FetchPositionSecurities(positions []*pb.PortfolioPosition) []security.Stock {

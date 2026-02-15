@@ -66,6 +66,11 @@ func GetAccountPortfolio(accountIDs uuid.UUIDs) ([]LotDb, error) {
 }
 
 func UpdateLocalPortfolio(lots []LotDb) error {
+	err := deleteAllLots()
+	if err != nil {
+		return nil
+	}
+
 	db, err := shared.MakeYdbDriver()
 	if err != nil {
 		return err
@@ -75,20 +80,18 @@ func UpdateLocalPortfolio(lots []LotDb) error {
 	for _, lot := range lots {
 		ydbLot := types.StructValue(
 			types.StructFieldValue("id", types.UuidValue(lot.Id)),
-			types.StructFieldValue("account_id", types.UuidValue(lot.AccountID)),
+			types.StructFieldValue("account_id", types.UuidValue(lot.AccountId)),
 			types.StructFieldValue("figi", types.UTF8Value(lot.Figi)),
 			types.StructFieldValue("created_at", shared.ConvertToYdbDate(lot.CreatedAt)),
 			types.StructFieldValue("update_at", shared.ConvertToYdbDate(lot.UpdatedAt)),
 			types.StructFieldValue("quantity", types.DoubleValue(lot.Quantity)),
 			types.StructFieldValue("price_per_unit", types.DoubleValue(lot.PricePerUnit)),
 			types.StructFieldValue("currency", types.UTF8Value(lot.Currency)),
-
 		)
 		ydbLots = append(ydbLots, ydbLot)
 	}
 
 	lotTableName := path.Join(db.Name(), shared.USER_DIRECTORY_PREFIX, shared.POSITION_LOT_TABLE_NAME)
-
 	err = db.Table().BulkUpsert(
 		context.TODO(),
 		lotTableName,
@@ -98,6 +101,37 @@ func UpdateLocalPortfolio(lots []LotDb) error {
 		return errors.New("Failed to update position lots in the database")
 	}
 	
+	return nil
+}
+
+func deleteAllLots() error {
+	db, err := shared.MakeYdbDriver()
+	if err != nil {
+		return err
+	}
+
+	yql := "DELETE FROM " + "`" + path.Join(shared.USER_DIRECTORY_PREFIX, shared.POSITION_LOT_TABLE_NAME) + "`"
+
+	err = db.Query().Do(context.TODO(),
+		func(ctx context.Context, s query.Session) (err error) {
+			result, err := s.Query(ctx,
+				yql,
+				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
+			)
+			if err != nil {
+				return err
+			}
+
+			defer func() {
+				_ = result.Close(ctx)
+			}()
+			return nil
+		},
+	)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
