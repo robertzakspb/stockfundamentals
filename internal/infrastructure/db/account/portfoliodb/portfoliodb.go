@@ -3,14 +3,16 @@ package portfoliodb
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"path"
 
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
+	"github.com/ydb-platform/ydb-go-sdk/v3/table"
+	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
 func GetAccountPortfolio(accountIDs uuid.UUIDs) ([]LotDb, error) {
@@ -20,30 +22,6 @@ func GetAccountPortfolio(accountIDs uuid.UUIDs) ([]LotDb, error) {
 	}
 
 	lots := []LotDb{}
-
-	//SUGGESTION FROM REDDIT:
-	/*
-			query := `
-		SELECT *
-		FROM ` + "`Role`"
-
-	*/
-
-	//FIXME: Complete this code
-	/*
-			Functioning query:
-			SELECT
-		    `stockfundamentals/stocks/stock`.figi AS figi,
-		    `stockfundamentals/stocks/stock`.company_name AS company_name,
-		    `stockfundamentals/stocks/stock`.ticker AS ticker,
-		    `user/position_lot`.account_id AS account_id,
-		    `user/position_lot`.created_at AS created_at,
-		    `user/position_lot`.quantity AS quantity,
-		    `user/position_lot`.price_per_unit AS price_per_unit,
-		    `user/position_lot`.currency AS currency
-		FROM `user/position_lot`
-		JOIN `stockfundamentals/stocks/stock` ON `user/position_lot`.figi = `stockfundamentals/stocks/stock`.figi
-	*/
 	err = db.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
 			result, err := s.Query(ctx,
@@ -81,7 +59,6 @@ func GetAccountPortfolio(accountIDs uuid.UUIDs) ([]LotDb, error) {
 		},
 	)
 	if err != nil {
-		fmt.Println(err)
 		return []LotDb{}, err
 	}
 
@@ -89,6 +66,38 @@ func GetAccountPortfolio(accountIDs uuid.UUIDs) ([]LotDb, error) {
 }
 
 func UpdateLocalPortfolio(lots []LotDb) error {
+	db, err := shared.MakeYdbDriver()
+	if err != nil {
+		return err
+	}
+
+	ydbLots := []types.Value{}
+	for _, lot := range lots {
+		ydbLot := types.StructValue(
+			types.StructFieldValue("id", types.UuidValue(lot.Id)),
+			types.StructFieldValue("account_id", types.UuidValue(lot.AccountID)),
+			types.StructFieldValue("figi", types.UTF8Value(lot.Figi)),
+			types.StructFieldValue("created_at", shared.ConvertToYdbDate(lot.CreatedAt)),
+			types.StructFieldValue("update_at", shared.ConvertToYdbDate(lot.UpdatedAt)),
+			types.StructFieldValue("quantity", types.DoubleValue(lot.Quantity)),
+			types.StructFieldValue("price_per_unit", types.DoubleValue(lot.PricePerUnit)),
+			types.StructFieldValue("currency", types.UTF8Value(lot.Currency)),
+
+		)
+		ydbLots = append(ydbLots, ydbLot)
+	}
+
+	lotTableName := path.Join(db.Name(), shared.USER_DIRECTORY_PREFIX, shared.POSITION_LOT_TABLE_NAME)
+
+	err = db.Table().BulkUpsert(
+		context.TODO(),
+		lotTableName,
+		table.BulkUpsertDataRows(types.ListValue(ydbLots...)))
+	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
+		return errors.New("Failed to update position lots in the database")
+	}
+	
 	return nil
 }
 

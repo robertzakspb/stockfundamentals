@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
@@ -55,9 +56,9 @@ func SaveDividendsToDB(dividends []dividend.Dividend, db *ydb.Driver) error {
 			types.StructFieldValue("actual_DPS", types.Int64Value(int64(dividend.ActualDPSTimesMillion))),
 			types.StructFieldValue("expected_DPS", types.Int64Value(int64(dividend.ExpectedDpsTimesMillion))),
 			types.StructFieldValue("currency", types.TextValue(dividend.Currency)),
-			types.StructFieldValue("announcement_date", convertToOptionalYDBdate(dividend.AnnouncementDate)),
-			types.StructFieldValue("record_date", convertToOptionalYDBdate(dividend.RecordDate)),
-			types.StructFieldValue("payout_date", convertToOptionalYDBdate(dividend.PayoutDate)),
+			types.StructFieldValue("announcement_date", shared.ConvertToOptionalYDBdate(dividend.AnnouncementDate)),
+			types.StructFieldValue("record_date", shared.ConvertToOptionalYDBdate(dividend.RecordDate)),
+			types.StructFieldValue("payout_date", shared.ConvertToOptionalYDBdate(dividend.PayoutDate)),
 			types.StructFieldValue("payment_period", types.TextValue(dividend.PaymentPeriod)),
 			types.StructFieldValue("management_comment", types.TextValue(dividend.ManagementComment)),
 		)
@@ -77,14 +78,7 @@ func SaveDividendsToDB(dividends []dividend.Dividend, db *ydb.Driver) error {
 	return nil
 }
 
-func convertToOptionalYDBdate(date time.Time) types.Value {
-	if date.Unix() == 0 || date.Unix() == -62135596800 {
-		return types.NullValue(types.TypeDate)
-	}
 
-	const secondsInADay = 86400
-	return types.DateValue(uint32(date.Unix() / secondsInADay))
-}
 
 func mapDividendToDbModel(dividends []dividend.Dividend) []dividendDbModel {
 	dbModels := []dividendDbModel{}

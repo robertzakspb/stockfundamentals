@@ -15,6 +15,15 @@ func ConvertToYdbDate(date time.Time) types.Value {
 	return types.DateValue(uint32(date.Unix() / secondsInADay))
 }
 
+func ConvertToOptionalYDBdate(date time.Time) types.Value {
+	if date.Unix() == 0 || date.Unix() == -62135596800 {
+		return types.NullValue(types.TypeDate)
+	}
+
+	const secondsInADay = 86400
+	return types.DateValue(uint32(date.Unix() / secondsInADay))
+}
+
 func MakeYdbDriver() (*ydb.Driver, error ){
 	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancel()
