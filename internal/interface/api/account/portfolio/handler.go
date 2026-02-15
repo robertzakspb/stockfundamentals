@@ -28,5 +28,10 @@ func GetAccountPortfolio(c *gin.Context) {
 }
 
 func UpdatePortfolio(c *gin.Context) {
-	
+	err := portfolio.UpdatePortfolio()
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	c.JSON(http.StatusOK, "The portfolio has been successfully updated")
 }

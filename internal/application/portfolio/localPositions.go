@@ -9,7 +9,7 @@ import (
 
 // Returns positions that cannot be fetched from some external API and must thus be hardcoded here
 func getHardCodedStockPositions() []lot.Lot {
-	//TODO: Move this elsewhere:
+	//TODO: Move this to the position_lot table:
 
 	rosselHozId, _ := uuid.Parse("5e3e1fdb-5c18-43a5-a7c6-f898aff2d17f")
 	nlbId, _ := uuid.Parse("3b450479-a136-4ecd-9f34-8bfac6488101")
@@ -19,7 +19,7 @@ func getHardCodedStockPositions() []lot.Lot {
 	mtlcId := "BBG000HP5RC7"
 	nisId := "BBG0015L55D4"
 	impolId := "BBG000HGH3F4"
-	//TODO: Look it the figi in the DB
+	//TODO: Look up the figi in the DB
 	etalonId := "08192dec-4141-4798-a342-0b62894285a2"
 
 	serbianStocks := []lot.Lot{

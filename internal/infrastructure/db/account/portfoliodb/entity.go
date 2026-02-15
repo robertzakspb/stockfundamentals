@@ -11,7 +11,7 @@ type LotDb struct {
 	Figi         string    `sql:"figi"`
 	Ticker       string    `sql:"ticker"`
 	CompanyName  string    `sql:"company_name"`
-	AccountID    uuid.UUID `sql:"account_id"`
+	AccountId    uuid.UUID `sql:"account_id"`
 	CreatedAt    time.Time `sql:"created_at"`
 	UpdatedAt    time.Time `sql:"updated_at"`
 	Quantity     float64   `sql:"quantity"`
