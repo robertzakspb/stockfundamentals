@@ -10,13 +10,14 @@ import (
 
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/account/portfolio"
 	dividend "github.com/compoundinvest/stockfundamentals/internal/interface/api/fundamentals/dividend"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	router := gin.Default()
 
-	//TODO: Add the middleware code here
+	router.Use(cors.Default())
 	addEndpoints(router)
 
 	router.Run("localhost:8080")
@@ -30,7 +31,10 @@ func addEndpoints(router *gin.Engine) {
 	router.GET("/portfolio", portfolio.GetPortfolio)
 
 	router.POST("/fetch/dividends", dividend.StartDividendFetchingJob)
+	router.GET("/upcoming-dividends", dividend.GetUpcomingDividends)
+
 	router.POST("/fetch/securities", api_security.StartSecurityMasterImportJob)
+
 	router.POST("/fetch/time-series", timeseries.StartTimeSeriesImportJob)
 }
 

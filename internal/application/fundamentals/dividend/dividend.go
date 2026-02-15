@@ -125,7 +125,7 @@ func dividendIsValid(dividend *investapi.Dividend) bool {
 
 func mapTinkoffDividendToDividend(tinkoffDiv *investapi.Dividend, figi string) dividend.Dividend {
 
-	if figi != "" {
+	if figi == "" {
 		logger.Log("Missing stock ID in the provided stock for tinkoff dividend: "+tinkoffDiv.GetDeclaredDate().String()+tinkoffDiv.GetRecordDate().String(), logger.WARNING)
 	}
 

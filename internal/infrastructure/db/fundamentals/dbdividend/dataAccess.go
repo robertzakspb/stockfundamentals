@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
+	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
@@ -23,7 +24,7 @@ const DIVIDEND_PAYMENT_TABLE_NAME = "dividend_payment"
 
 type dividendDbModel struct {
 	Id   uuid.UUID `sql:"id"`
-	Figi string    `sql:"figi"`
+	Figi string    `sql:"stock_id"`
 	//For DB-related reasons, expected and actual DPS are converted to integers to remove the fractional part. Multiplied by a million for maximum accuracy. When reading the value, it must consequently be divided by a million
 	ExpectedDpsTimesMillion int64     `sql:"expected_DPS"`
 	ActualDPSTimesMillion   int64     `sql:"actual_DPS"`
@@ -127,10 +128,15 @@ func mapDbModelToDividend(dbModelds []dividendDbModel) []dividend.Dividend {
 	return dividends
 }
 
-func GetAllDividends(db *ydb.Driver) ([]dividend.Dividend, error) {
+func GetAllDividends() ([]dividend.Dividend, error) {
+	db, err := utilities.MakeYdbDriver()
+	if err != nil {
+		return []dividend.Dividend{}, err
+	}
+
 	userDividendsDbModels := []dividendDbModel{}
 
-	err := db.Query().Do(context.TODO(),
+	err = db.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
 			result, err := s.Query(ctx, fmt.Sprintf(`
 						SELECT
@@ -185,4 +191,20 @@ func GetAllDividends(db *ydb.Driver) ([]dividend.Dividend, error) {
 	}
 
 	return mapDbModelToDividend(userDividendsDbModels), nil
+}
+
+func GetUpcomingDividends() ([]dividend.Dividend, error) {
+	allDividends, err := GetAllDividends()
+	if err != nil {
+		return []dividend.Dividend{}, err
+	}
+
+	upcomingDivs := []dividend.Dividend{}
+	for _, div := range allDividends {
+		if div.PayoutDate.After(time.Now()) {
+			upcomingDivs = append(upcomingDivs, div)
+		}
+	}
+
+	return upcomingDivs, nil
 }
