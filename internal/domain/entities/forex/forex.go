@@ -6,7 +6,7 @@ import (
 )
 
 func GetExchangeRateUsdTo(currency string) (float64, error) {
-	if currency == "USD" {
+	if strings.ToLower(currency) == "usd"  {
 		return 1, nil
 	}
 
@@ -38,7 +38,7 @@ func GetExchangeRateForPair(currency1, currency2 string) (float64, error) {
 	return usdToCur2 / usdToCur1, nil
 }
 
-func ConvertPriceToDifferentCurrency(price float64, priceCur string, targetCur string) (float64, error) {
+func ConvertPriceToDifferentCurrency(price float64, priceCur, targetCur string) (float64, error) {
 	exRate, err := GetExchangeRateForPair(targetCur, priceCur)
 	if err != nil {
 		return 0, err
