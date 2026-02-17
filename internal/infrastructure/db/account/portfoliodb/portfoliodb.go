@@ -23,10 +23,11 @@ func GetAccountPortfolio(accountIDs uuid.UUIDs) ([]LotDb, error) {
 	}
 
 	lots := []LotDb{}
+	yql := makeGetAccountPortfolioQuery()
 	err = db.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
 			result, err := s.Query(ctx,
-				makeGetAccountPortfolioQuery(),
+				yql,
 				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
 			)
 			if err != nil {
@@ -144,8 +145,10 @@ func makeGetAccountPortfolioQuery() string {
 		"`stockfundamentals/stocks/stock`.figi AS figi," +
 		"`stockfundamentals/stocks/stock`.company_name AS company_name," +
 		"`stockfundamentals/stocks/stock`.ticker AS ticker," +
+		"`user/position_lot`.id AS id," +
 		"`user/position_lot`.account_id AS account_id," +
 		"`user/position_lot`.created_at AS created_at," +
+		"`user/position_lot`.updated_at AS updated_at," +
 		"`user/position_lot`.quantity AS quantity," +
 		"`user/position_lot`.currency AS currency, " +
 		"`user/position_lot`.price_per_unit AS price_per_unit" +

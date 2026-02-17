@@ -16,12 +16,12 @@ import (
 	pb "opensource.tbank.ru/invest/invest-go/proto"
 )
 
-func GeMyPortfolio() portfolio.Portfolio {
+func GeMyPortfolio() (portfolio.Portfolio, error) {
 	hardCodedPositions := getHardCodedStockPositions()
-	externalPositions := getExternalStockPositions()
+	externalPositions, err := getExternalStockPositions()
 
 	allPositions := append(hardCodedPositions, externalPositions...)
-	return portfolio.Portfolio{Lots: allPositions}
+	return portfolio.Portfolio{Lots: allPositions}, err
 }
 
 func GetAccountPortfolio(accountIDs uuid.UUIDs) (portfolio.Portfolio, error) {
@@ -37,15 +37,15 @@ func GetAccountPortfolio(accountIDs uuid.UUIDs) (portfolio.Portfolio, error) {
 	return portfolio.Portfolio{Lots: lots}, nil
 }
 
-func getExternalStockPositions() []lot.Lot {
-	externalPositions := getTinkoffStockPositions()
-	return externalPositions
+func getExternalStockPositions() ([]lot.Lot, error) {
+	return getTinkoffStockPositions()
 }
 
-func getTinkoffStockPositions() []lot.Lot {
+func getTinkoffStockPositions()  ([]lot.Lot, error)  {
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
 		logger.Log("Failed to initialize the configuration file", logger.ALERT)
+		return []lot.Lot{}, err
 	}
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
@@ -54,6 +54,7 @@ func getTinkoffStockPositions() []lot.Lot {
 	client, err := tinkoff.NewClient(ctx, config, nil)
 	if err != nil {
 		logger.Log("Failed to initialize the Tinkoff API client: ", logger.ALERT)
+		return []lot.Lot{}, err
 	}
 
 	usersService := client.NewUsersServiceClient()
@@ -61,11 +62,13 @@ func getTinkoffStockPositions() []lot.Lot {
 	accsResp, err := usersService.GetAccounts(&status)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
+		return []lot.Lot{}, err
 	}
 
 	accounts := accsResp.GetAccounts()
 	if len(accounts) == 0 {
 		logger.Log("No accounts found in Tinkoff API", logger.ALERT)
+		return []lot.Lot{}, err
 	}
 
 	positionService := client.NewOperationsServiceClient()
@@ -113,5 +116,5 @@ func getTinkoffStockPositions() []lot.Lot {
 		lots = append(lots, newLot)
 	}
 
-	return lots
+	return lots, nil
 }

@@ -9,12 +9,13 @@ import (
 )
 
 func GetPortfolio(c *gin.Context) {
-	userPortfolio := portfolio.GeMyPortfolio().WithPLs()
-
-	if len(userPortfolio) > 0 {
-		c.JSON(http.StatusOK, userPortfolio)
+	userPortfolio, err := portfolio.GeMyPortfolio()
+	if err != nil {
+		c.JSON(http.StatusNoContent, "Failed to fetch user positions")
+	} else {
+		portfolioWithPLs := userPortfolio.WithPLs()
+		c.JSON(http.StatusOK, portfolioWithPLs)
 	}
-	c.JSON(http.StatusNoContent, "User does not have any positions")
 }
 
 func GetAccountPortfolio(c *gin.Context) {
@@ -23,8 +24,9 @@ func GetAccountPortfolio(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
+	} else {
+		c.JSON(http.StatusOK, portfolio)
 	}
-	c.JSON(http.StatusOK, portfolio)
 }
 
 func UpdatePortfolio(c *gin.Context) {
@@ -32,6 +34,7 @@ func UpdatePortfolio(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
+	} else {
+		c.JSON(http.StatusOK, "The portfolio has been successfully updated")
 	}
-	c.JSON(http.StatusOK, "The portfolio has been successfully updated")
 }
