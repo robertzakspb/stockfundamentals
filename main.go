@@ -41,11 +41,5 @@ func addEndpoints(router *gin.Engine) {
 }
 
 func healthCheck(c *gin.Context) {
-	//TODO: Extract into a middleware method
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-	c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
-
 	c.JSON(http.StatusOK, "The service is running without any issues")
 }

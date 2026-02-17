@@ -52,7 +52,6 @@ func GetAccountPortfolio(accountIDs uuid.UUIDs) ([]LotDb, error) {
 					if err != nil {
 						return err
 					}
-
 					lots = append(lots, row)
 				}
 			}

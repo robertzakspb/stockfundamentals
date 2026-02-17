@@ -20,9 +20,9 @@ func GetAllDividends(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
+	} else {
+		c.JSON(http.StatusOK, dtos)
 	}
-
-	c.JSON(http.StatusOK, dtos)
 }
 
 func GetUpcomingDividends(c *gin.Context) {
@@ -31,7 +31,7 @@ func GetUpcomingDividends(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
+	} else {
+		c.JSON(http.StatusOK, dtos)
 	}
-
-	c.JSON(http.StatusOK, dtos)
 }
