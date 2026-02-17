@@ -38,7 +38,8 @@ func (d *Dividend) validate() error {
 	if d.ExpectedDPS < 0 {
 		return errors.New("Invalid expected dividend amount")
 	}
-	if forex.IsSupportedCurrency(d.Currency) == false {
+	f := forex.ForexDP{}
+	if f.IsSupportedCurrency(d.Currency) == false {
 		return errors.New("Unsupported currency")
 	}
 	if d.AnnouncementDate.Unix() == 0 {

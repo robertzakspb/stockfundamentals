@@ -35,6 +35,7 @@ func NewCashPosition(accountId string, amount float64, currency string) (CashPos
 }
 
 func (cash *CashPosition) validate() error {
+	forex := forex.ForexDP{}
 	if !forex.IsSupportedCurrency(cash.Currency) {
 		return errors.New("Initialized cash position has an unsupported currency: " + cash.Currency)
 	}

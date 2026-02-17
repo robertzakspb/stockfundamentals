@@ -1,55 +1,28 @@
 package forex
 
-import (
-	"fmt"
-	"strings"
-)
+import "fmt"
 
-func GetExchangeRateUsdTo(currency string) (float64, error) {
-	if strings.ToLower(currency) == "usd"  {
-		return 1, nil
-	}
-
-	cur, found := currencyName[currency]
-	if !found {
-		return 0, fmt.Errorf("%s", "Exchange rates are currently unavailable for "+currency)
-	}
-
-	//TODO: Refactor this to dynamically update currencies on a daily basis
-	rate, found := exchangeRateUsdTo[cur]
-	if !found {
-		return 0, fmt.Errorf("%s", "failed to find the exchange rate between "+string(USD)+"and "+currency)
-	}
-
-	return rate, nil
-}
-
-func GetExchangeRateForPair(currency1, currency2 string) (float64, error) {
+func GetExchangeRateForPair(currency1, currency2 string, dp ForexDataProvider) (float64, error) {
 	if currency1 == currency2 {
 		return 1, nil
 	}
 
-	usdToCur1, err := GetExchangeRateUsdTo(currency1)
-	usdToCur2, err := GetExchangeRateUsdTo(currency2)
+	usdToCur1, err := dp.GetExchangeRateUsdTo(currency1)
+	usdToCur2, err := dp.GetExchangeRateUsdTo(currency2)
 	if err != nil || usdToCur2 == 0 {
 		return 0, fmt.Errorf("%s", "failed to find the exchange rate between "+string(USD)+"and "+currency2)
 	}
 
-	return usdToCur2 / usdToCur1, nil
+	return usdToCur1 / usdToCur2 , nil
 }
 
-func ConvertPriceToDifferentCurrency(price float64, priceCur, targetCur string) (float64, error) {
-	exRate, err := GetExchangeRateForPair(targetCur, priceCur)
+func ConvertPriceToDifferentCurrency(price float64, priceCur, targetCur string, dp ForexDataProvider) (float64, error) {
+	exRate, err := GetExchangeRateForPair( targetCur, priceCur, dp)
 	if err != nil {
 		return 0, err
 	}
 
 	return price / exRate, nil
-}
-
-func IsSupportedCurrency(cur string) bool {
-	_, found := currencyName[strings.ToUpper(cur)]
-	return found
 }
 
 var exchangeRateUsdTo = map[Currency]float64{

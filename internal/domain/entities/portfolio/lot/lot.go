@@ -48,6 +48,7 @@ func (lot *Lot) validate() error {
 	if lot.PricePerUnit < 0 {
 		return fmt.Errorf("Position with ID %v has an unexpected price per unit of %v", lot.Id, lot.PricePerUnit)
 	}
+	forex := forex.ForexDP{}
 	if !forex.IsSupportedCurrency(lot.Currency) {
 		return fmt.Errorf("Position with ID %v has an unsupported currency", lot.Currency)
 	}
@@ -89,7 +90,7 @@ func (lot Lot) MarketValue(quote entity.SimpleQuote) (float64, error) {
 	}
 
 	const targetCur = "EUR"
-	quoteInTargerCurrency, err := forex.ConvertPriceToDifferentCurrency(quote.Quote(), quote.Currency(), targetCur)
+	quoteInTargerCurrency, err := forex.ConvertPriceToDifferentCurrency(quote.Quote(), quote.Currency(), targetCur, forex.ForexDP{})
 	if err != nil {
 		return 0, err
 	}
