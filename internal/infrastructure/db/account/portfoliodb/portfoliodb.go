@@ -3,6 +3,7 @@ package portfoliodb
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"path"
 
@@ -68,7 +69,10 @@ func GetAccountPortfolio(accountIDs uuid.UUIDs) ([]LotDb, error) {
 func UpdateLocalPortfolio(lots []LotDb) error {
 	err := deleteAllLots()
 	if err != nil {
-		return nil
+		fmt.Println(err.Error())
+	}
+	if err != nil {
+		return err
 	}
 
 	db, err := shared.MakeYdbDriver()
@@ -82,8 +86,8 @@ func UpdateLocalPortfolio(lots []LotDb) error {
 			types.StructFieldValue("id", types.UuidValue(lot.Id)),
 			types.StructFieldValue("account_id", types.UuidValue(lot.AccountId)),
 			types.StructFieldValue("figi", types.UTF8Value(lot.Figi)),
-			types.StructFieldValue("created_at", shared.ConvertToYdbDate(lot.CreatedAt)),
-			types.StructFieldValue("update_at", shared.ConvertToYdbDate(lot.UpdatedAt)),
+			types.StructFieldValue("created_at", shared.ConvertToYdbDateTime(lot.CreatedAt)),
+			types.StructFieldValue("updated_at", shared.ConvertToYdbDateTime(lot.UpdatedAt)),
 			types.StructFieldValue("quantity", types.DoubleValue(lot.Quantity)),
 			types.StructFieldValue("price_per_unit", types.DoubleValue(lot.PricePerUnit)),
 			types.StructFieldValue("currency", types.UTF8Value(lot.Currency)),
@@ -100,7 +104,7 @@ func UpdateLocalPortfolio(lots []LotDb) error {
 		logger.Log(err.Error(), logger.ERROR)
 		return errors.New("Failed to update position lots in the database")
 	}
-	
+
 	return nil
 }
 
@@ -112,22 +116,22 @@ func deleteAllLots() error {
 
 	yql := "DELETE FROM " + "`" + path.Join(shared.USER_DIRECTORY_PREFIX, shared.POSITION_LOT_TABLE_NAME) + "`"
 
-	err = db.Query().Do(context.TODO(),
-		func(ctx context.Context, s query.Session) (err error) {
-			result, err := s.Query(ctx,
+	//func(ctx context.Context, s Session) error
+	err = db.Table().DoTx(context.TODO(),
+		func(ctx context.Context, tx table.TransactionActor) (err error) {
+			result, err := tx.Execute(ctx,
 				yql,
-				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
+				nil,
 			)
 			if err != nil {
 				return err
 			}
 
 			defer func() {
-				_ = result.Close(ctx)
+				_ = result.Close()
 			}()
 			return nil
-		},
-	)
+		})
 	if err != nil {
 		return err
 	}

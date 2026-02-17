@@ -173,7 +173,7 @@ func createPortfolioTable(ctx context.Context, db *ydb.Driver, c table.Client) e
 				options.WithColumn("account_id", types.TypeUUID),
 				options.WithColumn("created_at", types.TypeDatetime),
 				options.WithColumn("updated_at", types.TypeDatetime),
-				options.WithColumn("quantity", types.TypeInt64),
+				options.WithColumn("quantity", types.TypeDouble),
 				options.WithColumn("price_per_unit", types.TypeDouble),
 				options.WithColumn("currency", types.TypeUTF8),
 				options.WithPrimaryKeyColumn("id"),

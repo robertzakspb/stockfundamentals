@@ -10,8 +10,13 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
+const secondsInADay = 86400
+
+func ConvertToYdbDateTime(timestamp time.Time) types.Value {
+	return types.DatetimeValue(uint32(timestamp.Unix()))
+}
+
 func ConvertToYdbDate(date time.Time) types.Value {
-	const secondsInADay = 86400
 	return types.DateValue(uint32(date.Unix() / secondsInADay))
 }
 
@@ -20,11 +25,10 @@ func ConvertToOptionalYDBdate(date time.Time) types.Value {
 		return types.NullValue(types.TypeDate)
 	}
 
-	const secondsInADay = 86400
 	return types.DateValue(uint32(date.Unix() / secondsInADay))
 }
 
-func MakeYdbDriver() (*ydb.Driver, error ){
+func MakeYdbDriver() (*ydb.Driver, error) {
 	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancel()
 
