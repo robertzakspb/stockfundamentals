@@ -5,6 +5,7 @@ import (
 
 	appdividend "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
+	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +16,7 @@ func StartDividendFetchingJob(c *gin.Context) {
 }
 
 func GetAllDividends(c *gin.Context) {
-	dividends, err := dbdividend.GetAllDividends() //FIXME: Refactor the use the service
+	dividends, err := dbdividend.GetAllDividends([]ydbfilter.YdbFilter{}) //FIXME: Refactor the use the service
 	dtos := convertDividendToDTO(dividends)
 
 	if err != nil {

@@ -11,6 +11,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
@@ -19,9 +20,6 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
-
-const STOCK_DIRECTORY_PREFIX = "stockfundamentals/stocks" //FIXME: Extract into shared
-const DIVIDEND_PAYMENT_TABLE_NAME = "dividend_payment"
 
 type dividendDbModel struct {
 	Id   uuid.UUID `sql:"id"`
@@ -65,7 +63,7 @@ func SaveDividendsToDB(dividends []dividend.Dividend, db *ydb.Driver) error {
 		ydbDividends = append(ydbDividends, ydbDividend)
 	}
 
-	tableName := path.Join(db.Name(), STOCK_DIRECTORY_PREFIX, DIVIDEND_PAYMENT_TABLE_NAME)
+	tableName := path.Join(db.Name(), shared.STOCK_DIRECTORY_PREFIX, shared.DIVIDEND_PAYMENT_TABLE_NAME)
 	err := db.Table().BulkUpsert(
 		context.TODO(),
 		tableName,
@@ -77,8 +75,6 @@ func SaveDividendsToDB(dividends []dividend.Dividend, db *ydb.Driver) error {
 
 	return nil
 }
-
-
 
 func mapDividendToDbModel(dividends []dividend.Dividend) []dividendDbModel {
 	dbModels := []dividendDbModel{}
@@ -122,7 +118,7 @@ func mapDbModelToDividend(dbModelds []dividendDbModel) []dividend.Dividend {
 	return dividends
 }
 
-func GetAllDividends() ([]dividend.Dividend, error) {
+func GetAllDividends(filters []ydbfilter.YdbFilter) ([]dividend.Dividend, error) {
 	db, err := utilities.MakeYdbDriver()
 	if err != nil {
 		return []dividend.Dividend{}, err
@@ -133,6 +129,8 @@ func GetAllDividends() ([]dividend.Dividend, error) {
 	err = db.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
 			result, err := s.Query(ctx, fmt.Sprintf(`
+						%s
+
 						SELECT
 							id,
 							stock_id,
@@ -146,9 +144,15 @@ func GetAllDividends() ([]dividend.Dividend, error) {
 							management_comment
 						FROM
 							%s
-					`, "`"+path.Join(STOCK_DIRECTORY_PREFIX, DIVIDEND_PAYMENT_TABLE_NAME)+"`"),
+						%s
+					`,
+				ydbfilter.AddYqlVarDeclarations(filters),
+				"`"+path.Join(shared.STOCK_DIRECTORY_PREFIX, shared.DIVIDEND_PAYMENT_TABLE_NAME)+"`",
+				ydbfilter.MakeWhereClause(filters)),
 				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
+				query.WithParameters(ydbfilter.SetQueryParams(filters)),
 			)
+
 			if err != nil {
 				return err
 			}
@@ -180,7 +184,6 @@ func GetAllDividends() ([]dividend.Dividend, error) {
 		},
 	)
 	if err != nil {
-		fmt.Println(err)
 		return []dividend.Dividend{}, err
 	}
 
@@ -188,7 +191,12 @@ func GetAllDividends() ([]dividend.Dividend, error) {
 }
 
 func GetUpcomingDividends() ([]dividend.Dividend, error) {
-	allDividends, err := GetAllDividends()
+	payoutDateFilter := ydbfilter.YdbFilter{
+		YqlColumnName:  "payout_date", //TODO: refactor to pull the value dynamically using reflect
+		Condition:      ydbfilter.GreaterThanOrEqualTo,
+		ConditionValue: shared.ConvertToYdbDate(time.Now()),
+	}
+	allDividends, err := GetAllDividends([]ydbfilter.YdbFilter{payoutDateFilter})
 	if err != nil {
 		return []dividend.Dividend{}, err
 	}
