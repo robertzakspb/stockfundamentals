@@ -155,6 +155,8 @@ github.com/ydb-platform/ydb-go-sdk/v3 v3.126.4 h1:48MDF7YdiNEY6RscfxDK/Ux1fe518W
 github.com/ydb-platform/ydb-go-sdk/v3 v3.126.4/go.mod h1:stS1mQYjbJvwwYaYzKyFY9eMiuVXWWXQA6T+SpOLg9c=
 github.com/ydb-platform/ydb-go-sdk/v3 v3.126.5 h1:e/PXq6Eh3Zos8KMxqmLgXSyu9LMS3LaASsoZHsYwNy8=
 github.com/ydb-platform/ydb-go-sdk/v3 v3.126.5/go.mod h1:stS1mQYjbJvwwYaYzKyFY9eMiuVXWWXQA6T+SpOLg9c=
+github.com/ydb-platform/ydb-go-sdk/v3 v3.127.0 h1:OfHS9ZkZgCy6y/CJ9N8123DXrgaY2BPxWsQiQ8e3wC8=
+github.com/ydb-platform/ydb-go-sdk/v3 v3.127.0/go.mod h1:stS1mQYjbJvwwYaYzKyFY9eMiuVXWWXQA6T+SpOLg9c=
 go.opentelemetry.io/auto/sdk v1.2.1 h1:jXsnJ4Lmnqd11kwkBV2LgLoFMZKizbCi5fNZ/ipaZ64=
 go.opentelemetry.io/auto/sdk v1.2.1/go.mod h1:KRTj+aOaElaLi+wW1kO/DZRXwkF4C5xPbEe3ZiIhN7Y=
 go.opentelemetry.io/otel v1.39.0 h1:8yPrr/S0ND9QEfTfdP9V+SiwT4E0G7Y5MO7p85nis48=
