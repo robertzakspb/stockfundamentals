@@ -9,16 +9,16 @@ import (
 )
 
 type Dividend struct {
-	Id                uuid.UUID `sql:"id"`
-	Figi              string    `sql:"stock_id"`
-	ActualDPS         float64   `sql:"actual_DPS"`
-	ExpectedDPS       float64   `sql:"expected_DPS"`
-	Currency          string    `sql:"currency"`
-	AnnouncementDate  time.Time `sql:"announcement_date"`
-	RecordDate        time.Time `sql:"record_date"`
-	PayoutDate        time.Time `sql:"payout_date"`
-	PaymentPeriod     string    `sql:"payment_period"` //TODO: Implement or copy from financial reports
-	ManagementComment string    `sql:"management_comment"`
+	Id                uuid.UUID
+	Figi              string    `sql:"stock_id" json:"figi"`
+	ActualDPS         float64   `sql:"actual_DPS" json:"actualDPS"`
+	ExpectedDPS       float64   `sql:"expected_DPS" json:"expectedDPS"`
+	Currency          string    `sql:"currency" json:"currency"`
+	AnnouncementDate  time.Time `sql:"announcement_date" json:"announcementDate"`
+	RecordDate        time.Time `sql:"record_date" json:"recordDate"`
+	PayoutDate        time.Time `sql:"payout_date" json:"payoutDate"`
+	PaymentPeriod     string    `sql:"payment_period" json:"paymentPeriod"` //TODO: Implement or copy from financial reports
+	ManagementComment string    `sql:"management_comment" json:"managementComment"`
 }
 
 func NewDividend(div Dividend) (Dividend, error) {

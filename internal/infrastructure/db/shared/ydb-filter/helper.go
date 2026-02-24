@@ -7,6 +7,9 @@ import (
 )
 
 func Declare(yqlVarName string, yqlValue types.Value) string {
+	if yqlVarName == "" {
+		return ""
+	}
 	return fmt.Sprintf(
 		"DECLARE %s AS %s;\n",
 		yqlVarName,
@@ -19,5 +22,8 @@ Used to generate a sample filter name for yql queries. E.g. if a column is
 titled "age", the appropriate filter variable name would be "$age_filter"
 */
 func MakeColumnFilterName(columnName string) string {
+	if columnName == "" {
+		return ""
+	}
 	return "$" + columnName + "_filter"
 }

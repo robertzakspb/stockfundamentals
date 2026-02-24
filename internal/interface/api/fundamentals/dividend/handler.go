@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	appdividend "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/gin-gonic/gin"
@@ -16,7 +17,8 @@ func StartDividendFetchingJob(c *gin.Context) {
 }
 
 func GetAllDividends(c *gin.Context) {
-	dividends, err := dbdividend.GetAllDividends([]ydbfilter.YdbFilter{}) //FIXME: Refactor the use the service
+	parsedFilters := ydbfilter.MapQueryFiltersToYdb(c.Request.URL.Query(), dividend.Dividend{})
+	dividends, err := dbdividend.GetAllDividends(parsedFilters) //FIXME: Refactor to use the service
 	dtos := convertDividendToDTO(dividends)
 
 	if err != nil {
@@ -27,7 +29,7 @@ func GetAllDividends(c *gin.Context) {
 }
 
 func GetUpcomingDividends(c *gin.Context) {
-	upcomingDividends, err := dbdividend.GetUpcomingDividends() //FIXME: Refactor the use the service
+	upcomingDividends, err := dbdividend.GetUpcomingDividends() //FIXME: Refactor to use the service
 	dtos := convertDividendToDTO(upcomingDividends)
 
 	if err != nil {
