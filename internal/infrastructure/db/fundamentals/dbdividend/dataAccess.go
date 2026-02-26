@@ -3,7 +3,6 @@ package dbdividend
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"path"
 	"time"
@@ -128,27 +127,7 @@ func GetAllDividends(filters []ydbfilter.YdbFilter) ([]dividend.Dividend, error)
 
 	err = db.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
-			result, err := s.Query(ctx, fmt.Sprintf(`
-						%s
-
-						SELECT
-							id,
-							stock_id,
-							actual_DPS,
-							expected_DPS,
-							currency,
-							announcement_date,
-							record_date,
-							payout_date,
-							payment_period,
-							management_comment
-						FROM
-							%s
-						%s
-					`,
-				ydbfilter.AddYqlVarDeclarations(filters),
-				"`"+path.Join(shared.STOCK_DIRECTORY_PREFIX, shared.DIVIDEND_PAYMENT_TABLE_NAME)+"`",
-				ydbfilter.MakeWhereClause(filters)),
+			result, err := s.Query(ctx, getDividendQuery(filters),
 				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
 				query.WithParameters(ydbfilter.SetQueryParams(filters)),
 			)

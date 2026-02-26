@@ -24,7 +24,7 @@ const (
 	Equal                YdbFilterCondition = "="
 )
 
-// This function only sets the values of query parameters themeselves but does not add them WHERE (done by AddWhereClause())
+// This function only sets the values of query parameters themeselves but does not add them WHERE (done by MakeWhereClause())
 func SetQueryParams(filters []YdbFilter) *table.QueryParameters {
 	params := []table.ParameterOption{}
 
