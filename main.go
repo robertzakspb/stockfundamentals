@@ -33,7 +33,8 @@ func addEndpoints(router *gin.Engine) {
 	router.POST("/update-portfolio", portfolio.UpdatePortfolio)
 
 	router.POST("/fetch/dividends", dividend.StartDividendFetchingJob)
-	router.GET("/upcoming-dividends", dividend.GetUpcomingDividends)
+	router.GET("/all-dividends", dividend.GetAllDividends)
+	router.GET("/upcoming-dividends", dividend.GetUpcomingDividends) //TODO: Deprecate (may now be simulated via /all-dividends)
 
 	router.POST("/fetch/securities", api_security.StartSecurityMasterImportJob)
 

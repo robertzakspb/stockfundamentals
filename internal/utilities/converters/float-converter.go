@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func GetFloat(unk interface{}) (float64, error) {
+func GetFloat(unk any) (float64, error) {
 	switch v := unk.(type) {
 	case float64:
 		return v, nil
