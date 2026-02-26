@@ -70,7 +70,7 @@ func GetAllDividends(filters []ydbfilter.YdbFilter) ([]dividend.Dividend, error)
 
 func GetUpcomingDividends() ([]dividend.Dividend, error) {
 	payoutDateFilter := ydbfilter.YdbFilter{
-		YqlColumnName:  "payout_date", //TODO: refactor to pull the value dynamically using reflect
+		YqlColumnName:  "record_date", //TODO: refactor to pull the value dynamically using reflect
 		Condition:      ydbfilter.GreaterThanOrEqualTo,
 		ConditionValue: shared.ConvertToYdbDate(time.Now()),
 	}
@@ -92,7 +92,6 @@ func GetUpcomingDividends() ([]dividend.Dividend, error) {
 func makeGetDividendQuery(filters []ydbfilter.YdbFilter) string {
 	yql := fmt.Sprintf(`
 						%s
-
 						SELECT
 							id,
 							stock_id,

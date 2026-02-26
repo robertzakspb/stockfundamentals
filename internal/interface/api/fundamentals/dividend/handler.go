@@ -28,6 +28,8 @@ func GetAllDividends(c *gin.Context) {
 	}
 }
 
+
+//TODO: Deprecate (use GetAllDividends instead)
 func GetUpcomingDividends(c *gin.Context) {
 	upcomingDividends, err := dbdividend.GetUpcomingDividends() //FIXME: Refactor to use the service
 	dtos := convertDividendToDTO(upcomingDividends)

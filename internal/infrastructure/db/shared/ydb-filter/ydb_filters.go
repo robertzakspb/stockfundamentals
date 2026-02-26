@@ -5,7 +5,9 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
@@ -92,13 +94,14 @@ func AddYqlVarDeclarations(filters []YdbFilter) string {
 func MapQueryFiltersToYdb(filters map[string][]string, entity any) []YdbFilter {
 	ydbFilters := []YdbFilter{}
 
-	for parameter, values := range filters {
-		v := reflect.ValueOf(entity).Elem()
+	for parameter, queryValues := range filters {
+		values := strings.Split(queryValues[0], ",") //We assume that any given query parameter has only 1 string
+		v := reflect.ValueOf(entity)
 
 		for i := 0; i < v.NumField(); i++ {
 			jsonTagValue, found := v.Type().Field(i).Tag.Lookup("json")
 			if !found {
-				logger.Log("Failed to find the json tag in "+v.Type().Name()+" for field "+v.Type().Field(i).Name+" which is unexpected for a DTO struct", logger.ERROR)
+				logger.Log("Failed to find the json tag in "+v.Type().Name()+" for field "+v.Type().Field(i).Name+" which is unexpected for a DTO struct", logger.WARNING)
 				continue
 			}
 			if jsonTagValue == parameter {
@@ -121,7 +124,7 @@ func MapQueryFiltersToYdb(filters map[string][]string, entity any) []YdbFilter {
 				}
 
 				ydbFilters = append(ydbFilters, YdbFilter{
-					sqlTagValue, //FIXME
+					sqlTagValue,
 					condition,
 					filterValues,
 				})
@@ -145,6 +148,11 @@ func mapQueryConditionToYdb(condition string) (YdbFilterCondition, error) {
 func mapQueryValuesToYdbFilterValues(condition YdbFilterCondition, values []string) (types.Value, error) {
 	switch condition {
 	case GreaterThan, GreaterThanOrEqualTo, LessThan, LessThanOrEqualTo:
+		date, err := time.Parse("2006-01-02", values[0])
+		if err == nil {
+			return shared.ConvertToYdbDate(date), nil
+		}
+
 		f, err := strconv.ParseFloat(values[0], 64)
 		if err == nil {
 			return types.DoubleValue(f), nil
