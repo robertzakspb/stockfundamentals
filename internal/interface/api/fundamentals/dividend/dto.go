@@ -18,6 +18,15 @@ type DividendDTO struct {
 	ManagementComment string    `json:"managementComment"`
 }
 
+type DividendForecastDTO struct {
+	Figi           string  `json:"figi"`
+	ExpectedDPS    float64 `json:"expectedDPS"`
+	Currency       string  `json:"currency"`
+	PaymentPeriod  string  `json:"paymentPeriod"`
+	ForecastAuthor string  `json:"forecastAuthor"`
+	Comment        string  `json:"comment"`
+}
+
 func convertDividendToDTO(dividends []dividend.Dividend) []DividendDTO {
 	dtos := []DividendDTO{}
 	for _, dividend := range dividends {

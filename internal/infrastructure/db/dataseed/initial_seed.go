@@ -29,7 +29,7 @@ import (
 )
 
 func InitialSeed(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	config, err := config.LoadConfig()
@@ -72,7 +72,7 @@ func createTables(ctx context.Context, db *ydb.Driver) error {
 		return err
 	}
 
-	err = CreateDividendForecastTable(ctx, db, client) //FIXME: make it private
+	err = createDividendForecastTable(ctx, db, client) 
 
 	return nil
 }
@@ -190,7 +190,7 @@ func createPortfolioTable(ctx context.Context, db *ydb.Driver, c table.Client) e
 		})
 }
 
-func CreateDividendForecastTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
+func createDividendForecastTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
 	prefix := path.Join(db.Name(), shared.STOCK_DIRECTORY_PREFIX)
 	return c.Do(ctx,
 		func(ctx context.Context, s table.Session) error {
