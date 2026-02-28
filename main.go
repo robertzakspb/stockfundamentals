@@ -1,11 +1,15 @@
 package main
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	api_security "github.com/compoundinvest/stockfundamentals/internal/interface/api/security"
 	timeseries "github.com/compoundinvest/stockfundamentals/internal/interface/api/time-series"
+	"github.com/ydb-platform/ydb-go-sdk/v3"
 
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/dataseed"
 
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/account/portfolio"
@@ -39,6 +43,19 @@ func addEndpoints(router *gin.Engine) {
 	router.POST("/fetch/securities", api_security.StartSecurityMasterImportJob)
 
 	router.POST("/fetch/time-series", timeseries.StartTimeSeriesImportJob)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	config, err := config.LoadConfig()
+	if err != nil {
+
+	}
+
+	db, err := ydb.Open(ctx, config.DB.ConnectionString)
+	if err != nil {
+	}
+	dataseed.CreateDividendForecastTable(ctx, db, db.Table())
 }
 
 func healthCheck(c *gin.Context) {

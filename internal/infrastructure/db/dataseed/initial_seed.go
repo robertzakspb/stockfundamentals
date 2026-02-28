@@ -8,7 +8,7 @@ import (
 	"path"
 	"strconv"
 	"time"
-"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	entity "github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
@@ -16,6 +16,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
 	dbfinancials "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/financials"
 	dbsecurity "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -70,6 +71,8 @@ func createTables(ctx context.Context, db *ydb.Driver) error {
 	if err != nil {
 		return err
 	}
+
+	err = CreateDividendForecastTable(ctx, db, client) //FIXME: make it private
 
 	return nil
 }
@@ -177,6 +180,29 @@ func createPortfolioTable(ctx context.Context, db *ydb.Driver, c table.Client) e
 				options.WithColumn("price_per_unit", types.TypeDouble),
 				options.WithColumn("currency", types.TypeUTF8),
 				options.WithPrimaryKeyColumn("id"),
+			)
+			if err != nil {
+				logger.Log(err.Error(), logger.ALERT)
+				return err
+			}
+
+			return nil
+		})
+}
+
+func CreateDividendForecastTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
+	prefix := path.Join(db.Name(), shared.STOCK_DIRECTORY_PREFIX)
+	return c.Do(ctx,
+		func(ctx context.Context, s table.Session) error {
+			err := s.CreateTable(ctx, path.Join(prefix, shared.DIVIDEND_FORECAST_TABLE_NAME),
+				options.WithColumn("id", types.TypeUUID),
+				options.WithColumn("figi", types.TypeText),
+				options.WithColumn("expected_DPS", types.Optional(types.TypeInt64)),
+				options.WithColumn("currency", types.TypeText),
+				options.WithColumn("payment_period", types.TypeText),
+				options.WithColumn("forecast_author", types.TypeText),
+				options.WithColumn("comment", types.TypeText),
+				options.WithPrimaryKeyColumn("figi", "payment_period"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)
