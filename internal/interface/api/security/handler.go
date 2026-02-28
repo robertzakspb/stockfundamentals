@@ -8,7 +8,7 @@ import (
 )
 
 func StartSecurityMasterImportJob(c *gin.Context) {
-	go security_master.FetchAndSaveSecurities()
+	security_master.FetchAndSaveSecurities()
 
 	c.JSON(http.StatusOK, "Successfully started the security import job")
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/compoundinvest/stockfundamentals/internal/interface/api/jobs"
 	api_security "github.com/compoundinvest/stockfundamentals/internal/interface/api/security"
 	timeseries "github.com/compoundinvest/stockfundamentals/internal/interface/api/time-series"
 
@@ -39,6 +40,8 @@ func addEndpoints(router *gin.Engine) {
 	router.POST("/fetch/securities", api_security.StartSecurityMasterImportJob)
 
 	router.POST("/fetch/time-series", timeseries.StartTimeSeriesImportJob)
+
+	router.POST("/start-all-jobs", jobs.StartAllJobs)
 }
 
 func healthCheck(c *gin.Context) {
