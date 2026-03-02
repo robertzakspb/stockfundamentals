@@ -111,6 +111,5 @@ func makeGetDividendQuery(filters []ydbfilter.YdbFilter) string {
 		"`"+path.Join(shared.STOCK_DIRECTORY_PREFIX, shared.DIVIDEND_PAYMENT_TABLE_NAME)+"`",
 		ydbfilter.MakeWhereClause(filters))
 
-	fmt.Println(yql)
 	return yql
 }

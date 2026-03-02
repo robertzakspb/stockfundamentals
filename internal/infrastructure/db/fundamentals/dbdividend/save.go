@@ -7,7 +7,9 @@ import (
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
@@ -51,5 +53,33 @@ func SaveDividendsToDB(dividends []dividend.Dividend, db *ydb.Driver) error {
 		return errors.New("Failed to save dividends to the database")
 	}
 
+	return nil
+}
+
+func SaveDividendForecastToDb(forecast DividendForecastDb) error {
+	db, err := utilities.MakeYdbDriver()
+	if err != nil {
+		return err
+	}
+
+	ydbForecast := types.StructValue(
+		types.StructFieldValue("id", types.UuidValue(uuid.New())),
+		types.StructFieldValue("figi", types.TextValue(forecast.Figi)),
+		types.StructFieldValue("expected_DPS", types.DoubleValue(forecast.ExpectedDPS)),
+		types.StructFieldValue("currency", types.TextValue(forecast.Currency)),
+		types.StructFieldValue("payment_period", types.TextValue(forecast.PaymentPeriod)),
+		types.StructFieldValue("comment", types.TextValue(forecast.Comment)),
+		types.StructFieldValue("forecast_author", types.TextValue(forecast.Author)),
+	)
+
+	tableName := path.Join(db.Name(), shared.STOCK_DIRECTORY_PREFIX, shared.DIVIDEND_FORECAST_TABLE_NAME)
+	err = db.Table().BulkUpsert(
+		context.TODO(),
+		tableName,
+		table.BulkUpsertDataRows(ydbForecast))
+	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
+		return errors.New("Failed to save dividends to the database")
+	}
 	return nil
 }
