@@ -2,11 +2,9 @@ package main
 
 import (
 	"net/http"
-
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/jobs"
 	api_security "github.com/compoundinvest/stockfundamentals/internal/interface/api/security"
 	timeseries "github.com/compoundinvest/stockfundamentals/internal/interface/api/time-series"
-
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/dataseed"
 
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/account/portfolio"
@@ -36,6 +34,7 @@ func addEndpoints(router *gin.Engine) {
 	router.POST("/fetch/dividends", dividend.StartDividendFetchingJob)
 	router.GET("/all-dividends", dividend.GetAllDividends)
 	router.GET("/upcoming-dividends", dividend.GetUpcomingDividends) //TODO: Deprecate (may now be simulated via /all-dividends)
+	router.POST("dividend/forecast", dividend.CreateNewDividendForecast)
 
 	router.POST("/fetch/securities", api_security.StartSecurityMasterImportJob)
 

@@ -1,6 +1,8 @@
 package apidividend
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	appdividend "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
@@ -28,8 +30,7 @@ func GetAllDividends(c *gin.Context) {
 	}
 }
 
-
-//TODO: Deprecate (use GetAllDividends instead)
+// TODO: Deprecate (use GetAllDividends instead)
 func GetUpcomingDividends(c *gin.Context) {
 	upcomingDividends, err := dbdividend.GetUpcomingDividends() //FIXME: Refactor to use the service
 	dtos := convertDividendToDTO(upcomingDividends)
@@ -38,5 +39,25 @@ func GetUpcomingDividends(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err.Error())
 	} else {
 		c.JSON(http.StatusOK, dtos)
+	}
+}
+
+func CreateNewDividendForecast(c *gin.Context) {
+	bodyReader := c.Request.Body
+	defer bodyReader.Close()
+
+	bodyBytes := [10000]byte{}
+
+	bodyReader.Read(bodyBytes[:])
+	bodyString := string(bodyBytes[:])
+	fmt.Println(bodyString)
+
+	divForecast := DividendForecastDTO{}
+	err := json.Unmarshal(bodyBytes[:], &divForecast)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
 	}
 }

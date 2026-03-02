@@ -40,7 +40,7 @@
             "type": "shell",
             "label": "Restore_Latest_Backup",
             "osx": {
-                "command": "ydb -e \"grpc://localhost:2136\" -d \"/local\" tools restore -i \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\" -p \".\""
+                "command": "ydb -e \"grpc://localhost:2136\" -d \"/local\" tools restore -i \"/Users/robert/Documents/backups/compound/latestbackup\" -p \".\""
             },
             "linux": { "command": "" }
         },
@@ -54,7 +54,7 @@
             "type": "shell",
             "label": "Remove_Old_Latest_Backup",
             "osx": {
-                "command": "rm -rf  \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\""
+                "command": "rm -rf  \"/Users/robert/Documents/backups/compound/latestbackup\" && sleep 1"
             },
             "linux": { "command": "" }
         },
@@ -62,7 +62,7 @@
             "type": "shell",
             "label": "Make_Backups",
             "osx": {
-                "command": "ydb -e \"grpc://localhost:2136\" -d \"/local\" tools dump -o \"/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup\" && ydb -e \"grpc://localhost:2136\" -d \"/local\" tools dump -o \"/Users/robert/Documents/backups/compound\""
+                "command": "ydb -e \"grpc://localhost:2136\" -d \"/local\" tools dump -o \"/Users/robert/Documents/backups/compound/latestbackup\""
             },
             "linux": { "command": "ydb -e \"grpc://localhost:2136\" -d \"/Root/test\" tools dump -o \"/home/rob/Documents/backups/compound/$(date +%Y%m%d_%H%M%S)\"" }
         },
