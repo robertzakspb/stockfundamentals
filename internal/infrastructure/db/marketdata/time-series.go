@@ -46,7 +46,7 @@ func SaveTimeSeriesToDB(quotes []entity.SimpleQuote) error {
 		ydbQuotes = append(ydbQuotes, ydbQuote)
 	}
 
-	tableName := makeTimeSeriesTablePath(db.Name())
+	tableName := path.Join(db.Name(), market_date_directory_prefix, time_series_table_name)
 	err = db.Table().BulkUpsert(
 		context.TODO(),
 		tableName,
@@ -54,7 +54,7 @@ func SaveTimeSeriesToDB(quotes []entity.SimpleQuote) error {
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
 		return err
-	}
+	} 
 
 	return nil
 }
@@ -82,7 +82,7 @@ func GetLatestQuotesForAllSecurities() ([]QuoteDB, error) {
 			"%s"+
 			" JOIN `stockfundamentals/stocks/stock` ON `marketdata/time_series`.figi = `stockfundamentals/stocks/stock`.figi"+
 			" GROUP BY `marketdata/time_series`.figi, `stockfundamentals/stocks/stock`.country_iso2",
-		makeTimeSeriesTablePath(db.Name()))
+		makeTimeSeriesTablePath())
 	logger.Log("Executing query: "+yqlQuery, logger.INFORMATION)
 
 	err = db.Query().Do(context.TODO(),
@@ -127,7 +127,7 @@ func GetLatestQuotesForAllSecurities() ([]QuoteDB, error) {
 	return dbQuotes, nil
 }
 
-func makeTimeSeriesTablePath(dbName string) string {
-	path := "`" + path.Join( market_date_directory_prefix, time_series_table_name) +  "`"
+func makeTimeSeriesTablePath() string {
+	path := "`" + path.Join(market_date_directory_prefix, time_series_table_name) + "`" 
 	return path
 }

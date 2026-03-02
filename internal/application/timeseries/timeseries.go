@@ -43,13 +43,13 @@ func FetchAndSaveHistoricalQuotes() error {
 		if len(quotes) == 0 {
 			continue
 		}
-		<-throttle
-	}
+		err = timeseries.SaveTimeSeriesToDB(quotes)
+		if err != nil {
+			logger.Log("Failed to save timeseries for "+quote.Figi+" to DB due to: "+err.Error(), logger.ALERT)
+			continue
+		}
 
-	err = timeseries.SaveTimeSeriesToDB(quotes)
-	if err != nil {
-		logger.Log("Failed to save timeseries to DB due to: "+err.Error(), logger.ALERT)
-		return errors.New("Failed to save timeseries to DB due to: " + err.Error())
+		<-throttle
 	}
 
 	return nil

@@ -28,7 +28,7 @@
             "osx": {
                 "command": "docker run -d --rm --name ydb-local -h localhost --platform linux/amd64 -p 2135:2135 -p 2136:2136 -p 8765:8765 -p 9092:9092 -v $(pwd)/ydb_certs:/ydb_certs -v $(pwd)/ydb_data:/ydb_data -e GRPC_TLS_PORT=2135 -e GRPC_PORT=2136 -e MON_PORT=8765 -e YDB_KAFKA_PROXY_PORT=9092 ydbplatform/local-ydb:latest && sleep 3"
             },
-            "linux": { "command": "cd ~/ydbd && ./start.sh disk" }
+            // "linux": { "command": "cd ~/ydbd && ./start.sh disk" }
         },
         {
             "type": "shell",
@@ -71,7 +71,7 @@
             "label": "Stop_DB",
             //TODO: Test and implement
             "osx": { "command": "" },
-            "linux": { "command": "cd ~/ydbd && ./stop.sh" }
+            // "linux": { "command": "cd ~/ydbd && ./stop.sh" }
         }
     ]
 }
