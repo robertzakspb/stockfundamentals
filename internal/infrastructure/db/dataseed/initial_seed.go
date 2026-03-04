@@ -197,7 +197,7 @@ func createDividendForecastTable(ctx context.Context, db *ydb.Driver, c table.Cl
 			err := s.CreateTable(ctx, path.Join(prefix, shared.DIVIDEND_FORECAST_TABLE_NAME),
 				options.WithColumn("id", types.TypeUUID),
 				options.WithColumn("figi", types.TypeText),
-				options.WithColumn("expected_DPS", types.Optional(types.TypeInt64)),
+				options.WithColumn("expected_DPS", types.TypeDouble),
 				options.WithColumn("currency", types.TypeText),
 				options.WithColumn("payment_period", types.TypeText),
 				options.WithColumn("forecast_author", types.TypeText),

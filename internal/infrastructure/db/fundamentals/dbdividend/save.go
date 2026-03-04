@@ -76,7 +76,7 @@ func SaveDividendForecastToDb(forecast DividendForecastDb) error {
 	err = db.Table().BulkUpsert(
 		context.TODO(),
 		tableName,
-		table.BulkUpsertDataRows(ydbForecast))
+		table.BulkUpsertDataRows(types.ListValue(ydbForecast)))
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
 		return errors.New("Failed to save dividends to the database")

@@ -1,6 +1,9 @@
 package apidividend
 
-import 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
+import (
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
+)
 
 func mapDividendToDTO(dividends []dividend.Dividend) []DividendDTO {
 	dtos := []DividendDTO{}
@@ -24,11 +27,29 @@ func mapDividendToDTO(dividends []dividend.Dividend) []DividendDTO {
 
 func mapDividendForecastDtoToDomain(dto DividendForecastDTO) dividend.DividendForecast {
 	return dividend.DividendForecast{
-		Figi: dto.Figi,
-		ExpectedDPS: dto.ExpectedDPS,
-		Currency: dto.Currency,
+		Stock:         security.Stock{Figi: dto.Figi},
+		ExpectedDPS:   dto.ExpectedDPS,
+		Currency:      dto.Currency,
 		PaymentPeriod: dto.PaymentPeriod,
-		Author: dto.Author,
-		Comment: dto.Comment,
+		Author:        dto.Author,
+		Comment:       dto.Comment,
 	}
+}
+
+func mapDividendForecastDomainToDto(domains []dividend.DividendForecast) []DividendForecastDTO {
+	dtos := []DividendForecastDTO{}
+	for _, domain := range domains {
+
+		dto := DividendForecastDTO{
+			Figi:          domain.Stock.Figi,
+			ExpectedDPS:   domain.ExpectedDPS,
+			Currency:      domain.Currency,
+			PaymentPeriod: domain.PaymentPeriod,
+			Author:        domain.Author,
+			Comment:       domain.Comment,
+			Yield:         domain.Yield,
+		}
+		dtos = append(dtos, dto)
+	}
+	return dtos
 }

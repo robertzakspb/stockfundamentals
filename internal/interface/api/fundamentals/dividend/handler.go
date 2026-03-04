@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	appdividend "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
+	"github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -62,7 +62,12 @@ func CreateNewDividendForecast(c *gin.Context) {
 		return
 	}
 
-	appdividend.SaveDividendForecast(mapDividendForecastDtoToDomain(divForecast))
+	err = appdividend.SaveDividendForecast(mapDividendForecastDtoToDomain(divForecast))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
 
 	c.JSON(http.StatusOK, "The dividend forecast has been successfully saved")
 }
+

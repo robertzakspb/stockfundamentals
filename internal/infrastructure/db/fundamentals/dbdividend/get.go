@@ -3,9 +3,9 @@ package dbdividend
 import (
 	"context"
 	"errors"
-	"fmt"
+
 	"io"
-	"path"
+
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
@@ -89,27 +89,52 @@ func GetUpcomingDividends() ([]dividend.Dividend, error) {
 	return upcomingDivs, nil
 }
 
-func makeGetDividendQuery(filters []ydbfilter.YdbFilter) string {
-	yql := fmt.Sprintf(`
-						%s
-						SELECT
-							id,
-							stock_id,
-							actual_DPS,
-							expected_DPS,
-							currency,
-							announcement_date,
-							record_date,
-							payout_date,
-							payment_period,
-							management_comment
-						FROM
-							%s
-						%s
-					`,
-		ydbfilter.AddYqlVarDeclarations(filters),
-		"`"+path.Join(shared.STOCK_DIRECTORY_PREFIX, shared.DIVIDEND_PAYMENT_TABLE_NAME)+"`",
-		ydbfilter.MakeWhereClause(filters))
+func GetDividendForecasts() ([]DividendForecastDb, error) {
+	db, err := utilities.MakeYdbDriver()
+	if err != nil {
+		return []DividendForecastDb{}, err
+	}
 
-	return yql
+	forecasts := []DividendForecastDb{}
+
+	err = db.Query().Do(context.TODO(),
+		func(ctx context.Context, s query.Session) (err error) {
+			result, err := s.Query(ctx, makeGetDividendForecastQuery(),
+				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))))
+
+			if err != nil {
+				return err
+			}
+
+			defer func() {
+				_ = result.Close(ctx)
+			}()
+
+			for {
+				resultSet, err := result.NextResultSet(ctx)
+				if err != nil {
+					if errors.Is(err, io.EOF) {
+						break
+					}
+
+					return err
+				}
+
+				for row, err := range sugar.UnmarshalRows[DividendForecastDb](resultSet.Rows(ctx)) {
+					if err != nil {
+						return err
+					}
+
+					forecasts = append(forecasts, row)
+				}
+			}
+
+			return nil
+		},
+	)
+	if err != nil {
+		return []DividendForecastDb{}, err
+	}
+
+	return forecasts, nil
 }

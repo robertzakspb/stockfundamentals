@@ -23,5 +23,5 @@ type DividendForecastDTO struct {
 	PaymentPeriod string  `json:"paymentPeriod"`
 	Author        string  `json:"forecastAuthor"`
 	Comment       string  `json:"comment"`
+	Yield         float64 `json:"yield"`
 }
-
