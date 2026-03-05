@@ -18,3 +18,14 @@ func GetDividendForecasts(c *gin.Context) {
 
 	c.JSON(http.StatusOK, dtos)
 }
+
+func GetDividendForecastsGroupedBySecurity(c *gin.Context) {
+	forecasts, err := appdividend.GetDivForecastsGroupedBySecurity()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	dtos := mapSecurityDivForecastToDto(forecasts)
+	c.JSON(http.StatusOK, dtos)
+}

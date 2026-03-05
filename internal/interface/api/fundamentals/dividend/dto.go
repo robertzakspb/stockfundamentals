@@ -25,3 +25,9 @@ type DividendForecastDTO struct {
 	Comment       string  `json:"comment"`
 	Yield         float64 `json:"yield"`
 }
+
+type SecurityDivForecastDto struct {
+	Figi             string                `json:"figi"`
+	Forecasts        []DividendForecastDTO `json:"forecasts"`
+	CumulativeReturn float64               `json:"cumulativeReturn"`
+}

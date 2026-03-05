@@ -38,6 +38,16 @@ func GetDividendForecasts() ([]dividend.DividendForecast, error) {
 	return forecastsWithYields, nil
 }
 
+func GetDivForecastsGroupedBySecurity() ([]dividend.SecurityDivForecast, error) {
+	forecasts, err := GetDividendForecasts()
+	if err != nil {
+		return []dividend.SecurityDivForecast{}, err
+	}
+
+	securityDivForecasts := dividend.GroupForecastsBySecurity(forecasts)
+	return securityDivForecasts, nil
+}
+
 func populateYieldsForForecasts(forecasts []dividend.DividendForecast) []dividend.DividendForecast {
 	if len(forecasts) == 0 {
 		return forecasts

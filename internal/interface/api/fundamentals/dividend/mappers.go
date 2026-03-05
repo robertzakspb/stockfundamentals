@@ -53,3 +53,18 @@ func mapDividendForecastDomainToDto(domains []dividend.DividendForecast) []Divid
 	}
 	return dtos
 }
+
+func mapSecurityDivForecastToDto(forecasts []dividend.SecurityDivForecast) []SecurityDivForecastDto {
+	dtos := []SecurityDivForecastDto{}
+
+	for _, forecast := range forecasts {
+		dto := SecurityDivForecastDto{
+			Figi:             forecast.Figi,
+			Forecasts:        mapDividendForecastDomainToDto(forecast.Forecasts),
+			CumulativeReturn: forecast.CumulativeReturn(),
+		}
+		dtos = append(dtos, dto)
+	}
+
+	return dtos
+}

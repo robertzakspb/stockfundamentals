@@ -36,6 +36,7 @@ func addEndpoints(router *gin.Engine) {
 	router.GET("/upcoming-dividends", dividend.GetUpcomingDividends) //TODO: Deprecate (may now be simulated via /all-dividends)
 	router.POST("dividend/forecast", dividend.CreateNewDividendForecast)
 	router.GET("/dividend/forecasts", dividend.GetDividendForecasts)
+	router.GET("dividend/forecasts-grouped-by-security", dividend.GetDividendForecastsGroupedBySecurity)
 
 	router.POST("/fetch/securities", api_security.StartSecurityMasterImportJob)
 

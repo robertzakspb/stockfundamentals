@@ -59,7 +59,7 @@ func mapDividendForecastDbModelToDomain(dbModels []dbdividend.DividendForecastDb
 			Currency:      forecast.Currency,
 			PaymentPeriod: forecast.PaymentPeriod,
 			Author:        forecast.Author,
-			Comment:       forecast.Author,
+			Comment:       forecast.Comment,
 		}
 
 		forecasts = append(forecasts, domainStruct)
