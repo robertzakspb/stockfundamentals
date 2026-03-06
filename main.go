@@ -38,6 +38,8 @@ func addEndpoints(router *gin.Engine) {
 	router.GET("/dividend/forecasts", dividend.GetDividendForecasts)
 	router.GET("dividend/forecasts-grouped-by-security", dividend.GetDividendForecastsGroupedBySecurity)
 
+	router.POST("jobs/import-bonds", jobs.StartBondImportJob)
+
 	router.POST("/fetch/securities", api_security.StartSecurityMasterImportJob)
 
 	router.POST("/fetch/time-series", timeseries.StartTimeSeriesImportJob)
