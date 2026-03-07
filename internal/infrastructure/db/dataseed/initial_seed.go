@@ -72,7 +72,15 @@ func createTables(ctx context.Context, db *ydb.Driver) error {
 		return err
 	}
 
-	err = createDividendForecastTable(ctx, db, client) 
+	err = createDividendForecastTable(ctx, db, client)
+	if err != nil {
+		return err
+	}
+
+	err = createBondTable(ctx, db, client)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -203,6 +211,52 @@ func createDividendForecastTable(ctx context.Context, db *ydb.Driver, c table.Cl
 				options.WithColumn("forecast_author", types.TypeText),
 				options.WithColumn("comment", types.TypeText),
 				options.WithPrimaryKeyColumn("figi", "payment_period"),
+			)
+			if err != nil {
+				logger.Log(err.Error(), logger.ALERT)
+				return err
+			}
+
+			return nil
+		})
+}
+
+func createBondTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
+	prefix := path.Join(db.Name(), shared.BOND_DIRECTORY_PREFIX)
+	return c.Do(ctx,
+		func(ctx context.Context, s table.Session) error {
+			err := s.CreateTable(ctx, path.Join(prefix, shared.BOND_TABLE_NAME),
+				options.WithColumn("id", types.TypeUUID),
+				options.WithColumn("figi", types.TypeText),
+				options.WithColumn("isin", types.TypeText),
+				options.WithColumn("lot", types.TypeInt64),
+				options.WithColumn("currency", types.TypeText),
+				options.WithColumn("name", types.TypeText),
+				options.WithColumn("country_of_risk", types.TypeText),
+				options.WithColumn("real_exchange", types.TypeText),
+				options.WithColumn("coupon_count_per_year", types.TypeInt64),
+				options.WithColumn("maturity_date", types.Optional(types.TypeDate)),
+				options.WithColumn("nominal_value", types.TypeDouble),
+				options.WithColumn("nominal_currency", types.TypeText),
+				options.WithColumn("initial_nominal_value", types.TypeDouble),
+				options.WithColumn("initial_nominal_currency", types.TypeText),
+				options.WithColumn("registration_date", types.Optional(types.TypeDate)),
+				options.WithColumn("placement_date", types.Optional(types.TypeDate)),
+				options.WithColumn("placement_price", types.TypeDouble),
+				options.WithColumn("placement_currency", types.TypeText),
+				options.WithColumn("accumulated_coupon_income", types.TypeDouble),
+				options.WithColumn("issue_size", types.TypeInt64),
+				options.WithColumn("issue_size_plan", types.TypeInt64),
+				options.WithColumn("has_floating_coupon", types.TypeBool),
+				options.WithColumn("is_perpetual", types.TypeBool),
+				options.WithColumn("has_amortization", types.TypeBool),
+				options.WithColumn("is_available_for_iis", types.TypeBool),
+				options.WithColumn("is_for_qualified_investors", types.TypeBool),
+				options.WithColumn("is_subordinated", types.TypeBool),
+				options.WithColumn("risk_level", types.TypeText),
+				options.WithColumn("bond_type", types.TypeText),
+				options.WithColumn("call_option_exercise_date", types.Optional(types.TypeDate)),
+				options.WithPrimaryKeyColumn("figi", "isin"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)

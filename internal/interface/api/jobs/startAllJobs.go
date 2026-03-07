@@ -3,7 +3,7 @@ package jobs
 import (
 	"net/http"
 
-	"github.com/compoundinvest/stockfundamentals/internal/application/bonds"
+	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/account/portfolio"
 	apidividend "github.com/compoundinvest/stockfundamentals/internal/interface/api/fundamentals/dividend"
 	api_security "github.com/compoundinvest/stockfundamentals/internal/interface/api/security"
@@ -23,6 +23,8 @@ func StartAllJobs(c *gin.Context) {
 
 	timeseries.StartTimeSeriesImportJob(c)
 	apidividend.StartDividendFetchingJob(c)
+	StartBondImportJob(c)
+
 	portfolio.UpdatePortfolio(c)
 
 	c.JSON(http.StatusOK, "All jobs were successfully started/executed")

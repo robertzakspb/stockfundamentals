@@ -1,14 +1,19 @@
 package bonds
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Bond struct {
+	Id                      uuid.UUID
 	Figi                    string
 	Isin                    string
 	Lot                     int
 	Currency                string
 	Name                    string
-	CountryOfRik            string
+	CountryOfRisk           string
 	RealExchange            string
 	CouponCountPerYear      int
 	MaturityDate            time.Time
@@ -46,16 +51,16 @@ const (
 // Enum value maps for RiskLevel.
 var (
 	RiskLevel_name = map[int32]string{
-		0: "RISK_LEVEL_UNSPECIFIED",
-		1: "RISK_LEVEL_LOW",
-		2: "RISK_LEVEL_MODERATE",
-		3: "RISK_LEVEL_HIGH",
+		0: "UNSPECIFIED_RISK_LEVEL",
+		1: "LOW_RISK_LEVEL",
+		2: "MODERATE_RISK_LEVEL",
+		3: "HIGH_RISK_LEVEL",
 	}
 	RiskLevel_value = map[string]int32{
-		"RISK_LEVEL_UNSPECIFIED": 0,
-		"RISK_LEVEL_LOW":         1,
-		"RISK_LEVEL_MODERATE":    2,
-		"RISK_LEVEL_HIGH":        3,
+		"UNSPECIFIED_RISK_LEVEL": 0,
+		"LOW_RISK_LEVEL":         1,
+		"MODERATE_RISK_LEVEL":    2,
+		"HIGH_RISK_LEVEL":        3,
 	}
 )
 

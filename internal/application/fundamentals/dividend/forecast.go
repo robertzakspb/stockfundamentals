@@ -68,7 +68,7 @@ func populateYieldsForForecasts(forecasts []dividend.DividendForecast) []dividen
 		logger.Log("Fetched 0 quotes for "+strconv.Itoa(len(forecasts))+" dividend forecasts", logger.ERROR)
 	}
 
-	for i, _ := range forecasts {
+	for i := range forecasts {
 		for _, quote := range quotes {
 			if quote.Figi() != forecasts[i].Stock.Figi || quote.Quote() == 0 {
 				continue
