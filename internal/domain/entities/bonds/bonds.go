@@ -1,8 +1,11 @@
 package bonds
 
 import (
+	"errors"
+	"strconv"
 	"time"
 
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/forex"
 	"github.com/google/uuid"
 )
 
@@ -82,3 +85,65 @@ var (
 		"BOND_TYPE_REPLACED":    1,
 	}
 )
+
+func (b Bond) validate() error {
+	if b.Id == uuid.Nil {
+		return errors.New("Nil Id in the bond")
+	}
+	if b.Figi == "" {
+		return errors.New("Missing figi in the bond")
+	}
+	if b.Isin == "" {
+		return errors.New("Missing ISIN in the bond")
+	}
+	if b.Lot <= 0 {
+		return errors.New("Invalid lot value for bond: " + strconv.Itoa(b.Lot))
+	}
+	forexDP := forex.ForexDP{}
+	if b.Currency == "" || !forexDP.IsSupportedCurrency(b.Currency) {
+		return errors.New("Missing or unsupported currency " + b.Currency)
+	}
+	if b.CouponCountPerYear <= 0 {
+		return errors.New("Invalid coupon count for the bond: " + strconv.Itoa(b.CouponCountPerYear))
+	}
+	if b.MaturityDate.IsZero() {
+		return errors.New("Invalid maturity date for the bond: " + b.MaturityDate.String())
+	}
+	if b.NominalValue <= 0 {
+		return errors.New("Invalid nominal value for the bond")
+	}
+	if b.NominalCurrency == "" || !forexDP.IsSupportedCurrency(b.NominalCurrency) {
+		return errors.New("Missing or unsupported nominal currency " + b.NominalCurrency)
+	}
+	if b.InitialNominalValue <= 0 {
+		return errors.New("Invalid initial nominal value for the bond")
+	}
+	if b.InitialNominalCurrency == "" || !forexDP.IsSupportedCurrency(b.NominalCurrency) {
+		return errors.New("Missing or unsupported initial nominal currency " + b.InitialNominalCurrency)
+	}
+	if b.PlacementPrice <= 0.0 {
+		return errors.New("Invalid placement price ")
+	}
+	if b.PlacementCurrency == "" || !forexDP.IsSupportedCurrency(b.NominalCurrency) {
+		return errors.New("Missing or unsupported placement currency " + b.NominalCurrency)
+	}
+	if b.AccumulatedCouponIncome <= 0 {
+		return errors.New("Invalud accumulated coupon value")
+	}
+	if b.IssueSize <= 0 {
+		return errors.New("Invalid issue size: " + strconv.Itoa(b.IssueSize))
+	}
+	if b.IssueSizePlan <= 0 {
+		return errors.New("Invalid issue size plan: " + strconv.Itoa(b.IssueSizePlan))
+	}
+	_, found := RiskLevel_name[int32(b.RiskLevel)]
+	if !found {
+		return errors.New("Unsupported risk level: " + RiskLevel_name[int32(b.RiskLevel)])
+	}
+	_, found = BondType_name[int32(b.BondType)]
+	if !found {
+		return errors.New("Unsupported bond type: " + BondType_name[int32(b.BondType)])
+	}
+
+	return nil
+}

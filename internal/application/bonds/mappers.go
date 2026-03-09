@@ -96,3 +96,40 @@ func mapBondToDbBond(bond bonds.Bond) bondsdb.BondDbModel {
 
 	return dbBond
 }
+
+func mapDbBondToBond(dbModel bondsdb.BondDbModel) bonds.Bond {
+	domain := bonds.Bond{
+		Figi:                    dbModel.Figi,
+		Id:                      dbModel.Id,
+		Isin:                    dbModel.Isin,
+		Lot:                     dbModel.Lot,
+		Currency:                dbModel.Currency,
+		Name:                    dbModel.Name,
+		CountryOfRisk:           dbModel.CountryOfRisk,
+		RealExchange:            dbModel.RealExchange,
+		CouponCountPerYear:      dbModel.CouponCountPerYear,
+		MaturityDate:            dbModel.MaturityDate,
+		NominalValue:            dbModel.NominalValue,
+		NominalCurrency:         dbModel.NominalCurrency,
+		InitialNominalValue:     dbModel.InitialNominalValue,
+		InitialNominalCurrency:  dbModel.InitialNominalCurrency,
+		RegistrationDate:        dbModel.RegistrationDate,
+		PlacementDate:           dbModel.PlacementDate,
+		PlacementPrice:          dbModel.PlacementPrice,
+		PlacementCurrency:       dbModel.PlacementCurrency,
+		AccumulatedCouponIncome: dbModel.AccumulatedCouponIncome,
+		IssueSize:               dbModel.IssueSize,
+		IssueSizePlan:           dbModel.IssueSizePlan,
+		HasFloatingCoupon:       dbModel.HasFloatingCoupon,
+		IsPerpetual:             dbModel.IsPerpetual,
+		HasAmortization:         dbModel.HasAmortization,
+		IsAvailableForIis:       dbModel.IsAvailableForIis,
+		IsForQualifiedInvestors: dbModel.IsForQualifiedInvestors,
+		IsSubordinated:          dbModel.IsSubordinated,
+		RiskLevel:               bonds.RiskLevel(bonds.RiskLevel_value[dbModel.RiskLevel]),
+		BondType:                bonds.BondType(bonds.BondType_value[dbModel.BondType]),
+		CallOptionExerciseDate:  dbModel.CallOptionExerciseDate,
+	}
+
+	return domain
+}
