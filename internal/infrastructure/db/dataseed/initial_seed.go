@@ -57,7 +57,9 @@ func InitialSeed(c *gin.Context) {
 func createTables(ctx context.Context, db *ydb.Driver) error {
 	client := db.Table()
 
-	err := createStockTables(ctx, db, client)
+	err := createCouponTable(ctx, db, client)
+
+	err = createStockTables(ctx, db, client)
 	if err != nil {
 		return err
 	}
@@ -211,6 +213,32 @@ func createDividendForecastTable(ctx context.Context, db *ydb.Driver, c table.Cl
 				options.WithColumn("forecast_author", types.TypeText),
 				options.WithColumn("comment", types.TypeText),
 				options.WithPrimaryKeyColumn("figi", "payment_period"),
+			)
+			if err != nil {
+				logger.Log(err.Error(), logger.ALERT)
+				return err
+			}
+
+			return nil
+		})
+}
+
+func createCouponTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
+	prefix := path.Join(db.Name(), shared.BOND_DIRECTORY_PREFIX)
+	return c.Do(ctx,
+		func(ctx context.Context, s table.Session) error {
+			err := s.CreateTable(ctx, path.Join(prefix, shared.COUPON_TABLE_NAME),
+				options.WithColumn("id", types.TypeUUID),
+				options.WithColumn("figi", types.TypeText),
+				options.WithColumn("coupon_date", types.TypeDate),
+				options.WithColumn("record_date", types.TypeDate),
+				options.WithColumn("coupon_number", types.TypeInt64),
+				options.WithColumn("per_bond_amount", types.TypeDouble),
+				options.WithColumn("coupon_type", types.TypeText),
+				options.WithColumn("coupon_start_date", types.Optional(types.TypeDate)),
+				options.WithColumn("coupon_end_date", types.Optional(types.TypeDate)),
+				options.WithColumn("coupon_period", types.TypeInt64),
+				options.WithPrimaryKeyColumn("figi", "coupon_date"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)

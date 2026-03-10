@@ -134,18 +134,35 @@ func mapDbBondToBond(dbModel bondsdb.BondDbModel) bonds.Bond {
 	return domain
 }
 
-/*
-Figi            string                 `protobuf:"bytes,1,opt,name=figi,proto3" json:"figi,omitempty"`                                                                                      //FIGI-идентификатор инструмента.
-	CouponDate      *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=coupon_date,json=couponDate,proto3" json:"coupon_date,omitempty"`                                                        //Дата выплаты купона.
-	CouponNumber    int64                  `protobuf:"varint,3,opt,name=coupon_number,json=couponNumber,proto3" json:"coupon_number,omitempty"`                                                 //Номер купона.
-	FixDate         *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=fix_date,json=fixDate,proto3" json:"fix_date,omitempty"`                                                                 //Дата фиксации реестра для выплаты купона — опционально.
-	PayOneBond      *MoneyValue            `protobuf:"bytes,5,opt,name=pay_one_bond,json=payOneBond,proto3" json:"pay_one_bond,omitempty"`                                                      //Выплата на одну облигацию.
-	CouponType      CouponType             `protobuf:"varint,6,opt,name=coupon_type,json=couponType,proto3,enum=tinkoff.public.invest.api.contract.v1.CouponType" json:"coupon_type,omitempty"` //Тип купона.
-	CouponStartDate *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=coupon_start_date,json=couponStartDate,proto3" json:"coupon_start_date,omitempty"`                                       //Начало купонного периода.
-	CouponEndDate   *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=coupon_end_date,json=couponEndDate,proto3" json:"coupon_end_date,omitempty"`                                             //Окончание купонного периода.
-	CouponPeriod    int32      
-*/
+func mapTinkoffCouponToCoupon(figi string, tinkoffCoupon *pb.Coupon) bonds.Coupon {
+	coupon := bonds.Coupon{
+		Id:              uuid.New(),
+		Figi:            figi,
+		CouponDate:      tinkoffCoupon.CouponDate.AsTime(),
+		CouponNumber:    int(tinkoffCoupon.CouponNumber),
+		RecordDate:      tinkoffCoupon.FixDate.AsTime(),
+		PerBondAmount:   tinkoffCoupon.GetPayOneBond().ToFloat(),
+		CouponType:      bonds.CouponType(bonds.CouponType_value[pb.CouponType_name[int32(tinkoffCoupon.CouponType)]]),
+		CouponStartDate: tinkoffCoupon.CouponStartDate.AsTime(),
+		CouponEndDate:   tinkoffCoupon.CouponEndDate.AsTime(),
+		CouponPeriod:    int(tinkoffCoupon.CouponPeriod),
+	}
+	return coupon
+}
 
-mapTinkoffCouponToCoupon() {
-	
+func mapCouponToDbModel(coupon bonds.Coupon) bondsdb.CouponDbModel {
+	dbModel := bondsdb.CouponDbModel{
+		Id:              coupon.Id,
+		Figi:            coupon.Figi,
+		CouponDate:      coupon.CouponDate,
+		CouponNumber:    coupon.CouponNumber,
+		RecordDate:      coupon.RecordDate,
+		PerBondAmount:   coupon.PerBondAmount,
+		CouponType:      bonds.CouponType_name[int32(coupon.CouponType)],
+		CouponStartDate: coupon.CouponStartDate,
+		CouponEndDate:   coupon.CouponEndDate,
+		CouponPeriod:    coupon.CouponPeriod,
+	}
+
+	return dbModel
 }

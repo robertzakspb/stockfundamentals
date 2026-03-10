@@ -11,8 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func StartBondImportJob(c *gin.Context) {
-	go bondservice.ImportAllBonds()
+func StartBondAndCouponImportJob(c *gin.Context) {
+	go bondservice.ImportAllBondsAndCoupons()
 
 	c.JSON(http.StatusOK, "The bond import job has been successfully started")
 }
@@ -23,7 +23,7 @@ func StartAllJobs(c *gin.Context) {
 
 	timeseries.StartTimeSeriesImportJob(c)
 	apidividend.StartDividendFetchingJob(c)
-	StartBondImportJob(c)
+	StartBondAndCouponImportJob(c)
 
 	portfolio.UpdatePortfolio(c)
 

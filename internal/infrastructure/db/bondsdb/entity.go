@@ -61,3 +61,16 @@ func (bond BondDbModel) CorrectMaturityDate() types.Value {
 
 	return shared.ConvertToYdbDate(bond.MaturityDate)
 }
+
+type CouponDbModel struct {
+	Id              uuid.UUID `sql:"id"`
+	Figi            string    `sql:"figi"`
+	CouponDate      time.Time `sql:"coupon_date"`
+	CouponNumber    int       `sql:"coupon_number"`
+	RecordDate      time.Time `sql:"record_date"`
+	PerBondAmount   float64   `sql:"per_bond_amount"`
+	CouponType      string    `sql:"coupon_type"`
+	CouponStartDate time.Time `sql:"coupon_start_date"`
+	CouponEndDate   time.Time `sql:"coupon_end_date"`
+	CouponPeriod    int       `sql:"coupon_period"`
+}

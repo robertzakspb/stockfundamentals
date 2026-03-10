@@ -2,10 +2,11 @@ package main
 
 import (
 	"net/http"
+
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/dataseed"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/jobs"
 	api_security "github.com/compoundinvest/stockfundamentals/internal/interface/api/security"
 	timeseries "github.com/compoundinvest/stockfundamentals/internal/interface/api/time-series"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/dataseed"
 
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/account/portfolio"
 	dividend "github.com/compoundinvest/stockfundamentals/internal/interface/api/fundamentals/dividend"
@@ -38,7 +39,7 @@ func addEndpoints(router *gin.Engine) {
 	router.GET("/dividend/forecasts", dividend.GetDividendForecasts)
 	router.GET("dividend/forecasts-grouped-by-security", dividend.GetDividendForecastsGroupedBySecurity)
 
-	router.POST("jobs/import-bonds", jobs.StartBondImportJob)
+	router.POST("jobs/import-bonds-and-coupons", jobs.StartBondAndCouponImportJob)
 
 	router.POST("/fetch/securities", api_security.StartSecurityMasterImportJob)
 

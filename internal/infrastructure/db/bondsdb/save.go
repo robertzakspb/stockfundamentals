@@ -67,3 +67,39 @@ func SaveBonds(bonds []BondDbModel) error {
 
 	return nil
 }
+
+func SaveCoupons(coupons []CouponDbModel) error {
+	db, err := utilities.MakeYdbDriver()
+	if err != nil {
+		return err
+	}
+
+	ydbCoupons := []types.Value{}
+	for _, c := range coupons {
+		ydbCoupon := types.StructValue(
+			types.StructFieldValue("id", types.UuidValue(c.Id)),
+			types.StructFieldValue("figi", types.TextValue(c.Figi)),
+			types.StructFieldValue("coupon_date", shared.ConvertToYdbDate(c.CouponDate)),
+			types.StructFieldValue("coupon_number", types.Int64Value(int64(c.CouponNumber))),
+			types.StructFieldValue("record_date", shared.ConvertToYdbDate(c.RecordDate)),
+			types.StructFieldValue("per_bond_amount", types.DoubleValue(c.PerBondAmount)),
+			types.StructFieldValue("coupon_type", types.TextValue(c.CouponType)),
+			types.StructFieldValue("coupon_start_date", shared.ConvertToYdbDate(c.CouponStartDate)),
+			types.StructFieldValue("coupon_end_date", shared.ConvertToYdbDate(c.CouponEndDate)),
+			types.StructFieldValue("coupon_number", types.Int64Value(int64(c.CouponPeriod))),
+		)
+		ydbCoupons = append(ydbCoupons, ydbCoupon)
+	}
+
+	tableName := path.Join(db.Name(), shared.BOND_DIRECTORY_PREFIX, shared.COUPON_TABLE_NAME)
+	err = db.Table().BulkUpsert(
+		context.TODO(),
+		tableName,
+		table.BulkUpsertDataRows(types.ListValue(ydbCoupons...)))
+	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
+		return errors.New("Failed to save coupons to the database")
+	}
+
+	return nil
+}
