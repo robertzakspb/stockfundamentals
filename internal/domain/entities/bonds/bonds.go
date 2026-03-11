@@ -147,3 +147,4 @@ func (b Bond) validate() error {
 
 	return nil
 }
+
