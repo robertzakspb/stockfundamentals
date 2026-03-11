@@ -167,4 +167,19 @@ func mapCouponToDbModel(coupon bonds.Coupon) bondsdb.CouponDbModel {
 	return dbModel
 }
 
-// func mapBondLotToDbModel(lot )``
+func mapCouponDbModelToDomain(coupon bondsdb.CouponDbModel) bonds.Coupon {
+	domain := bonds.Coupon{
+		Id:              coupon.Id,
+		Figi:            coupon.Figi,
+		CouponDate:      coupon.CouponDate,
+		CouponNumber:    coupon.CouponNumber,
+		RecordDate:      coupon.RecordDate,
+		PerBondAmount:   coupon.PerBondAmount,
+		CouponType:      bonds.CouponType(bonds.CouponType_value[coupon.CouponType]),
+		CouponStartDate: coupon.CouponStartDate,
+		CouponEndDate:   coupon.CouponEndDate,
+		CouponPeriod:    coupon.CouponPeriod,
+	}
+
+	return domain
+}

@@ -15,7 +15,7 @@ import (
 )
 
 func GetAccountBondPortfolio(accountId uuid.UUID) ([]BondPositionLotDb, error) {
-db, err := utilities.MakeYdbDriver()
+	db, err := utilities.MakeYdbDriver()
 	if err != nil {
 		return []BondPositionLotDb{}, err
 	}

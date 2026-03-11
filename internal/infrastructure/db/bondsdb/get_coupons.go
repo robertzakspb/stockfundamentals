@@ -14,17 +14,17 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
 )
 
-func GetAllBonds(filters []ydbfilter.YdbFilter) ([]BondDbModel, error) {
+func GetBondCoupons(filters []ydbfilter.YdbFilter) ([]CouponDbModel, error) {
 	db, err := utilities.MakeYdbDriver()
 	if err != nil {
-		return []BondDbModel{}, err
+		return []CouponDbModel{}, err
 	}
 
-	bonds := []BondDbModel{}
+	coupons := []CouponDbModel{}
 
 	err = db.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
-			result, err := s.Query(ctx, makeGetAllBondsQuery(filters),
+			result, err := s.Query(ctx, makeGetCouponsByFigiQuery(filters),
 				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
 				query.WithParameters(ydbfilter.SetQueryParams(filters)))
 
@@ -46,12 +46,12 @@ func GetAllBonds(filters []ydbfilter.YdbFilter) ([]BondDbModel, error) {
 					return err
 				}
 
-				for row, err := range sugar.UnmarshalRows[BondDbModel](resultSet.Rows(ctx)) {
+				for row, err := range sugar.UnmarshalRows[CouponDbModel](resultSet.Rows(ctx)) {
 					if err != nil {
 						return err
 					}
 
-					bonds = append(bonds, row)
+					coupons = append(coupons, row)
 				}
 			}
 
@@ -59,52 +59,32 @@ func GetAllBonds(filters []ydbfilter.YdbFilter) ([]BondDbModel, error) {
 		},
 	)
 	if err != nil {
-		return []BondDbModel{}, err
+		return []CouponDbModel{}, err
 	}
 
-	return bonds, nil
+	return coupons, nil
 }
 
-func makeGetAllBondsQuery(filters []ydbfilter.YdbFilter) string {
+func makeGetCouponsByFigiQuery(filters []ydbfilter.YdbFilter) string {
 	yql := fmt.Sprintf(`
 						%s
 						SELECT
 							id,
 							figi,
-							isin,
-							lot,
-							currency,
-							name,
-							country_of_risk,
-							real_exchange,
-							coupon_count_per_year,
-							maturity_date,
-							nominal_value,
-							nominal_currency,
-							initial_nominal_value,
-							initial_nominal_currency,
-							registration_date,
-							placement_date,
-							placement_price,
-							placement_currency,
-							accumulated_coupon_income,
-							issue_size,
-							issue_size_plan,
-							has_floating_coupon,
-							is_perpetual,
-							has_amortization,
-							is_available_for_iis,
-							is_for_qualified_investors,
-							is_subordinated,
-							risk_level,
-							bond_type,
-							call_option_exercise_date
+							coupon_date,
+							coupon_number,
+							record_date,
+							per_bond_amount,
+							coupon_type,
+							coupon_start_date,
+							coupon_end_date
 						FROM
 							%s
 						%s
 					`,
 		ydbfilter.AddYqlVarDeclarations(filters),
-		"`"+path.Join(shared.BOND_DIRECTORY_PREFIX, shared.BOND_TABLE_NAME)+"`",
+		"`"+path.Join(shared.BOND_DIRECTORY_PREFIX, shared.COUPON_TABLE_NAME)+"`",
 		ydbfilter.MakeWhereClause(filters))
+
 	return yql
 }
