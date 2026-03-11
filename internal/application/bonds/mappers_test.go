@@ -83,12 +83,12 @@ func Test_mapBondToDbBond(t *testing.T) {
 	test.AssertEqual(t, mappedDomain.Id, id)
 	test.AssertEqual(t, mappedDomain.Figi, figi)
 	test.AssertEqual(t, mappedDomain.Isin, isin)
-	test.AssertEqual(t, mappedDomain.Lot, lot)
+	test.AssertEqual(t, mappedDomain.Lot, int64(lot))
 	test.AssertEqual(t, mappedDomain.Currency, currency)
 	test.AssertEqual(t, mappedDomain.Name, name)
 	test.AssertEqual(t, mappedDomain.CountryOfRisk, countryOfRisk)
 	test.AssertEqual(t, mappedDomain.RealExchange, realExchange)
-	test.AssertEqual(t, mappedDomain.CouponCountPerYear, couponCountPerYear)
+	test.AssertEqual(t, mappedDomain.CouponCountPerYear, int64(couponCountPerYear))
 	test.AssertEqual(t, mappedDomain.MaturityDate, maturityDate)
 	test.AssertEqual(t, mappedDomain.NominalValue, nominalValue)
 	test.AssertEqual(t, mappedDomain.NominalCurrency, nominalCurrency)
@@ -98,8 +98,8 @@ func Test_mapBondToDbBond(t *testing.T) {
 	test.AssertEqual(t, mappedDomain.PlacementDate, placementDate)
 	test.AssertEqual(t, mappedDomain.PlacementPrice, placementPrice)
 	test.AssertEqual(t, mappedDomain.AccumulatedCouponIncome, accumulatedCouponIncome)
-	test.AssertEqual(t, mappedDomain.IssueSize, issueSize)
-	test.AssertEqual(t, mappedDomain.IssueSizePlan, issueSizePlan)
+	test.AssertEqual(t, mappedDomain.IssueSize, int64(issueSize))
+	test.AssertEqual(t, mappedDomain.IssueSizePlan, int64(issueSizePlan))
 	test.AssertEqual(t, mappedDomain.HasFloatingCoupon, hasFloatingCoupon)
 	test.AssertEqual(t, mappedDomain.IsPerpetual, isPerpetual)
 	test.AssertEqual(t, mappedDomain.HasAmortization, hasAmortization)
@@ -150,12 +150,12 @@ func Test_MapBondToDbBond(t *testing.T) {
 		Id:                      id,
 		Figi:                    figi,
 		Isin:                    isin,
-		Lot:                     lot,
+		Lot:                     int64(lot),
 		Currency:                currency,
 		Name:                    name,
 		CountryOfRisk:           countryOfRisk,
 		RealExchange:            realExchange,
-		CouponCountPerYear:      couponCountPerYear,
+		CouponCountPerYear:      int64(couponCountPerYear),
 		MaturityDate:            maturityDate,
 		NominalValue:            nominalValue,
 		NominalCurrency:         nominalCurrency,
@@ -166,8 +166,8 @@ func Test_MapBondToDbBond(t *testing.T) {
 		PlacementPrice:          placementPrice,
 		PlacementCurrency:       placementCurrency,
 		AccumulatedCouponIncome: accumulatedCouponIncome,
-		IssueSize:               issueSize,
-		IssueSizePlan:           issueSizePlan,
+		IssueSize:               int64(issueSize),
+		IssueSizePlan:           int64(issueSizePlan),
 		HasFloatingCoupon:       hasFloatingCoupon,
 		IsPerpetual:             isPerpetual,
 		HasAmortization:         hasAmortization,

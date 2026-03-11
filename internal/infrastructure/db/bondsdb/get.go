@@ -68,6 +68,46 @@ func makeGetAllBondsQuery() string {
 						SELECT
 							id,
 							figi,
+							isin,
+							lot,
+							currency,
+							name,
+							country_of_risk,
+							real_exchange,
+							coupon_count_per_year,
+							maturity_date,
+							nominal_value,
+							nominal_currency,
+							initial_nominal_value,
+							initial_nominal_currency,
+							registration_date,
+							placement_date,
+							placement_price,
+							placement_currency,
+							accumulated_coupon_income,
+							issue_size,
+							issue_size_plan,
+							has_floating_coupon,
+							is_perpetual,
+							has_amortization,
+							is_available_for_iis,
+							is_for_qualified_investors,
+							is_subordinated,
+							risk_level,
+							bond_type,
+							call_option_exercise_date
+						FROM
+							%s
+					`,
+		"`"+path.Join(shared.BOND_DIRECTORY_PREFIX, shared.BOND_TABLE_NAME)+"`")
+	return yql
+}
+
+func makeGetCouponsByFigiQuery(figi string) string {
+	yql := fmt.Sprintf(`
+						SELECT
+							id,
+							figi,
 							coupon_date,
 							coupon_number,
 							record_date,
@@ -77,8 +117,9 @@ func makeGetAllBondsQuery() string {
 							coupon_end_date
 						FROM
 							%s
+						WHERE figi = %s
 					`,
-		"`"+path.Join(shared.BOND_DIRECTORY_PREFIX, shared.BOND_TABLE_NAME)+"`")
+		"`"+path.Join(shared.BOND_DIRECTORY_PREFIX, shared.COUPON_TABLE_NAME)+"`", figi)
 
 	return yql
 }
