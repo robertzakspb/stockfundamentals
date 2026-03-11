@@ -1,6 +1,6 @@
 module github.com/compoundinvest/stockfundamentals
 
-go 1.25.7
+go 1.26.1
 
 require (
 	github.com/compoundinvest/invest-core v1.0.10
@@ -41,7 +41,7 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
-	github.com/ydb-platform/ydb-go-genproto v0.0.0-20260128080146-c4ed16b24b37 // indirect
+	github.com/ydb-platform/ydb-go-genproto v0.0.0-20260311095541-ebbf792c1180 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.5.0 // indirect
 	golang.org/x/arch v0.25.0 // indirect
 	golang.org/x/crypto v0.48.0 // indirect
@@ -49,7 +49,7 @@ require (
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.42.0 // indirect
-	golang.org/x/text v0.34.0 // indirect
+	golang.org/x/text v0.35.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260226221140-a57be14db171 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260226221140-a57be14db171 // indirect
 	google.golang.org/grpc v1.79.2 // indirect

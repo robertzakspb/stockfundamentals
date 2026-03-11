@@ -12,12 +12,12 @@ type BondDbModel struct {
 	Id                      uuid.UUID `sql:"id"`
 	Figi                    string    `sql:"figi"`
 	Isin                    string    `sql:"isin"`
-	Lot                     int64       `sql:"lot"`
+	Lot                     int64     `sql:"lot"`
 	Currency                string    `sql:"currency"`
 	Name                    string    `sql:"name"`
 	CountryOfRisk           string    `sql:"country_of_risk"`
 	RealExchange            string    `sql:"real_exchange"`
-	CouponCountPerYear      int64      `sql:"coupon_count_per_year"`
+	CouponCountPerYear      int64     `sql:"coupon_count_per_year"`
 	MaturityDate            time.Time `sql:"maturity_date"`
 	NominalValue            float64   `sql:"nominal_value"`
 	NominalCurrency         string    `sql:"nominal_currency"`
@@ -28,8 +28,8 @@ type BondDbModel struct {
 	PlacementPrice          float64   `sql:"placement_price"`
 	PlacementCurrency       string    `sql:"placement_currency"`
 	AccumulatedCouponIncome float64   `sql:"accumulated_coupon_income"`
-	IssueSize               int64       `sql:"issue_size"`
-	IssueSizePlan           int64       `sql:"issue_size_plan"`
+	IssueSize               int64     `sql:"issue_size"`
+	IssueSizePlan           int64     `sql:"issue_size_plan"`
 	HasFloatingCoupon       bool      `sql:"has_floating_coupon"`
 	IsPerpetual             bool      `sql:"is_perpetual"`
 	HasAmortization         bool      `sql:"has_amortization"`
@@ -73,4 +73,14 @@ type CouponDbModel struct {
 	CouponStartDate time.Time `sql:"coupon_start_date"`
 	CouponEndDate   time.Time `sql:"coupon_end_date"`
 	CouponPeriod    int       `sql:"coupon_period"`
+}
+
+type BondPositionLotDb struct {
+	Id               uuid.UUID `sql:"id"`
+	Figi             string    `sql:"figi"`
+	OpeningDate      time.Time `sql:"opening_date"`
+	ModificationDate time.Time `sql:"modification_date"`
+	AccountId        uuid.UUID `sql:"account_id"`
+	Quantity         float64   `sql:"quantity"`
+	PricePerUnit     float64   `sql:"price_per_unit"`
 }

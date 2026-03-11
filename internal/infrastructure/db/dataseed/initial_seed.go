@@ -57,7 +57,9 @@ func InitialSeed(c *gin.Context) {
 func createTables(ctx context.Context, db *ydb.Driver) error {
 	client := db.Table()
 
-	err := createCouponTable(ctx, db, client)
+	err := createBondPositionTable(ctx, db, client)
+
+	err = createCouponTable(ctx, db, client)
 
 	err = createStockTables(ctx, db, client)
 	if err != nil {
@@ -176,6 +178,28 @@ func createMarketDataTables(ctx context.Context, db *ydb.Driver, c table.Client)
 		})
 }
 
+func createBondPositionTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
+	prefix := path.Join(db.Name(), shared.BOND_DIRECTORY_PREFIX)
+	return c.Do(ctx,
+		func(ctx context.Context, s table.Session) error {
+			err := s.CreateTable(ctx, path.Join(prefix, shared.BOND_POSITION_LOT_TABLE_NAME),
+				options.WithColumn("id", types.TypeUUID),
+				options.WithColumn("figi", types.TypeText),
+				options.WithColumn("opening_date", types.TypeDatetime),
+				options.WithColumn("modification_date", types.TypeDatetime),
+				options.WithColumn("account_id", types.TypeUUID),
+				options.WithColumn("quantity", types.TypeInt64),
+				options.WithColumn("price_per_unit", types.TypeDouble),
+				options.WithPrimaryKeyColumn("id"),
+			)
+			if err != nil {
+				logger.Log(err.Error(), logger.ALERT)
+				return err
+			}
+
+			return nil
+		})
+}
 func createPortfolioTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
 	prefix := path.Join(db.Name(), shared.USER_DIRECTORY_PREFIX)
 	return c.Do(ctx,

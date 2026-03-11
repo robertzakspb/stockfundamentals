@@ -9,11 +9,12 @@ import (
 
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
 )
 
-func GetAllBonds() ([]BondDbModel, error) {
+func GetAllBonds(filters []ydbfilter.YdbFilter) ([]BondDbModel, error) {
 	db, err := utilities.MakeYdbDriver()
 	if err != nil {
 		return []BondDbModel{}, err
@@ -23,8 +24,9 @@ func GetAllBonds() ([]BondDbModel, error) {
 
 	err = db.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
-			result, err := s.Query(ctx, makeGetAllBondsQuery(),
-				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))))
+			result, err := s.Query(ctx, makeGetAllBondsQuery(filters),
+				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
+				query.WithParameters(ydbfilter.SetQueryParams(filters)))
 
 			if err != nil {
 				return err
@@ -63,8 +65,9 @@ func GetAllBonds() ([]BondDbModel, error) {
 	return bonds, nil
 }
 
-func makeGetAllBondsQuery() string {
+func makeGetAllBondsQuery(filters []ydbfilter.YdbFilter) string {
 	yql := fmt.Sprintf(`
+						%s
 						SELECT
 							id,
 							figi,
@@ -98,8 +101,11 @@ func makeGetAllBondsQuery() string {
 							call_option_exercise_date
 						FROM
 							%s
+						%s
 					`,
-		"`"+path.Join(shared.BOND_DIRECTORY_PREFIX, shared.BOND_TABLE_NAME)+"`")
+		ydbfilter.AddYqlVarDeclarations(filters),
+		"`"+path.Join(shared.BOND_DIRECTORY_PREFIX, shared.BOND_TABLE_NAME)+"`",
+		ydbfilter.MakeWhereClause(filters))
 	return yql
 }
 

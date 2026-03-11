@@ -3,7 +3,6 @@ package portfoliodb
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"path"
 
@@ -69,7 +68,7 @@ func GetAccountPortfolio(accountIDs uuid.UUIDs) ([]LotDb, error) {
 func UpdateLocalPortfolio(lots []LotDb) error {
 	err := deleteAllLots()
 	if err != nil {
-		fmt.Println(err.Error())
+		logger.Log(err.Error(), logger.ERROR)
 	}
 	if err != nil {
 		return err

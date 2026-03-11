@@ -166,3 +166,5 @@ func mapCouponToDbModel(coupon bonds.Coupon) bondsdb.CouponDbModel {
 
 	return dbModel
 }
+
+// func mapBondLotToDbModel(lot )``

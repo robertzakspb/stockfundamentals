@@ -3,7 +3,7 @@ package portfolio
 import (
 	"net/http"
 
-	"github.com/compoundinvest/stockfundamentals/internal/application/portfolio"
+	"github.com/compoundinvest/stockfundamentals/internal/application/stock-portfolio"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )

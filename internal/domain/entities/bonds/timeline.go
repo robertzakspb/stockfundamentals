@@ -1,6 +1,7 @@
 package bonds
 
 import (
+	"fmt"
 	"sort"
 	"time"
 )
@@ -46,7 +47,7 @@ func (b Bond) generateTimeLine(coupons []Coupon) BondTimeLine {
 	for _, coupon := range coupons {
 		timeline.events = append(timeline.events, TimeLineItem{
 			timestamp: coupon.CouponDate,
-			eventName: "Выплата купона: ",
+			eventName: "Выплата купона: " + fmt.Sprint(coupon.PerBondAmount),
 		})
 	}
 

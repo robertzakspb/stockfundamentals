@@ -6,8 +6,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
+	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
 	pb "opensource.tbank.ru/invest/invest-go/proto"
 )
@@ -56,7 +59,7 @@ func ImportAllBondsAndCoupons() error {
 }
 
 func importAllCoupons() error {
-	bonds, err := bondsdb.GetAllBonds()
+	bonds, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{})
 	if err != nil {
 		return err
 	}
@@ -101,4 +104,20 @@ func importAllCoupons() error {
 	}
 
 	return nil
+}
+
+func GetBondByFigi(figi string) (bonds.Bond, error) {
+	filter := ydbfilter.YdbFilter{
+		YqlColumnName:  "figi",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: types.TextValue(figi),
+	}
+	bond, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{filter})
+	if err != nil {
+		return bonds.Bond{}, err
+	}
+
+	mappedBond := mapDbBondToBond(bond[0])
+
+	return mappedBond, nil
 }
