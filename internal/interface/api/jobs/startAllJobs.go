@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bonds"
-	"github.com/compoundinvest/stockfundamentals/internal/interface/api/account/portfolio"
+	"github.com/compoundinvest/stockfundamentals/internal/interface/api/account/stock-portfolio"
 	apidividend "github.com/compoundinvest/stockfundamentals/internal/interface/api/fundamentals/dividend"
 	api_security "github.com/compoundinvest/stockfundamentals/internal/interface/api/security"
 	timeseries "github.com/compoundinvest/stockfundamentals/internal/interface/api/time-series"
