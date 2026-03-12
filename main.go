@@ -8,7 +8,8 @@ import (
 	api_security "github.com/compoundinvest/stockfundamentals/internal/interface/api/security"
 	timeseries "github.com/compoundinvest/stockfundamentals/internal/interface/api/time-series"
 
-	"github.com/compoundinvest/stockfundamentals/internal/interface/api/account/portfolio"
+	bondsapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/bond-portfolio"
+	portfolio "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/stock-portfolio"
 	dividend "github.com/compoundinvest/stockfundamentals/internal/interface/api/fundamentals/dividend"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -40,6 +41,7 @@ func addEndpoints(router *gin.Engine) {
 	router.GET("dividend/forecasts-grouped-by-security", dividend.GetDividendForecastsGroupedBySecurity)
 
 	router.POST("jobs/import-bonds-and-coupons", jobs.StartBondAndCouponImportJob)
+	router.POST("bonds/new-position-lot", bondsapi.AddBondPositionLotToAccount)
 
 	router.POST("/fetch/securities", api_security.StartSecurityMasterImportJob)
 
