@@ -78,6 +78,7 @@ type CouponDbModel struct {
 type BondPositionLotDb struct {
 	Id               uuid.UUID `sql:"id"`
 	Figi             string    `sql:"figi"`
+	Isin             string    `sql:"isin"`
 	OpeningDate      time.Time `sql:"opening_date"`
 	ModificationDate time.Time `sql:"modification_date"`
 	AccountId        uuid.UUID `sql:"account_id"`

@@ -9,6 +9,7 @@ import (
 type BondLot struct {
 	Id               uuid.UUID
 	Figi             string
+	Isin             string
 	OpeningDate      time.Time
 	ModificationDate time.Time
 	AccountId        uuid.UUID

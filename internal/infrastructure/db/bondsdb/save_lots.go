@@ -23,6 +23,7 @@ func SaveBondPositionLots(lots []BondPositionLotDb) error {
 		ydbBondLot := types.StructValue(
 			types.StructFieldValue("id", types.UuidValue(l.Id)),
 			types.StructFieldValue("figi", types.TextValue(l.Figi)),
+			types.StructFieldValue("isin", types.TextValue(l.Isin)),
 			types.StructFieldValue("opening_date", shared.ConvertToYdbDateTime(l.OpeningDate)),
 			types.StructFieldValue("modification_date", shared.ConvertToYdbDateTime(l.ModificationDate)),
 			types.StructFieldValue("account_id", types.UuidValue(l.AccountId)),

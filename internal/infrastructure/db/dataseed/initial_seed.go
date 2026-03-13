@@ -57,9 +57,9 @@ func InitialSeed(c *gin.Context) {
 func createTables(ctx context.Context, db *ydb.Driver) error {
 	client := db.Table()
 
-	err := createBondPositionTable(ctx, db, client)
+	err := createCouponTable(ctx, db, client)
 
-	err = createCouponTable(ctx, db, client)
+	err = createBondPositionTable(ctx, db, client)
 
 	err = createStockTables(ctx, db, client)
 	if err != nil {
@@ -185,10 +185,11 @@ func createBondPositionTable(ctx context.Context, db *ydb.Driver, c table.Client
 			err := s.CreateTable(ctx, path.Join(prefix, shared.BOND_POSITION_LOT_TABLE_NAME),
 				options.WithColumn("id", types.TypeUUID),
 				options.WithColumn("figi", types.TypeText),
+				options.WithColumn("isin", types.TypeText),
 				options.WithColumn("opening_date", types.TypeDatetime),
 				options.WithColumn("modification_date", types.TypeDatetime),
 				options.WithColumn("account_id", types.TypeUUID),
-				options.WithColumn("quantity", types.TypeInt64),
+				options.WithColumn("quantity", types.TypeDouble),
 				options.WithColumn("price_per_unit", types.TypeDouble),
 				options.WithPrimaryKeyColumn("id"),
 			)
