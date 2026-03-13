@@ -2,7 +2,9 @@ package bondservice
 
 import (
 	"context"
+	"errors"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -65,7 +67,9 @@ func importAllCoupons() error {
 	}
 
 	dbCoupons := []bondsdb.CouponDbModel{}
-	for _, bond := range bonds {
+	rateLimit := time.Second / 2 //So as not not overload the Tinkoff API
+	throttle := time.Tick(rateLimit)
+	for i, bond := range bonds {
 		config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 		if err != nil {
 			logger.Log("Failed to initialize the configuration file", logger.ALERT)
@@ -96,11 +100,13 @@ func importAllCoupons() error {
 			dbCoupon := mapCouponToDbModel(coupon)
 			dbCoupons = append(dbCoupons, dbCoupon)
 		}
-	}
 
-	err = bondsdb.SaveCoupons(dbCoupons)
-	if err != nil {
-		return err
+		err = bondsdb.SaveCoupons(dbCoupons)
+		logger.Log(strconv.Itoa(i)+" out of "+strconv.Itoa(len(bonds))+". Saved coupons for figi "+bond.Figi, logger.INFORMATION)
+		if err != nil {
+			return err
+		}
+		<-throttle
 	}
 
 	return nil
@@ -112,12 +118,34 @@ func GetBondByFigi(figi string) (bonds.Bond, error) {
 		Condition:      ydbfilter.Equal,
 		ConditionValue: types.TextValue(figi),
 	}
-	bond, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{filter})
+	bondList, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{filter})
 	if err != nil {
 		return bonds.Bond{}, err
 	}
+	if len(bondList) == 0 {
+		return bonds.Bond{}, errors.New("Found zero bonds with the specificed figi")
+	}
 
-	mappedBond := mapDbBondToBond(bond[0])
+	mappedBond := mapDbBondToBond(bondList[0])
+
+	return mappedBond, nil
+}
+
+func GetBondByIsin(isin string) (bonds.Bond, error) {
+	filter := ydbfilter.YdbFilter{
+		YqlColumnName:  "isin",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: types.TextValue(isin),
+	}
+	bondList, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{filter})
+	if err != nil {
+		return bonds.Bond{}, err
+	}
+	if len(bondList) == 0 {
+		return bonds.Bond{}, errors.New("Found zero bonds with the specificed ISIN")
+	}
+
+	mappedBond := mapDbBondToBond(bondList[0])
 
 	return mappedBond, nil
 }
