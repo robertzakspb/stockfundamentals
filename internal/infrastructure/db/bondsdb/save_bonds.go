@@ -86,7 +86,7 @@ func SaveCoupons(coupons []CouponDbModel) error {
 			types.StructFieldValue("coupon_type", types.TextValue(c.CouponType)),
 			types.StructFieldValue("coupon_start_date", shared.ConvertToYdbDate(c.CouponStartDate)),
 			types.StructFieldValue("coupon_end_date", shared.ConvertToYdbDate(c.CouponEndDate)),
-			types.StructFieldValue("coupon_number", types.Int64Value(int64(c.CouponPeriod))),
+			types.StructFieldValue("coupon_period", types.Int64Value(int64(c.CouponPeriod))),
 		)
 		ydbCoupons = append(ydbCoupons, ydbCoupon)
 	}
