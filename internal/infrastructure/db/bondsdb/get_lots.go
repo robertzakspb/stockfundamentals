@@ -9,12 +9,13 @@ import (
 
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
-	"github.com/google/uuid"
+	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
 )
 
-func GetAccountBondPortfolio(accountId uuid.UUID) ([]BondPositionLotDb, error) {
+func GetAccountBondPortfolio(filters []ydbfilter.YdbFilter) ([]BondPositionLotDb, error) {
 	db, err := utilities.MakeYdbDriver()
 	if err != nil {
 		return []BondPositionLotDb{}, err
@@ -24,8 +25,9 @@ func GetAccountBondPortfolio(accountId uuid.UUID) ([]BondPositionLotDb, error) {
 
 	err = db.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
-			result, err := s.Query(ctx, makeGetBondPositionsQuery(accountId),
-				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))))
+			result, err := s.Query(ctx, makeGetBondPositionsQuery(filters),
+				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
+				query.WithParameters(ydbfilter.SetQueryParams(filters)))
 
 			if err != nil {
 				return err
@@ -58,17 +60,20 @@ func GetAccountBondPortfolio(accountId uuid.UUID) ([]BondPositionLotDb, error) {
 		},
 	)
 	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
 		return []BondPositionLotDb{}, err
 	}
 
 	return bonds, nil
 }
 
-func makeGetBondPositionsQuery(accountId uuid.UUID) string {
+func makeGetBondPositionsQuery(filters []ydbfilter.YdbFilter) string {
 	yql := fmt.Sprintf(`
+						%s
 						SELECT
 							id,
 							figi,
+							isin,
 							opening_date,
 							modification_date,
 							account_id,
@@ -76,9 +81,10 @@ func makeGetBondPositionsQuery(accountId uuid.UUID) string {
 							price_per_unit
 						FROM
 							%s
-						WHERE accountId = %s
+						%s
 					`,
-		"`"+path.Join(shared.BOND_DIRECTORY_PREFIX, shared.BOND_POSITION_LOT_TABLE_NAME)+"`", accountId.String())
-
+		ydbfilter.AddYqlVarDeclarations(filters),
+		"`"+path.Join(shared.BOND_DIRECTORY_PREFIX, shared.BOND_POSITION_LOT_TABLE_NAME)+"`",
+		ydbfilter.MakeWhereClause(filters))
 	return yql
 }

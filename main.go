@@ -42,6 +42,7 @@ func addEndpoints(router *gin.Engine) {
 
 	router.POST("jobs/import-bonds-and-coupons", jobs.StartBondAndCouponImportJob)
 	router.POST("bonds/new-position-lot", bondsapi.AddBondPositionLotToAccount)
+	router.GET("bonds/position-lots", bondsapi.GetAccountPositionLots)
 
 	router.POST("/fetch/securities", api_security.StartSecurityMasterImportJob)
 

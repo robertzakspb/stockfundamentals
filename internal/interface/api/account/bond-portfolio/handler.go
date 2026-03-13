@@ -14,8 +14,8 @@ import (
 )
 
 type bondPositionLotDto struct {
-	Id               string
 	Figi             string    `json:"figi"`
+	Isin             string    `json:"isin"`
 	OpeningDate      time.Time `json:"openingDate"`
 	ModificationDate time.Time `json:"modificationDate"`
 	AccountId        string    `json:"accountId"`
@@ -53,11 +53,28 @@ func AddBondPositionLotToAccount(c *gin.Context) {
 	}
 }
 
+func GetAccountPositionLots(c *gin.Context) {
+	lots, err := bondportfolio.GetAllPositionLots()
+
+	mappedLots := []bondPositionLotDto{}
+	for _, lot := range lots {
+		mappedLot := mapBondLotToDto(lot)
+		mappedLots = append(mappedLots, mappedLot)
+	}
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+	} else {
+		c.JSON(http.StatusOK, mappedLots)
+	}
+}
+
 func mapBondLotDtoToDomain(dto bondPositionLotDto) bonds.BondLot {
 	accountId, _ := uuid.Parse(dto.AccountId)
 	domain := bonds.BondLot{
 		Id:               uuid.New(),
 		Figi:             dto.Figi,
+		Isin:             dto.Isin,
 		OpeningDate:      dto.OpeningDate,
 		ModificationDate: dto.ModificationDate,
 		AccountId:        accountId,
@@ -66,4 +83,18 @@ func mapBondLotDtoToDomain(dto bondPositionLotDto) bonds.BondLot {
 	}
 
 	return domain
+}
+
+func mapBondLotToDto(lot bonds.BondLot) bondPositionLotDto {
+	dto := bondPositionLotDto{
+		Figi:             lot.Figi,
+		Isin:             lot.Isin,
+		OpeningDate:      lot.OpeningDate,
+		ModificationDate: lot.ModificationDate,
+		AccountId:        lot.AccountId.String(),
+		Quantity:         lot.Quantity,
+		PricePerUnit:     lot.PricePerUnit,
+	}
+
+	return dto
 }
