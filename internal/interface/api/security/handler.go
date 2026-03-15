@@ -7,10 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func StartSecurityMasterImportJob(c *gin.Context) {
+func ExecuteSecurityMasterImportJob(c *gin.Context) {
 	security_master.FetchAndSaveSecurities()
 
-	c.JSON(http.StatusOK, "Successfully started the security import job")
+	c.JSON(http.StatusOK, "Successfully executed the security import job")
 }
 
 func FetchSecuritiesFromDB() ([]SecurityDTO, error) {
