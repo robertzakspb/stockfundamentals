@@ -54,7 +54,7 @@ func FetchDividendsForAllStocks() []dividend.Dividend {
 
 	allDividends := []dividend.Dividend{}
 
-	rateLimit := time.Second / 2
+	rateLimit := time.Second
 	throttle := time.Tick(rateLimit)
 
 	for _, stock := range stocks {

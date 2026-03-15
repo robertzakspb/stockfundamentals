@@ -67,7 +67,7 @@ func importAllCoupons() error {
 	}
 
 	dbCoupons := []bondsdb.CouponDbModel{}
-	rateLimit := time.Second / 2 //So as not not overload the Tinkoff API
+	rateLimit := time.Second //So as not not overload the Tinkoff API
 	throttle := time.Tick(rateLimit)
 	for i, bond := range bonds {
 		config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
