@@ -92,7 +92,6 @@ func SaveCoupons(coupons []CouponDbModel) error {
 		)
 		ydbCoupons = append(ydbCoupons, ydbCoupon)
 	}
-
 	tableName := path.Join(db.Name(), shared.BOND_DIRECTORY_PREFIX, shared.COUPON_TABLE_NAME)
 	err = db.Table().BulkUpsert(
 		context.TODO(),

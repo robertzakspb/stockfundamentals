@@ -66,9 +66,7 @@ func importAllCoupons() error {
 		return err
 	}
 
-	dbCoupons := []bondsdb.CouponDbModel{}
-
-	rateLimit := time.Second / 3 //To comply with the Tinkoff API rate limits
+	rateLimit := time.Second //To comply with the Tinkoff API rate limits
 	throttle := time.Tick(rateLimit)
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
@@ -91,23 +89,28 @@ func importAllCoupons() error {
 		return nil
 	}
 
+	dbCoupons := []bondsdb.CouponDbModel{}
 	coupondPeriodEndDate, _ := time.Parse(time.DateOnly, "2100-01-01")
 	coupondPeriodStartDate, _ := time.Parse(time.DateOnly, "1970-01-01")
 	for i, bond := range bonds {
 		response, err := bondService.GetBondCoupons(bond.Figi, coupondPeriodStartDate, coupondPeriodEndDate)
+		if err != nil {
+			return err
+		}
 
 		for _, tinkoffCoupon := range response.GetEvents() {
 			coupon := mapTinkoffCouponToCoupon(bond.Figi, tinkoffCoupon)
 			dbCoupon := mapCouponToDbModel(coupon)
 			dbCoupons = append(dbCoupons, dbCoupon)
 		}
+		logger.Log(strconv.Itoa(i)+" out of "+strconv.Itoa(len(bonds))+". Fetched coupons for figi "+bond.Figi, logger.INFORMATION)
 
-		err = bondsdb.SaveCoupons(dbCoupons)
-		logger.Log(strconv.Itoa(i)+" out of "+strconv.Itoa(len(bonds))+". Saved coupons for figi "+bond.Figi, logger.INFORMATION)
-		if err != nil {
-			return err
-		}
 		<-throttle
+	}
+
+	err = bondsdb.SaveCoupons(dbCoupons)
+	if err != nil {
+		return err
 	}
 
 	return nil

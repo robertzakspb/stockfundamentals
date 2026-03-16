@@ -1,10 +1,6 @@
 package bondportfolio
 
 import (
-	"errors"
-	"time"
-
-	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -49,33 +45,20 @@ func GetAllPositionLots() ([]bonds.BondLot, error) {
 	return mappedLots, nil
 }
 
-func validateLot(lot bonds.BondLot) error {
-	if lot.Figi != "" {
-		_, err := bondservice.GetBondByFigi(lot.Figi)
-		if err != nil {
-			return err
-		}
-	} else if lot.Isin != "" {
-		_, err := bondservice.GetBondByIsin(lot.Isin)
-		if err != nil {
-			return err
-		}
-	} else {
-		return errors.New("Missing both figi and ISIN in the bond")
+func GetAccountTimeline() ([]TimeLineItem, error) {
+	lots, err := GetAllPositionLots()
+	if err != nil {
+		return []TimeLineItem{}, err
 	}
 
-	if lot.Quantity < 0 {
-		return errors.New("Invalid quantity")
-	}
-	if lot.OpeningDate.After(time.Now()) {
-		return errors.New("Invalid opening date")
-	}
-	if lot.ModificationDate.After(time.Now()) {
-		return errors.New("Invalid modification date")
-	}
-	if lot.PricePerUnit < 0 {
-		return errors.New("Invalid price per unit")
+	accountTimeline := []TimeLineItem{}
+	for _, lot := range lots {
+		timeline, err := generateTimeLineForLot(lot)
+		if err != nil {
+			return []TimeLineItem{}, err
+		}
+		accountTimeline = append(accountTimeline, timeline...)
 	}
 
-	return nil
+	return accountTimeline, nil
 }

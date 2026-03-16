@@ -7,10 +7,9 @@ import (
 	"time"
 
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/bond-portfolio"
-	
+
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/gin-gonic/gin"
-	
 )
 
 type bondPositionLotDto struct {
@@ -69,4 +68,6 @@ func GetAccountPositionLots(c *gin.Context) {
 	}
 }
 
-
+func GetAccountBondTimeline(c *gin.Context) {
+	
+}
