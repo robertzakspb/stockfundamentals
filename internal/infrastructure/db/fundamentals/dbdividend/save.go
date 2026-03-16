@@ -61,6 +61,7 @@ func SaveDividendForecastToDb(forecast DividendForecastDb) error {
 	if err != nil {
 		return err
 	}
+	defer db.Close(context.TODO())
 
 	ydbForecast := types.StructValue(
 		types.StructFieldValue("id", types.UuidValue(uuid.New())),

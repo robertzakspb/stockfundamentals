@@ -20,6 +20,7 @@ func GetAccountPortfolio(accountIDs uuid.UUIDs) ([]LotDb, error) {
 	if err != nil {
 		return []LotDb{}, err
 	}
+	defer db.Close(context.TODO())
 
 	lots := []LotDb{}
 	yql := makeGetAccountPortfolioQuery()
@@ -78,6 +79,7 @@ func UpdateLocalPortfolio(lots []LotDb) error {
 	if err != nil {
 		return err
 	}
+	defer db.Close(context.TODO())
 
 	ydbLots := []types.Value{}
 	for _, lot := range lots {
@@ -112,6 +114,7 @@ func deleteAllLots() error {
 	if err != nil {
 		return err
 	}
+	defer db.Close(context.TODO())
 
 	yql := "DELETE FROM " + "`" + path.Join(shared.USER_DIRECTORY_PREFIX, shared.POSITION_LOT_TABLE_NAME) + "`"
 

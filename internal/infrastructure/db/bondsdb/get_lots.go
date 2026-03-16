@@ -20,6 +20,7 @@ func GetAccountBondPortfolio(filters []ydbfilter.YdbFilter) ([]BondPositionLotDb
 	if err != nil {
 		return []BondPositionLotDb{}, err
 	}
+	defer db.Close(context.TODO())
 
 	bonds := []BondPositionLotDb{}
 

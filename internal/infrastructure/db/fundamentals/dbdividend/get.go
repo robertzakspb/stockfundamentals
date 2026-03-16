@@ -21,6 +21,7 @@ func GetAllDividends(filters []ydbfilter.YdbFilter) ([]dividend.Dividend, error)
 	if err != nil {
 		return []dividend.Dividend{}, err
 	}
+	defer db.Close(context.TODO())
 
 	userDividendsDbModels := []dividendDbModel{}
 
@@ -94,6 +95,7 @@ func GetDividendForecasts() ([]DividendForecastDb, error) {
 	if err != nil {
 		return []DividendForecastDb{}, err
 	}
+	defer db.Close(context.TODO())
 
 	forecasts := []DividendForecastDb{}
 

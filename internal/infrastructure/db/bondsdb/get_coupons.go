@@ -19,6 +19,7 @@ func GetBondCoupons(filters []ydbfilter.YdbFilter) ([]CouponDbModel, error) {
 	if err != nil {
 		return []CouponDbModel{}, err
 	}
+	defer db.Close(context.TODO())
 
 	coupons := []CouponDbModel{}
 

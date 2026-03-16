@@ -17,6 +17,7 @@ func SaveBondPositionLots(lots []BondPositionLotDb) error {
 	if err != nil {
 		return err
 	}
+	defer db.Close(context.TODO())
 
 	ydbBondLots := []types.Value{}
 	for _, l := range lots {

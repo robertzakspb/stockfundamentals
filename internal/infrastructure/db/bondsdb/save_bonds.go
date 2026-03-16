@@ -17,6 +17,7 @@ func SaveBonds(bonds []BondDbModel) error {
 	if err != nil {
 		return err
 	}
+	defer db.Close(context.TODO())
 
 	ydbBonds := []types.Value{}
 	for _, bond := range bonds {
@@ -73,6 +74,7 @@ func SaveCoupons(coupons []CouponDbModel) error {
 	if err != nil {
 		return err
 	}
+	defer db.Close(context.TODO())
 
 	ydbCoupons := []types.Value{}
 	for _, c := range coupons {
