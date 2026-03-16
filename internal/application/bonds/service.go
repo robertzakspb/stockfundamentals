@@ -67,32 +67,33 @@ func importAllCoupons() error {
 	}
 
 	dbCoupons := []bondsdb.CouponDbModel{}
-	rateLimit := time.Second //So as not not overload the Tinkoff API
+
+	rateLimit := time.Second / 3 //To comply with the Tinkoff API rate limits
 	throttle := time.Tick(rateLimit)
+	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
+	if err != nil {
+		logger.Log("Failed to initialize the configuration file", logger.ALERT)
+		return nil
+	}
+
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
+	defer cancel()
+
+	client, err := tinkoff.NewClient(ctx, config, nil)
+	if err != nil {
+		logger.Log("Failed to initialize the Tinkoff API client: ", logger.ALERT)
+		return nil
+	}
+
+	bondService := client.NewInstrumentsServiceClient()
+	if bondService == nil {
+		logger.Log("The bond service is unexpectedly nil", logger.ALERT)
+		return nil
+	}
+
+	coupondPeriodEndDate, _ := time.Parse(time.DateOnly, "2100-01-01")
+	coupondPeriodStartDate, _ := time.Parse(time.DateOnly, "1970-01-01")
 	for i, bond := range bonds {
-		config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
-		if err != nil {
-			logger.Log("Failed to initialize the configuration file", logger.ALERT)
-			return nil
-		}
-
-		ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
-		defer cancel()
-
-		client, err := tinkoff.NewClient(ctx, config, nil)
-		if err != nil {
-			logger.Log("Failed to initialize the Tinkoff API client: ", logger.ALERT)
-			return nil
-		}
-
-		bondService := client.NewInstrumentsServiceClient()
-		if bondService == nil {
-			logger.Log("The bond service is unexpectedly nil", logger.ALERT)
-			return nil
-		}
-
-		coupondPeriodEndDate, _ := time.Parse(time.DateOnly, "2100-01-01")
-		coupondPeriodStartDate, _ := time.Parse(time.DateOnly, "1970-01-01")
 		response, err := bondService.GetBondCoupons(bond.Figi, coupondPeriodStartDate, coupondPeriodEndDate)
 
 		for _, tinkoffCoupon := range response.GetEvents() {
