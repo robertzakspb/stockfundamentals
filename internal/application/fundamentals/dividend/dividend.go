@@ -69,7 +69,7 @@ func FetchDividendsForAllStocks() []dividend.Dividend {
 		}
 		<-throttle
 	}
-	logger.Log(fmt.Sprintf("Completed the dividend fetching job", logger.INFORMATION)
+	logger.Log("Completed the dividend fetching job", logger.INFORMATION)
 
 	return allDividends
 }

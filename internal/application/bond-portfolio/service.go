@@ -51,13 +51,9 @@ func GetAccountTimeline() ([]TimeLineItem, error) {
 		return []TimeLineItem{}, err
 	}
 
-	accountTimeline := []TimeLineItem{}
-	for _, lot := range lots {
-		timeline, err := generateTimeLineForLot(lot)
-		if err != nil {
-			return []TimeLineItem{}, err
-		}
-		accountTimeline = append(accountTimeline, timeline...)
+	accountTimeline, err := generateTimeLineForLot(lots)
+	if err != nil {
+		return []TimeLineItem{}, err
 	}
 
 	return accountTimeline, nil

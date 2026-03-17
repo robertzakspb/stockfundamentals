@@ -135,6 +135,34 @@ func GetBondByFigi(figi string) (bonds.Bond, error) {
 	return mappedBond, nil
 }
 
+func GetBondsByFigi(figis []string) ([]bonds.Bond, error) {
+	ydbFigis := []types.Value{}
+	for _, figi := range figis {
+		ydbFigis = append(ydbFigis, types.TextValue(figi))
+	}
+
+	filter := ydbfilter.YdbFilter{
+		YqlColumnName:  "figi",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: types.ListValue(ydbFigis...),
+	}
+	bondList, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{filter})
+	if err != nil {
+		return []bonds.Bond{}, err
+	}
+	if len(bondList) == 0 {
+		return []bonds.Bond{}, errors.New("Found zero bonds with the specificed figis")
+	}
+
+	mappedBonds := []bonds.Bond{}
+	for _, dbBond := range bondList {
+		mappedBond := mapDbBondToBond(dbBond)
+		mappedBonds = append(mappedBonds, mappedBond)
+	}
+
+	return mappedBonds, nil
+}
+
 func GetBondByIsin(isin string) (bonds.Bond, error) {
 	filter := ydbfilter.YdbFilter{
 		YqlColumnName:  "isin",
