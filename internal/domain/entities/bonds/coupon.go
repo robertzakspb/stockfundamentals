@@ -55,3 +55,15 @@ var (
 		"COUPON_TYPE_OTHER":       7,
 	}
 )
+
+func totalCouponIncome(coupons []Coupon) float64 {
+	if len(coupons) == 0 {
+		return -1
+	}
+
+	totalCouponIncome := 0.0
+	for _, coupon := range coupons {
+		totalCouponIncome += coupon.PerBondAmount
+	}
+	return totalCouponIncome
+}

@@ -148,3 +148,34 @@ func (b Bond) validate() error {
 	return nil
 }
 
+func (b Bond) YieldToMaturity(coupons []Coupon, marketPrice float64) (float64, error) {
+	yield := calculateYield(b, coupons, marketPrice, b.MaturityDate)
+	return yield, nil
+}
+
+func (b Bond) YieldToCallOption(coupons []Coupon, marketPrice float64) (float64, error) {
+	if b.CallOptionExerciseDate.IsZero() {
+		return -1, errors.New("Attempting to calculate a yield to call option for a bond without a call exercise date")
+	}
+
+	yield := calculateYield(b, coupons, marketPrice, b.MaturityDate)
+	return yield, nil
+}
+
+func calculateYield(b Bond, coupons []Coupon, marketPrice float64, redemptionDate time.Time) float64 {
+	if len(coupons) == 0 {
+		return -1
+	}
+
+	if !(coupons[0].CouponType == CouponType_COUPON_TYPE_FIX || coupons[0].CouponType == CouponType_COUPON_TYPE_CONSTANT) {
+		return -1
+	}
+
+	yield := (b.NominalValue - marketPrice + totalCouponIncome(coupons)) * 365 / daysUntilRedemption(redemptionDate) * 100
+	return yield
+}
+
+func daysUntilRedemption(redemptionDate time.Time) float64 {
+	return time.Until(redemptionDate).Hours() / 24
+}
+
