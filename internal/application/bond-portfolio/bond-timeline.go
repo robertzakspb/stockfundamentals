@@ -1,68 +1,84 @@
 package bondportfolio
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 	"time"
 
 	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
-
-type BondTimeLine struct {
-	Bond   bonds.Bond
-	events []TimeLineItem
-}
 
 type TimeLineItem struct {
 	timestamp time.Time
 	eventName string
 }
 
-func generateTimeLineForLot(lot bonds.BondLot) (BondTimeLine, error) {
-	bond, err := bondservice.GetBondByFigi(lot.Figi)
+func generateTimeLineForLot(lots []bonds.BondLot) ([]TimeLineItem, error) {
+	figis := []string{}
+	for _, lot := range lots {
+		figis = append(figis, lot.Figi)
+	}
+
+	bondList, err := bondservice.GetBondsByFigi(figis)
 	if err != nil {
-		return BondTimeLine{}, err
+		return []TimeLineItem{}, err
 	}
 
-	timeline := BondTimeLine{
-		Bond: bond,
-	}
-
-	if bond.RegistrationDate.IsZero() == false {
-		timeline.events = append(timeline.events, TimeLineItem{
+	timeline := []TimeLineItem{}
+	for _, lot := range lots {
+		bond, err := findBondByFigi(lot.Figi, bondList)
+		if err != nil {
+			logger.Log("Failed to find a bond for figi "+lot.Figi, logger.ERROR)
+			continue
+		}
+		if bond.RegistrationDate.IsZero() == false {
+			timeline = append(timeline, TimeLineItem{
+				timestamp: bond.RegistrationDate,
+				eventName: "Дата Регистрации Облигации",
+			})
+		}
+		if bond.PlacementDate.IsZero() == false {
+			timeline = append(timeline, TimeLineItem{
+				timestamp: bond.PlacementDate,
+				eventName: "Дата Размещения Облигации",
+			})
+		}
+		if bond.CallOptionExerciseDate.IsZero() == false {
+			timeline = append(timeline, TimeLineItem{
+				timestamp: bond.CallOptionExerciseDate,
+				eventName: "Дата Колл-опциона",
+			})
+		}
+		timeline = append(timeline, TimeLineItem{
 			timestamp: bond.RegistrationDate,
-			eventName: "Дата Регистрации Облигации",
+			eventName: "Дата Погашения Облигации. Возврат денежных средств: " + bond.Currency + fmt.Sprint(lot.TotalPrincipalRedemption(bond)),
 		})
-	}
-	if bond.PlacementDate.IsZero() == false {
-		timeline.events = append(timeline.events, TimeLineItem{
-			timestamp: bond.PlacementDate,
-			eventName: "Дата Размещения Облигации",
-		})
-	}
-	if bond.CallOptionExerciseDate.IsZero() == false {
-		timeline.events = append(timeline.events, TimeLineItem{
-			timestamp: bond.CallOptionExerciseDate,
-			eventName: "Дата Колл-опциона",
-		})
-	}
-	timeline.events = append(timeline.events, TimeLineItem{
-		timestamp: bond.RegistrationDate,
-		eventName: "Дата Погашения Облигации. Возврат денежных средств: " + bond.Currency + fmt.Sprint(lot.TotalPrincipalRedemption(bond)),
-	})
 
-	coupons, _ := bondservice.GetCouponsByFigi(bond.Figi)
-	for _, coupon := range coupons {
-		timeline.events = append(timeline.events, TimeLineItem{
-			timestamp: coupon.CouponDate,
-			eventName: "Выплата купона: " + bond.Currency + fmt.Sprint(coupon.PerBondAmount) + " * " + fmt.Sprint(lot.Quantity) + " = " + bond.Currency + fmt.Sprint(lot.CouponPayoutForPosition(coupon)),
-		})
+		coupons, _ := bondservice.GetCouponsByFigi(bond.Figi)
+		for _, coupon := range coupons {
+			timeline = append(timeline, TimeLineItem{
+				timestamp: coupon.CouponDate,
+				eventName: "Выплата купона: " + bond.Currency + fmt.Sprint(coupon.PerBondAmount) + " * " + fmt.Sprint(lot.Quantity) + " = " + bond.Currency + fmt.Sprint(lot.CouponPayoutForPosition(coupon)),
+			})
+		}
 	}
 
-	sort.Slice(timeline.events, func(i, j int) bool {
-		return timeline.events[i].timestamp.After(timeline.events[j].timestamp)
+	sort.Slice(timeline, func(i, j int) bool {
+		return timeline[i].timestamp.After(timeline[j].timestamp)
 	})
 
 	return timeline, nil
+}
+
+func findBondByFigi(figi string, bondList []bonds.Bond) (bonds.Bond, error) {
+	for _, bond := range bondList {
+		if bond.Figi == figi {
+			return bond, nil
+		}
+	}
+
+	return bonds.Bond{}, errors.New("Failed to find the target bonds")
 }

@@ -66,47 +66,51 @@ func importAllCoupons() error {
 		return err
 	}
 
-	dbCoupons := []bondsdb.CouponDbModel{}
-	rateLimit := time.Second / 2 //So as not not overload the Tinkoff API
+	rateLimit := time.Second //To comply with the Tinkoff API rate limits
 	throttle := time.Tick(rateLimit)
+	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
+	if err != nil {
+		logger.Log("Failed to initialize the configuration file", logger.ALERT)
+		return nil
+	}
+
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
+	defer cancel()
+
+	client, err := tinkoff.NewClient(ctx, config, nil)
+	if err != nil {
+		logger.Log("Failed to initialize the Tinkoff API client: ", logger.ALERT)
+		return nil
+	}
+
+	bondService := client.NewInstrumentsServiceClient()
+	if bondService == nil {
+		logger.Log("The bond service is unexpectedly nil", logger.ALERT)
+		return nil
+	}
+
+	dbCoupons := []bondsdb.CouponDbModel{}
+	coupondPeriodEndDate, _ := time.Parse(time.DateOnly, "2100-01-01")
+	coupondPeriodStartDate, _ := time.Parse(time.DateOnly, "1970-01-01")
 	for i, bond := range bonds {
-		config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
-		if err != nil {
-			logger.Log("Failed to initialize the configuration file", logger.ALERT)
-			return nil
-		}
-
-		ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
-		defer cancel()
-
-		client, err := tinkoff.NewClient(ctx, config, nil)
-		if err != nil {
-			logger.Log("Failed to initialize the Tinkoff API client: ", logger.ALERT)
-			return nil
-		}
-
-		bondService := client.NewInstrumentsServiceClient()
-		if bondService == nil {
-			logger.Log("The bond service is unexpectedly nil", logger.ALERT)
-			return nil
-		}
-
-		coupondPeriodEndDate, _ := time.Parse(time.DateOnly, "2100-01-01")
-		coupondPeriodStartDate, _ := time.Parse(time.DateOnly, "1970-01-01")
 		response, err := bondService.GetBondCoupons(bond.Figi, coupondPeriodStartDate, coupondPeriodEndDate)
+		if err != nil {
+			return err
+		}
 
 		for _, tinkoffCoupon := range response.GetEvents() {
 			coupon := mapTinkoffCouponToCoupon(bond.Figi, tinkoffCoupon)
 			dbCoupon := mapCouponToDbModel(coupon)
 			dbCoupons = append(dbCoupons, dbCoupon)
 		}
+		logger.Log(strconv.Itoa(i)+" out of "+strconv.Itoa(len(bonds))+". Fetched coupons for figi "+bond.Figi, logger.INFORMATION)
 
-		err = bondsdb.SaveCoupons(dbCoupons)
-		logger.Log(strconv.Itoa(i)+" out of "+strconv.Itoa(len(bonds))+". Saved coupons for figi "+bond.Figi, logger.INFORMATION)
-		if err != nil {
-			return err
-		}
 		<-throttle
+	}
+
+	err = bondsdb.SaveCoupons(dbCoupons)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -129,6 +133,34 @@ func GetBondByFigi(figi string) (bonds.Bond, error) {
 	mappedBond := mapDbBondToBond(bondList[0])
 
 	return mappedBond, nil
+}
+
+func GetBondsByFigi(figis []string) ([]bonds.Bond, error) {
+	ydbFigis := []types.Value{}
+	for _, figi := range figis {
+		ydbFigis = append(ydbFigis, types.TextValue(figi))
+	}
+
+	filter := ydbfilter.YdbFilter{
+		YqlColumnName:  "figi",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: types.ListValue(ydbFigis...),
+	}
+	bondList, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{filter})
+	if err != nil {
+		return []bonds.Bond{}, err
+	}
+	if len(bondList) == 0 {
+		return []bonds.Bond{}, errors.New("Found zero bonds with the specificed figis")
+	}
+
+	mappedBonds := []bonds.Bond{}
+	for _, dbBond := range bondList {
+		mappedBond := mapDbBondToBond(dbBond)
+		mappedBonds = append(mappedBonds, mappedBond)
+	}
+
+	return mappedBonds, nil
 }
 
 func GetBondByIsin(isin string) (bonds.Bond, error) {

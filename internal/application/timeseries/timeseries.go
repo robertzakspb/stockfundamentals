@@ -20,7 +20,7 @@ func FetchAndSaveHistoricalQuotes() error {
 	}
 	quotes := []entity.SimpleQuote{}
 
-	rateLimit := time.Second / 2 //So as not not overload the Tinkoff API
+	rateLimit := time.Second  //So as not not overload the Tinkoff API
 	throttle := time.Tick(rateLimit)
 	for _, quote := range latestQuotes {
 		if quote.Country != "RU" {

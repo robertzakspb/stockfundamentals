@@ -29,11 +29,11 @@ func SaveTimeSeriesToDB(quotes []entity.SimpleQuote) error {
 	}
 
 	db, err := ydb.Open(context.TODO(), config.DB.ConnectionString)
-
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 		panic("Failed to connect to the database")
 	}
+	defer db.Close(context.TODO())
 
 	ydbQuotes := []types.Value{}
 	for _, quote := range quotes {
@@ -54,7 +54,7 @@ func SaveTimeSeriesToDB(quotes []entity.SimpleQuote) error {
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
 		return err
-	} 
+	}
 
 	return nil
 }
@@ -128,6 +128,6 @@ func GetLatestQuotesForAllSecurities() ([]QuoteDB, error) {
 }
 
 func makeTimeSeriesTablePath() string {
-	path := "`" + path.Join(market_date_directory_prefix, time_series_table_name) + "`" 
+	path := "`" + path.Join(market_date_directory_prefix, time_series_table_name) + "`"
 	return path
 }

@@ -19,6 +19,7 @@ func GetAllBonds(filters []ydbfilter.YdbFilter) ([]BondDbModel, error) {
 	if err != nil {
 		return []BondDbModel{}, err
 	}
+	defer db.Close(context.TODO())
 
 	bonds := []BondDbModel{}
 
