@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/compoundinterest"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/forex"
 	"github.com/google/uuid"
 )
@@ -149,7 +150,11 @@ func (b Bond) validate() error {
 }
 
 func (b Bond) YieldToMaturity(coupons []Coupon, marketPrice float64) (float64, error) {
-	yield := calculateYield(b, coupons, marketPrice, b.MaturityDate)
+	yield, err := calculateYield(b, coupons, marketPrice, time.Now(), b.MaturityDate)
+	if err != nil {
+		return -1, err
+	}
+
 	return yield, nil
 }
 
@@ -158,24 +163,39 @@ func (b Bond) YieldToCallOption(coupons []Coupon, marketPrice float64) (float64,
 		return -1, errors.New("Attempting to calculate a yield to call option for a bond without a call exercise date")
 	}
 
-	yield := calculateYield(b, coupons, marketPrice, b.MaturityDate)
+	yield, err := calculateYield(b, coupons, marketPrice, time.Now(), b.MaturityDate)
+	if err != nil {
+		return -1, err
+	}
+
 	return yield, nil
 }
 
-func calculateYield(b Bond, coupons []Coupon, marketPrice float64, redemptionDate time.Time) float64 {
+// Calculates the return realized on the bond given a market price, including coupons and redemption
+// Coupon reinvestment is not assumed
+func totalBondReturn(bond Bond, coupons []Coupon, marketPrice float64, acquisitionDate, redemptionDate time.Time) (float64, error) {
+	if marketPrice == 0 {
+		return -1, errors.New("Invalid market price")
+	}
+
+	futureCashflows := totalCouponIncome(coupons, false) + bond.NominalValue
+
+	cumulativeReturn := futureCashflows / marketPrice - 1
+	totalReturn := compoundinterest.CalcAnnualizedReturn(cumulativeReturn, acquisitionDate, redemptionDate)
+
+	return totalReturn, nil
+}
+
+func calculateYield(b Bond, coupons []Coupon, marketPrice float64, acquisitionDate, redemptionDate time.Time) (float64, error) {
 	if len(coupons) == 0 {
-		return -1
+		return -1, errors.New("Failed to calculate the yield due to missing couponsa~Z``````````````````")
 	}
 
 	if !(coupons[0].CouponType == CouponType_COUPON_TYPE_FIX || coupons[0].CouponType == CouponType_COUPON_TYPE_CONSTANT) {
-		return -1
+		return -1, errors.New("Unable to calculate the YTM for non-fixed and non-constant coupons")
 	}
+	holdingPeriod := redemptionDate.Sub(acquisitionDate).Hours() / 24
 
-	yield := (b.NominalValue - marketPrice + totalCouponIncome(coupons)) * 365 / daysUntilRedemption(redemptionDate) * 100
-	return yield
+	yield := (b.NominalValue - marketPrice + totalCouponIncome(coupons, false)) / marketPrice * 365 / holdingPeriod * 100
+	return yield, nil
 }
-
-func daysUntilRedemption(redemptionDate time.Time) float64 {
-	return time.Until(redemptionDate).Hours() / 24
-}
-

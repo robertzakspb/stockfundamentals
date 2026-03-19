@@ -56,13 +56,16 @@ var (
 	}
 )
 
-func totalCouponIncome(coupons []Coupon) float64 {
+func totalCouponIncome(coupons []Coupon, includePastCoupons bool) float64 {
 	if len(coupons) == 0 {
 		return -1
 	}
 
 	totalCouponIncome := 0.0
 	for _, coupon := range coupons {
+		if includePastCoupons == false && coupon.CouponDate.Before(time.Now()) {
+			continue
+		}
 		totalCouponIncome += coupon.PerBondAmount
 	}
 	return totalCouponIncome
