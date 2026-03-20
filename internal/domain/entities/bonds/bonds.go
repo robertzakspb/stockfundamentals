@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/forex"
 	"github.com/google/uuid"
 )
@@ -41,8 +40,7 @@ type Bond struct {
 	RiskLevel               RiskLevel
 	BondType                BondType
 	CallOptionExerciseDate  time.Time
-	Bond                    bonds.Bond
-	Coupons                 []bonds.Coupon
+	Coupons                 Coupon
 	YieldToMaturity         float64
 }
 
