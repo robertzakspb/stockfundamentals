@@ -19,7 +19,7 @@ func (b Bond) YieldToCallOption(coupons []Coupon, marketPrice float64) (float64,
 		return -1, errors.New("Attempting to calculate a yield to call option for a bond without a call exercise date")
 	}
 
-	yield, err := calculateYield(b, coupons, marketPrice, time.Now(), b.MaturityDate)
+	yield, err := calculateYield(b, coupons, marketPrice, time.Now(), b.CallOptionExerciseDate)
 	if err != nil {
 		return -1, err
 	}
