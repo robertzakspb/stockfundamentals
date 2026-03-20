@@ -1,12 +1,18 @@
 package bondportfolio
 
 import (
+	"fmt"
+	"sync"
+
+	"github.com/compoundinvest/invest-core/quote/bondquote"
 	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
+	"opensource.tbank.ru/invest/invest-go/investgo"
 )
 
 func SaveBondPositionLot(lot bonds.BondLot) error {
@@ -67,24 +73,75 @@ func GetPositionLotsWithYtm() ([]bonds.BondLot, error) {
 		return []bonds.BondLot{}, err
 	}
 
+	config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
+	if err != nil {
+		logger.Log("Failed to initialize the configuration file", logger.ALERT)
+		return []bonds.BondLot{}, err
+	}
+
 	figis := []string{}
 	for _, bond := range lots {
 		figis = append(figis, bond.Figi)
 	}
 
-	quotes := bondquote.FetchQuotesForFigis(figis)
-	bonds := bondservice.GetBondsByFigi(figis)
-	coupons := bondservice.GetCouponsByFigi()
+	wg := sync.WaitGroup{}
 
-	for i, lot := range lots {
-		for _, bond := range bonds {
-			if bond.Figi == lot.Figi {
-				for _, quote := range quotes {
-					if quote.Figi == lot.Figi {
-						lots[i].YieldToMaturity = bond.YieldToMaturity()
-					}
-				}
+	var quotes []bondquote.TinkoffBondQuote
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		quotes, err = bondquote.FetchQuotesForFigis(figis, config)
+	}()
+
+	var bondList []bonds.Bond
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		bondList, err = bondservice.GetBondsByFigi(figis)
+	}()
+
+	var coupons []bonds.Coupon
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		coupons, err = bondservice.GetCouponsByFigis(figis)
+	}()
+
+	wg.Wait()
+
+	fmt.Println("The wait group is finished!")
+
+	//Populating bond coupons
+	for _, coupon := range coupons {
+		for _, b := range bondList {
+			if coupon.Figi == b.Figi {
+				b.Coupons = append(b.Coupons, coupon)
 			}
 		}
 	}
+
+	//Calculating each bond's yield to maturity
+	for _, quote := range quotes {
+		for i, b := range bondList {
+			if quote.Figi() == b.Figi {
+				ytm, err := b.CalcYieldToMaturity(b.Coupons, quote.QuoteAsPercentage())
+				if err != nil {
+					logger.Log(err.Error(), logger.ERROR)
+					continue
+				}
+				bondList[i].YieldToMaturity = ytm
+			}
+		}
+	}
+
+	//Populating the lots' bonds
+	for i, lot := range lots {
+		for _, b := range bondList {
+			if lot.Figi == b.Figi {
+				lots[i].Bond = b
+			}
+		}
+	}
+
+	return lots, nil
 }

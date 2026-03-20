@@ -15,6 +15,7 @@ type BondLot struct {
 	AccountId        uuid.UUID
 	Quantity         float64
 	PricePerUnit     float64
+	Bond             Bond
 }
 
 func (lot BondLot) PricePerUnitPercentage(nominalValue float64) float64 {

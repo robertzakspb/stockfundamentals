@@ -40,7 +40,7 @@ type Bond struct {
 	RiskLevel               RiskLevel
 	BondType                BondType
 	CallOptionExerciseDate  time.Time
-	Coupons                 Coupon
+	Coupons                 []Coupon
 	YieldToMaturity         float64
 }
 
