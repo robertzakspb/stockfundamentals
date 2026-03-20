@@ -201,3 +201,27 @@ func GetCouponsByFigi(figi string) ([]bonds.Coupon, error) {
 	}
 	return mappedCoupons, nil
 }
+
+func GetCouponsByFigis(figis []string) ([]bonds.Coupon, error) {
+	ydbFigis := []types.Value{}
+	for _, figi := range figis {
+		ydbFigis = append(ydbFigis, types.TextValue(figi))
+	}
+	filter := ydbfilter.YdbFilter{
+		YqlColumnName:  "figi",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: types.ListValue(ydbFigis...),
+	}
+
+	coupons, err := bondsdb.GetBondCoupons([]ydbfilter.YdbFilter{filter})
+	if err != nil {
+		return []bonds.Coupon{}, err
+	}
+
+	mappedCoupons := []bonds.Coupon{}
+	for _, coupon := range coupons {
+		mappedCoupon := mapCouponDbModelToDomain(coupon)
+		mappedCoupons = append(mappedCoupons, mappedCoupon)
+	}
+	return mappedCoupons, nil
+}

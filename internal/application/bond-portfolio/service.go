@@ -1,6 +1,7 @@
 package bondportfolio
 
 import (
+	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -57,4 +58,33 @@ func GetAccountTimeline() ([]TimeLineItem, error) {
 	}
 
 	return accountTimeline, nil
+}
+
+func GetPositionLotsWithYtm() ([]bonds.BondLot, error) {
+	//TODO: introduce a wait group to use routines for collection of bonds, lots, and quotes
+	lots, err := GetAllPositionLots()
+	if err != nil {
+		return []bonds.BondLot{}, err
+	}
+
+	figis := []string{}
+	for _, bond := range lots {
+		figis = append(figis, bond.Figi)
+	}
+
+	quotes := bondquote.FetchQuotesForFigis(figis)
+	bonds := bondservice.GetBondsByFigi(figis)
+	coupons := bondservice.GetCouponsByFigi()
+
+	for i, lot := range lots {
+		for _, bond := range bonds {
+			if bond.Figi == lot.Figi {
+				for _, quote := range quotes {
+					if quote.Figi == lot.Figi {
+						lots[i].YieldToMaturity = bond.YieldToMaturity()
+					}
+				}
+			}
+		}
+	}
 }
