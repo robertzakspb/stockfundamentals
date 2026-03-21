@@ -43,6 +43,7 @@ func mapTimeLineItemsToDtos(items []bondportfolio.TimeLineItem) []timeLineItemDt
 		dto := timeLineItemDto{
 			Timestamp: item.Timestamp,
 			EventName: item.EventName,
+			BondName: item.BondName,
 		}
 		dtos = append(dtos, dto)
 	}

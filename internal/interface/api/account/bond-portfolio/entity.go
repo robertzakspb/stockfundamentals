@@ -14,5 +14,6 @@ type bondPositionLotDto struct {
 
 type timeLineItemDto struct {
 	Timestamp time.Time `json:"timestamp"`
-	EventName string `json:"eventName"`
+	EventName string    `json:"eventName"`
+	BondName  string    `json:"bondName"`
 }

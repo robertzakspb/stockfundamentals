@@ -138,7 +138,7 @@ func GetAccountTimeline() ([]TimeLineItem, error) {
 		return []TimeLineItem{}, err
 	}
 
-	accountTimeline, err := generateTimeLineForLot(lots)
+	accountTimeline, err := generateTimeLineForLots(lots)
 	if err != nil {
 		return []TimeLineItem{}, err
 	}

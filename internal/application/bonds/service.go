@@ -48,7 +48,7 @@ func ImportAllBondsAndCoupons() error {
 		bond := mapTinkoffBondToBond(tinkoffBond)
 		validationErr := bond.Validate()
 		if validationErr != nil {
-			logger.Log(err.Error(), logger.WARNING)
+			logger.Log(validationErr.Error(), logger.WARNING)
 		}
 		dbBond := mapBondToDbBond(bond)
 		dbBonds = append(dbBonds, dbBond)
@@ -107,7 +107,7 @@ func importAllCoupons() error {
 			dbCoupon := mapCouponToDbModel(coupon)
 			dbCoupons = append(dbCoupons, dbCoupon)
 		}
-		logger.Log(strconv.Itoa(i)+" out of "+strconv.Itoa(len(bonds))+". Fetched coupons for figi "+bond.Figi, logger.INFORMATION)
+		logger.Log(strconv.Itoa(i+1)+" out of "+strconv.Itoa(len(bonds))+". Fetched coupons for figi "+bond.Figi, logger.INFORMATION)
 
 		<-throttle
 	}
@@ -184,6 +184,33 @@ func GetBondByIsin(isin string) (bonds.Bond, error) {
 	mappedBond := mapDbBondToBond(bondList[0])
 
 	return mappedBond, nil
+}
+
+func GetBondsByIsin(isins []string) ([]bonds.Bond, error) {
+	ydbIsins := []types.Value{}
+	for _, ydbIsin := range isins {
+		ydbIsins = append(ydbIsins, types.TextValue(ydbIsin))
+	}
+	filter := ydbfilter.YdbFilter{
+		YqlColumnName:  "isin",
+		Condition:      ydbfilter.Contains,
+		ConditionValue: types.ListValue(ydbIsins...),
+	}
+	bondList, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{filter})
+	if err != nil {
+		return []bonds.Bond{}, err
+	}
+	if len(bondList) == 0 {
+		return []bonds.Bond{}, errors.New("Found zero bonds with the specificed ISINs")
+	}
+
+	mappedBonds := []bonds.Bond{}
+	for _, bond := range bondList {
+		mappedBond := mapDbBondToBond(bond)
+		mappedBonds = append(mappedBonds, mappedBond)
+	}
+
+	return mappedBonds, nil
 }
 
 func GetCouponsByFigi(figi string) ([]bonds.Coupon, error) {
