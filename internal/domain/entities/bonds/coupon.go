@@ -1,8 +1,11 @@
 package bonds
 
 import (
+	"errors"
+	"sort"
 	"time"
 
+	timehelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/time-helpers"
 	"github.com/google/uuid"
 )
 
@@ -69,4 +72,47 @@ func totalCouponIncome(coupons []Coupon, includePastCoupons bool) float64 {
 		totalCouponIncome += coupon.PerBondAmount
 	}
 	return totalCouponIncome
+}
+
+// func accumulatedCouponIncome(bonds []*Bond) []Bond {
+// 	bonds[0].AccumulatedCouponIncome = 10
+// }
+
+func accumulatedCouponIncome(bond Bond) (float64, error) {
+	if len(bond.Coupons) == 0 {
+		return -1, errors.New("Attempting to calculate the accumulated coupon income with no coupons for " + bond.Figi)
+	}
+
+	currentCoupon, err := findCurrentCouponForBond(bond)
+	if err != nil {
+		return -1, err
+	}
+	if currentCoupon.CouponPeriod <= 0 {
+		return -1, errors.New("Coupon period for " + bond.Figi + " is invalid")
+	}
+	daysElapsedSinceCouponStartDate := int(time.Since(currentCoupon.CouponStartDate).Hours() / 24)
+	if daysElapsedSinceCouponStartDate == 0 {
+		return 0, nil
+	}
+
+	aci := currentCoupon.PerBondAmount / float64(daysElapsedSinceCouponStartDate)
+	return aci, nil
+}
+
+// TODO: Unit tests
+func findCurrentCouponForBond(bond Bond) (Coupon, error) {
+	if len(bond.Coupons) == 0 {
+		return Coupon{}, errors.New("Attempting to find a coupon with missing coupons for " + bond.Figi)
+	}
+	sort.Slice(bond.Coupons, func(i, j int) bool {
+		return bond.Coupons[i].CouponStartDate.Before(bond.Coupons[j].CouponStartDate)
+	})
+
+	for i, coupon := range bond.Coupons {
+		if (timehelpers.DateIsToday(coupon.CouponEndDate) || timehelpers.IsFutureDate(coupon.CouponEndDate)) && (timehelpers.IsPastDate(coupon.CouponStartDate) || timehelpers.DateIsToday(coupon.CouponStartDate)) {
+			return bond.Coupons[i], nil
+		}
+	}
+
+	return Coupon{}, errors.New("Failed to find the current coupon for " + bond.Figi)
 }
