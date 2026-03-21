@@ -1,6 +1,7 @@
 package bondsapi
 
 import (
+	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/bond-portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/google/uuid"
 )
@@ -33,4 +34,17 @@ func mapBondLotToDto(lot bonds.BondLot) bondPositionLotDto {
 	}
 
 	return dto
+}
+
+func mapTimeLineItemsToDtos(items []bondportfolio.TimeLineItem) []timeLineItemDto {
+	dtos := []timeLineItemDto{}
+
+	for _, item := range items {
+		dto := timeLineItemDto{
+			Timestamp: item.Timestamp,
+			EventName: item.EventName,
+		}
+		dtos = append(dtos, dto)
+	}
+	return dtos
 }

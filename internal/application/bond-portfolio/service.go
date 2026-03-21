@@ -32,6 +32,7 @@ func SaveBondPositionLot(lot bonds.BondLot) error {
 }
 
 func GetAllPositionLots() ([]bonds.BondLot, error) {
+	//FIXME: This UUID should eventually be moved to a separate account table
 	hardCodedAccountId, _ := uuid.Parse("129274f9-ee80-4e74-aa1c-fea578bac6e6")
 	filter := ydbfilter.YdbFilter{
 		YqlColumnName:  "account_id",
@@ -52,22 +53,7 @@ func GetAllPositionLots() ([]bonds.BondLot, error) {
 	return mappedLots, nil
 }
 
-func GetAccountTimeline() ([]TimeLineItem, error) {
-	lots, err := GetAllPositionLots()
-	if err != nil {
-		return []TimeLineItem{}, err
-	}
-
-	accountTimeline, err := generateTimeLineForLot(lots)
-	if err != nil {
-		return []TimeLineItem{}, err
-	}
-
-	return accountTimeline, nil
-}
-
 func GetPositionLotsWithYtm() ([]bonds.BondLot, error) {
-	//TODO: introduce a wait group to use routines for collection of bonds, lots, and quotes
 	lots, err := GetAllPositionLots()
 	if err != nil {
 		return []bonds.BondLot{}, err
@@ -144,4 +130,18 @@ func GetPositionLotsWithYtm() ([]bonds.BondLot, error) {
 	}
 
 	return lots, nil
+}
+
+func GetAccountTimeline() ([]TimeLineItem, error) {
+	lots, err := GetAllPositionLots()
+	if err != nil {
+		return []TimeLineItem{}, err
+	}
+
+	accountTimeline, err := generateTimeLineForLot(lots)
+	if err != nil {
+		return []TimeLineItem{}, err
+	}
+
+	return accountTimeline, nil
 }

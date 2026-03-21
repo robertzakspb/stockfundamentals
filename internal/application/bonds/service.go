@@ -46,6 +46,10 @@ func ImportAllBondsAndCoupons() error {
 			continue
 		}
 		bond := mapTinkoffBondToBond(tinkoffBond)
+		validationErr := bond.Validate()
+		if validationErr != nil {
+			logger.Log(err.Error(), logger.WARNING)
+		}
 		dbBond := mapBondToDbBond(bond)
 		dbBonds = append(dbBonds, dbBond)
 	}

@@ -12,8 +12,8 @@ import (
 )
 
 type TimeLineItem struct {
-	timestamp time.Time
-	eventName string
+	Timestamp time.Time
+	EventName string
 }
 
 func generateTimeLineForLot(lots []bonds.BondLot) ([]TimeLineItem, error) {
@@ -36,38 +36,38 @@ func generateTimeLineForLot(lots []bonds.BondLot) ([]TimeLineItem, error) {
 		}
 		if bond.RegistrationDate.IsZero() == false {
 			timeline = append(timeline, TimeLineItem{
-				timestamp: bond.RegistrationDate,
-				eventName: "Дата Регистрации Облигации",
+				Timestamp: bond.RegistrationDate,
+				EventName: "Дата Регистрации Облигации",
 			})
 		}
 		if bond.PlacementDate.IsZero() == false {
 			timeline = append(timeline, TimeLineItem{
-				timestamp: bond.PlacementDate,
-				eventName: "Дата Размещения Облигации",
+				Timestamp: bond.PlacementDate,
+				EventName: "Дата Размещения Облигации",
 			})
 		}
 		if bond.CallOptionExerciseDate.IsZero() == false {
 			timeline = append(timeline, TimeLineItem{
-				timestamp: bond.CallOptionExerciseDate,
-				eventName: "Дата Колл-опциона",
+				Timestamp: bond.CallOptionExerciseDate,
+				EventName: "Дата Колл-опциона",
 			})
 		}
 		timeline = append(timeline, TimeLineItem{
-			timestamp: bond.RegistrationDate,
-			eventName: "Дата Погашения Облигации. Возврат денежных средств: " + bond.Currency + fmt.Sprint(lot.TotalPrincipalRedemption(bond)),
+			Timestamp: bond.RegistrationDate,
+			EventName: "Дата Погашения Облигации. Возврат денежных средств: " + bond.Currency + fmt.Sprint(lot.TotalPrincipalRedemption(bond)),
 		})
 
 		coupons, _ := bondservice.GetCouponsByFigi(bond.Figi)
 		for _, coupon := range coupons {
 			timeline = append(timeline, TimeLineItem{
-				timestamp: coupon.CouponDate,
-				eventName: "Выплата купона: " + bond.Currency + fmt.Sprint(coupon.PerBondAmount) + " * " + fmt.Sprint(lot.Quantity) + " = " + bond.Currency + fmt.Sprint(lot.CouponPayoutForPosition(coupon)),
+				Timestamp: coupon.CouponDate,
+				EventName: "Выплата купона: " + bond.Currency + fmt.Sprint(coupon.PerBondAmount) + " * " + fmt.Sprint(lot.Quantity) + " = " + bond.Currency + fmt.Sprint(lot.CouponPayoutForPosition(coupon)),
 			})
 		}
 	}
 
 	sort.Slice(timeline, func(i, j int) bool {
-		return timeline[i].timestamp.After(timeline[j].timestamp)
+		return timeline[i].Timestamp.After(timeline[j].Timestamp)
 	})
 
 	return timeline, nil

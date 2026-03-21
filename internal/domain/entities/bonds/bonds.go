@@ -88,7 +88,7 @@ var (
 	}
 )
 
-func (b Bond) validate() error {
+func (b Bond) Validate() error {
 	if b.Id == uuid.Nil {
 		return errors.New("Nil Id in the bond")
 	}

@@ -4,23 +4,13 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"time"
 
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/bond-portfolio"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/gin-gonic/gin"
 )
-
-type bondPositionLotDto struct {
-	Figi             string    `json:"figi"`
-	Isin             string    `json:"isin"`
-	OpeningDate      time.Time `json:"openingDate"`
-	ModificationDate time.Time `json:"modificationDate"`
-	AccountId        string    `json:"accountId"`
-	Quantity         float64   `json:"quantity"`
-	PricePerUnit     float64   `json:"pricePerUnit"`
-}
 
 func AddBondPositionLotToAccount(c *gin.Context) {
 	bodyReader := c.Request.Body
@@ -53,7 +43,31 @@ func AddBondPositionLotToAccount(c *gin.Context) {
 }
 
 func GetAccountPositionLots(c *gin.Context) {
-	lots, err := bondportfolio.GetAllPositionLots()
+	queryParameterss := c.Request.URL.Query()
+
+	withYTM := false
+	for key, param := range queryParameterss {
+		if key == "withYTM" {
+			if len(param) == 0 {
+				continue
+			}
+			if param[0] == "true" {
+				withYTM = true
+			}
+		}
+	}
+
+	lots := []bonds.BondLot{}
+	var err error
+	if withYTM {
+		lots, err = bondportfolio.GetPositionLotsWithYtm()
+	} else {
+		lots, err = bondportfolio.GetAllPositionLots()
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	mappedLots := []bondPositionLotDto{}
 	for _, lot := range lots {
@@ -61,13 +75,16 @@ func GetAccountPositionLots(c *gin.Context) {
 		mappedLots = append(mappedLots, mappedLot)
 	}
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
-	} else {
-		c.JSON(http.StatusOK, mappedLots)
-	}
+	c.JSON(http.StatusOK, mappedLots)
 }
 
 func GetAccountBondTimeline(c *gin.Context) {
-	
+	items, err := bondportfolio.GetAccountTimeline()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	dtos := mapTimeLineItemsToDtos(items)
+	c.JSON(http.StatusOK, dtos)
 }
