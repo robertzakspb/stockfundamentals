@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	//bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/bond-portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/dataseed"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/jobs"
 	api_security "github.com/compoundinvest/stockfundamentals/internal/interface/api/security"
@@ -20,7 +21,7 @@ func main() {
 
 	router.Use(cors.Default())
 	addEndpoints(router)
-
+	//bondportfolio.CalcACIForAllLots()
 	router.Run("localhost:8080")
 }
 

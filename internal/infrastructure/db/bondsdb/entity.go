@@ -76,12 +76,14 @@ type CouponDbModel struct {
 }
 
 type BondPositionLotDb struct {
-	Id               uuid.UUID `sql:"id"`
-	Figi             string    `sql:"figi"`
-	Isin             string    `sql:"isin"`
-	OpeningDate      time.Time `sql:"opening_date"`
-	ModificationDate time.Time `sql:"modification_date"`
-	AccountId        uuid.UUID `sql:"account_id"`
-	Quantity         float64   `sql:"quantity"`
-	PricePerUnit     float64   `sql:"price_per_unit"`
+	Id                      uuid.UUID `sql:"id"`
+	Figi                    string    `sql:"figi"`
+	Isin                    string    `sql:"isin"`
+	OpeningDate             time.Time `sql:"opening_date"`
+	ModificationDate        time.Time `sql:"modification_date"`
+	AccountId               uuid.UUID `sql:"account_id"`
+	Quantity                float64   `sql:"quantity"`
+	PricePerUnit            float64   `sql:"price_per_unit"`
+	PricePerUnitInRUB       float64   `sql:"price_per_unit_rub"`
+	AccumulatedCouponIncome float64   `sql:"accumulated_coupon_income"`
 }

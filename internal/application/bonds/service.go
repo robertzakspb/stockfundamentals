@@ -256,3 +256,32 @@ func GetCouponsByFigis(figis []string) ([]bonds.Coupon, error) {
 	}
 	return mappedCoupons, nil
 }
+
+func PopulateBondCoupons(bondList []bonds.Bond) []bonds.Bond {
+	figis := []string{}
+	for _, bond := range bondList {
+		figis = append(figis, bond.Figi)
+	}
+	coupons, err := GetCouponsByFigis(figis)
+	if err != nil {
+		logger.Log("Failed to fetch coupons for the provided bonds", logger.ERROR)
+		return bondList
+	}
+	bondsWithCoupons := matchCouponsWithBonds(coupons, &bondList)
+	return *bondsWithCoupons
+}
+
+func matchCouponsWithBonds(coupons []bonds.Coupon, bonds *[]bonds.Bond) *[]bonds.Bond {
+	if bonds == nil {
+		logger.Log("Nil link for bonds", logger.ERROR)
+		return nil
+	}
+	for _, coupon := range coupons {
+		for _, b := range *bonds {
+			if coupon.Figi == b.Figi {
+				b.Coupons = append(b.Coupons, coupon)
+			}
+		}
+	}
+	return bonds
+}

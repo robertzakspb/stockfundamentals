@@ -74,11 +74,7 @@ func totalCouponIncome(coupons []Coupon, includePastCoupons bool) float64 {
 	return totalCouponIncome
 }
 
-// func accumulatedCouponIncome(bonds []*Bond) []Bond {
-// 	bonds[0].AccumulatedCouponIncome = 10
-// }
-
-func accumulatedCouponIncome(bond Bond) (float64, error) {
+func AccumulatedCouponIncome(bond Bond, toDate time.Time) (float64, error) {
 	if len(bond.Coupons) == 0 {
 		return -1, errors.New("Attempting to calculate the accumulated coupon income with no coupons for " + bond.Figi)
 	}
@@ -90,12 +86,13 @@ func accumulatedCouponIncome(bond Bond) (float64, error) {
 	if currentCoupon.CouponPeriod <= 0 {
 		return -1, errors.New("Coupon period for " + bond.Figi + " is invalid")
 	}
-	daysElapsedSinceCouponStartDate := int(time.Since(currentCoupon.CouponStartDate).Hours() / 24)
+	daysElapsedSinceCouponStartDate := int(toDate.Sub(currentCoupon.CouponStartDate).Hours() / 24)
 	if daysElapsedSinceCouponStartDate == 0 {
 		return 0, nil
 	}
 
-	aci := currentCoupon.PerBondAmount / float64(daysElapsedSinceCouponStartDate)
+	couponAmountPerDay := currentCoupon.PerBondAmount / currentCoupon.CouponEndDate.Sub(currentCoupon.CouponStartDate).Hours() / 24
+	aci := couponAmountPerDay * float64(daysElapsedSinceCouponStartDate)
 	return aci, nil
 }
 
