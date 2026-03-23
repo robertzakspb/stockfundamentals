@@ -43,10 +43,10 @@ func AddBondPositionLotToAccount(c *gin.Context) {
 }
 
 func GetAccountPositionLots(c *gin.Context) {
-	queryParameterss := c.Request.URL.Query()
+	queryParameters := c.Request.URL.Query()
 
 	withYTM := false
-	for key, param := range queryParameterss {
+	for key, param := range queryParameters {
 		if key == "withYTM" {
 			if len(param) == 0 {
 				continue

@@ -191,6 +191,8 @@ func createBondPositionTable(ctx context.Context, db *ydb.Driver, c table.Client
 				options.WithColumn("account_id", types.TypeUUID),
 				options.WithColumn("quantity", types.TypeDouble),
 				options.WithColumn("price_per_unit", types.TypeDouble),
+				options.WithColumn("price_per_unit_rub", types.TypeDouble),
+				options.WithColumn("accumulated_coupon_income", types.TypeDouble),
 				options.WithPrimaryKeyColumn("id"),
 			)
 			if err != nil {

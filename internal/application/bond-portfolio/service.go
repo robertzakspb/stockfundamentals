@@ -121,13 +121,7 @@ func GetPositionLotsWithYtm() ([]bonds.BondLot, error) {
 	}
 
 	//Populating the lots' bonds
-	for i, lot := range lots {
-		for _, b := range bondList {
-			if lot.Figi == b.Figi {
-				lots[i].Bond = b
-			}
-		}
-	}
+	lots = matchLotsWithBonds(lots, bondList)
 
 	return lots, nil
 }
@@ -144,4 +138,48 @@ func GetAccountTimeline() ([]TimeLineItem, error) {
 	}
 
 	return accountTimeline, nil
+}
+
+func CalcACIForAllLots() {
+	lots, _ := GetAllPositionLots()
+
+	for _, lot := range lots {
+		aci, err := CalcAccumulatedCouponIncomeForLot(lot)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println("ACI for", lot.Figi, aci)
+	}
+}
+
+func CalcAccumulatedCouponIncomeForLot(lot bonds.BondLot) (float64, error) {
+	aciOnOpeningDate, err := bonds.AccumulatedCouponIncome(lot.Bond, lot.OpeningDate)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("Lot's ACI: ", aciOnOpeningDate)
+
+	currentAci, err := bonds.AccumulatedCouponIncome(lot.Bond, lot.OpeningDate)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("Bond's current ACI: ", currentAci)
+
+	return aciOnOpeningDate, nil
+}
+
+func matchLotsWithBonds(lots []bonds.BondLot, bonds []bonds.Bond) []bonds.BondLot {
+	if bonds == nil {
+		return nil
+	}
+
+	for i, lot := range lots {
+		for _, b := range bonds {
+			if lot.Figi == b.Figi {
+				lots[i].Bond = b
+			}
+		}
+	}
+
+	return lots
 }

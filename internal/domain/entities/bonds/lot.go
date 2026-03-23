@@ -7,15 +7,17 @@ import (
 )
 
 type BondLot struct {
-	Id               uuid.UUID
-	Figi             string
-	Isin             string
-	OpeningDate      time.Time
-	ModificationDate time.Time
-	AccountId        uuid.UUID
-	Quantity         float64
-	PricePerUnit     float64
-	Bond             Bond
+	Id                      uuid.UUID
+	Figi                    string
+	Isin                    string
+	OpeningDate             time.Time
+	ModificationDate        time.Time
+	AccountId               uuid.UUID
+	Quantity                float64
+	PricePerUnit            float64
+	PricePerUnitInRUB       float64
+	AccumulatedCouponIncome float64
+	Bond                    Bond
 }
 
 func (lot BondLot) PricePerUnitPercentage(nominalValue float64) float64 {
