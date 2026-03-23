@@ -34,3 +34,11 @@ func IsPastDate(timestamp time.Time) bool {
 
 	return isPastDate
 }
+
+func IsTodayOrFutureDate(timestamp time.Time) bool {
+	return IsFutureDate(timestamp) || DateIsToday(timestamp)
+}
+
+func IsTodayOrPastDate(timestamp time.Time) bool {
+	return IsPastDate(timestamp) || DateIsToday(timestamp)
+}

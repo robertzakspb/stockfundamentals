@@ -53,12 +53,7 @@ func GetAllPositionLots() ([]bonds.BondLot, error) {
 	return mappedLots, nil
 }
 
-func GetPositionLotsWithYtm() ([]bonds.BondLot, error) {
-	lots, err := GetAllPositionLots()
-	if err != nil {
-		return []bonds.BondLot{}, err
-	}
-
+func CalculateYtmForLots(lots []bonds.BondLot) ([]bonds.BondLot, error) {
 	config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
 		logger.Log("Failed to initialize the configuration file", logger.ALERT)
@@ -73,56 +68,35 @@ func GetPositionLotsWithYtm() ([]bonds.BondLot, error) {
 	wg := sync.WaitGroup{}
 
 	var quotes []bondquote.TinkoffBondQuote
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		defer wg.Done()
 		quotes, err = bondquote.FetchQuotesForFigis(figis, config)
-	}()
+	})
 
 	var bondList []bonds.Bond
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		defer wg.Done()
 		bondList, err = bondservice.GetBondsByFigi(figis)
-	}()
-
-	var coupons []bonds.Coupon
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		coupons, err = bondservice.GetCouponsByFigis(figis)
-	}()
-
+	})
 	wg.Wait()
-
 	fmt.Println("The wait group is finished!")
 
-	//Populating bond coupons
-	for _, coupon := range coupons {
-		for _, b := range bondList {
-			if coupon.Figi == b.Figi {
-				b.Coupons = append(b.Coupons, coupon)
-			}
-		}
-	}
+	bondList = bondservice.PopulateBondCoupons(bondList)
 
-	//Calculating each bond's yield to maturity
-	for _, quote := range quotes {
-		for i, b := range bondList {
-			if quote.Figi() == b.Figi {
-				ytm, err := b.CalcYieldToMaturity(b.Coupons, quote.QuoteAsPercentage())
-				if err != nil {
-					logger.Log(err.Error(), logger.ERROR)
-					continue
-				}
-				bondList[i].YieldToMaturity = ytm
-			}
-		}
-	}
+	bondList = bondservice.CalculateYtmForBonds(bondList, quotes)
 
-	//Populating the lots' bonds
 	lots = matchLotsWithBonds(lots, bondList)
 
+	return lots, nil
+}
+
+func PopulateLotsWithBonds(lots []bonds.BondLot) ([]bonds.BondLot, error) {
+	figis := GetLotFigis(lots)
+	bondList, err := bondservice.GetBondsByFigi(figis)
+	if err != nil {
+		return []bonds.BondLot{}, err
+	}
+	lots = matchLotsWithBonds(lots, bondList)
 	return lots, nil
 }
 
@@ -140,8 +114,20 @@ func GetAccountTimeline() ([]TimeLineItem, error) {
 	return accountTimeline, nil
 }
 
-func CalcACIForAllLots() {
-	lots, _ := GetAllPositionLots()
+// TODO: Complete this
+func GetLotsWithAci() ([]bonds.BondLot, error) {
+	lots, err := GetAllPositionLots()
+	if err != nil {
+		return []bonds.BondLot{}, err
+	}
+
+	lots, err = PopulateLotsWithBonds(lots)
+	if err != nil {
+		return []bonds.BondLot{}, err
+	}
+
+	bondsWithCoupons := bondservice.PopulateBondCoupons(GetLotBonds(lots))
+	lots = matchLotsWithBonds(lots, bondsWithCoupons)
 
 	for _, lot := range lots {
 		aci, err := CalcAccumulatedCouponIncomeForLot(lot)
@@ -150,6 +136,8 @@ func CalcACIForAllLots() {
 		}
 		fmt.Println("ACI for", lot.Figi, aci)
 	}
+
+	return lots, nil
 }
 
 func CalcAccumulatedCouponIncomeForLot(lot bonds.BondLot) (float64, error) {
@@ -166,20 +154,4 @@ func CalcAccumulatedCouponIncomeForLot(lot bonds.BondLot) (float64, error) {
 	fmt.Println("Bond's current ACI: ", currentAci)
 
 	return aciOnOpeningDate, nil
-}
-
-func matchLotsWithBonds(lots []bonds.BondLot, bonds []bonds.Bond) []bonds.BondLot {
-	if bonds == nil {
-		return nil
-	}
-
-	for i, lot := range lots {
-		for _, b := range bonds {
-			if lot.Figi == b.Figi {
-				lots[i].Bond = b
-			}
-		}
-	}
-
-	return lots
 }

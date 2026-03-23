@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/compoundinvest/invest-core/quote/bondquote"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -267,11 +268,11 @@ func PopulateBondCoupons(bondList []bonds.Bond) []bonds.Bond {
 		logger.Log("Failed to fetch coupons for the provided bonds", logger.ERROR)
 		return bondList
 	}
-	bondsWithCoupons := matchCouponsWithBonds(coupons, &bondList)
+	bondsWithCoupons := MatchCouponsWithBonds(coupons, &bondList)
 	return *bondsWithCoupons
 }
 
-func matchCouponsWithBonds(coupons []bonds.Coupon, bonds *[]bonds.Bond) *[]bonds.Bond {
+func MatchCouponsWithBonds(coupons []bonds.Coupon, bonds *[]bonds.Bond) *[]bonds.Bond {
 	if bonds == nil {
 		logger.Log("Nil link for bonds", logger.ERROR)
 		return nil
@@ -284,4 +285,20 @@ func matchCouponsWithBonds(coupons []bonds.Coupon, bonds *[]bonds.Bond) *[]bonds
 		}
 	}
 	return bonds
+}
+
+func CalculateYtmForBonds(bondList []bonds.Bond, quotes []bondquote.TinkoffBondQuote) []bonds.Bond {
+	for _, quote := range quotes {
+		for i, b := range bondList {
+			if quote.Figi() == b.Figi {
+				ytm, err := b.CalcYieldToMaturity(b.Coupons, quote.QuoteAsPercentage())
+				if err != nil {
+					logger.Log(err.Error(), logger.ERROR)
+					continue
+				}
+				bondList[i].YieldToMaturity = ytm
+			}
+		}
+	}
+	return bondList
 }

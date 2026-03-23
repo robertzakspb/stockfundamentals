@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/bond-portfolio"
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/gin-gonic/gin"
@@ -57,12 +56,14 @@ func GetAccountPositionLots(c *gin.Context) {
 		}
 	}
 
-	lots := []bonds.BondLot{}
-	var err error
+	lots, err := bondportfolio.GetAllPositionLots()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	if withYTM {
-		lots, err = bondportfolio.GetPositionLotsWithYtm()
-	} else {
-		lots, err = bondportfolio.GetAllPositionLots()
+		lots, err = bondportfolio.CalculateYtmForLots(lots)
 	}
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
