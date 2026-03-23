@@ -2,6 +2,7 @@ package appdividend
 
 import (
 	"errors"
+	"sort"
 	"strconv"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
@@ -76,6 +77,10 @@ func populateYieldsForForecasts(forecasts []dividend.DividendForecast) []dividen
 			forecasts[i].Yield = forecasts[i].ExpectedDPS / quote.Quote()
 		}
 	}
+
+	sort.Slice(forecasts, func(i, j int) bool {
+		return forecasts[i].Yield > (forecasts[j].Yield)
+	})
 
 	return forecasts
 }
