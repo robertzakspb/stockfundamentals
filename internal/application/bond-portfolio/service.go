@@ -3,6 +3,7 @@ package bondportfolio
 import (
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/compoundinvest/invest-core/quote/bondquote"
 	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bonds"
@@ -147,7 +148,7 @@ func CalcAccumulatedCouponIncomeForLot(lot bonds.BondLot) (float64, error) {
 	}
 	fmt.Println("Lot's ACI: ", aciOnOpeningDate)
 
-	currentAci, err := bonds.AccumulatedCouponIncome(lot.Bond, lot.OpeningDate)
+	currentAci, err := bonds.AccumulatedCouponIncome(lot.Bond, time.Now())
 	if err != nil {
 		fmt.Println(err)
 	}

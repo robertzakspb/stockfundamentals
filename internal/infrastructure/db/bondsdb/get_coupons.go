@@ -78,7 +78,8 @@ func makeGetCouponsByFigiQuery(filters []ydbfilter.YdbFilter) string {
 							per_bond_amount,
 							coupon_type,
 							coupon_start_date,
-							coupon_end_date
+							coupon_end_date,
+							coupon_period
 						FROM
 							%s
 						%s

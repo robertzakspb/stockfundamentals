@@ -5,7 +5,6 @@ import (
 	"sort"
 	"time"
 
-	timehelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/time-helpers"
 	"github.com/google/uuid"
 )
 
@@ -91,7 +90,7 @@ func AccumulatedCouponIncome(bond Bond, toDate time.Time) (float64, error) {
 		return 0, nil
 	}
 
-	couponAmountPerDay := currentCoupon.PerBondAmount / currentCoupon.CouponEndDate.Sub(currentCoupon.CouponStartDate).Hours() / 24
+	couponAmountPerDay := currentCoupon.PerBondAmount / (currentCoupon.CouponEndDate.Sub(currentCoupon.CouponStartDate).Hours() / 24)
 	aci := couponAmountPerDay * float64(daysElapsedSinceCouponStartDate)
 	return aci, nil
 }
@@ -106,7 +105,7 @@ func findCurrentCouponForBond(bond Bond) (Coupon, error) {
 	})
 
 	for i, coupon := range bond.Coupons {
-		if (timehelpers.DateIsToday(coupon.CouponEndDate) || timehelpers.IsFutureDate(coupon.CouponEndDate)) && (timehelpers.IsPastDate(coupon.CouponStartDate) || timehelpers.DateIsToday(coupon.CouponStartDate)) {
+		if time.Now().After(coupon.CouponStartDate) && time.Now().Before(coupon.CouponEndDate) {
 			return bond.Coupons[i], nil
 		}
 	}

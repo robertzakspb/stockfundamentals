@@ -148,7 +148,7 @@ func GetBondsByFigi(figis []string) ([]bonds.Bond, error) {
 
 	filter := ydbfilter.YdbFilter{
 		YqlColumnName:  "figi",
-		Condition:      ydbfilter.Equal,
+		Condition:      ydbfilter.Contains,
 		ConditionValue: types.ListValue(ydbFigis...),
 	}
 	bondList, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{filter})
@@ -241,7 +241,7 @@ func GetCouponsByFigis(figis []string) ([]bonds.Coupon, error) {
 	}
 	filter := ydbfilter.YdbFilter{
 		YqlColumnName:  "figi",
-		Condition:      ydbfilter.Equal,
+		Condition:      ydbfilter.Contains,
 		ConditionValue: types.ListValue(ydbFigis...),
 	}
 
@@ -268,19 +268,15 @@ func PopulateBondCoupons(bondList []bonds.Bond) []bonds.Bond {
 		logger.Log("Failed to fetch coupons for the provided bonds", logger.ERROR)
 		return bondList
 	}
-	bondsWithCoupons := MatchCouponsWithBonds(coupons, &bondList)
-	return *bondsWithCoupons
+	bondsWithCoupons := MatchCouponsWithBonds(coupons, bondList)
+	return bondsWithCoupons
 }
 
-func MatchCouponsWithBonds(coupons []bonds.Coupon, bonds *[]bonds.Bond) *[]bonds.Bond {
-	if bonds == nil {
-		logger.Log("Nil link for bonds", logger.ERROR)
-		return nil
-	}
+func MatchCouponsWithBonds(coupons []bonds.Coupon, bonds []bonds.Bond) []bonds.Bond {
 	for _, coupon := range coupons {
-		for _, b := range *bonds {
+		for i, b := range bonds {
 			if coupon.Figi == b.Figi {
-				b.Coupons = append(b.Coupons, coupon)
+				bonds[i].Coupons = append(b.Coupons, coupon)
 			}
 		}
 	}

@@ -1,44 +1,44 @@
 package timehelpers
 
-import "time"
+// import "time"
 
-func IsFutureDate(timestamp time.Time) bool {
-	currentYear, currentMonth, currentDay := time.Now().Date()
-	targetYear, targetMonth, targetDay := timestamp.Date()
+// func IsFutureDate(timestamp time.Time) bool {
+// 	currentYear, currentMonth, currentDay := time.Now().Date()
+// 	targetYear, targetMonth, targetDay := timestamp.Date()
 
-	isFutureDate := targetYear >= currentYear &&
-		targetMonth >= currentMonth &&
-		targetDay > currentDay
+// 	isFutureDate := targetYear >= currentYear &&
+// 		targetMonth >= currentMonth &&
+// 		targetDay > currentDay
 
-	return isFutureDate
-}
+// 	return isFutureDate
+// }
 
-func DateIsToday(timestamp time.Time) bool {
-	currentYear, currentMonth, currentDay := time.Now().Date()
-	targetYear, targetMonth, targetDay := timestamp.Date()
+// func DateIsToday(timestamp time.Time) bool {
+// 	currentYear, currentMonth, currentDay := time.Now().Date()
+// 	targetYear, targetMonth, targetDay := timestamp.Date()
 
-	isToday := targetYear == currentYear &&
-		targetMonth == currentMonth &&
-		targetDay == currentDay
+// 	isToday := targetYear == currentYear &&
+// 		targetMonth == currentMonth &&
+// 		targetDay == currentDay
 
-	return isToday
-}
+// 	return isToday
+// }
 
-func IsPastDate(timestamp time.Time) bool {
-	currentYear, currentMonth, currentDay := time.Now().Date()
-	targetYear, targetMonth, targetDay := timestamp.Date()
+// func IsPastDate(timestamp time.Time) bool {
+// 	currentYear, currentMonth, currentDay := time.Now().Date()
+// 	targetYear, targetMonth, targetDay := timestamp.Date()
 
-	isPastDate := targetYear <= currentYear &&
-		targetMonth <= currentMonth &&
-		targetDay < currentDay
+// 	isPastDate := targetYear <= currentYear &&
+// 		targetMonth <= currentMonth &&
+// 		targetDay < currentDay
 
-	return isPastDate
-}
+// 	return isPastDate
+// }
 
-func IsTodayOrFutureDate(timestamp time.Time) bool {
-	return IsFutureDate(timestamp) || DateIsToday(timestamp)
-}
+// func IsTodayOrFutureDate(timestamp time.Time) bool {
+// 	return IsFutureDate(timestamp) || DateIsToday(timestamp)
+// }
 
-func IsTodayOrPastDate(timestamp time.Time) bool {
-	return IsPastDate(timestamp) || DateIsToday(timestamp)
-}
+// func IsTodayOrPastDate(timestamp time.Time) bool {
+// 	return IsPastDate(timestamp) || DateIsToday(timestamp)
+// }
