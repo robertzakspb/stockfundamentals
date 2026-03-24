@@ -2,6 +2,7 @@ package bonds
 
 import (
 	"errors"
+	"math"
 	"sort"
 	"time"
 
@@ -85,13 +86,16 @@ func AccumulatedCouponIncome(bond Bond, toDate time.Time) (float64, error) {
 	if currentCoupon.CouponPeriod <= 0 {
 		return -1, errors.New("Coupon period for " + bond.Figi + " is invalid")
 	}
-	daysElapsedSinceCouponStartDate := int(toDate.Sub(currentCoupon.CouponStartDate).Hours() / 24)
+	daysFractional := toDate.Sub(currentCoupon.CouponStartDate).Hours() / 24
+	roundedDays := math.Trunc(daysFractional) + 1
+	daysElapsedSinceCouponStartDate := int(roundedDays)
 	if daysElapsedSinceCouponStartDate == 0 {
 		return 0, nil
 	}
 
 	couponAmountPerDay := currentCoupon.PerBondAmount / (currentCoupon.CouponEndDate.Sub(currentCoupon.CouponStartDate).Hours() / 24)
 	aci := couponAmountPerDay * float64(daysElapsedSinceCouponStartDate)
+	//TODO: Add the exchange rate conversion
 	return aci, nil
 }
 
