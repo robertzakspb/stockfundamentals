@@ -86,7 +86,7 @@ func AccumulatedCouponIncome(bond Bond, toDate time.Time) (float64, error) {
 		return -1, errors.New("Coupon period for " + bond.Figi + " is invalid")
 	}
 	daysFractional := toDate.Sub(currentCoupon.CouponStartDate).Hours() / 24
-	roundedDays := math.Trunc(daysFractional)+1
+	roundedDays := math.Trunc(daysFractional) + 1
 	daysElapsedSinceCouponStartDate := int(roundedDays)
 	if daysElapsedSinceCouponStartDate == 0 {
 		return 0, nil
@@ -94,12 +94,15 @@ func AccumulatedCouponIncome(bond Bond, toDate time.Time) (float64, error) {
 
 	couponAmountPerDay := currentCoupon.PerBondAmount / float64(currentCoupon.CouponPeriod)
 	aci := couponAmountPerDay * float64(daysElapsedSinceCouponStartDate)
-	roundedAci := math.Round(aci*100)/100
+	roundedAci := math.Round(aci*100) / 100
 
 	//TODO: Dynamically handle this based on whether or not the bond pays out coupons in $
-	aciInRub := roundedAci * 81.8763
+	if bond.Currency != bond.NominalCurrency {
+		exchangeRate := 81.8763 //FIXME
+		roundedAci = roundedAci * exchangeRate
+	}
 
-	return aciInRub, nil
+	return roundedAci, nil
 }
 
 // TODO: Unit tests
