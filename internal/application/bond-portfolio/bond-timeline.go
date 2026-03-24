@@ -15,6 +15,8 @@ type TimeLineItem struct {
 	Timestamp time.Time
 	EventName string
 	BondName  string
+	Amount    float64
+	Currency  string
 }
 
 func generateTimeLineForLots(lots []bonds.BondLot) ([]TimeLineItem, error) {
@@ -55,6 +57,16 @@ func generateTimeLineForLots(lots []bonds.BondLot) ([]TimeLineItem, error) {
 		logger.Log("Found zero bonds for the provided lots", logger.ERROR)
 	}
 
+	timeline := makeTimeLine(lots, bondList)
+
+	sort.Slice(timeline, func(i, j int) bool {
+		return timeline[i].Timestamp.Before(timeline[j].Timestamp)
+	})
+
+	return timeline, nil
+}
+
+func makeTimeLine(lots []bonds.BondLot, bondList []bonds.Bond) []TimeLineItem {
 	timeline := []TimeLineItem{}
 	for _, lot := range lots {
 		bond, err := findBondByFigiOrIsin(lot, bondList)
@@ -87,6 +99,8 @@ func generateTimeLineForLots(lots []bonds.BondLot) ([]TimeLineItem, error) {
 			Timestamp: bond.MaturityDate,
 			EventName: "Дата Погашения Облигации. Возврат денежных средств: " + bond.NominalCurrency + fmt.Sprint(lot.TotalPrincipalRedemption(bond)),
 			BondName:  bond.Name,
+			Amount:    bond.NominalValue * lot.Quantity,
+			Currency:  bond.NominalCurrency,
 		})
 
 		coupons, _ := bondservice.GetCouponsByFigi(bond.Figi)
@@ -95,15 +109,12 @@ func generateTimeLineForLots(lots []bonds.BondLot) ([]TimeLineItem, error) {
 				Timestamp: coupon.CouponDate,
 				EventName: "Выплата купона: " + bond.Currency + fmt.Sprint(coupon.PerBondAmount) + " * " + fmt.Sprint(lot.Quantity) + " = " + bond.Currency + fmt.Sprint(lot.CouponPayoutForPosition(coupon)),
 				BondName:  bond.Name,
+				Amount:    coupon.PerBondAmount,
+				Currency:  bond.NominalCurrency,
 			})
 		}
 	}
-
-	sort.Slice(timeline, func(i, j int) bool {
-		return timeline[i].Timestamp.Before(timeline[j].Timestamp)
-	})
-
-	return timeline, nil
+	return timeline
 }
 
 func findBondByFigiOrIsin(lot bonds.BondLot, bondList []bonds.Bond) (bonds.Bond, error) {

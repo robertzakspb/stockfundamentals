@@ -59,7 +59,7 @@ var (
 	}
 )
 
-func totalCouponIncome(coupons []Coupon, includePastCoupons bool) float64 {
+func TotalCouponIncome(coupons []Coupon, includePastCoupons bool) float64 {
 	if len(coupons) == 0 {
 		return -1
 	}

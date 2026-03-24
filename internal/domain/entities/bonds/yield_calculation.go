@@ -38,7 +38,7 @@ func calculateYield(b Bond, coupons []Coupon, marketPrice float64, acquisitionDa
 	holdingPeriod := redemptionDate.Sub(acquisitionDate).Hours() / 24
 
 	//Standard formula for the calculation of bond yields
-	yield := (b.NominalValue - marketPrice + totalCouponIncome(coupons, false)) / marketPrice * 365 / holdingPeriod * 100
+	yield := (b.NominalValue - marketPrice + TotalCouponIncome(coupons, false)) / marketPrice * 365 / holdingPeriod * 100
 	return yield, nil
 }
 
