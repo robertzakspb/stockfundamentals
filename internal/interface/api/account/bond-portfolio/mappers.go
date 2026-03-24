@@ -1,4 +1,4 @@
-package bondsapi
+package bondportfolioapi
 
 import (
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/bond-portfolio"

@@ -3,7 +3,7 @@ package bondportfolio
 import (
 	"fmt"
 	"sync"
-	"time"
+
 
 	"github.com/compoundinvest/invest-core/quote/bondquote"
 	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bonds"
@@ -115,44 +115,16 @@ func GetAccountTimeline() ([]TimeLineItem, error) {
 	return accountTimeline, nil
 }
 
-// TODO: Complete this
-func GetLotsWithAci() ([]bonds.BondLot, error) {
-	lots, err := GetAllPositionLots()
-	if err != nil {
-		return []bonds.BondLot{}, err
-	}
+// This function assumes that the lots' bonds have already been populated with coupons
+// func CalculateAciForLots(lots []bonds.BondLot) ([]bonds.BondLot, error) {
+// 	for i, lot := range lots {
+// 		aci, err := CalcAccumulatedCouponIncomeForLot(lot)
+// 		if err != nil {
+// 			logger.Log(err.Error(), logger.ERROR)
+// 		}
+// 		lots[i].AccumulatedCouponIncome = aci
+// 	}
 
-	lots, err = PopulateLotsWithBonds(lots)
-	if err != nil {
-		return []bonds.BondLot{}, err
-	}
+// 	return lots, nil
+// }
 
-	bondsWithCoupons := bondservice.PopulateBondCoupons(GetLotBonds(lots))
-	lots = matchLotsWithBonds(lots, bondsWithCoupons)
-
-	for _, lot := range lots {
-		aci, err := CalcAccumulatedCouponIncomeForLot(lot)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println("ACI for", lot.Figi, aci)
-	}
-
-	return lots, nil
-}
-
-func CalcAccumulatedCouponIncomeForLot(lot bonds.BondLot) (float64, error) {
-	aciOnOpeningDate, err := bonds.AccumulatedCouponIncome(lot.Bond, lot.OpeningDate)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Lot's ACI: ", aciOnOpeningDate)
-
-	currentAci, err := bonds.AccumulatedCouponIncome(lot.Bond, time.Now())
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Bond's current ACI: ", currentAci)
-
-	return aciOnOpeningDate, nil
-}

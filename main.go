@@ -3,13 +3,13 @@ package main
 import (
 	"net/http"
 
-	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/bond-portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/dataseed"
+	bondsapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/jobs"
 	api_security "github.com/compoundinvest/stockfundamentals/internal/interface/api/security"
 	timeseries "github.com/compoundinvest/stockfundamentals/internal/interface/api/time-series"
 
-	bondsapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/bond-portfolio"
+	bondportfolioapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/bond-portfolio"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/stock-portfolio"
 	dividend "github.com/compoundinvest/stockfundamentals/internal/interface/api/fundamentals/dividend"
 	"github.com/gin-contrib/cors"
@@ -21,7 +21,7 @@ func main() {
 
 	router.Use(cors.Default())
 	addEndpoints(router)
-	bondportfolio.GetLotsWithAci()
+
 	router.Run("localhost:8080")
 }
 
@@ -41,10 +41,12 @@ func addEndpoints(router *gin.Engine) {
 	router.GET("/dividend/forecasts", dividend.GetDividendForecasts)
 	router.GET("dividend/forecasts-grouped-by-security", dividend.GetDividendForecastsGroupedBySecurity)
 
-	router.POST("jobs/import-bonds-and-coupons", jobs.StartBondAndCouponImportJob)
-	router.POST("bonds/new-position-lot", bondsapi.AddBondPositionLotToAccount)
-	router.GET("bonds/position-lots", bondsapi.GetAccountPositionLots)
-	router.GET("bonds/account/timeline", bondsapi.GetAccountBondTimeline)
+	router.POST("jobs/import-bonds-and-coupons", bondsapi.StartBondAndCouponImportJob)
+
+	router.POST("bonds/new-position-lot", bondportfolioapi.AddBondPositionLotToAccount)
+	router.GET("bonds/position-lots", bondportfolioapi.GetAccountPositionLots)
+	router.GET("bonds/account/timeline", bondportfolioapi.GetAccountBondTimeline)
+	router.POST("bonds/update-all-bonds-aci", bondsapi.UpdateAllBondsAci)
 
 	router.POST("/fetch/securities", api_security.ExecuteSecurityMasterImportJob)
 

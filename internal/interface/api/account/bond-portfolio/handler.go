@@ -1,4 +1,4 @@
-package bondsapi
+package bondportfolioapi
 
 import (
 	"encoding/json"

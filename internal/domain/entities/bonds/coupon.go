@@ -95,8 +95,10 @@ func AccumulatedCouponIncome(bond Bond, toDate time.Time) (float64, error) {
 	couponAmountPerDay := currentCoupon.PerBondAmount / float64(currentCoupon.CouponPeriod)
 	aci := couponAmountPerDay * float64(daysElapsedSinceCouponStartDate)
 	roundedAci := math.Round(aci*100)/100
+
+	//TODO: Dynamically handle this based on whether or not the bond pays out coupons in $
 	aciInRub := roundedAci * 81.8763
-	
+
 	return aciInRub, nil
 }
 
