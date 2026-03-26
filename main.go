@@ -2,7 +2,9 @@ package main
 
 import (
 	"net/http"
+	"time"
 
+	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/dataseed"
 	bondsapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/jobs"
@@ -21,7 +23,7 @@ func main() {
 
 	router.Use(cors.Default())
 	addEndpoints(router)
-
+	forexservice.GetCurrencyToRubRate("USD", time.Now().Add(-time.Hour*72))
 	router.Run("localhost:8080")
 }
 

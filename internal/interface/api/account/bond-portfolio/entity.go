@@ -11,6 +11,8 @@ type bondPositionLotDto struct {
 	Quantity          float64   `json:"quantity"`
 	PricePerUnit      float64   `json:"pricePerUnit"`
 	PricePerUnitInRUB float64   `json:"pricePerUnitInRUB"`
+	CurrentYtm        float64   `json:"currentYTM"`
+	YieldToCallOption float64   `json:"yieldToCallOption"`
 }
 
 type timeLineItemDto struct {

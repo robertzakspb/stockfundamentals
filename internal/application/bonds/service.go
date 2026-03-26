@@ -10,6 +10,7 @@ import (
 	"github.com/compoundinvest/invest-core/quote/bondquote"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
@@ -65,7 +66,12 @@ func ImportAllBondsAndCoupons() error {
 }
 
 func GetAllBonds() ([]bonds.Bond, error) {
-	bondList, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{})
+	filter := ydbfilter.YdbFilter{
+		YqlColumnName:  "maturity_date",
+		Condition:      ydbfilter.GreaterThan,
+		ConditionValue: shared.ConvertToYdbDate(time.Now()),
+	}
+	bondList, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{filter})
 	if err != nil {
 		return []bonds.Bond{}, err
 	}
@@ -255,6 +261,15 @@ func CalculateYtmForBonds(bondList []bonds.Bond, quotes []bondquote.TinkoffBondQ
 					continue
 				}
 				bondList[i].YieldToMaturity = ytm
+
+				if b.CallOptionExerciseDate.IsZero() == false {
+					yieldToCallOption, err := b.CalcYieldToCallOption(b.Coupons, quote.QuoteAsPercentage())
+					if err != nil {
+						logger.Log(err.Error(), logger.ERROR)
+						continue
+					}
+					bondList[i].YieldToCallOption = yieldToCallOption
+				}
 			}
 		}
 	}
@@ -272,7 +287,7 @@ func UpdateAllBondsAci() error {
 	for i, bond := range bondList {
 		aci, err := bonds.AccumulatedCouponIncome(bond, time.Now())
 		if err != nil {
-			logger.Log(err.Error(), logger.ERROR)
+			logger.Log(err.Error(), logger.WARNING)
 			continue
 		}
 		bondList[i].AccumulatedCouponIncome = aci

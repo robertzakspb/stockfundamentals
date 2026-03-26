@@ -31,6 +31,8 @@ func mapBondLotToDto(lot bonds.BondLot) bondPositionLotDto {
 		AccountId:        lot.AccountId.String(),
 		Quantity:         lot.Quantity,
 		PricePerUnit:     lot.PricePerUnit,
+		CurrentYtm:       lot.Bond.YieldToMaturity,
+		YieldToCallOption: lot.Bond.YieldToCallOption,
 	}
 
 	return dto
@@ -43,7 +45,7 @@ func mapTimeLineItemsToDtos(items []bondportfolio.TimeLineItem) []timeLineItemDt
 		dto := timeLineItemDto{
 			Timestamp: item.Timestamp,
 			EventName: item.EventName,
-			BondName: item.BondName,
+			BondName:  item.BondName,
 		}
 		dtos = append(dtos, dto)
 	}

@@ -2,8 +2,8 @@ package bondportfolio
 
 import (
 	"fmt"
+	"sort"
 	"sync"
-
 
 	"github.com/compoundinvest/invest-core/quote/bondquote"
 	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bonds"
@@ -70,13 +70,11 @@ func CalculateYtmForLots(lots []bonds.BondLot) ([]bonds.BondLot, error) {
 
 	var quotes []bondquote.TinkoffBondQuote
 	wg.Go(func() {
-		defer wg.Done()
 		quotes, err = bondquote.FetchQuotesForFigis(figis, config)
 	})
 
 	var bondList []bonds.Bond
 	wg.Go(func() {
-		defer wg.Done()
 		bondList, err = bondservice.GetBondsByFigi(figis)
 	})
 	wg.Wait()
@@ -87,6 +85,10 @@ func CalculateYtmForLots(lots []bonds.BondLot) ([]bonds.BondLot, error) {
 	bondList = bondservice.CalculateYtmForBonds(bondList, quotes)
 
 	lots = matchLotsWithBonds(lots, bondList)
+
+	sort.Slice(lots, func(i, j int) bool {
+		return lots[i].Bond.YieldToMaturity > lots[j].Bond.YieldToMaturity
+	})
 
 	return lots, nil
 }
@@ -127,4 +129,3 @@ func GetAccountTimeline() ([]TimeLineItem, error) {
 
 // 	return lots, nil
 // }
-

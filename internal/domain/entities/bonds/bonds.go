@@ -42,6 +42,7 @@ type Bond struct {
 	CallOptionExerciseDate  time.Time
 	Coupons                 []Coupon
 	YieldToMaturity         float64
+	YieldToCallOption       float64
 }
 
 type RiskLevel int
@@ -149,4 +150,3 @@ func (b Bond) Validate() error {
 
 	return nil
 }
-
