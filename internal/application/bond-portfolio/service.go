@@ -103,8 +103,19 @@ func PopulateLotsWithBonds(lots []bonds.BondLot) ([]bonds.BondLot, error) {
 	return lots, nil
 }
 
+func PopulateLotsWithCoupons(lots []bonds.BondLot) []bonds.BondLot {
+	bonds := bondservice.PopulateBondCoupons(getLotBonds(lots))
+	lotsWithCoupons := matchLotsWithBonds(lots, bonds)
+	return lotsWithCoupons
+}
+
 func GetAccountTimeline() ([]TimeLineItem, error) {
 	lots, err := GetAllPositionLots()
+	if err != nil {
+		return []TimeLineItem{}, err
+	}
+
+	lots, err = PopulateLotsWithBonds(lots)
 	if err != nil {
 		return []TimeLineItem{}, err
 	}

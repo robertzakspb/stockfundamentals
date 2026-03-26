@@ -34,3 +34,31 @@ func AssertEqualFloat(t testing.TB, expected, actual float64, roundingThreshold 
 
 	}
 }
+
+func AssertFalse(t testing.TB, actual bool) {
+	t.Helper()
+	if actual != false {
+		t.Errorf("Expected a false value: %v", actual)
+	}
+}
+
+func AssertTrue(t testing.TB, actual bool) {
+	t.Helper()
+	if actual != true {
+		t.Errorf("Expected a true value: %v", actual)
+	}
+}
+
+func AssertNoError(t testing.TB, actual error) {
+	t.Helper()
+	if actual != nil {
+		t.Errorf("Unexpected error: %v", actual)
+	}
+}
+
+func AssertError(t testing.TB, actual error) {
+	t.Helper()
+	if actual == nil {
+		t.Errorf("Expected an error: %v", actual)
+	}
+}

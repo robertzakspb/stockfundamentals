@@ -1,15 +1,17 @@
 package bondportfolio
 
-import "github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
+import (
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
+)
 
 func matchLotsWithBonds(lots []bonds.BondLot, bonds []bonds.Bond) []bonds.BondLot {
-	if bonds == nil {
-		return nil
+	if len(bonds) == 0 {
+		return lots
 	}
 
 	for i, lot := range lots {
 		for _, b := range bonds {
-			if lot.Figi == b.Figi {
+			if lot.Figi == b.Figi || lot.Isin == b.Isin {
 				lots[i].Bond = b
 			}
 		}
@@ -18,10 +20,13 @@ func matchLotsWithBonds(lots []bonds.BondLot, bonds []bonds.Bond) []bonds.BondLo
 	return lots
 }
 
-func GetLotBonds(lots []bonds.BondLot) []bonds.Bond {
+func getLotBonds(lots []bonds.BondLot) []bonds.Bond {
 	bondList := []bonds.Bond{}
 
 	for _, lot := range lots {
+		if lot.Bond.Figi == "" && lot.Bond.Isin == "" && lot.Bond.NominalValue == 0 {
+			continue
+		}
 		bondList = append(bondList, lot.Bond)
 	}
 
@@ -47,3 +52,16 @@ func GetLotIsins(lots []bonds.BondLot) []string {
 	}
 	return isins
 }
+
+// func findBondByFigiOrIsin(lot bonds.BondLot, bondList []bonds.Bond) (bonds.Bond, error) {
+// 	for _, bond := range bondList {
+// 		if bond.Figi == lot.Figi {
+// 			return bond, nil
+// 		}
+// 		if bond.Isin == lot.Isin {
+// 			return bond, nil
+// 		}
+// 	}
+
+// 	return bonds.Bond{}, errors.New("Failed to find the target bonds")
+// }
