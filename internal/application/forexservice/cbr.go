@@ -14,11 +14,11 @@ import (
 )
 
 type FxRate struct {
-	Date  string      `xml:"Date,attr"`
-	Rates []*Currency `xml:"Valute"`
+	Date  string         `xml:"Date,attr"`
+	Rates []*CbrCurrency `xml:"Valute"`
 }
 
-type Currency struct {
+type CbrCurrency struct {
 	ID       string  `xml:"ID,attr"`
 	NumCode  int     `xml:"NumCode"`
 	CharCode string  `xml:"CharCode"`

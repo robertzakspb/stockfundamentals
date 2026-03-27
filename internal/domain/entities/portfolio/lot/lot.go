@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/forex"
+	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 )
@@ -48,7 +48,7 @@ func (lot *Lot) validate() error {
 	if lot.PricePerUnit < 0 {
 		return fmt.Errorf("Position with ID %v has an unexpected price per unit of %v", lot.Id, lot.PricePerUnit)
 	}
-	forex := forex.ForexDP{}
+	forex := forexservice.ForexDP{}
 	if !forex.IsSupportedCurrency(lot.Currency) {
 		return fmt.Errorf("Position with ID %v has an unsupported currency", lot.Currency)
 	}
@@ -90,7 +90,7 @@ func (lot Lot) MarketValue(quote entity.SimpleQuote) (float64, error) {
 	}
 
 	const targetCur = "EUR"
-	quoteInTargerCurrency, err := forex.ConvertPriceToDifferentCurrency(quote.Quote(), quote.Currency(), targetCur, forex.ForexDP{})
+	quoteInTargerCurrency, err := forexservice.ConvertPriceToDifferentCurrency(quote.Quote(), quote.Currency(), targetCur, forexservice.ForexDP{})
 	if err != nil {
 		return 0, err
 	}

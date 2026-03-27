@@ -57,9 +57,20 @@ func InitialSeed(c *gin.Context) {
 func createTables(ctx context.Context, db *ydb.Driver) error {
 	client := db.Table()
 
-	err := createCouponTable(ctx, db, client)
+	err := createFxRateTable(ctx, db, client)
+	if err != nil {
+		return err
+	}
+
+	err = createCouponTable(ctx, db, client)
+	if err != nil {
+		return err
+	}
 
 	err = createBondPositionTable(ctx, db, client)
+	if err != nil {
+		return err
+	}
 
 	err = createStockTables(ctx, db, client)
 	if err != nil {
@@ -203,6 +214,27 @@ func createBondPositionTable(ctx context.Context, db *ydb.Driver, c table.Client
 			return nil
 		})
 }
+
+func createFxRateTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
+	prefix := path.Join(db.Name(), shared.FOREX_DIRECTORY_PREFIX)
+	return c.Do(ctx,
+		func(ctx context.Context, s table.Session) error {
+			err := s.CreateTable(ctx, path.Join(prefix, shared.FX_RATE_TABLE_NAME),
+				options.WithColumn("currency_1", types.TypeText),
+				options.WithColumn("currency_2", types.TypeText),
+				options.WithColumn("date", types.TypeDate),
+				options.WithColumn("rate", types.TypeDouble),
+				options.WithPrimaryKeyColumn("currency_1", "currency_2", "date"),
+			)
+			if err != nil {
+				logger.Log(err.Error(), logger.ALERT)
+				return err
+			}
+
+			return nil
+		})
+}
+
 func createPortfolioTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
 	prefix := path.Join(db.Name(), shared.USER_DIRECTORY_PREFIX)
 	return c.Do(ctx,

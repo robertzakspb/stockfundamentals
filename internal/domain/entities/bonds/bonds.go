@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/forex"
+	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/google/uuid"
 )
 
@@ -102,7 +102,7 @@ func (b Bond) Validate() error {
 	if b.Lot <= 0 {
 		return errors.New("Invalid lot value for bond: " + strconv.Itoa(b.Lot))
 	}
-	forexDP := forex.ForexDP{}
+	forexDP := forexservice.ForexDP{}
 	if b.Currency == "" || !forexDP.IsSupportedCurrency(b.Currency) {
 		return errors.New("Missing or unsupported currency " + b.Currency)
 	}
