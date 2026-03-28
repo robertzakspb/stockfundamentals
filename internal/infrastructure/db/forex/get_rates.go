@@ -103,10 +103,9 @@ func GetEarliestAndLatestDbRateFor(cur1, cur2 string) (time.Time, time.Time, err
 						FROM
 							%s
 						WHERE currency_1 = '%s' AND currency_2 = '%s'
-					`+"GROUP BY `forex/fx_rate`.date",
+					`,
 		"`"+path.Join(shared.FOREX_DIRECTORY_PREFIX, shared.FX_RATE_TABLE_NAME)+"`",
 		cur1, cur2)
-	fmt.Println(yql)
 
 	db, err := utilities.MakeYdbDriver()
 	if err != nil {
