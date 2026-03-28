@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/forex"
+	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/google/uuid"
 )
 
@@ -38,7 +38,7 @@ func (d *Dividend) validate() error {
 	if d.ExpectedDPS < 0 {
 		return errors.New("Invalid expected dividend amount")
 	}
-	f := forex.ForexDP{}
+	f := forexservice.ForexDP{}
 	if f.IsSupportedCurrency(d.Currency) == false {
 		return errors.New("Unsupported currency")
 	}

@@ -3,7 +3,7 @@ package portfolio
 import (
 	"errors"
 
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/forex"
+	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/google/uuid"
 )
 
@@ -35,7 +35,7 @@ func NewCashPosition(accountId string, amount float64, currency string) (CashPos
 }
 
 func (cash *CashPosition) validate() error {
-	forex := forex.ForexDP{}
+	forex := forexservice.ForexDP{}
 	if !forex.IsSupportedCurrency(cash.Currency) {
 		return errors.New("Initialized cash position has an unsupported currency: " + cash.Currency)
 	}

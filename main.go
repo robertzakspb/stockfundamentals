@@ -7,6 +7,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/dataseed"
 	bondsapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/bonds"
+	forexapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/forex"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/jobs"
 	api_security "github.com/compoundinvest/stockfundamentals/internal/interface/api/security"
 	timeseries "github.com/compoundinvest/stockfundamentals/internal/interface/api/time-series"
@@ -53,6 +54,8 @@ func addEndpoints(router *gin.Engine) {
 	router.POST("/fetch/securities", api_security.ExecuteSecurityMasterImportJob)
 
 	router.POST("/fetch/time-series", timeseries.StartTimeSeriesImportJob)
+
+	router.POST("/fetch/fx-rates", forexapi.StartForexImportJob)
 
 	router.POST("/start-all-jobs", jobs.StartAllJobs)
 }

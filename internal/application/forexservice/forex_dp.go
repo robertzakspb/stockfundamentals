@@ -1,4 +1,4 @@
-package forex
+package forexservice
 
 import (
 	"fmt"
