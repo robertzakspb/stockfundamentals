@@ -76,7 +76,7 @@ func GetFilteredBonds(filters []ydbfilter.YdbFilter) ([]bonds.Bond, error) {
 		ConditionValue: shared.ConvertToYdbDate(time.Now()),
 	}
 	filters = append(filters, filter)
-	bondList, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{filters})
+	bondList, err := bondsdb.GetAllBonds(filters)
 	if err != nil {
 		return []bonds.Bond{}, err
 	}
