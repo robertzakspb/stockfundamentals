@@ -66,12 +66,17 @@ func ImportAllBondsAndCoupons() error {
 }
 
 func GetAllBonds() ([]bonds.Bond, error) {
+	return GetFilteredBonds([]ydbfilter.YdbFilter{})
+}
+
+func GetFilteredBonds(filters []ydbfilter.YdbFilter) ([]bonds.Bond, error) {
 	filter := ydbfilter.YdbFilter{
 		YqlColumnName:  "maturity_date",
 		Condition:      ydbfilter.GreaterThan,
 		ConditionValue: shared.ConvertToYdbDate(time.Now()),
 	}
-	bondList, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{filter})
+	filters = append(filters, filter)
+	bondList, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{filters})
 	if err != nil {
 		return []bonds.Bond{}, err
 	}

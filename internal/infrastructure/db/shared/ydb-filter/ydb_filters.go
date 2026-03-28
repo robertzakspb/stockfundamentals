@@ -28,6 +28,7 @@ const (
 	LessThanOrEqualTo    YdbFilterCondition = "<="
 	Contains             YdbFilterCondition = "IN"
 	Equal                YdbFilterCondition = "="
+	Like                 YdbFilterCondition = "LIKE"
 )
 
 var ydbConditions = map[string]YdbFilterCondition{
@@ -37,6 +38,7 @@ var ydbConditions = map[string]YdbFilterCondition{
 	"<=": LessThanOrEqualTo,
 	"IN": Contains,
 	"=":  Equal,
+	"LIKE": Like,
 }
 
 // This function only sets the values of query parameters themeselves but does not add them WHERE (done by AddWhereClause())
