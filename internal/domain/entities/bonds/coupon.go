@@ -5,6 +5,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/google/uuid"
 )
 
@@ -78,7 +79,7 @@ func TotalCouponIncome(coupons []Coupon, includePastCoupons bool, includeCoupons
 	return totalCouponIncome
 }
 
-func AccumulatedCouponIncome(bond Bond, toDate time.Time) (float64, error) {
+func AccruedInterest(bond Bond, toDate time.Time) (float64, error) {
 	if len(bond.Coupons) == 0 {
 		return -1, errors.New("Attempting to calculate the accumulated coupon income with no coupons for " + bond.Figi)
 	}
@@ -101,10 +102,12 @@ func AccumulatedCouponIncome(bond Bond, toDate time.Time) (float64, error) {
 	aci := couponAmountPerDay * float64(daysElapsedSinceCouponStartDate)
 	roundedAci := math.Round(aci*100) / 100
 
-	//TODO: Dynamically handle this based on whether or not the bond pays out coupons in $
 	if bond.Currency != bond.NominalCurrency {
-		exchangeRate := 81.8763 //FIXME
-		roundedAci = roundedAci * exchangeRate
+		fxRate, err := forexservice.GetExchangeRate(bond.NominalCurrency, bond.Currency, time.Now())
+		if err != nil {
+			return -1, err
+		}
+		roundedAci *= fxRate.Rate
 	}
 
 	return roundedAci, nil

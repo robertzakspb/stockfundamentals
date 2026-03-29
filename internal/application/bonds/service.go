@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -290,12 +291,12 @@ func UpdateAllBondsAci() error {
 	}
 
 	for i, bond := range bondList {
-		aci, err := bonds.AccumulatedCouponIncome(bond, time.Now())
+		aci, err := bonds.AccruedInterest(bond, time.Now())
 		if err != nil {
 			logger.Log(err.Error(), logger.WARNING)
 			continue
 		}
-		bondList[i].AccumulatedCouponIncome = aci
+		bondList[i].AccruedInterest = aci
 	}
 
 	dbBonds := []bondsdb.BondDbModel{}
@@ -310,4 +311,30 @@ func UpdateAllBondsAci() error {
 	}
 
 	return nil
+}
+
+func AllCurrencyPairsInBondList(bondList []bonds.Bond) map[string]string {
+	pairs := []string{}
+
+	for _, bond := range bondList {
+		if bond.Currency != bond.NominalCurrency {
+			foundPair := false
+			for _, pair := range pairs {
+				if pair == bond.NominalCurrency+"/"+bond.Currency {
+					foundPair = true
+				}
+			}
+			if !foundPair {
+				pairs = append(pairs, bond.NominalCurrency+"/"+bond.Currency)
+			}
+		}
+	}
+
+	pairMap := map[string]string {}
+	for _, pair := range pairs {
+		split := strings.Split(pair, "/")
+		pairMap[split[0]] = split[1]
+	}
+
+	return pairMap
 }

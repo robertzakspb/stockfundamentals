@@ -28,7 +28,7 @@ type Bond struct {
 	PlacementDate           time.Time
 	PlacementPrice          float64
 	PlacementCurrency       string
-	AccumulatedCouponIncome float64
+	AccruedInterest         float64
 	IssueSize               int
 	IssueSizePlan           int
 	HasFloatingCoupon       bool
@@ -102,8 +102,8 @@ func (b Bond) Validate() error {
 	if b.Lot <= 0 {
 		return errors.New("Invalid lot value for bond: " + strconv.Itoa(b.Lot))
 	}
-	forexDP := forexservice.ForexDP{}
-	if b.Currency == "" || !forexDP.IsSupportedCurrency(b.Currency) {
+
+	if b.Currency == "" || !forexservice.IsSupportedCurrency(b.Currency) {
 		return errors.New("Missing or unsupported currency " + b.Currency)
 	}
 	if b.CouponCountPerYear <= 0 {
@@ -115,22 +115,22 @@ func (b Bond) Validate() error {
 	if b.NominalValue <= 0 {
 		return errors.New("Invalid nominal value for the bond")
 	}
-	if b.NominalCurrency == "" || !forexDP.IsSupportedCurrency(b.NominalCurrency) {
+	if b.NominalCurrency == "" || !forexservice.IsSupportedCurrency(b.NominalCurrency) {
 		return errors.New("Missing or unsupported nominal currency " + b.NominalCurrency)
 	}
 	if b.InitialNominalValue <= 0 {
 		return errors.New("Invalid initial nominal value for the bond")
 	}
-	if b.InitialNominalCurrency == "" || !forexDP.IsSupportedCurrency(b.NominalCurrency) {
+	if b.InitialNominalCurrency == "" || !forexservice.IsSupportedCurrency(b.NominalCurrency) {
 		return errors.New("Missing or unsupported initial nominal currency " + b.InitialNominalCurrency)
 	}
 	if b.PlacementPrice <= 0.0 {
 		return errors.New("Invalid placement price ")
 	}
-	if b.PlacementCurrency == "" || !forexDP.IsSupportedCurrency(b.NominalCurrency) {
+	if b.PlacementCurrency == "" || !forexservice.IsSupportedCurrency(b.NominalCurrency) {
 		return errors.New("Missing or unsupported placement currency " + b.NominalCurrency)
 	}
-	if b.AccumulatedCouponIncome <= 0 {
+	if b.AccruedInterest <= 0 {
 		return errors.New("Invalud accumulated coupon value")
 	}
 	if b.IssueSize <= 0 {

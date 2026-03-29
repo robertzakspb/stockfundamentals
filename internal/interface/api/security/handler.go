@@ -8,21 +8,25 @@ import (
 )
 
 func ExecuteSecurityMasterImportJob(c *gin.Context) {
-	security_master.FetchAndSaveSecurities()
+	err := security_master.FetchAndSaveSecurities()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	c.JSON(http.StatusOK, "Successfully executed the security import job")
 }
 
-func FetchSecuritiesFromDB() ([]SecurityDTO, error) {
-	securities, err := security_master.GetAllSecuritiesFromDB()
-	if err != nil {
-		return []SecurityDTO{}, err
-	}
+// func FetchSecuritiesFromDB() ([]SecurityDTO, error) {
+// 	securities, err := security_master.GetAllSecuritiesFromDB()
+// 	if err != nil {
+// 		return []SecurityDTO{}, err
+// 	}
 
-	dtos := []SecurityDTO{}
-	for _, security := range securities {
-		dtos = append(dtos, mapStockToDto(security))
-	}
+// 	dtos := []SecurityDTO{}
+// 	for _, security := range securities {
+// 		dtos = append(dtos, mapStockToDto(security))
+// 	}
 
-	return dtos, nil
-}
+// 	return dtos, nil
+// }

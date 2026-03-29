@@ -55,6 +55,9 @@ func addEndpoints(router *gin.Engine) {
 	router.POST("/fetch/fx-rates", forexapi.StartForexImportJob)
 
 	router.POST("/start-all-jobs", jobs.StartAllJobs)
+	router.POST("/start-daily-jobs", jobs.StartDailyJobs)
+	router.POST("/start-heavy-jobs", jobs.StartHeavyJobs)
+
 }
 
 func healthCheck(c *gin.Context) {

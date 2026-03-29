@@ -3,6 +3,8 @@ package bonds
 import (
 	"errors"
 	"time"
+
+	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 )
 
 func (b Bond) CalcYieldToMaturity(coupons []Coupon, marketPrice float64) (float64, error) {
@@ -28,25 +30,30 @@ func (b Bond) CalcYieldToCallOption(coupons []Coupon, marketPrice float64) (floa
 }
 
 func calculateYield(b Bond, coupons []Coupon, marketPricePercentage float64, acquisitionDate, redemptionDate, latestCouponDate time.Time) (float64, error) {
-	if b.Isin == "RU000A107C67" {
-
-	}
 	if len(coupons) == 0 {
 		return -1, errors.New("Failed to calculate the yield due to missing coupons")
 	}
-
 	if !(coupons[0].CouponType == CouponType_COUPON_TYPE_FIX || coupons[0].CouponType == CouponType_COUPON_TYPE_CONSTANT) {
 		return -1, errors.New("Unable to calculate the YTM for non-fixed and non-constant coupons")
 	}
+
 	holdingPeriod := redemptionDate.Sub(acquisitionDate).Hours() / 24
 
 	marketPriceInCurrency := marketPricePercentage * b.NominalValue / 100
-	marketPrice := marketPriceInCurrency + b.AccumulatedCouponIncome
+	marketPrice := marketPriceInCurrency + b.AccruedInterest
 
-	//Standard formula for the calculation of bond yields
+	//Standard simple formula for the calculation of bond yields (coupon reinvestment is not assumed)
 	tci := TotalCouponIncome(coupons, false, latestCouponDate)
-	//TODO: Convert TCI to the target currency
-	//TODO: Add ACI to the marketprice
+
+	//Case of foreign-denominated bonds where the accrued interest must be convereted from, say, $ to RUB
+	if b.Currency != b.NominalCurrency {
+		rate, err := forexservice.GetExchangeRate(b.NominalCurrency, b.Currency, time.Now())
+		if err != nil {
+			return -1, err
+		}
+		tci *= rate.Rate
+	}
+
 	yield := (b.NominalValue - marketPrice + tci) / marketPrice * 365 / holdingPeriod * 100
 	return yield, nil
 }

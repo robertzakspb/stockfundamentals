@@ -1,7 +1,6 @@
 package bondportfolio
 
 import (
-	"fmt"
 	"sort"
 	"sync"
 
@@ -78,7 +77,6 @@ func CalculateYtmForLots(lots []bonds.BondLot) ([]bonds.BondLot, error) {
 		bondList, err = bondservice.GetBondsByFigi(figis)
 	})
 	wg.Wait()
-	fmt.Println("The wait group is finished!")
 
 	bondList = bondservice.PopulateBondCoupons(bondList)
 
@@ -131,11 +129,11 @@ func GetAccountTimeline() ([]TimeLineItem, error) {
 // This function assumes that the lots' bonds have already been populated with coupons
 // func CalculateAciForLots(lots []bonds.BondLot) ([]bonds.BondLot, error) {
 // 	for i, lot := range lots {
-// 		aci, err := CalcAccumulatedCouponIncomeForLot(lot)
+// 		aci, err := CalcAccruedInterestForLot(lot)
 // 		if err != nil {
 // 			logger.Log(err.Error(), logger.ERROR)
 // 		}
-// 		lots[i].AccumulatedCouponIncome = aci
+// 		lots[i].AccruedInterest = aci
 // 	}
 
 // 	return lots, nil

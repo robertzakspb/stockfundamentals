@@ -27,7 +27,7 @@ type BondDbModel struct {
 	PlacementDate           time.Time `sql:"placement_date"`
 	PlacementPrice          float64   `sql:"placement_price"`
 	PlacementCurrency       string    `sql:"placement_currency"`
-	AccumulatedCouponIncome float64   `sql:"accumulated_coupon_income"`
+	AccruedInterest         float64   `sql:"accumulated_coupon_income"`
 	IssueSize               int64     `sql:"issue_size"`
 	IssueSizePlan           int64     `sql:"issue_size_plan"`
 	HasFloatingCoupon       bool      `sql:"has_floating_coupon"`
@@ -66,24 +66,24 @@ type CouponDbModel struct {
 	Id              uuid.UUID `sql:"id"`
 	Figi            string    `sql:"figi"`
 	CouponDate      time.Time `sql:"coupon_date"`
-	CouponNumber    int64       `sql:"coupon_number"`
+	CouponNumber    int64     `sql:"coupon_number"`
 	RecordDate      time.Time `sql:"record_date"`
 	PerBondAmount   float64   `sql:"per_bond_amount"`
 	CouponType      string    `sql:"coupon_type"`
 	CouponStartDate time.Time `sql:"coupon_start_date"`
 	CouponEndDate   time.Time `sql:"coupon_end_date"`
-	CouponPeriod    int64       `sql:"coupon_period"`
+	CouponPeriod    int64     `sql:"coupon_period"`
 }
 
 type BondPositionLotDb struct {
-	Id                      uuid.UUID `sql:"id"`
-	Figi                    string    `sql:"figi"`
-	Isin                    string    `sql:"isin"`
-	OpeningDate             time.Time `sql:"opening_date"`
-	ModificationDate        time.Time `sql:"modification_date"`
-	AccountId               uuid.UUID `sql:"account_id"`
-	Quantity                float64   `sql:"quantity"`
-	PricePerUnit            float64   `sql:"price_per_unit"`
-	PricePerUnitInRUB       float64   `sql:"price_per_unit_rub"`
-	AccumulatedCouponIncome float64   `sql:"accumulated_coupon_income"`
+	Id                uuid.UUID `sql:"id"`
+	Figi              string    `sql:"figi"`
+	Isin              string    `sql:"isin"`
+	OpeningDate       time.Time `sql:"opening_date"`
+	ModificationDate  time.Time `sql:"modification_date"`
+	AccountId         uuid.UUID `sql:"account_id"`
+	Quantity          float64   `sql:"quantity"`
+	PricePerUnit      float64   `sql:"price_per_unit"`
+	PricePerUnitInRUB float64   `sql:"price_per_unit_rub"`
+	AccruedInterest   float64   `sql:"accumulated_coupon_income"`
 }

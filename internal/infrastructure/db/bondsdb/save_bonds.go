@@ -40,7 +40,7 @@ func SaveBonds(bonds []BondDbModel) error {
 			types.StructFieldValue("placement_date", shared.ConvertToOptionalYDBdate(bond.PlacementDate)),
 			types.StructFieldValue("placement_price", types.DoubleValue(bond.PlacementPrice)),
 			types.StructFieldValue("placement_currency", types.TextValue(bond.PlacementCurrency)),
-			types.StructFieldValue("accumulated_coupon_income", types.DoubleValue(bond.AccumulatedCouponIncome)),
+			types.StructFieldValue("accumulated_coupon_income", types.DoubleValue(bond.AccruedInterest)),
 			types.StructFieldValue("issue_size", types.Int64Value(int64(bond.IssueSize))),
 			types.StructFieldValue("issue_size_plan", types.Int64Value(int64(bond.IssueSizePlan))),
 			types.StructFieldValue("has_floating_coupon", types.BoolValue(bond.HasFloatingCoupon)),

@@ -32,7 +32,7 @@ func Test_mapBondToDbBond(t *testing.T) {
 	placementDate := time.Now()
 	placementPrice := 10.43
 	placementCurrency := "USD"
-	accumulatedCouponIncome := 45.4
+	AccruedInterest := 45.4
 	issueSize := 5000
 	issueSizePlan := 6000
 	hasFloatingCoupon := false
@@ -64,7 +64,7 @@ func Test_mapBondToDbBond(t *testing.T) {
 		PlacementDate:           placementDate,
 		PlacementPrice:          placementPrice,
 		PlacementCurrency:       placementCurrency,
-		AccumulatedCouponIncome: accumulatedCouponIncome,
+		AccruedInterest:         AccruedInterest,
 		IssueSize:               issueSize,
 		IssueSizePlan:           issueSizePlan,
 		HasFloatingCoupon:       hasFloatingCoupon,
@@ -97,7 +97,7 @@ func Test_mapBondToDbBond(t *testing.T) {
 	test.AssertEqual(t, mappedDomain.RegistrationDate, registrationDate)
 	test.AssertEqual(t, mappedDomain.PlacementDate, placementDate)
 	test.AssertEqual(t, mappedDomain.PlacementPrice, placementPrice)
-	test.AssertEqual(t, mappedDomain.AccumulatedCouponIncome, accumulatedCouponIncome)
+	test.AssertEqual(t, mappedDomain.AccruedInterest, AccruedInterest)
 	test.AssertEqual(t, mappedDomain.IssueSize, int64(issueSize))
 	test.AssertEqual(t, mappedDomain.IssueSizePlan, int64(issueSizePlan))
 	test.AssertEqual(t, mappedDomain.HasFloatingCoupon, hasFloatingCoupon)
@@ -133,7 +133,7 @@ func Test_MapBondToDbBond(t *testing.T) {
 	placementDate := time.Now()
 	placementPrice := 10.43
 	placementCurrency := "USD"
-	accumulatedCouponIncome := 45.4
+	AccruedInterest := 45.4
 	issueSize := 5000
 	issueSizePlan := 6000
 	hasFloatingCoupon := false
@@ -165,7 +165,7 @@ func Test_MapBondToDbBond(t *testing.T) {
 		PlacementDate:           placementDate,
 		PlacementPrice:          placementPrice,
 		PlacementCurrency:       placementCurrency,
-		AccumulatedCouponIncome: accumulatedCouponIncome,
+		AccruedInterest:         AccruedInterest,
 		IssueSize:               int64(issueSize),
 		IssueSizePlan:           int64(issueSizePlan),
 		HasFloatingCoupon:       hasFloatingCoupon,
@@ -198,7 +198,7 @@ func Test_MapBondToDbBond(t *testing.T) {
 	test.AssertEqual(t, mappedDomain.RegistrationDate, registrationDate)
 	test.AssertEqual(t, mappedDomain.PlacementDate, placementDate)
 	test.AssertEqual(t, mappedDomain.PlacementPrice, placementPrice)
-	test.AssertEqual(t, mappedDomain.AccumulatedCouponIncome, accumulatedCouponIncome)
+	test.AssertEqual(t, mappedDomain.AccruedInterest, AccruedInterest)
 	test.AssertEqual(t, mappedDomain.IssueSize, issueSize)
 	test.AssertEqual(t, mappedDomain.IssueSizePlan, issueSizePlan)
 	test.AssertEqual(t, mappedDomain.HasFloatingCoupon, hasFloatingCoupon)

@@ -48,8 +48,7 @@ func (lot *Lot) validate() error {
 	if lot.PricePerUnit < 0 {
 		return fmt.Errorf("Position with ID %v has an unexpected price per unit of %v", lot.Id, lot.PricePerUnit)
 	}
-	forex := forexservice.ForexDP{}
-	if !forex.IsSupportedCurrency(lot.Currency) {
+	if !forexservice.IsSupportedCurrency(lot.Currency) {
 		return fmt.Errorf("Position with ID %v has an unsupported currency", lot.Currency)
 	}
 	if lot.SecurityId == "" {
@@ -89,11 +88,11 @@ func (lot Lot) MarketValue(quote entity.SimpleQuote) (float64, error) {
 		logger.Log("Quote is nil for position "+lot.SecurityId, logger.ERROR)
 	}
 
-	const targetCur = "EUR"
-	quoteInTargerCurrency, err := forexservice.ConvertPriceToDifferentCurrency(quote.Quote(), quote.Currency(), targetCur, forexservice.ForexDP{})
-	if err != nil {
-		return 0, err
-	}
+	// const targetCur = "EUR"
+	// quoteInTargerCurrency, err := forexservice.ConvertPriceToDifferentCurrency(quote.Quote(), quote.Currency(), targetCur, forexservice.ForexDP{})
+	// if err != nil {
+	// 	return 0, err
+	// }
 
-	return lot.Quantity * quoteInTargerCurrency, nil
+	return lot.Quantity * quote.Quote(), nil
 }

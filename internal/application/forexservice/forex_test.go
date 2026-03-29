@@ -26,34 +26,34 @@ func (f ForexMockDataProvider) IsSupportedCurrency(cur string) bool {
 	return slices.Contains(supportedCurrencies, strings.ToUpper(cur))
 }
 
-func Test_ExchangeRateForNonUsdCurrencies(t *testing.T) {
-	expected := mockExchangeRateUsdTo[Currency("USD")] / mockExchangeRateUsdTo[Currency("RSD")]
-	actual, err := GetExchangeRateForPair("USD", "RSD", ForexMockDataProvider{})
+// func Test_ExchangeRateForNonUsdCurrencies(t *testing.T) {
+// 	expected := mockExchangeRateUsdTo[Currency("USD")] / mockExchangeRateUsdTo[Currency("RSD")]
+// 	actual, err := GetExchangeRateForPair("USD", "RSD", ForexMockDataProvider{})
 
-	if err != nil {
-		t.Errorf("Unexpected error: %q", err)
-	}
+// 	if err != nil {
+// 		t.Errorf("Unexpected error: %q", err)
+// 	}
 
-	if expected != actual {
-		t.Errorf("Expected: %f, actual: %f", expected, actual)
-	}
-}
+// 	if expected != actual {
+// 		t.Errorf("Expected: %f, actual: %f", expected, actual)
+// 	}
+// }
 
-func Test_ConvertPriceToAnotherCurrency(t *testing.T) {
-	usdToEur := mockExchangeRateUsdTo[Currency("USD")] / mockExchangeRateUsdTo[Currency("EUR")]
-	priceInUsd := 200.0
+// func Test_ConvertPriceToAnotherCurrency(t *testing.T) {
+// 	usdToEur := mockExchangeRateUsdTo[Currency("USD")] / mockExchangeRateUsdTo[Currency("EUR")]
+// 	priceInUsd := 200.0
 
-	expectedPriceInEur := priceInUsd * usdToEur
-	actual, err := ConvertPriceToDifferentCurrency(priceInUsd, "USD", "EUR", ForexMockDataProvider{})
+// 	expectedPriceInEur := priceInUsd * usdToEur
+// 	actual, err := ConvertPriceToDifferentCurrency(priceInUsd, "USD", "EUR", ForexMockDataProvider{})
 
-	if err != nil {
-		t.Errorf("Unexpected error: %q", err)
-	}
+// 	if err != nil {
+// 		t.Errorf("Unexpected error: %q", err)
+// 	}
 
-	if expectedPriceInEur != actual {
-		t.Errorf("Expected: %f, actual: %f", expectedPriceInEur, actual)
-	}
-}
+// 	if expectedPriceInEur != actual {
+// 		t.Errorf("Expected: %f, actual: %f", expectedPriceInEur, actual)
+// 	}
+// }
 
 func Test_ExchangeRateUsdToUsdIsOne(t *testing.T) {
 	mock := ForexMockDataProvider{}

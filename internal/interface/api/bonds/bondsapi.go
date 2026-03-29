@@ -20,5 +20,5 @@ func UpdateAllBondsAci(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, "The bonds' ACI has been successfully updated")
+	c.JSON(http.StatusOK, "The bonds' accrued interest job has been successfully started")
 }

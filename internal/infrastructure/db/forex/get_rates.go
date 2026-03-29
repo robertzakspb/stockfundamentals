@@ -8,10 +8,8 @@ import (
 	"path"
 	"time"
 
-	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
@@ -128,7 +126,6 @@ func GetEarliestAndLatestDbRateFor(cur1, cur2 string) (time.Time, time.Time, err
 			defer func() {
 				_ = result.Close(ctx)
 			}()
-			counter := 0
 			for {
 				resultSet, err := result.NextResultSet(ctx)
 				if err != nil {
@@ -144,12 +141,8 @@ func GetEarliestAndLatestDbRateFor(cur1, cur2 string) (time.Time, time.Time, err
 						return err
 					}
 					rates = row
-					counter += 1
-				}
-			}
 
-			if counter > 1 {
-				logger.Log("Retrieved more than 1 min/max fx rate", logger.ERROR)
+				}
 			}
 
 			return nil
