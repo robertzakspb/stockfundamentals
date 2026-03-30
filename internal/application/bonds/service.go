@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -339,10 +338,12 @@ func UpdateAllBondsAci() error {
 		return err
 	}
 
+	logger.Log("Completed the accrued interest update job", logger.INFORMATION)
+
 	return nil
 }
 
-func AllCurrencyPairsInBondList(bondList []bonds.Bond) map[string]string {
+func AllCurrencyPairsInBondList(bondList []bonds.Bond) []string {
 	pairs := []string{}
 
 	for _, bond := range bondList {
@@ -358,12 +359,5 @@ func AllCurrencyPairsInBondList(bondList []bonds.Bond) map[string]string {
 			}
 		}
 	}
-
-	pairMap := map[string]string{}
-	for _, pair := range pairs {
-		split := strings.Split(pair, "/")
-		pairMap[split[0]] = split[1]
-	}
-
-	return pairMap
+	return pairs
 }
