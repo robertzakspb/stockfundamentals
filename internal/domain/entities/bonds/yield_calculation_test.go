@@ -1,0 +1,95 @@
+package bonds
+
+import (
+	"testing"
+	"time"
+
+	"github.com/compoundinvest/stockfundamentals/internal/test"
+)
+
+func Test__calculateYield(t *testing.T) {
+	acquisitionDate, err := time.Parse("2006-01-02", "2026-03-19")
+	test.AssertEqual(t, err, nil)
+	maturityDate, err := time.Parse("2006-01-02", "2027-10-06")
+	test.AssertEqual(t, err, nil)
+
+	bond := Bond{
+		MaturityDate:    maturityDate,
+		NominalValue:    1000,
+		NominalCurrency: "RUB",
+	}
+
+	coupons := []Coupon{
+		{
+			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
+			PerBondAmount: 29.92,
+			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
+			PerBondAmount: 29.92,
+			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
+			PerBondAmount: 29.92,
+			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
+			PerBondAmount: 29.92,
+			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+		},
+	}
+
+	marketPrice := (906.63 + 26.8)
+	marketPricePercentage := marketPrice / 10
+	yield, err := calculateYield(bond, coupons, marketPricePercentage, acquisitionDate, maturityDate, maturityDate, 1)
+	test.AssertEqual(t, err, nil)
+
+	test.AssertEqualFloat(t, 12.87, yield, 0.01)
+}
+
+func Test__calculateYield_UsdBond(t *testing.T) {
+	acquisitionDate, err := time.Parse("2006-01-02", "2026-03-19")
+	test.AssertEqual(t, err, nil)
+	maturityDate, err := time.Parse("2006-01-02", "2027-03-19")
+	test.AssertEqual(t, err, nil)
+
+	bond := Bond{
+		MaturityDate:    maturityDate,
+		NominalValue:    1000,
+		NominalCurrency: "USD",
+		Currency:        "RUB",
+	}
+
+	coupons := []Coupon{
+		{
+			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
+			PerBondAmount: 2,
+			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
+			PerBondAmount: 2,
+			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
+			PerBondAmount: 2,
+			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
+			PerBondAmount: 2,
+			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+		},
+	}
+
+	marketPricePercentage := 100.0
+	fxRate := 80
+	yield, err := calculateYield(bond, coupons, marketPricePercentage, acquisitionDate, maturityDate, maturityDate, float64(fxRate))
+
+	test.AssertEqual(t, err, nil)
+	test.AssertEqualFloat(t, 64, yield, 0.01)
+}

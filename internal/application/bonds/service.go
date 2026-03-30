@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/compoundinvest/invest-core/quote/bondquote"
+	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
@@ -258,18 +259,32 @@ func MatchCouponsWithBonds(coupons []bonds.Coupon, bonds []bonds.Bond) []bonds.B
 }
 
 func CalculateYtmForBonds(bondList []bonds.Bond, quotes []bondquote.TinkoffBondQuote) []bonds.Bond {
+	currencyPairs := AllCurrencyPairsInBondList(bondList)
+	forexRates, _ := forexservice.GetExchangeRates(currencyPairs)
+
 	for _, quote := range quotes {
 		for i, b := range bondList {
+			forexRate := 1.0
+			if b.Currency != b.NominalCurrency {
+				rate, found := forexservice.FindRate(b.NominalCurrency, b.Currency, forexRates)
+				if found {
+					forexRate = rate.Rate
+				} else {
+					logger.Log("Failed to get the forex rate for the bond: "+b.Isin+", skipping YTM calculation", logger.ERROR)
+					continue
+				}
+			}
+
 			if quote.Figi() == b.Figi {
-				ytm, err := b.CalcYieldToMaturity(b.Coupons, quote.QuoteAsPercentage())
+				ytm, err := b.CalcYieldToMaturity(b.Coupons, quote.QuoteAsPercentage(), forexRate)
 				if err != nil {
 					logger.Log(err.Error(), logger.ERROR)
 					continue
 				}
 				bondList[i].YieldToMaturity = ytm
 
-				if b.CallOptionExerciseDate.IsZero() == false {
-					yieldToCallOption, err := b.CalcYieldToCallOption(b.Coupons, quote.QuoteAsPercentage())
+				if b.HasCallOption() {
+					yieldToCallOption, err := b.CalcYieldToCallOption(b.Coupons, quote.QuoteAsPercentage(), forexRate)
 					if err != nil {
 						logger.Log(err.Error(), logger.ERROR)
 						continue
@@ -284,14 +299,28 @@ func CalculateYtmForBonds(bondList []bonds.Bond, quotes []bondquote.TinkoffBondQ
 
 func UpdateAllBondsAci() error {
 	bondList, err := GetAllBonds()
-	bondList = PopulateBondCoupons(bondList)
-
 	if err != nil {
 		return err
 	}
 
+	bondList = PopulateBondCoupons(bondList)
+
+	currencyPairs := AllCurrencyPairsInBondList(bondList)
+	forexRates, _ := forexservice.GetExchangeRates(currencyPairs)
+
 	for i, bond := range bondList {
-		aci, err := bonds.AccruedInterest(bond, time.Now())
+		forexRate := 1.0
+		if bond.Currency != bond.NominalCurrency {
+			rate, found := forexservice.FindRate(bond.NominalCurrency, bond.Currency, forexRates)
+			if found {
+				forexRate = rate.Rate
+			} else {
+				logger.Log("Failed to get the forex rate for the bond: "+bond.Isin+", skipping ACI calculation", logger.ERROR)
+				continue
+			}
+		}
+
+		aci, err := bonds.AccruedInterest(bond, time.Now(), forexRate)
 		if err != nil {
 			logger.Log(err.Error(), logger.WARNING)
 			continue
@@ -330,7 +359,7 @@ func AllCurrencyPairsInBondList(bondList []bonds.Bond) map[string]string {
 		}
 	}
 
-	pairMap := map[string]string {}
+	pairMap := map[string]string{}
 	for _, pair := range pairs {
 		split := strings.Split(pair, "/")
 		pairMap[split[0]] = split[1]

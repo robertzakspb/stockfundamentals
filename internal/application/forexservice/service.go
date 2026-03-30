@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	
 	forexdb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/forex"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -45,7 +46,7 @@ func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {
 			}
 		}
 
-		rate, err := GetCurrencyToRubRate("USD", targetDate)
+		rate, err := getCurrencyToRubRate("USD", targetDate)
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 			continue
@@ -73,6 +74,27 @@ func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {
 	return nil
 }
 
+// TODO: Refactor to replace the loop with a single DB transaction
+func GetExchangeRates(currencyPairs map[string]string) ([]ForexRate, []error) {
+	errors := []error{}
+	rates := []ForexRate{}
+
+	for cur1, cur2 := range currencyPairs {
+		if cur2 != "RUB" {
+			logger.Log("Skipping the currency pair "+cur1+"/"+cur2+"due to missing rates", logger.INFORMATION)
+			continue
+		}
+		rate, err := GetExchangeRate(cur1, cur2, time.Now())
+		if err != nil {
+			logger.Log("Failed to get the local exchange rate for "+cur1+"/"+cur2, logger.ERROR)
+			errors = append(errors, err)
+			continue
+		}
+		rates = append(rates, rate)
+	}
+	return rates, errors
+}
+
 func GetExchangeRate(cur1, cur2 string, date time.Time) (ForexRate, error) {
 	filters := []ydbfilter.YdbFilter{
 		{
@@ -98,6 +120,16 @@ func GetExchangeRate(cur1, cur2 string, date time.Time) (ForexRate, error) {
 	}
 
 	return mapDbModelToDomain(rates)[0], nil
+}
+
+func FindRate(cur1, cur2 string, rates []ForexRate) (ForexRate, bool) {
+	for _, rate := range rates {
+		if string(rate.Currency1) == cur1 && string(rate.Currency2) == cur2 {
+			return rate, true
+		}
+	}
+
+	return ForexRate{}, false
 }
 
 // func GetExchangeRateForPair(currency1, currency2 string, dp ForexDataProvider) (float64, error) {

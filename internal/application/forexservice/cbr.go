@@ -27,8 +27,8 @@ type CbrCurrency struct {
 	Value    string  `xml:"Value"`
 }
 
-func GetCurrencyToRubRate(currency string, targetDate time.Time) (float64, error) {
-	rates, err := GetDailyRates(context.TODO(), targetDate.Year(), targetDate.Month(), targetDate.Day())
+func getCurrencyToRubRate(currency string, targetDate time.Time) (float64, error) {
+	rates, err := getDailyRates(context.TODO(), targetDate.Year(), targetDate.Month(), targetDate.Day())
 	if err != nil {
 		return -1, err
 	}
@@ -46,7 +46,7 @@ func GetCurrencyToRubRate(currency string, targetDate time.Time) (float64, error
 	return -1, errors.New("Failed to find the target forex rate")
 }
 
-func GetDailyRates(ctx context.Context, year int, month time.Month, day int) (*FxRate, error) {
+func getDailyRates(ctx context.Context, year int, month time.Month, day int) (*FxRate, error) {
 	const (
 		UserAgent = "cbrates/v0 (+https://github.com/robertzak)" // by some reason default go ua was getting blocked
 	)

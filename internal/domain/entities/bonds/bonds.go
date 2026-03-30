@@ -102,7 +102,6 @@ func (b Bond) Validate() error {
 	if b.Lot <= 0 {
 		return errors.New("Invalid lot value for bond: " + strconv.Itoa(b.Lot))
 	}
-
 	if b.Currency == "" || !forexservice.IsSupportedCurrency(b.Currency) {
 		return errors.New("Missing or unsupported currency " + b.Currency)
 	}
@@ -149,4 +148,8 @@ func (b Bond) Validate() error {
 	}
 
 	return nil
+}
+
+func (b *Bond) HasCallOption() bool {
+	return !b.CallOptionExerciseDate.IsZero()
 }

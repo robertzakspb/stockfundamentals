@@ -5,7 +5,6 @@ import (
 	"math"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/google/uuid"
 )
 
@@ -79,11 +78,10 @@ func TotalCouponIncome(coupons []Coupon, includePastCoupons bool, includeCoupons
 	return totalCouponIncome
 }
 
-func AccruedInterest(bond Bond, toDate time.Time) (float64, error) {
+func AccruedInterest(bond Bond, toDate time.Time, forexRate float64) (float64, error) {
 	if len(bond.Coupons) == 0 {
 		return -1, errors.New("Attempting to calculate the accumulated coupon income with no coupons for " + bond.Figi)
 	}
-
 	currentCoupon, err := findCurrentCouponForBond(bond)
 	if err != nil {
 		return -1, err
@@ -91,8 +89,9 @@ func AccruedInterest(bond Bond, toDate time.Time) (float64, error) {
 	if currentCoupon.CouponPeriod <= 0 {
 		return -1, errors.New("Coupon period for " + bond.Figi + " is invalid")
 	}
+
 	daysFractional := toDate.Sub(currentCoupon.CouponStartDate).Hours() / 24
-	roundedDays := math.Trunc(daysFractional) + 1
+	roundedDays := math.Trunc(daysFractional) + 1 //+1 is due to T+1
 	daysElapsedSinceCouponStartDate := int(roundedDays)
 	if daysElapsedSinceCouponStartDate == 0 {
 		return 0, nil
@@ -103,17 +102,12 @@ func AccruedInterest(bond Bond, toDate time.Time) (float64, error) {
 	roundedAci := math.Round(aci*100) / 100
 
 	if bond.Currency != bond.NominalCurrency {
-		fxRate, err := forexservice.GetExchangeRate(bond.NominalCurrency, bond.Currency, time.Now())
-		if err != nil {
-			return -1, err
-		}
-		roundedAci *= fxRate.Rate
+		roundedAci *= forexRate
 	}
 
 	return roundedAci, nil
 }
 
-// TODO: Unit tests
 func findCurrentCouponForBond(bond Bond) (Coupon, error) {
 	if len(bond.Coupons) == 0 {
 		return Coupon{}, errors.New("Attempting to find a coupon with missing coupons for " + bond.Figi)

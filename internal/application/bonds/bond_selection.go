@@ -18,6 +18,10 @@ func GetRussianGovernmentBondsWithFixedCoupon() ([]bonds.Bond, error) {
 		return bonds, err
 	}
 
+	bonds = PopulateBondCoupons(bonds)
+
+	//TODO: Remove bonds with non-fixed or non-constant coupons
+
 	return bonds, nil
 }
 
