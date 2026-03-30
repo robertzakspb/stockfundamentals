@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	
 	forexdb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/forex"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -75,13 +74,15 @@ func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {
 }
 
 // TODO: Refactor to replace the loop with a single DB transaction
-func GetExchangeRates(currencyPairs map[string]string) ([]ForexRate, []error) {
+func GetExchangeRates(currencyPairs []string) ([]ForexRate, []error) {
 	errors := []error{}
 	rates := []ForexRate{}
 
-	for cur1, cur2 := range currencyPairs {
+	for _, pair := range currencyPairs {
+		split := strings.Split(pair, "/")
+		cur1, cur2 := strings.ToUpper(split[0]), strings.ToUpper(split[1])
 		if cur2 != "RUB" {
-			logger.Log("Skipping the currency pair "+cur1+"/"+cur2+"due to missing rates", logger.INFORMATION)
+			logger.Log("Skipping the currency pair "+cur1+"/"+cur2+" due to missing rates", logger.INFORMATION)
 			continue
 		}
 		rate, err := GetExchangeRate(cur1, cur2, time.Now())
@@ -124,7 +125,7 @@ func GetExchangeRate(cur1, cur2 string, date time.Time) (ForexRate, error) {
 
 func FindRate(cur1, cur2 string, rates []ForexRate) (ForexRate, bool) {
 	for _, rate := range rates {
-		if string(rate.Currency1) == cur1 && string(rate.Currency2) == cur2 {
+		if string(rate.Currency1) == strings.ToUpper(cur1) && string(rate.Currency2) == strings.ToUpper(cur2) {
 			return rate, true
 		}
 	}

@@ -38,6 +38,9 @@ func calculateYield(b Bond, coupons []Coupon, marketPricePercentage float64, acq
 	holdingPeriod := redemptionDate.Sub(acquisitionDate).Hours() / 24
 
 	marketPriceInCurrency := marketPricePercentage * b.NominalValue / 100
+	if b.Currency != b.NominalCurrency {
+		marketPriceInCurrency *= fxRate
+	}
 	marketPrice := marketPriceInCurrency + b.AccruedInterest
 
 	tci := TotalCouponIncome(coupons, false, latestCouponDate)
@@ -48,7 +51,11 @@ func calculateYield(b Bond, coupons []Coupon, marketPricePercentage float64, acq
 	}
 
 	//Standard simple formula for the calculation of bond yields (coupon reinvestment is not assumed)
-	yield := (b.NominalValue - marketPrice + tci) / marketPrice * 365 / holdingPeriod * 100
+	adjustedNominalValue := b.NominalValue
+	if b.Currency != b.NominalCurrency {
+		adjustedNominalValue *= fxRate
+	}
+	yield := (adjustedNominalValue - marketPrice + tci) / marketPrice * 365 / holdingPeriod * 100
 	return yield, nil
 }
 
