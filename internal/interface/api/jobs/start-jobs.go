@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"net/http"
+	"sync"
 
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/stock-portfolio"
 	bondsapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/bonds"
@@ -20,8 +21,15 @@ func StartAllJobs(c *gin.Context) {
 }
 
 func StartDailyJobs(c *gin.Context) {
-	api_security.ExecuteSecurityMasterImportJob(c)
+	wg := sync.WaitGroup{}
+	wg.Go(func() { api_security.StartSecurityMasterImportJob(c) })
+	wg.Wait() //Need to import the security master before updating the portfolio
+
 	portfolio.UpdatePortfolio(c)
+
+	wg.Go(func() { forexapi.StartForexImportJob(c) })
+	wg.Wait() //Need to fetch the latest forex rates before proceeding to update the bonds' ACI
+
 	bondsapi.UpdateAllBondsAci(c)
 	c.JSON(http.StatusOK, "Daily jobs were successfully started/executed")
 }
