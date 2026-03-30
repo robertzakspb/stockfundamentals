@@ -48,7 +48,7 @@ func addEndpoints(router *gin.Engine) {
 	router.GET("bonds/account/timeline", bondportfolioapi.GetAccountBondTimeline)
 	router.POST("bonds/update-all-bonds-aci", bondsapi.UpdateAllBondsAci)
 
-	router.POST("/fetch/securities", api_security.ExecuteSecurityMasterImportJob)
+	router.POST("/fetch/securities", api_security.StartSecurityMasterImportJob)
 
 	router.POST("/fetch/time-series", timeseries.StartTimeSeriesImportJob)
 

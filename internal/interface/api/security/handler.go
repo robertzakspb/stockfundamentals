@@ -7,12 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ExecuteSecurityMasterImportJob(c *gin.Context) {
-	err := security_master.FetchAndSaveSecurities()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
-		return
-	}
+func StartSecurityMasterImportJob(c *gin.Context) {
+	go security_master.FetchAndSaveSecurities()
 
 	c.JSON(http.StatusOK, "Successfully executed the security import job")
 }
