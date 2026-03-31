@@ -103,9 +103,9 @@ func fetchTinkoffSecurities() []security.Stock {
 	return russianStocks
 }
 
-func GetSecuritiesById(ids []string) ([]security.Security, error) {
-	return securitydb.GetSecuritiesFilteredById(ids)
-}
+// func GetSecuritiesById(ids []string) ([]security.Security, error) {
+// 	return securitydb.GetSecuritiesFilteredById(ids)
+// }
 
 func mapTinkoffSecurityTypeToInternal(shareType investapi.ShareType) security.SecurityType {
 	switch shareType {

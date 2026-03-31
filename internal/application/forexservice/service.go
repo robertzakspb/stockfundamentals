@@ -2,6 +2,7 @@ package forexservice
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -9,6 +10,7 @@ import (
 	forexdb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/forex"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
@@ -45,7 +47,7 @@ func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {
 			}
 		}
 
-		rate, err := getCurrencyToRubRate("USD", targetDate)
+		rate, err := getCurrencyToRubRate(cur1, targetDate)
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 			continue
@@ -56,7 +58,7 @@ func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {
 			Date:      targetDate,
 			Rate:      rate,
 		})
-		logger.Log("Fetched the rate for "+cur1+"/"+cur2+" for "+targetDate.String(), logger.INFORMATION)
+		logger.Log("Fetched the rate for "+cur1+"/"+cur2+". Value: "+fmt.Sprint(rate)+" for "+targetDate.String(), logger.INFORMATION)
 
 		targetDate = targetDate.Add(time.Hour * 24)
 
@@ -80,6 +82,8 @@ func GetExchangeRates(currencyPairs []string, date time.Time) ([]ForexRate, erro
 		ConditionValue: shared.ConvertToYdbDate(date),
 	}}
 
+	cur1s := []string{}
+	cur2s := []string{}
 	for _, pair := range currencyPairs {
 		split := strings.Split(pair, "/")
 		cur1, cur2 := strings.ToUpper(split[0]), strings.ToUpper(split[1])
@@ -87,17 +91,20 @@ func GetExchangeRates(currencyPairs []string, date time.Time) ([]ForexRate, erro
 			logger.Log("Skipping the currency pair "+cur1+"/"+cur2+" due to missing rates", logger.INFORMATION)
 			continue
 		}
-		filters = append(filters, ydbfilter.YdbFilter{
-			YqlColumnName:  "currency_1",
-			Condition:      ydbfilter.Equal,
-			ConditionValue: types.TextValue(strings.ToUpper(cur1)),
-		})
-		filters = append(filters, ydbfilter.YdbFilter{
-			YqlColumnName:  "currency_2",
-			Condition:      ydbfilter.Equal,
-			ConditionValue: types.TextValue(strings.ToUpper(cur2)),
-		})
+		cur1s = append(cur1s, cur1)
+		cur2s = append(cur2s, cur2)
 	}
+
+	filters = append(filters, ydbfilter.YdbFilter{
+		YqlColumnName:  "currency_1",
+		Condition:      ydbfilter.Contains,
+		ConditionValue: ydbhelper.ConvertStringsToYdbList(cur1s),
+	})
+	filters = append(filters, ydbfilter.YdbFilter{
+		YqlColumnName:  "currency_2",
+		Condition:      ydbfilter.Contains,
+		ConditionValue: ydbhelper.ConvertStringsToYdbList(cur2s),
+	})
 
 	dbRates, err := forexdb.GetAllFxRates(filters)
 	if err != nil {
@@ -145,6 +152,27 @@ func FindRate(cur1, cur2 string, rates []ForexRate) (ForexRate, bool) {
 
 	return ForexRate{}, false
 }
+
+// func GetExchangeRatesObsolete(currencyPairs []string, date time.Time) ([]ForexRate, error) {
+// 	rates := []ForexRate{}
+
+// 	for _, pair := range currencyPairs {
+// 		split := strings.Split(pair, "/")
+// 		cur1, cur2 := strings.ToUpper(split[0]), strings.ToUpper(split[1])
+// 		if cur2 != "RUB" {
+// 			logger.Log("Skipping the currency pair "+cur1+"/"+cur2+" due to missing rates", logger.INFORMATION)
+// 			continue
+// 		}
+// 		rate, err := GetExchangeRate(cur1, cur2, date)
+// 		if err != nil {
+// 			logger.Log("Failed to get the forex rate for "+cur1+"/"+cur2, logger.ERROR)
+// 			continue
+// 		}
+// 		rates = append(rates, rate)
+// 	}
+
+// 	return rates, nil
+// }
 
 // func GetExchangeRateForPair(currency1, currency2 string, dp ForexDataProvider) (float64, error) {
 // 	if currency1 == currency2 {

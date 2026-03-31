@@ -1,6 +1,8 @@
 package portfolio
 
 import (
+	"time"
+
 	"github.com/compoundinvest/stockfundamentals/internal/application/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 	"github.com/google/uuid"
@@ -24,6 +26,9 @@ func getHardCodedStockPositions() []lot.Lot {
 	serbianStocks := []lot.Lot{
 
 		{
+			Id:           uuid.New(),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 			Quantity:     125,
 			PricePerUnit: 8457.9,
 			Currency:     "RSD",
@@ -38,6 +43,9 @@ func getHardCodedStockPositions() []lot.Lot {
 			// },
 		},
 		{
+			Id:           uuid.New(),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 			Quantity:     1232,
 			PricePerUnit: 1495.58,
 			Currency:     "RSD",
@@ -52,6 +60,9 @@ func getHardCodedStockPositions() []lot.Lot {
 			// },
 		},
 		{
+			Id:           uuid.New(),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 			Quantity:     459,
 			PricePerUnit: 2018.78,
 			Currency:     "RSD",
@@ -66,6 +77,9 @@ func getHardCodedStockPositions() []lot.Lot {
 			// },
 		},
 		{
+			Id:           uuid.New(),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 			Quantity:     380,
 			PricePerUnit: 838.91,
 			Currency:     "RSD",
@@ -80,6 +94,9 @@ func getHardCodedStockPositions() []lot.Lot {
 			// },
 		},
 		{
+			Id:           uuid.New(),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 			Quantity:     38,
 			PricePerUnit: 7960.4,
 			Currency:     "RSD",
@@ -96,6 +113,9 @@ func getHardCodedStockPositions() []lot.Lot {
 	}
 
 	rosselhozStocks := lot.Lot{
+		Id:           uuid.New(),
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
 		Quantity:     3459,
 		PricePerUnit: 84,
 		Currency:     "RUB",

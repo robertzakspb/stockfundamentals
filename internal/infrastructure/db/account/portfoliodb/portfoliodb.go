@@ -82,10 +82,10 @@ func UpdateLocalPortfolio(lots []LotDb) error {
 	err := deleteAllLots()
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
+				return err
+
 	}
-	if err != nil {
-		return err
-	}
+	
 
 	db, err := shared.MakeYdbDriver()
 	if err != nil {

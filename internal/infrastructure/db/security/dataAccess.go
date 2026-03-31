@@ -13,8 +13,8 @@ import (
 
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
@@ -62,28 +62,31 @@ func SaveSecuritiesToDB(securities []security.Security, db *ydb.Driver) error {
 }
 
 func GetAllSecuritiesFromDB() ([]security.Stock, error) {
-	return FetchSecuritiesFromDBWithDriver(getSecuritiesBaseQuery())
+	return FetchSecuritiesFromDBWithDriver(getSecuritiesBaseQuery(), []ydbfilter.YdbFilter{})
 }
 
 func GetSecuritiesFilteredByFigi(figis []string) ([]security.Stock, error) {
-	return FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByFigiQuery(figis))
+	return FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByFigiQuery(figis), []ydbfilter.YdbFilter{})
 }
 
-func GetSecuritiesFilteredById(ids []string) ([]security.Security, error) {
-	stocks, err := FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByIdQuery(ids))
-	if err != nil {
-		logger.Log(err.Error(), logger.ERROR)
-		return []security.Security{}, err
-	}
+// func GetSecuritiesFilteredById(ids []string) ([]security.Security, error) {
+// 	filters := []ydbfilter.YdbFilter{{
+// 		YqlColumnName: "figi",
+// 	}}
+// 	stocks, err := FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByIdQuery(ids))
+// 	if err != nil {
+// 		logger.Log(err.Error(), logger.ERROR)
+// 		return []security.Security{}, err
+// 	}
 
-	securities := []security.Security{}
-	for _, s := range stocks {
-		securities = append(securities, s)
-	}
-	return securities, err
-}
+// 	securities := []security.Security{}
+// 	for _, s := range stocks {
+// 		securities = append(securities, s)
+// 	}
+// 	return securities, err
+// }
 
-func FetchSecuritiesFromDBWithDriver(yqlQuery string) ([]security.Stock, error) {
+func FetchSecuritiesFromDBWithDriver(yqlQuery string, filters []ydbfilter.YdbFilter) ([]security.Stock, error) {
 	config, err := config.LoadConfig()
 	if err != nil {
 		return []security.Stock{}, err
@@ -104,6 +107,8 @@ func FetchSecuritiesFromDBWithDriver(yqlQuery string) ([]security.Stock, error) 
 		func(ctx context.Context, s query.Session) (err error) {
 			result, err := s.Query(ctx,
 				yqlQuery,
+				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
+				query.WithParameters(ydbfilter.SetQueryParams(filters)),
 			)
 
 			if err != nil {
@@ -179,18 +184,12 @@ func getSecuritiesFilteredByFigiQuery(figis []string) string {
 func getSecuritiesFilteredByIdQuery(ids []string) string {
 	filters := []ydbfilter.YdbFilter{}
 
-	ydbIds := []types.Value{}
-	for _, id := range ids {
-		uuid, err := uuid.Parse(id)
-		if err != nil {
-			logger.Log("Unexpected error parsing ID from: "+id, logger.ERROR)
-		}
-		ydbIds = append(ydbIds, types.UuidValue(uuid))
-	}
+	ydbFigis := ydbhelper.ConvertStringsToYdbList(ids)
+
 	filters = append(filters, ydbfilter.YdbFilter{
-		YqlColumnName:  "id",
+		YqlColumnName:  "figi",
 		Condition:      ydbfilter.Contains,
-		ConditionValue: types.ListValue(ydbIds...),
+		ConditionValue: ydbFigis,
 	})
 
 	yqlQuery := getSecuritiesBaseQuery()

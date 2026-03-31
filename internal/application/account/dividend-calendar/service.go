@@ -11,7 +11,6 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 )
 
@@ -22,7 +21,7 @@ func GetAccountDividendCalendar(accountIds uuid.UUIDs) (divcal.DividendCalendar,
 	}
 
 	securityIds := portfolio.Securities()
-	securities, err := security_master.GetSecuritiesById(securityIds)
+	securities, err := security_master.GetSecuritiesFilteredByFigi(securityIds)
 	if err != nil {
 		return divcal.DividendCalendar{}, err
 	}
@@ -49,12 +48,7 @@ func GetAccountDividendCalendar(accountIds uuid.UUIDs) (divcal.DividendCalendar,
 
 	for _, relevantDiv := range relevantDivs {
 		for _, lot := range portfolio.Lots {
-			securityId, err := uuid.Parse(lot.SecurityId)
-			if err != nil {
-				logger.Log("Unexpectedly failed to parse a UUID from security ID: "+lot.SecurityId, logger.ERROR)
-				continue
-			}
-			if relevantDiv.Id == securityId {
+			if relevantDiv.Figi == lot.SecurityId {
 				divCal.FuturePayouts = append(divCal.FuturePayouts, dividend.Payout{
 					Id:         uuid.New(),
 					DividendId: relevantDiv.Id,

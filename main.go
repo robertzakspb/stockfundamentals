@@ -11,6 +11,7 @@ import (
 	timeseries "github.com/compoundinvest/stockfundamentals/internal/interface/api/time-series"
 
 	bondportfolioapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/bond-portfolio"
+	divcalapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/dividend-calendar"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/stock-portfolio"
 	dividend "github.com/compoundinvest/stockfundamentals/internal/interface/api/fundamentals/dividend"
 	"github.com/gin-contrib/cors"
@@ -26,20 +27,22 @@ func main() {
 }
 
 func addEndpoints(router *gin.Engine) {
-	router.POST("/migration/initial-seed", dataseed.InitialSeed)
+	router.POST("migration/initial-seed", dataseed.InitialSeed)
 
-	router.GET("/health-check", healthCheck)
+	router.GET("health-check", healthCheck)
 
-	router.GET("/portfolio", portfolio.GetPortfolio)
-	router.GET("/account-portfolio", portfolio.GetAccountPortfolio)
-	router.POST("/update-portfolio", portfolio.UpdatePortfolio)
+	router.GET("portfolio", portfolio.GetPortfolio)
+	router.GET("account-portfolio", portfolio.GetAccountPortfolio)
+	router.POST("update-portfolio", portfolio.UpdatePortfolio)
 
-	router.POST("/fetch/dividends", dividend.StartDividendFetchingJob)
-	router.GET("/all-dividends", dividend.GetAllDividends)
-	router.GET("/upcoming-dividends", dividend.GetUpcomingDividends) //TODO: Deprecate (may now be simulated via /all-dividends)
+	router.POST("fetch/dividends", dividend.StartDividendFetchingJob)
+	router.GET("all-dividends", dividend.GetAllDividends)
+	router.GET("upcoming-dividends", dividend.GetUpcomingDividends) //TODO: Deprecate (may now be simulated via /all-dividends)
 	router.POST("dividend/forecast", dividend.CreateNewDividendForecast)
-	router.GET("/dividend/forecasts", dividend.GetDividendForecasts)
+	router.GET("dividend/forecasts", dividend.GetDividendForecasts)
 	router.GET("dividend/forecasts-grouped-by-security", dividend.GetDividendForecastsGroupedBySecurity)
+
+	router.GET("dividend/calendar", divcalapi.GetAccountDividendCalendar)
 
 	router.POST("jobs/import-bonds-and-coupons", bondsapi.StartBondAndCouponImportJob)
 
@@ -48,16 +51,15 @@ func addEndpoints(router *gin.Engine) {
 	router.GET("bonds/account/timeline", bondportfolioapi.GetAccountBondTimeline)
 	router.POST("bonds/update-all-bonds-aci", bondsapi.StartBondAccruedInterestUpdateJob)
 
-	router.POST("/fetch/securities", api_security.StartSecurityMasterImportJob)
+	router.POST("fetch/securities", api_security.StartSecurityMasterImportJob)
 
-	router.POST("/fetch/time-series", timeseries.StartTimeSeriesImportJob)
+	router.POST("fetch/time-series", timeseries.StartTimeSeriesImportJob)
 
-	router.POST("/fetch/fx-rates", forexapi.StartForexImportJob)
+	router.POST("fetch/fx-rates", forexapi.StartForexImportJob)
 
-	router.POST("/start-all-jobs", jobs.StartAllJobs)
-	router.POST("/start-daily-jobs", jobs.StartDailyJobs)
-	router.POST("/start-heavy-jobs", jobs.StartHeavyJobs)
-
+	router.POST("start-all-jobs", jobs.StartAllJobs)
+	router.POST("start-daily-jobs", jobs.StartDailyJobs)
+	router.POST("start-heavy-jobs", jobs.StartHeavyJobs)
 }
 
 func healthCheck(c *gin.Context) {
