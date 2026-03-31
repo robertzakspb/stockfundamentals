@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/google/uuid"
 )
 
@@ -19,6 +20,7 @@ type Dividend struct {
 	PayoutDate        time.Time `sql:"payout_date" json:"payoutDate"`
 	PaymentPeriod     string    `sql:"payment_period" json:"paymentPeriod"` //TODO: Implement or copy from financial reports
 	ManagementComment string    `sql:"management_comment" json:"managementComment"`
+	Security          security.Stock
 }
 
 func NewDividend(div Dividend) (Dividend, error) {

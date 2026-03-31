@@ -30,7 +30,7 @@ func StartDailyJobs(c *gin.Context) {
 	wg.Go(func() { forexapi.StartForexImportJob(c) })
 	wg.Wait() //Need to fetch the latest forex rates before proceeding to update the bonds' ACI
 
-	bondsapi.UpdateAllBondsAci(c)
+	bondsapi.StartBondAccruedInterestUpdateJob(c)
 	c.JSON(http.StatusOK, "Daily jobs were successfully started/executed")
 }
 
@@ -38,6 +38,5 @@ func StartHeavyJobs(c *gin.Context) {
 	timeseries.StartTimeSeriesImportJob(c)
 	apidividend.StartDividendFetchingJob(c)
 	bondsapi.StartBondAndCouponImportJob(c)
-	forexapi.StartForexImportJob(c)
 	c.JSON(http.StatusOK, "Heavy jobs were successfully started/executed")
 }

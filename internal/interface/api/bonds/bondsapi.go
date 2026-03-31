@@ -13,12 +13,7 @@ func StartBondAndCouponImportJob(c *gin.Context) {
 	c.JSON(http.StatusOK, "The bond import job has been successfully started")
 }
 
-func UpdateAllBondsAci(c *gin.Context) {
-	err := bondservice.UpdateAllBondsAci()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
-		return
-	}
-
+func StartBondAccruedInterestUpdateJob(c *gin.Context) {
+	go bondservice.UpdateAllBondsAci()
 	c.JSON(http.StatusOK, "The bonds' accrued interest job has been successfully started")
 }

@@ -259,7 +259,7 @@ func MatchCouponsWithBonds(coupons []bonds.Coupon, bonds []bonds.Bond) []bonds.B
 
 func CalculateYtmForBonds(bondList []bonds.Bond, quotes []bondquote.TinkoffBondQuote) []bonds.Bond {
 	currencyPairs := AllCurrencyPairsInBondList(bondList)
-	forexRates, _ := forexservice.GetExchangeRates(currencyPairs)
+	forexRates, _ := forexservice.GetExchangeRates(currencyPairs, time.Now())
 
 	for _, quote := range quotes {
 		for i, b := range bondList {
@@ -305,7 +305,7 @@ func UpdateAllBondsAci() error {
 	bondList = PopulateBondCoupons(bondList)
 
 	currencyPairs := AllCurrencyPairsInBondList(bondList)
-	forexRates, _ := forexservice.GetExchangeRates(currencyPairs)
+	forexRates, _ := forexservice.GetExchangeRates(currencyPairs, time.Now())
 
 	for i, bond := range bondList {
 		forexRate := 1.0

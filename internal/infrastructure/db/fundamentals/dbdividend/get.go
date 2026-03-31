@@ -16,7 +16,7 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
 )
 
-func GetAllDividends(filters []ydbfilter.YdbFilter) ([]dividend.Dividend, error) {
+func GetFilteredDividends(filters []ydbfilter.YdbFilter) ([]dividend.Dividend, error) {
 	db, err := utilities.MakeYdbDriver()
 	if err != nil {
 		return []dividend.Dividend{}, err
@@ -75,7 +75,7 @@ func GetUpcomingDividends() ([]dividend.Dividend, error) {
 		Condition:      ydbfilter.GreaterThanOrEqualTo,
 		ConditionValue: shared.ConvertToYdbDate(time.Now()),
 	}
-	allDividends, err := GetAllDividends([]ydbfilter.YdbFilter{payoutDateFilter})
+	allDividends, err := GetFilteredDividends([]ydbfilter.YdbFilter{payoutDateFilter})
 	if err != nil {
 		return []dividend.Dividend{}, err
 	}

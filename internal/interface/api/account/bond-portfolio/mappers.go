@@ -1,7 +1,7 @@
 package bondportfolioapi
 
 import (
-	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/bond-portfolio"
+	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/google/uuid"
 )
@@ -24,14 +24,14 @@ func mapBondLotDtoToDomain(dto bondPositionLotDto) bonds.BondLot {
 
 func mapBondLotToDto(lot bonds.BondLot) bondPositionLotDto {
 	dto := bondPositionLotDto{
-		Figi:             lot.Figi,
-		Isin:             lot.Isin,
-		OpeningDate:      lot.OpeningDate,
-		ModificationDate: lot.ModificationDate,
-		AccountId:        lot.AccountId.String(),
-		Quantity:         lot.Quantity,
-		PricePerUnit:     lot.PricePerUnit,
-		CurrentYtm:       lot.Bond.YieldToMaturity,
+		Figi:              lot.Figi,
+		Isin:              lot.Isin,
+		OpeningDate:       lot.OpeningDate,
+		ModificationDate:  lot.ModificationDate,
+		AccountId:         lot.AccountId.String(),
+		Quantity:          lot.Quantity,
+		PricePerUnit:      lot.PricePerUnit,
+		CurrentYtm:        lot.Bond.YieldToMaturity,
 		YieldToCallOption: lot.Bond.YieldToCallOption,
 	}
 

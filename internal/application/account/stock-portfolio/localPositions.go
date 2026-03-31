@@ -1,18 +1,17 @@
 package portfolio
 
 import (
+	"github.com/compoundinvest/stockfundamentals/internal/application/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 	"github.com/google/uuid"
 )
-
-
 
 // Returns positions that cannot be fetched from some external API and must thus be hardcoded here
 func getHardCodedStockPositions() []lot.Lot {
 	//TODO: Move this to the position_lot table:
 
-	rosselHozId, _ := uuid.Parse("5e3e1fdb-5c18-43a5-a7c6-f898aff2d17f")
-	nlbId, _ := uuid.Parse("3b450479-a136-4ecd-9f34-8bfac6488101")
+	rosselHozId, _ := uuid.Parse(shared.ROSSELHOZ_ACCOUNT_ID)
+	nlbId, _ := uuid.Parse(shared.NLB_ACCOUNT_ID_ID)
 
 	jesvId := "BBG000BS7XH7"
 	dunavId := "BBG000BMX476"
@@ -101,7 +100,7 @@ func getHardCodedStockPositions() []lot.Lot {
 		PricePerUnit: 84,
 		Currency:     "RUB",
 		AccountId:    rosselHozId,
-		SecurityId: etalonId,
+		SecurityId:   etalonId,
 		// Security: security.Stock{
 		// 	//TODO: Add security ID
 		// 	Ticker:      "ETLN",
@@ -110,7 +109,7 @@ func getHardCodedStockPositions() []lot.Lot {
 		// 	MIC:         "MISX",
 		// },
 	}
-	
+
 	allStocks := append(serbianStocks, rosselhozStocks)
 
 	return allStocks

@@ -1,0 +1,7 @@
+package shared
+
+const TINKOFF_IIS_ACCOUNT_ID = "3315bd1c-12a4-444e-a294-84ef339e26e1"
+const NLB_ACCOUNT_ID_ID = "3b450479-a136-4ecd-9f34-8bfac6488101"
+const ROSSELHOZ_ACCOUNT_ID = "5e3e1fdb-5c18-43a5-a7c6-f898aff2d17f"
+
+// const VTB_MOM_ID = ""

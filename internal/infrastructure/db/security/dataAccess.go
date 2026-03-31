@@ -12,7 +12,9 @@ import (
 	"path"
 
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
+	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
@@ -54,7 +56,7 @@ func SaveSecuritiesToDB(securities []security.Security, db *ydb.Driver) error {
 		return err
 	}
 
-	logger.Log("Saved " + strconv.Itoa(len(ydbStocks)) + " securities to the database", logger.INFORMATION)
+	logger.Log("Saved "+strconv.Itoa(len(ydbStocks))+" securities to the database", logger.INFORMATION)
 
 	return nil
 }
@@ -67,19 +69,19 @@ func GetSecuritiesFilteredByFigi(figis []string) ([]security.Stock, error) {
 	return FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByFigiQuery(figis))
 }
 
-// func GetSecuritiesFilteredById(ids []string) ([]security.Security, error) {
-// 	stocks, err := FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByIdQuery(ids))
-// 	if err != nil {
-// 		logger.Log(err.Error(), logger.ERROR)
-// 		return []security.Security{}, err
-// 	}
+func GetSecuritiesFilteredById(ids []string) ([]security.Security, error) {
+	stocks, err := FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByIdQuery(ids))
+	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
+		return []security.Security{}, err
+	}
 
-// 	securities := []security.Security{}
-// 	for _, s := range stocks {
-// 		securities = append(securities, s)
-// 	}
-// 	return securities, err
-// }
+	securities := []security.Security{}
+	for _, s := range stocks {
+		securities = append(securities, s)
+	}
+	return securities, err
+}
 
 func FetchSecuritiesFromDBWithDriver(yqlQuery string) ([]security.Stock, error) {
 	config, err := config.LoadConfig()
@@ -174,15 +176,31 @@ func getSecuritiesFilteredByFigiQuery(figis []string) string {
 	return yqlQuery
 }
 
-// func getSecuritiesFilteredByIdQuery(ids []string) string {
-// 	yqlQuery := getSecuritiesBaseQuery()
+func getSecuritiesFilteredByIdQuery(ids []string) string {
+	filters := []ydbfilter.YdbFilter{}
 
-// 	if len(ids) > 0 {
-// 		yqlQuery += "WHERE id IN " + convertUuidsToYqlInExpression(ids)
-// 	}
+	ydbIds := []types.Value{}
+	for _, id := range ids {
+		uuid, err := uuid.Parse(id)
+		if err != nil {
+			logger.Log("Unexpected error parsing ID from: "+id, logger.ERROR)
+		}
+		ydbIds = append(ydbIds, types.UuidValue(uuid))
+	}
+	filters = append(filters, ydbfilter.YdbFilter{
+		YqlColumnName:  "id",
+		Condition:      ydbfilter.Contains,
+		ConditionValue: types.ListValue(ydbIds...),
+	})
 
-// 	return yqlQuery
-// }
+	yqlQuery := getSecuritiesBaseQuery()
+
+	yqlQuery = ydbfilter.AddYqlVarDeclarations(filters) + " " + yqlQuery
+
+	yqlQuery += ydbfilter.MakeWhereClause(filters)
+
+	return yqlQuery
+}
 
 func securityPath() string {
 	return "`" + path.Join(stock_directory_prefix, stock_table_name) + "`"

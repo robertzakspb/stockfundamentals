@@ -7,6 +7,7 @@ import (
 	"path"
 
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
@@ -22,13 +23,24 @@ func GetAccountPortfolio(accountIDs uuid.UUIDs) ([]LotDb, error) {
 	}
 	defer db.Close(context.TODO())
 
+	ydbUUIDs := []types.Value{}
+	for _, id := range accountIDs {
+		ydbUUIDs = append(ydbUUIDs, types.UuidValue(id))
+	}
+	filters := []ydbfilter.YdbFilter{{
+		YqlColumnName:  "account_id",
+		Condition:      ydbfilter.Contains,
+		ConditionValue: types.ListValue(ydbUUIDs...),
+	}}
+
 	lots := []LotDb{}
-	yql := makeGetAccountPortfolioQuery()
+	yql := makeGetAccountPortfolioQuery(filters)
 	err = db.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
 			result, err := s.Query(ctx,
 				yql,
 				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
+				query.WithParameters(ydbfilter.SetQueryParams(filters)),
 			)
 			if err != nil {
 				return err
@@ -118,7 +130,6 @@ func deleteAllLots() error {
 
 	yql := "DELETE FROM " + "`" + path.Join(shared.USER_DIRECTORY_PREFIX, shared.POSITION_LOT_TABLE_NAME) + "`"
 
-	//func(ctx context.Context, s Session) error
 	err = db.Table().DoTx(context.TODO(),
 		func(ctx context.Context, tx table.TransactionActor) (err error) {
 			result, err := tx.Execute(ctx,
@@ -141,24 +152,28 @@ func deleteAllLots() error {
 	return nil
 }
 
-func makeGetAccountPortfolioQuery() string {
-	yql := "SELECT" +
-		"`stockfundamentals/stocks/stock`.figi AS figi," +
-		"`stockfundamentals/stocks/stock`.company_name AS company_name," +
-		"`stockfundamentals/stocks/stock`.ticker AS ticker," +
-		"`user/position_lot`.id AS id," +
-		"`user/position_lot`.account_id AS account_id," +
-		"`user/position_lot`.created_at AS created_at," +
-		"`user/position_lot`.updated_at AS updated_at," +
-		"`user/position_lot`.quantity AS quantity," +
-		"`user/position_lot`.currency AS currency, " +
-		"`user/position_lot`.price_per_unit AS price_per_unit" +
-		" FROM" +
-		"`" + path.Join(shared.USER_DIRECTORY_PREFIX, shared.POSITION_LOT_TABLE_NAME) + "`" +
-		" JOIN " +
-		"`" + path.Join(shared.STOCK_DIRECTORY_PREFIX, shared.STOCK_TABLE_NAME) + "`" +
-		" ON " +
-		"`" + path.Join(shared.STOCK_DIRECTORY_PREFIX, shared.STOCK_TABLE_NAME) + "`.figi" + " = " +
-		"`" + path.Join(shared.USER_DIRECTORY_PREFIX, shared.POSITION_LOT_TABLE_NAME) + "`" + ".figi"
+func makeGetAccountPortfolioQuery(filters []ydbfilter.YdbFilter) string {
+	yql :=
+		ydbfilter.AddYqlVarDeclarations(filters) +
+			"SELECT" +
+			"`stockfundamentals/stocks/stock`.figi AS figi," +
+			"`stockfundamentals/stocks/stock`.company_name AS company_name," +
+			"`stockfundamentals/stocks/stock`.ticker AS ticker," +
+			"`user/position_lot`.id AS id," +
+			"`user/position_lot`.account_id AS account_id," +
+			"`user/position_lot`.created_at AS created_at," +
+			"`user/position_lot`.updated_at AS updated_at," +
+			"`user/position_lot`.quantity AS quantity," +
+			"`user/position_lot`.currency AS currency, " +
+			"`user/position_lot`.price_per_unit AS price_per_unit" +
+			" FROM" +
+			"`" + path.Join(shared.USER_DIRECTORY_PREFIX, shared.POSITION_LOT_TABLE_NAME) + "`" +
+			" JOIN " +
+			"`" + path.Join(shared.STOCK_DIRECTORY_PREFIX, shared.STOCK_TABLE_NAME) + "`" +
+			" ON " +
+			"`" + path.Join(shared.STOCK_DIRECTORY_PREFIX, shared.STOCK_TABLE_NAME) + "`.figi" + " = " +
+			"`" + path.Join(shared.USER_DIRECTORY_PREFIX, shared.POSITION_LOT_TABLE_NAME) + "`" + ".figi" +
+			" " + ydbfilter.MakeWhereClause(filters)
+
 	return yql
 }

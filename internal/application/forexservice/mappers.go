@@ -16,7 +16,7 @@ func mapFxRatesToDbModel(rates []ForexRate) []forexdb.ForexRateDb {
 	return dbModels
 }
 
-func mapDbModelToDomain(rates []forexdb.ForexRateDb) []ForexRate {
+func mapDbModelsToDomain(rates []forexdb.ForexRateDb) []ForexRate {
 	domainModels := []ForexRate{}
 	for _, rate := range rates {
 		domain := ForexRate{

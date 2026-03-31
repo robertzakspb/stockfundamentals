@@ -12,8 +12,16 @@ import (
 )
 
 type Portfolio struct {
-	Lots []lot.Lot `json:"lots"`
+	Lots []lot.Lot      `json:"lots"`
 	Cash []CashPosition `json:"cashPositions"` //TODO: Populate this
+}
+
+func (portfolio Portfolio) Securities() []string {
+	uuids := []string{}
+	for _, lot := range portfolio.Lots {
+		uuids = append(uuids, lot.SecurityId)
+	}
+	return uuids
 }
 
 func (portfolio Portfolio) UniquePositions() []lot.Lot {
@@ -45,7 +53,7 @@ func (portfolio Portfolio) UniquePositions() []lot.Lot {
 }
 
 type LotWithSecurity struct {
-	Lot   lot.Lot `json:"lot"`
+	Lot   lot.Lot        `json:"lot"`
 	Stock security.Stock `json:"stock"`
 }
 
@@ -80,25 +88,25 @@ func (portfolio Portfolio) WithPLs() []LotWithSecurity {
 	//Calculating the total portfolio value
 
 	for _, lot := range positions {
-		
-			var stock security.Stock
-			for _, s := range securities {
-				if s.GetId() == lot.SecurityId {
-					stock = security.Stock{
-						CompanyName:  s.GetCompanyName(),
-						Figi:         s.GetFigi(),
-						Isin:         s.GetIsin(),
-						SecurityType: s.GetSecurityType(),
-						Country:      s.GetCountry(),
-						Ticker:       s.GetTicker(),
-						IssueSize:    s.GetIssueSize(),
-						Sector:       s.GetSector(),
-						MIC:          s.GetMic(),
-					}
-					lotsWithSecurities = append(lotsWithSecurities, LotWithSecurity{Lot: lot, Stock: stock})
+
+		var stock security.Stock
+		for _, s := range securities {
+			if s.GetId() == lot.SecurityId {
+				stock = security.Stock{
+					CompanyName:  s.GetCompanyName(),
+					Figi:         s.GetFigi(),
+					Isin:         s.GetIsin(),
+					SecurityType: s.GetSecurityType(),
+					Country:      s.GetCountry(),
+					Ticker:       s.GetTicker(),
+					IssueSize:    s.GetIssueSize(),
+					Sector:       s.GetSector(),
+					MIC:          s.GetMic(),
 				}
+				lotsWithSecurities = append(lotsWithSecurities, LotWithSecurity{Lot: lot, Stock: stock})
 			}
-		
+		}
+
 	}
 
 	for i, lot := range lotsWithSecurities {
@@ -127,4 +135,3 @@ func (portfolio Portfolio) WithPLs() []LotWithSecurity {
 
 	return lotsWithSecurities
 }
-

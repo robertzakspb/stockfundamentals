@@ -73,10 +73,12 @@ func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {
 	return nil
 }
 
-// TODO: Refactor to replace the loop with a single DB transaction
-func GetExchangeRates(currencyPairs []string) ([]ForexRate, []error) {
-	errors := []error{}
-	rates := []ForexRate{}
+func GetExchangeRates(currencyPairs []string, date time.Time) ([]ForexRate, error) {
+	filters := []ydbfilter.YdbFilter{{
+		YqlColumnName:  "date",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: shared.ConvertToYdbDate(date),
+	}}
 
 	for _, pair := range currencyPairs {
 		split := strings.Split(pair, "/")
@@ -85,15 +87,26 @@ func GetExchangeRates(currencyPairs []string) ([]ForexRate, []error) {
 			logger.Log("Skipping the currency pair "+cur1+"/"+cur2+" due to missing rates", logger.INFORMATION)
 			continue
 		}
-		rate, err := GetExchangeRate(cur1, cur2, time.Now())
-		if err != nil {
-			logger.Log("Failed to get the local exchange rate for "+cur1+"/"+cur2, logger.ERROR)
-			errors = append(errors, err)
-			continue
-		}
-		rates = append(rates, rate)
+		filters = append(filters, ydbfilter.YdbFilter{
+			YqlColumnName:  "currency_1",
+			Condition:      ydbfilter.Equal,
+			ConditionValue: types.TextValue(strings.ToUpper(cur1)),
+		})
+		filters = append(filters, ydbfilter.YdbFilter{
+			YqlColumnName:  "currency_2",
+			Condition:      ydbfilter.Equal,
+			ConditionValue: types.TextValue(strings.ToUpper(cur2)),
+		})
 	}
-	return rates, errors
+
+	dbRates, err := forexdb.GetAllFxRates(filters)
+	if err != nil {
+		return []ForexRate{}, err
+	}
+
+	rates := mapDbModelsToDomain(dbRates)
+
+	return rates, nil
 }
 
 func GetExchangeRate(cur1, cur2 string, date time.Time) (ForexRate, error) {
@@ -120,7 +133,7 @@ func GetExchangeRate(cur1, cur2 string, date time.Time) (ForexRate, error) {
 		return ForexRate{}, errors.New("Invalid number of forex rates retrieved from the database: " + strconv.Itoa(len(rates)))
 	}
 
-	return mapDbModelToDomain(rates)[0], nil
+	return mapDbModelsToDomain(rates)[0], nil
 }
 
 func FindRate(cur1, cur2 string, rates []ForexRate) (ForexRate, bool) {

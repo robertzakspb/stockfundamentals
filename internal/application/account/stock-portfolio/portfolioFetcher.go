@@ -5,6 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/compoundinvest/stockfundamentals/internal/application/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/portfoliodb"
@@ -102,7 +103,7 @@ func getTinkoffStockPositions()  ([]lot.Lot, error)  {
 			logger.Log("Failed to find the stockId for "+position.Figi, logger.ERROR)
 		}
 
-		var tinkoffIisId, _ = uuid.Parse("3315bd1c-12a4-444e-a294-84ef339e26e1")
+		var tinkoffIisId, _ = uuid.Parse(shared.TINKOFF_IIS_ACCOUNT_ID)
 		newLot, err := lot.NewLot(stockId,
 			float64(position.Quantity.ToFloat()),
 			position.AveragePositionPrice.ToFloat(),

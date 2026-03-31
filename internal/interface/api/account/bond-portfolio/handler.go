@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/bond-portfolio"
+	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/gin-gonic/gin"

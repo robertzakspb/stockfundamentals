@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
+	appdividend "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -21,7 +21,7 @@ func StartDividendFetchingJob(c *gin.Context) {
 
 func GetAllDividends(c *gin.Context) {
 	parsedFilters := ydbfilter.MapQueryFiltersToYdb(c.Request.URL.Query(), dividend.Dividend{})
-	dividends, err := dbdividend.GetAllDividends(parsedFilters) //FIXME: Refactor to use the service
+	dividends, err := appdividend.GetFilteredDividends(parsedFilters) //FIXME: Refactor to use the service
 	dtos := mapDividendToDTO(dividends)
 
 	if err != nil {
@@ -70,4 +70,3 @@ func CreateNewDividendForecast(c *gin.Context) {
 
 	c.JSON(http.StatusOK, "The dividend forecast has been successfully saved")
 }
-

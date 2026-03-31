@@ -31,7 +31,6 @@ func AssertEqualFloat(t testing.TB, expected, actual float64, roundingThreshold 
 	t.Helper()
 	if math.Abs(expected-actual) > roundingThreshold {
 		t.Errorf("Expected: %v; got: %v. Rounding error threshold: %v", expected, actual, roundingThreshold)
-
 	}
 }
 
