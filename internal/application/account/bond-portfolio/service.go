@@ -16,7 +16,7 @@ import (
 )
 
 func SaveBondPositionLot(lot bonds.BondLot) error {
-	err := validateLot(lot)
+	lot, err := validateLot(lot)
 	if err != nil {
 		return err
 	}

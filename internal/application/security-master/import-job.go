@@ -7,7 +7,7 @@ import (
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
-	securitydb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
+	dbsecurity "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
@@ -40,17 +40,9 @@ func FetchAndSaveSecurities() error {
 		securities = append(securities, stock)
 	}
 
-	securitydb.SaveSecuritiesToDB(securities, db)
+	dbsecurity.SaveSecuritiesToDB(securities, db)
 
 	return nil
-}
-
-func GetAllSecuritiesFromDB() ([]security.Stock, error) {
-	return securitydb.GetAllSecuritiesFromDB()
-}
-
-func GetSecuritiesFilteredByFigi(figis []string) ([]security.Stock, error) {
-	return securitydb.GetSecuritiesFilteredByFigi(figis)
 }
 
 func fetchTinkoffSecurities() []security.Stock {
@@ -102,10 +94,6 @@ func fetchTinkoffSecurities() []security.Stock {
 
 	return russianStocks
 }
-
-// func GetSecuritiesById(ids []string) ([]security.Security, error) {
-// 	return securitydb.GetSecuritiesFilteredById(ids)
-// }
 
 func mapTinkoffSecurityTypeToInternal(shareType investapi.ShareType) security.SecurityType {
 	switch shareType {

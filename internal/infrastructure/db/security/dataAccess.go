@@ -13,7 +13,6 @@ import (
 
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
-	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 
@@ -68,23 +67,6 @@ func GetAllSecuritiesFromDB() ([]security.Stock, error) {
 func GetSecuritiesFilteredByFigi(figis []string) ([]security.Stock, error) {
 	return FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByFigiQuery(figis), []ydbfilter.YdbFilter{})
 }
-
-// func GetSecuritiesFilteredById(ids []string) ([]security.Security, error) {
-// 	filters := []ydbfilter.YdbFilter{{
-// 		YqlColumnName: "figi",
-// 	}}
-// 	stocks, err := FetchSecuritiesFromDBWithDriver(getSecuritiesFilteredByIdQuery(ids))
-// 	if err != nil {
-// 		logger.Log(err.Error(), logger.ERROR)
-// 		return []security.Security{}, err
-// 	}
-
-// 	securities := []security.Security{}
-// 	for _, s := range stocks {
-// 		securities = append(securities, s)
-// 	}
-// 	return securities, err
-// }
 
 func FetchSecuritiesFromDBWithDriver(yqlQuery string, filters []ydbfilter.YdbFilter) ([]security.Stock, error) {
 	config, err := config.LoadConfig()
@@ -177,26 +159,6 @@ func getSecuritiesFilteredByFigiQuery(figis []string) string {
 	if len(figis) > 0 {
 		yqlQuery += "WHERE figi IN " + convertStringsToYqlInExpression(figis)
 	}
-
-	return yqlQuery
-}
-
-func getSecuritiesFilteredByIdQuery(ids []string) string {
-	filters := []ydbfilter.YdbFilter{}
-
-	ydbFigis := ydbhelper.ConvertStringsToYdbList(ids)
-
-	filters = append(filters, ydbfilter.YdbFilter{
-		YqlColumnName:  "figi",
-		Condition:      ydbfilter.Contains,
-		ConditionValue: ydbFigis,
-	})
-
-	yqlQuery := getSecuritiesBaseQuery()
-
-	yqlQuery = ydbfilter.AddYqlVarDeclarations(filters) + " " + yqlQuery
-
-	yqlQuery += ydbfilter.MakeWhereClause(filters)
 
 	return yqlQuery
 }
