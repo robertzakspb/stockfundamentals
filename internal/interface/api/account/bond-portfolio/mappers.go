@@ -17,6 +17,7 @@ func mapBondLotDtoToDomain(dto bondPositionLotDto) bonds.BondLot {
 		AccountId:        accountId,
 		Quantity:         dto.Quantity,
 		PricePerUnit:     dto.PricePerUnit,
+		PricePerUnitInRUB: dto.PricePerUnitInRUB,
 	}
 
 	return domain

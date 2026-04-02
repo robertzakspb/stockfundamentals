@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -146,7 +147,7 @@ func GetBondByIsin(isin string) (bonds.Bond, error) {
 	filter := ydbfilter.YdbFilter{
 		YqlColumnName:  "isin",
 		Condition:      ydbfilter.Equal,
-		ConditionValue: types.TextValue(isin),
+		ConditionValue: types.TextValue(strings.ToUpper(isin)),
 	}
 	bondList, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{filter})
 	if err != nil {

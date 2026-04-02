@@ -21,6 +21,11 @@ func SaveBondPositionLot(lot bonds.BondLot) error {
 		return err
 	}
 
+	lot, err = addMissingInformationToLot(lot)
+	if err != nil {
+		return err
+	}
+
 	mappedLot := mapBondLotToDbModel(lot)
 
 	err = bondsdb.SaveBondPositionLots([]bondsdb.BondPositionLotDb{mappedLot})

@@ -3,6 +3,7 @@ package bonds
 import (
 	"errors"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
@@ -152,4 +153,8 @@ func (b Bond) Validate() error {
 
 func (b *Bond) HasCallOption() bool {
 	return !b.CallOptionExerciseDate.IsZero()
+}
+
+func (b Bond) IsRubleBond() bool {
+	return strings.ToUpper(b.Currency) == "RUB" && b.Currency == b.NominalCurrency
 }

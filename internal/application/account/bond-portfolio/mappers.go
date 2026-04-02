@@ -1,6 +1,8 @@
 package bondportfolio
 
 import (
+	"strings"
+
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 )
@@ -8,8 +10,8 @@ import (
 func mapBondLotToDbModel(lot bonds.BondLot) bondsdb.BondPositionLotDb {
 	return bondsdb.BondPositionLotDb{
 		Id:                lot.Id,
-		Figi:              lot.Figi,
-		Isin:              lot.Isin,
+		Figi:              strings.ToUpper(lot.Figi),
+		Isin:              strings.ToUpper(lot.Isin),
 		OpeningDate:       lot.OpeningDate,
 		ModificationDate:  lot.ModificationDate,
 		AccountId:         lot.AccountId,
