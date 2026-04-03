@@ -3,12 +3,12 @@ module github.com/compoundinvest/stockfundamentals
 go 1.26.1
 
 require (
-	github.com/compoundinvest/invest-core v1.0.12
+	github.com/compoundinvest/invest-core v1.0.14
 	github.com/gin-contrib/cors v1.7.7
 	github.com/gin-gonic/gin v1.12.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
-	github.com/ydb-platform/ydb-go-sdk/v3 v3.131.0
+	github.com/ydb-platform/ydb-go-sdk/v3 v3.132.0
 	golang.org/x/net v0.52.0
 	opensource.tbank.ru/invest/invest-go v1.48.0
 )

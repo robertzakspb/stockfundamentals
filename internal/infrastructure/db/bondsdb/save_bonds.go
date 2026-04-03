@@ -6,7 +6,6 @@ import (
 	"path"
 
 	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
-	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
@@ -70,15 +69,15 @@ func SaveBonds(bonds []BondDbModel) error {
 	return nil
 }
 
-func SaveCoupons(coupons []CouponDbModel) error {
-	dbConnection, err := utilities.MakeYdbDriver()
+func SaveCoupons(coupons *[]CouponDbModel) error {
+	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
 		return err
 	}
 	defer dbConnection.Close(context.TODO())
 
 	ydbCoupons := []types.Value{}
-	for _, c := range coupons {
+	for _, c := range *coupons {
 		ydbCoupon := types.StructValue(
 			types.StructFieldValue("id", types.UuidValue(c.Id)),
 			types.StructFieldValue("figi", types.TextValue(c.Figi)),

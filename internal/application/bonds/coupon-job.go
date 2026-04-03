@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/compoundinvest/stockfundamentals/internal/application/tinkoff-throttler"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -14,13 +15,12 @@ import (
 )
 
 func importAllCoupons() error {
+	startTime := time.Now()
 	bonds, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{})
 	if err != nil {
 		return err
 	}
 
-	rateLimit := time.Second //To comply with the Tinkoff API rate limits
-	throttle := time.Tick(rateLimit)
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
 		logger.Log("Failed to initialize the configuration file", logger.ALERT)
@@ -56,15 +56,23 @@ func importAllCoupons() error {
 			dbCoupon := mapCouponToDbModel(coupon)
 			dbCoupons = append(dbCoupons, dbCoupon)
 		}
+
+		//Saving coupons in chunks of 1000
+		if len(dbCoupons) > 1000 {
+			err = bondsdb.SaveCoupons(&dbCoupons)
+			if err != nil {
+				return err
+			}
+			dbCoupons = []bondsdb.CouponDbModel{}
+		}
+
 		logger.Log(strconv.Itoa(i+1)+" out of "+strconv.Itoa(len(bonds))+". Fetched coupons for figi "+bond.Figi, logger.INFORMATION)
 
-		<-throttle
+		<-tthrottler.InstrumentServiceThrottle
 	}
 
-	err = bondsdb.SaveCoupons(dbCoupons)
-	if err != nil {
-		return err
-	}
+	jobCompletionTime := time.Now()
+	logger.Log("The coupon import job has completed. Duration: "+jobCompletionTime.Sub(startTime).String(), logger.INFORMATION)
 
 	return nil
 }

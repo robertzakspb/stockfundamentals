@@ -1,7 +1,6 @@
 package appdividend
 
 import (
-	"context"
 	"strings"
 	"time"
 
@@ -14,21 +13,8 @@ import (
 	investapi "opensource.tbank.ru/invest/invest-go/proto"
 )
 
-func fetchTinkoffDividendsFor(stock security.Security) []dividend.Dividend {
-	//TODO: Extract the file name into an environment variable
-	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
-	if err != nil {
-		logger.Log(err.Error(), logger.ALERT)
-		return []dividend.Dividend{}
-	}
-
-	client, err := tinkoff.NewClient(context.TODO(), config, nil)
-	if err != nil {
-		logger.Log(err.Error(), logger.ALERT)
-		return []dividend.Dividend{}
-	}
-
-	securityService := client.NewInstrumentsServiceClient()
+func fetchTinkoffDividendsFor(securityService *tinkoff.InstrumentsServiceClient, stock security.Security) []dividend.Dividend {
+	
 	parsedDividends := []dividend.Dividend{}
 	earliestDividendDate := time.Date(1971, 1, 1, 0, 0, 0, 0, time.UTC)
 	upcomingDividendDate := time.Now().AddDate(2, 0, 0)

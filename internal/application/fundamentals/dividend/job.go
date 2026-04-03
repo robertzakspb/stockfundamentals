@@ -5,6 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"time"
+	"github.com/compoundinvest/stockfundamentals/internal/application/tinkoff-throttler"
+
+	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
@@ -49,20 +52,32 @@ func fetchDividendsForAllStocks() []dividend.Dividend {
 
 	allDividends := []dividend.Dividend{}
 
-	rateLimit := time.Second
-	throttle := time.Tick(rateLimit)
+	//TODO: Extract the file name into an environment variable
+	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
+	if err != nil {
+		logger.Log(err.Error(), logger.ALERT)
+		return []dividend.Dividend{}
+	}
+
+	client, err := tinkoff.NewClient(context.TODO(), config, nil)
+	if err != nil {
+		logger.Log(err.Error(), logger.ALERT)
+		return []dividend.Dividend{}
+	}
+
+	securityService := client.NewInstrumentsServiceClient()
 
 	for _, stock := range stocks {
 		switch stock.GetCountry() {
 		case "RU":
-			dividends := fetchTinkoffDividendsFor(stock)
+			dividends := fetchTinkoffDividendsFor(securityService, stock)
 			allDividends = append(allDividends, dividends...)
 			logger.Log(fmt.Sprintf("Fetched %d dividends for %s", len(dividends), stock.CompanyName), logger.INFORMATION)
 		default:
 			logger.Log("No data provider may provide dividends for "+stock.GetCompanyName(), logger.INFORMATION)
 			continue
 		}
-		<-throttle
+		<-tthrottler.InstrumentServiceThrottle
 	}
 	logger.Log("Completed the dividend fetching job", logger.INFORMATION)
 

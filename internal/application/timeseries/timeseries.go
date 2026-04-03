@@ -1,6 +1,7 @@
 package timeseries
 
 import (
+	"context"
 	"errors"
 	"strconv"
 	"time"
@@ -8,6 +9,7 @@ import (
 	"github.com/compoundinvest/invest-core/quote/entity"
 	tinkoffapi "github.com/compoundinvest/invest-core/quote/tinkoffmd"
 
+	tthrottler "github.com/compoundinvest/stockfundamentals/internal/application/tinkoff-throttler"
 	timeseries "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/marketdata"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
@@ -20,8 +22,6 @@ func FetchAndSaveHistoricalQuotes() error {
 	}
 	quotes := []entity.SimpleQuote{}
 
-	rateLimit := time.Second  //So as not not overload the Tinkoff API
-	throttle := time.Tick(rateLimit)
 	for _, quote := range latestQuotes {
 		if quote.Country != "RU" {
 			continue
@@ -31,7 +31,13 @@ func FetchAndSaveHistoricalQuotes() error {
 			return errors.New("Unable to fetch dividends due to internal configuration issues")
 		}
 
-		tQuotes, _ := tinkoffapi.FetchAllHistoricalQuotesFor(quote.Figi, config, quote.Date, time.Now())
+		client, err := tinkoff.NewClient(context.TODO(), config, nil)
+		service := client.NewMarketDataServiceClient()
+
+		tQuotes, err := tinkoffapi.FetchAllHistoricalQuotesFor(service, quote.Figi, quote.Date, time.Now())
+		if err != nil {
+			logger.Log(err.Error(), logger.ERROR)
+		}
 		logger.Log("Fetched "+strconv.Itoa(len(tQuotes))+" quotes for: "+quote.Figi, logger.INFORMATION)
 
 		interfaceStructs := make([]entity.SimpleQuote, len(tQuotes))
@@ -49,7 +55,7 @@ func FetchAndSaveHistoricalQuotes() error {
 			continue
 		}
 
-		<-throttle
+		<-tthrottler.MarketDataServiceThrottle
 	}
 
 	return nil
