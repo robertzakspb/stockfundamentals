@@ -13,25 +13,25 @@ import (
 )
 
 func SaveForexRates(rates []ForexRateDb) error {
-	db, err := utilities.MakeYdbDriver()
+	dbConnection, err := utilities.MakeYdbDriver()
 	if err != nil {
 		return err
 	}
-	defer db.Close(context.TODO())
+	defer dbConnection.Close(context.TODO())
 
 	ydbRates := []types.Value{}
 	for _, r := range rates {
 		ydbRate := types.StructValue(
 			types.StructFieldValue("currency_1", types.TextValue(r.Currency1)),
 			types.StructFieldValue("currency_2", types.TextValue(r.Currency2)),
-			types.StructFieldValue("date", shared.ConvertToYdbDate(r.Date)),
+			types.StructFieldValue("date", db.ConvertToYdbDate(r.Date)),
 			types.StructFieldValue("rate", types.DoubleValue(r.Rate)),
 		)
 		ydbRates = append(ydbRates, ydbRate)
 	}
 
-	tableName := path.Join(db.Name(), shared.FOREX_DIRECTORY_PREFIX, shared.FX_RATE_TABLE_NAME)
-	err = db.Table().BulkUpsert(
+	tableName := path.Join(dbConnection.Name(), db.FOREX_DIRECTORY_PREFIX, db.FX_RATE_TABLE_NAME)
+	err = dbConnection.Table().BulkUpsert(
 		context.TODO(),
 		tableName,
 		table.BulkUpsertDataRows(types.ListValue(ydbRates...)))

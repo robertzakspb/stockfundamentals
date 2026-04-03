@@ -56,10 +56,10 @@ func (bond BondDbModel) CorrectMaturityDate() types.Value {
 
 	if bond.MaturityDate.Year() > 2105 {
 		maximumAllowedYdbValue, _ := time.Parse(time.DateOnly, "2105-12-31")
-		return shared.ConvertToYdbDate(maximumAllowedYdbValue)
+		return db.ConvertToYdbDate(maximumAllowedYdbValue)
 	}
 
-	return shared.ConvertToYdbDate(bond.MaturityDate)
+	return db.ConvertToYdbDate(bond.MaturityDate)
 }
 
 type CouponDbModel struct {

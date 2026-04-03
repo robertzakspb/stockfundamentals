@@ -85,7 +85,7 @@ func makeGetCouponsByFigiQuery(filters []ydbfilter.YdbFilter) string {
 						%s
 					`,
 		ydbfilter.AddYqlVarDeclarations(filters),
-		"`"+path.Join(shared.BOND_DIRECTORY_PREFIX, shared.COUPON_TABLE_NAME)+"`",
+		"`"+path.Join(db.BOND_DIRECTORY_PREFIX, db.COUPON_TABLE_NAME)+"`",
 		ydbfilter.MakeWhereClause(filters))
 
 	return yql

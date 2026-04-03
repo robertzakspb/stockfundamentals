@@ -1,4 +1,4 @@
-package shared
+package db
 
 const STOCK_DIRECTORY_PREFIX = "stockfundamentals/stocks"
 const BOND_DIRECTORY_PREFIX = "bonds"

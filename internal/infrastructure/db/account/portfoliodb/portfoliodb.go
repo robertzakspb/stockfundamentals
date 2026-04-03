@@ -6,7 +6,7 @@ import (
 	"io"
 	"path"
 
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	shared "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
@@ -82,10 +82,9 @@ func UpdateLocalPortfolio(lots []LotDb) error {
 	err := deleteAllLots()
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
-				return err
+		return err
 
 	}
-	
 
 	db, err := shared.MakeYdbDriver()
 	if err != nil {

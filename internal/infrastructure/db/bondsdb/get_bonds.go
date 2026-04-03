@@ -105,7 +105,7 @@ func makeGetAllBondsQuery(filters []ydbfilter.YdbFilter) string {
 						%s
 					`,
 		ydbfilter.AddYqlVarDeclarations(filters),
-		"`"+path.Join(shared.BOND_DIRECTORY_PREFIX, shared.BOND_TABLE_NAME)+"`",
+		"`"+path.Join(db.BOND_DIRECTORY_PREFIX, db.BOND_TABLE_NAME)+"`",
 		ydbfilter.MakeWhereClause(filters))
 	return yql
 }

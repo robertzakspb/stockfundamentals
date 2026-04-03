@@ -80,7 +80,7 @@ func makeGetAllForexRatesQuery(filters []ydbfilter.YdbFilter) string {
 						%s
 					`,
 		ydbfilter.AddYqlVarDeclarations(filters),
-		"`"+path.Join(shared.FOREX_DIRECTORY_PREFIX, shared.FX_RATE_TABLE_NAME)+"`",
+		"`"+path.Join(db.FOREX_DIRECTORY_PREFIX, db.FX_RATE_TABLE_NAME)+"`",
 		ydbfilter.MakeWhereClause(filters))
 	return yql
 }
@@ -102,7 +102,7 @@ func GetEarliestAndLatestDbRateFor(cur1, cur2 string) (time.Time, time.Time, err
 							%s
 						WHERE currency_1 = '%s' AND currency_2 = '%s'
 					`,
-		"`"+path.Join(shared.FOREX_DIRECTORY_PREFIX, shared.FX_RATE_TABLE_NAME)+"`",
+		"`"+path.Join(db.FOREX_DIRECTORY_PREFIX, db.FX_RATE_TABLE_NAME)+"`",
 		cur1, cur2)
 
 	db, err := utilities.MakeYdbDriver()

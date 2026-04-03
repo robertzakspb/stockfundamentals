@@ -152,7 +152,7 @@ func mapQueryValuesToYdbFilterValues(condition YdbFilterCondition, values []stri
 	case GreaterThan, GreaterThanOrEqualTo, LessThan, LessThanOrEqualTo:
 		date, err := time.Parse("2006-01-02", values[0])
 		if err == nil {
-			return shared.ConvertToYdbDate(date), nil
+			return db.ConvertToYdbDate(date), nil
 		}
 
 		f, err := strconv.ParseFloat(values[0], 64)

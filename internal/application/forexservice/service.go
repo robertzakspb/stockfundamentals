@@ -79,7 +79,7 @@ func GetExchangeRates(currencyPairs []string, date time.Time) ([]ForexRate, erro
 	filters := []ydbfilter.YdbFilter{{
 		YqlColumnName:  "date",
 		Condition:      ydbfilter.Equal,
-		ConditionValue: shared.ConvertToYdbDate(date),
+		ConditionValue: db.ConvertToYdbDate(date),
 	}}
 
 	cur1s := []string{}
@@ -121,7 +121,7 @@ func GetExchangeRate(cur1, cur2 string, date time.Time) (ForexRate, error) {
 		{
 			YqlColumnName:  "date",
 			Condition:      ydbfilter.Equal,
-			ConditionValue: shared.ConvertToYdbDate(date),
+			ConditionValue: db.ConvertToYdbDate(date),
 		}, {
 			YqlColumnName:  "currency_1",
 			Condition:      ydbfilter.Equal,

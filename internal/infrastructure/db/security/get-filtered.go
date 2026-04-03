@@ -5,7 +5,7 @@ import (
 	"errors"
 	"io"
 
-	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -14,7 +14,7 @@ import (
 )
 
 func GetFilteredSecurities(filters []ydbfilter.YdbFilter) ([]security.Stock, error) {
-	db, err := utilities.MakeYdbDriver()
+	db, err := db.MakeYdbDriver()
 	if err != nil {
 		return []security.Stock{}, err
 	}

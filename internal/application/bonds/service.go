@@ -75,7 +75,7 @@ func GetFilteredBonds(filters []ydbfilter.YdbFilter) ([]bonds.Bond, error) {
 	filter := ydbfilter.YdbFilter{
 		YqlColumnName:  "maturity_date",
 		Condition:      ydbfilter.GreaterThan,
-		ConditionValue: shared.ConvertToYdbDate(time.Now()),
+		ConditionValue: db.ConvertToYdbDate(time.Now()),
 	}
 	filters = append(filters, filter)
 	bondList, err := bondsdb.GetAllBonds(filters)

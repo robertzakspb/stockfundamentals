@@ -27,7 +27,7 @@ func makeGetDividendQuery(filters []ydbfilter.YdbFilter) string {
 						%s
 					`,
 		ydbfilter.AddYqlVarDeclarations(filters),
-		"`"+path.Join(shared.STOCK_DIRECTORY_PREFIX, shared.DIVIDEND_PAYMENT_TABLE_NAME)+"`",
+		"`"+path.Join(db.STOCK_DIRECTORY_PREFIX, db.DIVIDEND_PAYMENT_TABLE_NAME)+"`",
 		ydbfilter.MakeWhereClause(filters))
 
 	return yql
@@ -46,7 +46,6 @@ func makeGetDividendForecastQuery() string {
 						FROM
 							%s
 					`,
-		"`"+path.Join(shared.STOCK_DIRECTORY_PREFIX, shared.DIVIDEND_FORECAST_TABLE_NAME)+"`")
-
+		"`"+path.Join(db.STOCK_DIRECTORY_PREFIX, db.DIVIDEND_FORECAST_TABLE_NAME)+"`")
 	return yql
 }

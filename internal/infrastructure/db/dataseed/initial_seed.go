@@ -189,11 +189,11 @@ func createMarketDataTables(ctx context.Context, db *ydb.Driver, c table.Client)
 		})
 }
 
-func createBondPositionTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
-	prefix := path.Join(db.Name(), shared.BOND_DIRECTORY_PREFIX)
+func createBondPositionTable(ctx context.Context, dbConnection *ydb.Driver, c table.Client) error {
+	prefix := path.Join(dbConnection.Name(), db.BOND_DIRECTORY_PREFIX)
 	return c.Do(ctx,
 		func(ctx context.Context, s table.Session) error {
-			err := s.CreateTable(ctx, path.Join(prefix, shared.BOND_POSITION_LOT_TABLE_NAME),
+			err := s.CreateTable(ctx, path.Join(prefix, db.BOND_POSITION_LOT_TABLE_NAME),
 				options.WithColumn("id", types.TypeUUID),
 				options.WithColumn("figi", types.TypeText),
 				options.WithColumn("isin", types.TypeText),
@@ -215,11 +215,11 @@ func createBondPositionTable(ctx context.Context, db *ydb.Driver, c table.Client
 		})
 }
 
-func createFxRateTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
-	prefix := path.Join(db.Name(), shared.FOREX_DIRECTORY_PREFIX)
+func createFxRateTable(ctx context.Context, dbConnection *ydb.Driver, c table.Client) error {
+	prefix := path.Join(dbConnection.Name(), db.FOREX_DIRECTORY_PREFIX)
 	return c.Do(ctx,
 		func(ctx context.Context, s table.Session) error {
-			err := s.CreateTable(ctx, path.Join(prefix, shared.FX_RATE_TABLE_NAME),
+			err := s.CreateTable(ctx, path.Join(prefix, db.FX_RATE_TABLE_NAME),
 				options.WithColumn("currency_1", types.TypeText),
 				options.WithColumn("currency_2", types.TypeText),
 				options.WithColumn("date", types.TypeDate),
@@ -235,11 +235,11 @@ func createFxRateTable(ctx context.Context, db *ydb.Driver, c table.Client) erro
 		})
 }
 
-func createPortfolioTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
-	prefix := path.Join(db.Name(), shared.USER_DIRECTORY_PREFIX)
+func createPortfolioTable(ctx context.Context, dbConnection *ydb.Driver, c table.Client) error {
+	prefix := path.Join(dbConnection.Name(), db.USER_DIRECTORY_PREFIX)
 	return c.Do(ctx,
 		func(ctx context.Context, s table.Session) error {
-			err := s.CreateTable(ctx, path.Join(prefix, shared.POSITION_LOT_TABLE_NAME),
+			err := s.CreateTable(ctx, path.Join(prefix, db.POSITION_LOT_TABLE_NAME),
 				options.WithColumn("id", types.TypeUUID),
 				options.WithColumn("figi", types.TypeUTF8),
 				options.WithColumn("account_id", types.TypeUUID),
@@ -259,11 +259,11 @@ func createPortfolioTable(ctx context.Context, db *ydb.Driver, c table.Client) e
 		})
 }
 
-func createDividendForecastTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
-	prefix := path.Join(db.Name(), shared.STOCK_DIRECTORY_PREFIX)
+func createDividendForecastTable(ctx context.Context, dbConnection *ydb.Driver, c table.Client) error {
+	prefix := path.Join(dbConnection.Name(), db.STOCK_DIRECTORY_PREFIX)
 	return c.Do(ctx,
 		func(ctx context.Context, s table.Session) error {
-			err := s.CreateTable(ctx, path.Join(prefix, shared.DIVIDEND_FORECAST_TABLE_NAME),
+			err := s.CreateTable(ctx, path.Join(prefix, db.DIVIDEND_FORECAST_TABLE_NAME),
 				options.WithColumn("id", types.TypeUUID),
 				options.WithColumn("figi", types.TypeText),
 				options.WithColumn("expected_DPS", types.TypeDouble),
@@ -282,11 +282,11 @@ func createDividendForecastTable(ctx context.Context, db *ydb.Driver, c table.Cl
 		})
 }
 
-func createCouponTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
-	prefix := path.Join(db.Name(), shared.BOND_DIRECTORY_PREFIX)
+func createCouponTable(ctx context.Context, dbConnection *ydb.Driver, c table.Client) error {
+	prefix := path.Join(dbConnection.Name(), db.BOND_DIRECTORY_PREFIX)
 	return c.Do(ctx,
 		func(ctx context.Context, s table.Session) error {
-			err := s.CreateTable(ctx, path.Join(prefix, shared.COUPON_TABLE_NAME),
+			err := s.CreateTable(ctx, path.Join(prefix, db.COUPON_TABLE_NAME),
 				options.WithColumn("id", types.TypeUUID),
 				options.WithColumn("figi", types.TypeText),
 				options.WithColumn("coupon_date", types.TypeDate),
@@ -308,11 +308,11 @@ func createCouponTable(ctx context.Context, db *ydb.Driver, c table.Client) erro
 		})
 }
 
-func createBondTable(ctx context.Context, db *ydb.Driver, c table.Client) error {
-	prefix := path.Join(db.Name(), shared.BOND_DIRECTORY_PREFIX)
+func createBondTable(ctx context.Context, dbConnection *ydb.Driver, c table.Client) error {
+	prefix := path.Join(dbConnection.Name(), db.BOND_DIRECTORY_PREFIX)
 	return c.Do(ctx,
 		func(ctx context.Context, s table.Session) error {
-			err := s.CreateTable(ctx, path.Join(prefix, shared.BOND_TABLE_NAME),
+			err := s.CreateTable(ctx, path.Join(prefix, db.BOND_TABLE_NAME),
 				options.WithColumn("id", types.TypeUUID),
 				options.WithColumn("figi", types.TypeText),
 				options.WithColumn("isin", types.TypeText),

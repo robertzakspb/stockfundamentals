@@ -29,7 +29,7 @@ func GetAccountDividendCalendar(accountIds uuid.UUIDs) (divcal.DividendCalendar,
 	filters := []ydbfilter.YdbFilter{{
 		YqlColumnName:  "record_date",
 		Condition:      ydbfilter.GreaterThanOrEqualTo,
-		ConditionValue: shared.ConvertToYdbDate(time.Now()),
+		ConditionValue: db.ConvertToYdbDate(time.Now()),
 	}}
 
 	figis := security_master.ExtractFigisFromSecurities(securities)

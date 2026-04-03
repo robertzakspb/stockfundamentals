@@ -13,11 +13,11 @@ import (
 )
 
 func SaveBonds(bonds []BondDbModel) error {
-	db, err := utilities.MakeYdbDriver()
+	dbConnection, err := utilities.MakeYdbDriver()
 	if err != nil {
 		return err
 	}
-	defer db.Close(context.TODO())
+	defer dbConnection.Close(context.TODO())
 
 	ydbBonds := []types.Value{}
 	for _, bond := range bonds {
@@ -36,8 +36,8 @@ func SaveBonds(bonds []BondDbModel) error {
 			types.StructFieldValue("nominal_currency", types.TextValue(bond.NominalCurrency)),
 			types.StructFieldValue("initial_nominal_value", types.DoubleValue(bond.InitialNominalValue)),
 			types.StructFieldValue("initial_nominal_currency", types.TextValue(bond.InitialNominalCurrency)),
-			types.StructFieldValue("registration_date", shared.ConvertToOptionalYDBdate(bond.RegistrationDate)),
-			types.StructFieldValue("placement_date", shared.ConvertToOptionalYDBdate(bond.PlacementDate)),
+			types.StructFieldValue("registration_date", db.ConvertToOptionalYDBdate(bond.RegistrationDate)),
+			types.StructFieldValue("placement_date", db.ConvertToOptionalYDBdate(bond.PlacementDate)),
 			types.StructFieldValue("placement_price", types.DoubleValue(bond.PlacementPrice)),
 			types.StructFieldValue("placement_currency", types.TextValue(bond.PlacementCurrency)),
 			types.StructFieldValue("accumulated_coupon_income", types.DoubleValue(bond.AccruedInterest)),
@@ -51,13 +51,13 @@ func SaveBonds(bonds []BondDbModel) error {
 			types.StructFieldValue("is_subordinated", types.BoolValue(bond.IsSubordinated)),
 			types.StructFieldValue("risk_level", types.TextValue(bond.RiskLevel)),
 			types.StructFieldValue("bond_type", types.TextValue(bond.BondType)),
-			types.StructFieldValue("call_option_exercise_date", shared.ConvertToOptionalYDBdate(bond.CallOptionExerciseDate)),
+			types.StructFieldValue("call_option_exercise_date", db.ConvertToOptionalYDBdate(bond.CallOptionExerciseDate)),
 		)
 		ydbBonds = append(ydbBonds, ydbBond)
 	}
 
-	tableName := path.Join(db.Name(), shared.BOND_DIRECTORY_PREFIX, shared.BOND_TABLE_NAME)
-	err = db.Table().BulkUpsert(
+	tableName := path.Join(dbConnection.Name(), db.BOND_DIRECTORY_PREFIX, db.BOND_TABLE_NAME)
+	err = dbConnection.Table().BulkUpsert(
 		context.TODO(),
 		tableName,
 		table.BulkUpsertDataRows(types.ListValue(ydbBonds...)))
@@ -70,30 +70,30 @@ func SaveBonds(bonds []BondDbModel) error {
 }
 
 func SaveCoupons(coupons []CouponDbModel) error {
-	db, err := utilities.MakeYdbDriver()
+	dbConnection, err := utilities.MakeYdbDriver()
 	if err != nil {
 		return err
 	}
-	defer db.Close(context.TODO())
+	defer dbConnection.Close(context.TODO())
 
 	ydbCoupons := []types.Value{}
 	for _, c := range coupons {
 		ydbCoupon := types.StructValue(
 			types.StructFieldValue("id", types.UuidValue(c.Id)),
 			types.StructFieldValue("figi", types.TextValue(c.Figi)),
-			types.StructFieldValue("coupon_date", shared.ConvertToYdbDate(c.CouponDate)),
+			types.StructFieldValue("coupon_date", db.ConvertToYdbDate(c.CouponDate)),
 			types.StructFieldValue("coupon_number", types.Int64Value(int64(c.CouponNumber))),
-			types.StructFieldValue("record_date", shared.ConvertToYdbDate(c.RecordDate)),
+			types.StructFieldValue("record_date", db.ConvertToYdbDate(c.RecordDate)),
 			types.StructFieldValue("per_bond_amount", types.DoubleValue(c.PerBondAmount)),
 			types.StructFieldValue("coupon_type", types.TextValue(c.CouponType)),
-			types.StructFieldValue("coupon_start_date", shared.ConvertToYdbDate(c.CouponStartDate)),
-			types.StructFieldValue("coupon_end_date", shared.ConvertToYdbDate(c.CouponEndDate)),
+			types.StructFieldValue("coupon_start_date", db.ConvertToYdbDate(c.CouponStartDate)),
+			types.StructFieldValue("coupon_end_date", db.ConvertToYdbDate(c.CouponEndDate)),
 			types.StructFieldValue("coupon_period", types.Int64Value(int64(c.CouponPeriod))),
 		)
 		ydbCoupons = append(ydbCoupons, ydbCoupon)
 	}
-	tableName := path.Join(db.Name(), shared.BOND_DIRECTORY_PREFIX, shared.COUPON_TABLE_NAME)
-	err = db.Table().BulkUpsert(
+	tableName := path.Join(dbConnection.Name(), db.BOND_DIRECTORY_PREFIX, db.COUPON_TABLE_NAME)
+	err = dbConnection.Table().BulkUpsert(
 		context.TODO(),
 		tableName,
 		table.BulkUpsertDataRows(types.ListValue(ydbCoupons...)))

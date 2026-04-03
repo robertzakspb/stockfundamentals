@@ -6,8 +6,7 @@ import (
 	"path"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
-	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
@@ -15,11 +14,11 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
-func SaveDividendsToDB(dividends []dividend.Dividend, db *ydb.Driver) error {
+func SaveDividendsToDB(dividends []dividend.Dividend, dbDriver *ydb.Driver) error {
 	if len(dividends) == 0 {
 		logger.Log("Attempting to save 0 dividends", logger.WARNING)
 	}
-	if db == nil {
+	if dbDriver == nil {
 		logger.Log("Database driver is nil while attempting to save dividends to the DB", logger.ALERT)
 		return errors.New("Database issues")
 	}
@@ -34,17 +33,17 @@ func SaveDividendsToDB(dividends []dividend.Dividend, db *ydb.Driver) error {
 			types.StructFieldValue("actual_DPS", types.Int64Value(int64(dividend.ActualDPSTimesMillion))),
 			types.StructFieldValue("expected_DPS", types.Int64Value(int64(dividend.ExpectedDpsTimesMillion))),
 			types.StructFieldValue("currency", types.TextValue(dividend.Currency)),
-			types.StructFieldValue("announcement_date", shared.ConvertToOptionalYDBdate(dividend.AnnouncementDate)),
-			types.StructFieldValue("record_date", shared.ConvertToOptionalYDBdate(dividend.RecordDate)),
-			types.StructFieldValue("payout_date", shared.ConvertToOptionalYDBdate(dividend.PayoutDate)),
+			types.StructFieldValue("announcement_date", db.ConvertToOptionalYDBdate(dividend.AnnouncementDate)),
+			types.StructFieldValue("record_date", db.ConvertToOptionalYDBdate(dividend.RecordDate)),
+			types.StructFieldValue("payout_date", db.ConvertToOptionalYDBdate(dividend.PayoutDate)),
 			types.StructFieldValue("payment_period", types.TextValue(dividend.PaymentPeriod)),
 			types.StructFieldValue("management_comment", types.TextValue(dividend.ManagementComment)),
 		)
 		ydbDividends = append(ydbDividends, ydbDividend)
 	}
 
-	tableName := path.Join(db.Name(), shared.STOCK_DIRECTORY_PREFIX, shared.DIVIDEND_PAYMENT_TABLE_NAME)
-	err := db.Table().BulkUpsert(
+	tableName := path.Join(dbDriver.Name(), db.STOCK_DIRECTORY_PREFIX, db.DIVIDEND_PAYMENT_TABLE_NAME)
+	err := dbDriver.Table().BulkUpsert(
 		context.TODO(),
 		tableName,
 		table.BulkUpsertDataRows(types.ListValue(ydbDividends...)))
@@ -57,11 +56,11 @@ func SaveDividendsToDB(dividends []dividend.Dividend, db *ydb.Driver) error {
 }
 
 func SaveDividendForecastToDb(forecast DividendForecastDb) error {
-	db, err := utilities.MakeYdbDriver()
+	dbConnection, err := db.MakeYdbDriver()
 	if err != nil {
 		return err
 	}
-	defer db.Close(context.TODO())
+	defer dbConnection.Close(context.TODO())
 
 	ydbForecast := types.StructValue(
 		types.StructFieldValue("id", types.UuidValue(uuid.New())),
@@ -73,8 +72,8 @@ func SaveDividendForecastToDb(forecast DividendForecastDb) error {
 		types.StructFieldValue("forecast_author", types.TextValue(forecast.Author)),
 	)
 
-	tableName := path.Join(db.Name(), shared.STOCK_DIRECTORY_PREFIX, shared.DIVIDEND_FORECAST_TABLE_NAME)
-	err = db.Table().BulkUpsert(
+	tableName := path.Join(dbConnection.Name(), db.STOCK_DIRECTORY_PREFIX, db.DIVIDEND_FORECAST_TABLE_NAME)
+	err = dbConnection.Table().BulkUpsert(
 		context.TODO(),
 		tableName,
 		table.BulkUpsertDataRows(types.ListValue(ydbForecast)))
