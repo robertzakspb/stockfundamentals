@@ -12,8 +12,8 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
@@ -75,7 +75,7 @@ func GetFilteredBonds(filters []ydbfilter.YdbFilter) ([]bonds.Bond, error) {
 	filter := ydbfilter.YdbFilter{
 		YqlColumnName:  "maturity_date",
 		Condition:      ydbfilter.GreaterThan,
-		ConditionValue: db.ConvertToYdbDate(time.Now()),
+		ConditionValue: ydbhelper.ConvertToYdbDate(time.Now()),
 	}
 	filters = append(filters, filter)
 	bondList, err := bondsdb.GetAllBonds(filters)

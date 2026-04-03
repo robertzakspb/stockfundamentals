@@ -8,7 +8,6 @@ import (
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	divcal "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/dividend-calendar"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/google/uuid"
@@ -29,7 +28,7 @@ func GetAccountDividendCalendar(accountIds uuid.UUIDs) (divcal.DividendCalendar,
 	filters := []ydbfilter.YdbFilter{{
 		YqlColumnName:  "record_date",
 		Condition:      ydbfilter.GreaterThanOrEqualTo,
-		ConditionValue: db.ConvertToYdbDate(time.Now()),
+		ConditionValue: ydbhelper.ConvertToYdbDate(time.Now()),
 	}}
 
 	figis := security_master.ExtractFigisFromSecurities(securities)

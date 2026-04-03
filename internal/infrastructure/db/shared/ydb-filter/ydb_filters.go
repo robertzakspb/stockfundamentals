@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
@@ -32,12 +32,12 @@ const (
 )
 
 var ydbConditions = map[string]YdbFilterCondition{
-	">":  GreaterThan,
-	">=": GreaterThanOrEqualTo,
-	"<":  LessThan,
-	"<=": LessThanOrEqualTo,
-	"IN": Contains,
-	"=":  Equal,
+	">":    GreaterThan,
+	">=":   GreaterThanOrEqualTo,
+	"<":    LessThan,
+	"<=":   LessThanOrEqualTo,
+	"IN":   Contains,
+	"=":    Equal,
 	"LIKE": Like,
 }
 
@@ -152,7 +152,7 @@ func mapQueryValuesToYdbFilterValues(condition YdbFilterCondition, values []stri
 	case GreaterThan, GreaterThanOrEqualTo, LessThan, LessThanOrEqualTo:
 		date, err := time.Parse("2006-01-02", values[0])
 		if err == nil {
-			return db.ConvertToYdbDate(date), nil
+			return ydbhelper.ConvertToYdbDate(date), nil
 		}
 
 		f, err := strconv.ParseFloat(values[0], 64)

@@ -8,7 +8,6 @@ import (
 	"time"
 
 	forexdb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/forex"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -79,7 +78,7 @@ func GetExchangeRates(currencyPairs []string, date time.Time) ([]ForexRate, erro
 	filters := []ydbfilter.YdbFilter{{
 		YqlColumnName:  "date",
 		Condition:      ydbfilter.Equal,
-		ConditionValue: db.ConvertToYdbDate(date),
+		ConditionValue: ydbhelper.ConvertToYdbDate(date),
 	}}
 
 	cur1s := []string{}
@@ -121,7 +120,7 @@ func GetExchangeRate(cur1, cur2 string, date time.Time) (ForexRate, error) {
 		{
 			YqlColumnName:  "date",
 			Condition:      ydbfilter.Equal,
-			ConditionValue: db.ConvertToYdbDate(date),
+			ConditionValue: ydbhelper.ConvertToYdbDate(date),
 		}, {
 			YqlColumnName:  "currency_1",
 			Condition:      ydbfilter.Equal,

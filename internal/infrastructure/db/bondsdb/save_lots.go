@@ -6,6 +6,7 @@ import (
 	"path"
 
 	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
@@ -24,8 +25,8 @@ func SaveBondPositionLots(lots []BondPositionLotDb) error {
 			types.StructFieldValue("id", types.UuidValue(l.Id)),
 			types.StructFieldValue("figi", types.TextValue(l.Figi)),
 			types.StructFieldValue("isin", types.TextValue(l.Isin)),
-			types.StructFieldValue("opening_date", db.ConvertToYdbDateTime(l.OpeningDate)),
-			types.StructFieldValue("modification_date", db.ConvertToYdbDateTime(l.ModificationDate)),
+			types.StructFieldValue("opening_date", ydbhelper.ConvertToYdbDateTime(l.OpeningDate)),
+			types.StructFieldValue("modification_date", ydbhelper.ConvertToYdbDateTime(l.ModificationDate)),
 			types.StructFieldValue("account_id", types.UuidValue(l.AccountId)),
 			types.StructFieldValue("quantity", types.DoubleValue(l.Quantity)),
 			types.StructFieldValue("price_per_unit", types.DoubleValue(l.PricePerUnit)),

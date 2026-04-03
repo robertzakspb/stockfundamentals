@@ -5,15 +5,16 @@ import (
 	"errors"
 	"path"
 
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
 func SaveBonds(bonds []BondDbModel) error {
-	dbConnection, err := utilities.MakeYdbDriver()
+	dbConnection, err := db.MakeYdbDriver()
 	if err != nil {
 		return err
 	}
@@ -36,8 +37,8 @@ func SaveBonds(bonds []BondDbModel) error {
 			types.StructFieldValue("nominal_currency", types.TextValue(bond.NominalCurrency)),
 			types.StructFieldValue("initial_nominal_value", types.DoubleValue(bond.InitialNominalValue)),
 			types.StructFieldValue("initial_nominal_currency", types.TextValue(bond.InitialNominalCurrency)),
-			types.StructFieldValue("registration_date", db.ConvertToOptionalYDBdate(bond.RegistrationDate)),
-			types.StructFieldValue("placement_date", db.ConvertToOptionalYDBdate(bond.PlacementDate)),
+			types.StructFieldValue("registration_date", ydbhelper.ConvertToOptionalYDBdate(bond.RegistrationDate)),
+			types.StructFieldValue("placement_date", ydbhelper.ConvertToOptionalYDBdate(bond.PlacementDate)),
 			types.StructFieldValue("placement_price", types.DoubleValue(bond.PlacementPrice)),
 			types.StructFieldValue("placement_currency", types.TextValue(bond.PlacementCurrency)),
 			types.StructFieldValue("accumulated_coupon_income", types.DoubleValue(bond.AccruedInterest)),
@@ -51,7 +52,7 @@ func SaveBonds(bonds []BondDbModel) error {
 			types.StructFieldValue("is_subordinated", types.BoolValue(bond.IsSubordinated)),
 			types.StructFieldValue("risk_level", types.TextValue(bond.RiskLevel)),
 			types.StructFieldValue("bond_type", types.TextValue(bond.BondType)),
-			types.StructFieldValue("call_option_exercise_date", db.ConvertToOptionalYDBdate(bond.CallOptionExerciseDate)),
+			types.StructFieldValue("call_option_exercise_date", ydbhelper.ConvertToOptionalYDBdate(bond.CallOptionExerciseDate)),
 		)
 		ydbBonds = append(ydbBonds, ydbBond)
 	}
@@ -81,13 +82,13 @@ func SaveCoupons(coupons []CouponDbModel) error {
 		ydbCoupon := types.StructValue(
 			types.StructFieldValue("id", types.UuidValue(c.Id)),
 			types.StructFieldValue("figi", types.TextValue(c.Figi)),
-			types.StructFieldValue("coupon_date", db.ConvertToYdbDate(c.CouponDate)),
+			types.StructFieldValue("coupon_date", ydbhelper.ConvertToYdbDate(c.CouponDate)),
 			types.StructFieldValue("coupon_number", types.Int64Value(int64(c.CouponNumber))),
-			types.StructFieldValue("record_date", db.ConvertToYdbDate(c.RecordDate)),
+			types.StructFieldValue("record_date", ydbhelper.ConvertToYdbDate(c.RecordDate)),
 			types.StructFieldValue("per_bond_amount", types.DoubleValue(c.PerBondAmount)),
 			types.StructFieldValue("coupon_type", types.TextValue(c.CouponType)),
-			types.StructFieldValue("coupon_start_date", db.ConvertToYdbDate(c.CouponStartDate)),
-			types.StructFieldValue("coupon_end_date", db.ConvertToYdbDate(c.CouponEndDate)),
+			types.StructFieldValue("coupon_start_date", ydbhelper.ConvertToYdbDate(c.CouponStartDate)),
+			types.StructFieldValue("coupon_end_date", ydbhelper.ConvertToYdbDate(c.CouponEndDate)),
 			types.StructFieldValue("coupon_period", types.Int64Value(int64(c.CouponPeriod))),
 		)
 		ydbCoupons = append(ydbCoupons, ydbCoupon)

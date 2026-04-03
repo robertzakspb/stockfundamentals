@@ -10,7 +10,7 @@ import (
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
-	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
@@ -40,7 +40,7 @@ func SaveTimeSeriesToDB(quotes []entity.SimpleQuote) error {
 		ydbQuote := types.StructValue(
 			types.StructFieldValue("figi", types.TextValue(quote.Figi())),
 			types.StructFieldValue("close_price", types.DoubleValue(quote.Quote())),
-			types.StructFieldValue("date", utilities.ConvertToYdbDate(quote.Timestamp())),
+			types.StructFieldValue("date", ydbhelper.ConvertToYdbDate(quote.Timestamp())),
 		)
 
 		ydbQuotes = append(ydbQuotes, ydbQuote)

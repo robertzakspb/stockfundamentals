@@ -7,6 +7,7 @@ import (
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
@@ -33,9 +34,9 @@ func SaveDividendsToDB(dividends []dividend.Dividend, dbDriver *ydb.Driver) erro
 			types.StructFieldValue("actual_DPS", types.Int64Value(int64(dividend.ActualDPSTimesMillion))),
 			types.StructFieldValue("expected_DPS", types.Int64Value(int64(dividend.ExpectedDpsTimesMillion))),
 			types.StructFieldValue("currency", types.TextValue(dividend.Currency)),
-			types.StructFieldValue("announcement_date", db.ConvertToOptionalYDBdate(dividend.AnnouncementDate)),
-			types.StructFieldValue("record_date", db.ConvertToOptionalYDBdate(dividend.RecordDate)),
-			types.StructFieldValue("payout_date", db.ConvertToOptionalYDBdate(dividend.PayoutDate)),
+			types.StructFieldValue("announcement_date", ydbhelper.ConvertToOptionalYDBdate(dividend.AnnouncementDate)),
+			types.StructFieldValue("record_date", ydbhelper.ConvertToOptionalYDBdate(dividend.RecordDate)),
+			types.StructFieldValue("payout_date", ydbhelper.ConvertToOptionalYDBdate(dividend.PayoutDate)),
 			types.StructFieldValue("payment_period", types.TextValue(dividend.PaymentPeriod)),
 			types.StructFieldValue("management_comment", types.TextValue(dividend.ManagementComment)),
 		)

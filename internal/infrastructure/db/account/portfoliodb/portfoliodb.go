@@ -8,6 +8,7 @@ import (
 
 	shared "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
@@ -98,8 +99,8 @@ func UpdateLocalPortfolio(lots []LotDb) error {
 			types.StructFieldValue("id", types.UuidValue(lot.Id)),
 			types.StructFieldValue("account_id", types.UuidValue(lot.AccountId)),
 			types.StructFieldValue("figi", types.UTF8Value(lot.Figi)),
-			types.StructFieldValue("created_at", shared.ConvertToYdbDateTime(lot.CreatedAt)),
-			types.StructFieldValue("updated_at", shared.ConvertToYdbDateTime(lot.UpdatedAt)),
+			types.StructFieldValue("created_at", ydbhelper.ConvertToYdbDateTime(lot.CreatedAt)),
+			types.StructFieldValue("updated_at", ydbhelper.ConvertToYdbDateTime(lot.UpdatedAt)),
 			types.StructFieldValue("quantity", types.DoubleValue(lot.Quantity)),
 			types.StructFieldValue("price_per_unit", types.DoubleValue(lot.PricePerUnit)),
 			types.StructFieldValue("currency", types.UTF8Value(lot.Currency)),

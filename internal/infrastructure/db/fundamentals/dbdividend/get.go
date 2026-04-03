@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
 )
@@ -73,7 +73,7 @@ func GetUpcomingDividends() ([]dividend.Dividend, error) {
 	payoutDateFilter := ydbfilter.YdbFilter{
 		YqlColumnName:  "record_date", //TODO: refactor to pull the value dynamically using reflect
 		Condition:      ydbfilter.GreaterThanOrEqualTo,
-		ConditionValue: db.ConvertToYdbDate(time.Now()),
+		ConditionValue: ydbhelper.ConvertToYdbDate(time.Now()),
 	}
 	allDividends, err := GetFilteredDividends([]ydbfilter.YdbFilter{payoutDateFilter})
 	if err != nil {

@@ -3,7 +3,7 @@ package bondsdb
 import (
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
@@ -56,10 +56,10 @@ func (bond BondDbModel) CorrectMaturityDate() types.Value {
 
 	if bond.MaturityDate.Year() > 2105 {
 		maximumAllowedYdbValue, _ := time.Parse(time.DateOnly, "2105-12-31")
-		return db.ConvertToYdbDate(maximumAllowedYdbValue)
+		return ydbhelper.ConvertToYdbDate(maximumAllowedYdbValue)
 	}
 
-	return db.ConvertToYdbDate(bond.MaturityDate)
+	return ydbhelper.ConvertToYdbDate(bond.MaturityDate)
 }
 
 type CouponDbModel struct {
