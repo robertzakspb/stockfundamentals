@@ -8,7 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.12.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
-	github.com/ydb-platform/ydb-go-sdk/v3 v3.129.0
+	github.com/ydb-platform/ydb-go-sdk/v3 v3.131.0
 	golang.org/x/net v0.52.0
 	opensource.tbank.ru/invest/invest-go v1.48.0
 )
