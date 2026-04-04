@@ -87,9 +87,9 @@ func Test__calculateYield_UsdBond(t *testing.T) {
 	}
 
 	marketPricePercentage := 100.0
-	fxRate := 80
-	yield, err := calculateYield(bond, coupons, marketPricePercentage, acquisitionDate, maturityDate, maturityDate, float64(fxRate))
+	fxRate := 80.0
+	yield, err := calculateYield(bond, coupons, marketPricePercentage, acquisitionDate, maturityDate, maturityDate, fxRate)
 
 	test.AssertEqual(t, err, nil)
-	test.AssertEqualFloat(t, 64, yield, 0.01)
+	test.AssertEqualFloat(t, 0.8, yield, 0.01)
 }

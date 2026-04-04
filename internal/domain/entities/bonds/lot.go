@@ -21,9 +21,17 @@ type BondLot struct {
 }
 
 func (lot BondLot) PricePerUnitPercentage(nominalValue float64) float64 {
-	if nominalValue != 0 {
+	if nominalValue <= 0 {
+		return -1
+	}
+
+	if lot.PricePerUnit > 0 {
 		return lot.PricePerUnit / nominalValue
 	}
+	if lot.PricePerUnitInRUB > 0 {
+		return lot.PricePerUnitInRUB / nominalValue
+	}
+
 	return -1
 }
 

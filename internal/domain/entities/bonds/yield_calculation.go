@@ -50,11 +50,12 @@ func calculateYield(b Bond, coupons []Coupon, marketPricePercentage float64, acq
 		tci *= fxRate
 	}
 
-	//Standard simple formula for the calculation of bond yields (coupon reinvestment is not assumed)
 	adjustedNominalValue := b.NominalValue
 	if b.Currency != b.NominalCurrency {
 		adjustedNominalValue *= fxRate
 	}
+	
+	//Standard simple formula for the calculation of bond yields (coupon reinvestment is not assumed)
 	yield := (adjustedNominalValue - marketPrice + tci) / marketPrice * 365 / holdingPeriod * 100
 	return yield, nil
 }

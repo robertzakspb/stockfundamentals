@@ -52,16 +52,3 @@ func GetLotIsins(lots []bonds.BondLot) []string {
 	}
 	return isins
 }
-
-// func findBondByFigiOrIsin(lot bonds.BondLot, bondList []bonds.Bond) (bonds.Bond, error) {
-// 	for _, bond := range bondList {
-// 		if bond.Figi == lot.Figi {
-// 			return bond, nil
-// 		}
-// 		if bond.Isin == lot.Isin {
-// 			return bond, nil
-// 		}
-// 	}
-
-// 	return bonds.Bond{}, errors.New("Failed to find the target bonds")
-// }
