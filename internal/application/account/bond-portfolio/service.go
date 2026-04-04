@@ -85,7 +85,7 @@ func CalculateYtmForLots(lots []bonds.BondLot) ([]bonds.BondLot, error) {
 
 	bondList = bondservice.PopulateBondCoupons(bondList)
 
-	bondList = bondservice.CalculateYtmForBonds(bondList, quotes)
+	bondList = bondservice.CalculateYtmForBondsUsingQuotes(bondList, quotes)
 
 	lots = matchLotsWithBonds(lots, bondList)
 

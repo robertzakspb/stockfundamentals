@@ -48,6 +48,7 @@ func addEndpoints(router *gin.Engine) {
 	router.POST("jobs/import-bonds-and-coupons", bondsapi.StartBondAndCouponImportJob)
 
 	router.GET("bonds/russian-government-bonds", bondsapi.GetRussianGovernmentBondsWithFixedOrConstantCoupon)
+	router.GET("bonds/quasi-foreign-bonds", bondsapi.GetQuasiForeignBonds)
 	router.POST("bonds/new-position-lot", bondportfolioapi.AddBondPositionLotToAccount)
 	router.GET("bonds/position-lots", bondportfolioapi.GetAccountPositionLots)
 	router.GET("bonds/account/timeline", bondportfolioapi.GetAccountBondTimeline)

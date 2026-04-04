@@ -72,12 +72,14 @@ func GetAllBonds() ([]bonds.Bond, error) {
 }
 
 func GetFilteredBonds(filters []ydbfilter.YdbFilter) ([]bonds.Bond, error) {
+	//Default filter to remove historical matured bonds
 	filter := ydbfilter.YdbFilter{
 		YqlColumnName:  "maturity_date",
 		Condition:      ydbfilter.GreaterThan,
 		ConditionValue: ydbhelper.ConvertToYdbDate(time.Now()),
 	}
 	filters = append(filters, filter)
+
 	bondList, err := bondsdb.GetAllBonds(filters)
 	if err != nil {
 		return []bonds.Bond{}, err
@@ -258,7 +260,7 @@ func MatchCouponsWithBonds(coupons []bonds.Coupon, bonds []bonds.Bond) []bonds.B
 	return bonds
 }
 
-func CalculateYtmForBonds(bondList []bonds.Bond, quotes []bondquote.TinkoffBondQuote) []bonds.Bond {
+func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []bondquote.TinkoffBondQuote) []bonds.Bond {
 	currencyPairs := AllCurrencyPairsInBondList(bondList)
 	forexRates, _ := forexservice.GetExchangeRates(currencyPairs, time.Now())
 
@@ -295,6 +297,22 @@ func CalculateYtmForBonds(bondList []bonds.Bond, quotes []bondquote.TinkoffBondQ
 		}
 	}
 	return bondList
+}
+
+func CalculateYtmForBonds(bondList []bonds.Bond) []bonds.Bond {
+	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
+	if err != nil {
+		logger.Log("Failed to initialize the configuration file", logger.ALERT)
+		return []bonds.Bond{}
+	}
+
+	quotes, err := bondquote.FetchQuotesForFigis(GetBondFigis(bondList), config)
+	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
+	}
+
+	bondsWithYtm := CalculateYtmForBondsUsingQuotes(bondList, quotes)
+	return bondsWithYtm
 }
 
 func UpdateAllBondsAci() error {

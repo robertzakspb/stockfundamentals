@@ -28,6 +28,7 @@ const (
 	LessThanOrEqualTo    YdbFilterCondition = "<="
 	Contains             YdbFilterCondition = "IN"
 	Equal                YdbFilterCondition = "="
+	NotEqual             YdbFilterCondition = "!="
 	Like                 YdbFilterCondition = "LIKE"
 )
 
@@ -38,6 +39,7 @@ var ydbConditions = map[string]YdbFilterCondition{
 	"<=":   LessThanOrEqualTo,
 	"IN":   Contains,
 	"=":    Equal,
+	"!=":   NotEqual,
 	"LIKE": Like,
 }
 

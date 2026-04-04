@@ -27,3 +27,13 @@ func GetRussianGovernmentBondsWithFixedOrConstantCoupon(c *gin.Context) {
 
 	c.JSON(http.StatusOK, bonds)
 }
+
+func GetQuasiForeignBonds(c *gin.Context) {
+	bonds, err := bondservice.GetQuasiForeignBonds()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, bonds)
+}

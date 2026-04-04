@@ -1,6 +1,8 @@
 package bondservice
 
 import (
+	"strings"
+
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -14,7 +16,7 @@ func mapTinkoffBondToBond(tinkoffBond *pb.Bond) bonds.Bond {
 		Figi:                    tinkoffBond.Figi,
 		Isin:                    tinkoffBond.Isin,
 		Lot:                     int(tinkoffBond.Lot),
-		Currency:                tinkoffBond.Currency,
+		Currency:                strings.ToUpper(tinkoffBond.Currency),
 		Name:                    tinkoffBond.Name,
 		CountryOfRisk:           tinkoffBond.CountryOfRisk,
 		RealExchange:            tinkoffBond.RealExchange.String(),
@@ -23,11 +25,11 @@ func mapTinkoffBondToBond(tinkoffBond *pb.Bond) bonds.Bond {
 		NominalValue:            tinkoffBond.Nominal.ToFloat(),
 		NominalCurrency:         tinkoffBond.Nominal.GetCurrency(),
 		InitialNominalValue:     tinkoffBond.InitialNominal.ToFloat(),
-		InitialNominalCurrency:  tinkoffBond.InitialNominal.GetCurrency(),
+		InitialNominalCurrency:  strings.ToUpper(tinkoffBond.InitialNominal.GetCurrency()),
 		RegistrationDate:        tinkoffBond.StateRegDate.AsTime(),
 		PlacementDate:           tinkoffBond.PlacementDate.AsTime(),
 		PlacementPrice:          tinkoffBond.PlacementPrice.ToFloat(),
-		PlacementCurrency:       tinkoffBond.PlacementPrice.GetCurrency(),
+		PlacementCurrency:       strings.ToUpper(tinkoffBond.PlacementPrice.GetCurrency()),
 		AccruedInterest:         tinkoffBond.AciValue.ToFloat(),
 		IssueSize:               int(tinkoffBond.IssueSize),
 		IssueSizePlan:           int(tinkoffBond.IssueSizePlan),
@@ -73,13 +75,13 @@ func mapBondToDbBond(bond bonds.Bond) bondsdb.BondDbModel {
 		CouponCountPerYear:      int64(bond.CouponCountPerYear),
 		MaturityDate:            bond.MaturityDate,
 		NominalValue:            bond.NominalValue,
-		NominalCurrency:         bond.NominalCurrency,
+		NominalCurrency:         strings.ToUpper(bond.NominalCurrency),
 		InitialNominalValue:     bond.InitialNominalValue,
-		InitialNominalCurrency:  bond.InitialNominalCurrency,
+		InitialNominalCurrency:  strings.ToUpper(bond.InitialNominalCurrency),
 		RegistrationDate:        bond.RegistrationDate,
 		PlacementDate:           bond.PlacementDate,
 		PlacementPrice:          bond.PlacementPrice,
-		PlacementCurrency:       bond.PlacementCurrency,
+		PlacementCurrency:       strings.ToUpper(bond.PlacementCurrency),
 		AccruedInterest:         bond.AccruedInterest,
 		IssueSize:               int64(bond.IssueSize),
 		IssueSizePlan:           int64(bond.IssueSizePlan),
