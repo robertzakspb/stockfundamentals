@@ -121,17 +121,17 @@ func (b Bond) Validate() error {
 	if b.InitialNominalValue <= 0 {
 		return errors.New("Invalid initial nominal value for the bond")
 	}
-	if b.InitialNominalCurrency == "" || !forexservice.IsSupportedCurrency(b.NominalCurrency) {
+	if b.InitialNominalCurrency == "" || !forexservice.IsSupportedCurrency(b.InitialNominalCurrency) {
 		return errors.New("Missing or unsupported initial nominal currency " + b.InitialNominalCurrency)
 	}
 	if b.PlacementPrice <= 0.0 {
 		return errors.New("Invalid placement price ")
 	}
-	if b.PlacementCurrency == "" || !forexservice.IsSupportedCurrency(b.NominalCurrency) {
+	if b.PlacementCurrency == "" || !forexservice.IsSupportedCurrency(b.PlacementCurrency) {
 		return errors.New("Missing or unsupported placement currency " + b.NominalCurrency)
 	}
-	if b.AccruedInterest <= 0 {
-		return errors.New("Invalud accumulated coupon value")
+	if b.AccruedInterest < 0 {
+		return errors.New("Invalid accumulated coupon value")
 	}
 	if b.IssueSize <= 0 {
 		return errors.New("Invalid issue size: " + strconv.Itoa(b.IssueSize))
