@@ -42,10 +42,8 @@ func GetQuasiForeignBonds() ([]bonds.Bond, error) {
 	if err != nil {
 		return bondList, err
 	}
-
-	bondList = PopulateBondCoupons(bondList)
-
-	bondList = CalculateYtmForBonds(bondList)
+	
+	bondList = PopulateBondsWithCouponsAndCalculateYtm(bondList)
 
 	return bondList, nil
 }
