@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bonds"
+	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 )

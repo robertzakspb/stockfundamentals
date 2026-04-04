@@ -3,7 +3,7 @@ package bondportfolio
 import (
 	"sort"
 
-	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bonds"
+	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"

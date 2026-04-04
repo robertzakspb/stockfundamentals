@@ -3,7 +3,7 @@ package bondsapi
 import (
 	"net/http"
 
-	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bonds"
+	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
 	"github.com/gin-gonic/gin"
 )
 
