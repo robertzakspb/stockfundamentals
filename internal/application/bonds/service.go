@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"os/signal"
+	"sort"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -393,4 +395,38 @@ func GetOnlyBondsWithFixedOrConstantCoupons(bondList []bonds.Bond) []bonds.Bond 
 		}
 	}
 	return filteredBonds
+}
+
+// Optimized method that fetches all data asynchronously
+func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond {
+	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
+	if err != nil {
+		logger.Log("Failed to initialize the configuration file", logger.ALERT)
+		return []bonds.Bond{}
+	}
+
+	figis := GetBondFigis(bondList)
+
+	wg := sync.WaitGroup{}
+
+	var coupons []bonds.Coupon
+	wg.Go(func() {
+		coupons, err = GetCouponsByFigis(figis)
+	})
+
+	var quotes []bondquote.TinkoffBondQuote
+	wg.Go(func() {
+		quotes, err = bondquote.FetchQuotesForFigis(figis, config)
+	})
+
+	wg.Wait()
+
+	bondList = MatchCouponsWithBonds(coupons, bondList)
+	bondList = CalculateYtmForBondsUsingQuotes(bondList, quotes)
+
+	sort.Slice(bondList, func(i, j int) bool {
+		return bondList[i].YieldToMaturity > bondList[i].YieldToMaturity
+	})
+
+	return bondList
 }

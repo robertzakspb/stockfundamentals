@@ -2,17 +2,13 @@ package bondportfolio
 
 import (
 	"sort"
-	"sync"
 
-	"github.com/compoundinvest/invest-core/quote/bondquote"
 	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
-	"opensource.tbank.ru/invest/invest-go/investgo"
 )
 
 func SaveBondPositionLot(lot bonds.BondLot) error {
@@ -59,33 +55,17 @@ func GetAllPositionLots() ([]bonds.BondLot, error) {
 }
 
 func CalculateYtmForLots(lots []bonds.BondLot) ([]bonds.BondLot, error) {
-	config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
-	if err != nil {
-		logger.Log("Failed to initialize the configuration file", logger.ALERT)
-		return []bonds.BondLot{}, err
-	}
-
 	figis := []string{}
 	for _, bond := range lots {
 		figis = append(figis, bond.Figi)
 	}
 
-	wg := sync.WaitGroup{}
+	bondList, err := bondservice.GetBondsByFigi(figis)
+	if err != nil {
+		return []bonds.BondLot{}, err
+	}
 
-	var quotes []bondquote.TinkoffBondQuote
-	wg.Go(func() {
-		quotes, err = bondquote.FetchQuotesForFigis(figis, config)
-	})
-
-	var bondList []bonds.Bond
-	wg.Go(func() {
-		bondList, err = bondservice.GetBondsByFigi(figis)
-	})
-	wg.Wait()
-
-	bondList = bondservice.PopulateBondCoupons(bondList)
-
-	bondList = bondservice.CalculateYtmForBondsUsingQuotes(bondList, quotes)
+	bondList = bondservice.PopulateBondsWithCouponsAndCalculateYtm(bondList)
 
 	lots = matchLotsWithBonds(lots, bondList)
 
