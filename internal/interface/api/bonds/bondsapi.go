@@ -17,3 +17,13 @@ func StartBondAccruedInterestUpdateJob(c *gin.Context) {
 	go bondservice.UpdateAllBondsAci()
 	c.JSON(http.StatusOK, "The bonds' accrued interest job has been successfully started")
 }
+
+func GetRussianGovernmentBondsWithFixedOrConstantCoupon(c *gin.Context) {
+	bonds, err := bondservice.GetRussianGovernmentBondsWithFixedOrConstantCoupon()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, bonds)
+}

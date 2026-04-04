@@ -1,28 +1,40 @@
 package bondservice
 
 import (
+	"github.com/compoundinvest/invest-core/quote/bondquote"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
+	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
 )
 
-func GetRussianGovernmentBondsWithFixedCoupon() ([]bonds.Bond, error) {
+func GetRussianGovernmentBondsWithFixedOrConstantCoupon() ([]bonds.Bond, error) {
 	governmentFilter := ydbfilter.YdbFilter{
 		YqlColumnName:  "name",
 		Condition:      ydbfilter.Like,
 		ConditionValue: types.TextValue("%ОФЗ%"),
 	}
 
-	bonds, err := GetFilteredBonds([]ydbfilter.YdbFilter{governmentFilter})
+	bondList, err := GetFilteredBonds([]ydbfilter.YdbFilter{governmentFilter})
 	if err != nil {
-		return bonds, err
+		return bondList, err
 	}
 
-	bonds = PopulateBondCoupons(bonds)
+	bondList = PopulateBondCoupons(bondList)
 
-	//TODO: Remove bonds with non-fixed or non-constant coupons
+	bondList = GetOnlyBondsWithFixedOrConstantCoupons(bondList)
 
-	return bonds, nil
+	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
+	if err != nil {
+		logger.Log("Failed to initialize the configuration file", logger.ALERT)
+		return []bonds.Bond{}, nil
+	}
+
+	quotes, err := bondquote.FetchQuotesForFigis(GetBondFigis(bondList), config)
+
+	bondsWithYtm := CalculateYtmForBonds(bondList, quotes)
+	return bondsWithYtm, nil
 }
 
 /*

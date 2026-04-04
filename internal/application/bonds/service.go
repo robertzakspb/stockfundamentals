@@ -362,3 +362,17 @@ func AllCurrencyPairsInBondList(bondList []bonds.Bond) []string {
 	}
 	return pairs
 }
+
+func GetOnlyBondsWithFixedOrConstantCoupons(bondList []bonds.Bond) []bonds.Bond {
+	filteredBonds := []bonds.Bond{}
+	for _, bond := range bondList {
+		if len(bond.Coupons) == 0 {
+			logger.Log("Attempting to find bonds with fixed or constant coupons for a bond with no coupons", logger.WARNING)
+			continue
+		}
+		if bond.Coupons[0].CouponType == bonds.CouponType_COUPON_TYPE_CONSTANT || bond.Coupons[0].CouponType == bonds.CouponType_COUPON_TYPE_FIX {
+			filteredBonds = append(filteredBonds, bond)
+		}
+	}
+	return filteredBonds
+}

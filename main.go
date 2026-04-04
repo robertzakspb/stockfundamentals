@@ -20,9 +20,10 @@ import (
 
 func main() {
 	router := gin.Default()
-
 	router.Use(cors.Default())
+
 	addEndpoints(router)
+
 	router.Run("localhost:8080")
 }
 
@@ -46,6 +47,7 @@ func addEndpoints(router *gin.Engine) {
 
 	router.POST("jobs/import-bonds-and-coupons", bondsapi.StartBondAndCouponImportJob)
 
+	router.GET("bonds/russian-government-bonds", bondsapi.GetRussianGovernmentBondsWithFixedOrConstantCoupon)
 	router.POST("bonds/new-position-lot", bondportfolioapi.AddBondPositionLotToAccount)
 	router.GET("bonds/position-lots", bondportfolioapi.GetAccountPositionLots)
 	router.GET("bonds/account/timeline", bondportfolioapi.GetAccountBondTimeline)
