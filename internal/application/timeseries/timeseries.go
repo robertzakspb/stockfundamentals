@@ -15,7 +15,6 @@ import (
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
 )
 
-//It typically takes to 
 func FetchAndSaveHistoricalQuotes() error {
 	latestQuotes, err := timeseries.GetLatestQuotesForAllSecurities()
 	if err != nil {
@@ -50,11 +49,7 @@ func FetchAndSaveHistoricalQuotes() error {
 		if len(quotes) == 0 {
 			continue
 		}
-		err = timeseries.SaveTimeSeriesToDB(&quotes)
-		if err != nil {
-			logger.Log("Failed to save timeseries for "+quote.Figi+" to DB due to: "+err.Error(), logger.ALERT)
-			continue
-		}
+		go timeseries.SaveTimeSeriesToDB(&quotes)
 
 		<-tthrottler.MarketDataServiceThrottle
 	}
