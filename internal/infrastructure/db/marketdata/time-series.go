@@ -10,6 +10,7 @@ import (
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
+	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
@@ -23,18 +24,12 @@ const market_date_directory_prefix = "marketdata/"
 const time_series_table_name = "time_series"
 
 func SaveTimeSeriesToDB(quotes *[]entity.SimpleQuote) error {
-	config, err := config.LoadConfig()
-	if err != nil {
-		return err
-	}
-
-	db, err := ydb.Open(context.TODO(), config.DB.ConnectionString)
+	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 		panic("Failed to connect to the database")
 	}
-	defer db.Close(context.TODO())
-
+	defer db.ReleaseDriver(dbConnection)
 	ydbQuotes := []types.Value{}
 	for _, quote := range *quotes {
 		ydbQuote := types.StructValue(
@@ -46,8 +41,8 @@ func SaveTimeSeriesToDB(quotes *[]entity.SimpleQuote) error {
 		ydbQuotes = append(ydbQuotes, ydbQuote)
 	}
 
-	tableName := path.Join(db.Name(), market_date_directory_prefix, time_series_table_name)
-	err = db.Table().BulkUpsert(
+	tableName := path.Join(dbConnection.Name(), market_date_directory_prefix, time_series_table_name)
+	err = dbConnection.Table().BulkUpsert(
 		context.TODO(),
 		tableName,
 		table.BulkUpsertDataRows(types.ListValue(ydbQuotes...)))
