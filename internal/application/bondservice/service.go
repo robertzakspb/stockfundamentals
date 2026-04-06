@@ -1,13 +1,10 @@
 package bondservice
 
 import (
-	"context"
 	"errors"
-	"os/signal"
 	"sort"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/compoundinvest/invest-core/quote/bondquote"
@@ -19,55 +16,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
-	pb "opensource.tbank.ru/invest/invest-go/proto"
 )
-
-func ImportAllBondsAndCoupons() error {
-	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
-	if err != nil {
-		logger.Log("Failed to initialize the configuration file", logger.ALERT)
-		return err
-	}
-
-	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
-	defer cancel()
-
-	client, err := tinkoff.NewClient(ctx, config, nil)
-	if err != nil {
-		logger.Log("Failed to initialize the Tinkoff API client: ", logger.ALERT)
-		return err
-	}
-
-	bondService := client.NewInstrumentsServiceClient()
-	response, err := bondService.Bonds(pb.InstrumentStatus_INSTRUMENT_STATUS_ALL)
-	if response == nil {
-		logger.Log("Unexpectedly received a nil response from Tinkoff API", logger.ALERT)
-	}
-
-	dbBonds := []bondsdb.BondDbModel{}
-	for _, tinkoffBond := range response.Instruments {
-		if tinkoffBond.MaturityDate.AsTime().Before(time.Now()) {
-			//No need to import historical bonds that have matured
-			continue
-		}
-		bond := mapTinkoffBondToBond(tinkoffBond)
-		validationErr := bond.Validate()
-		if validationErr != nil {
-			logger.Log(validationErr.Error(), logger.WARNING)
-		}
-		dbBond := mapBondToDbBond(bond)
-		dbBonds = append(dbBonds, dbBond)
-	}
-
-	err = bondsdb.SaveBonds(dbBonds)
-	if err != nil {
-		return err
-	}
-
-	go importAllCoupons()
-
-	return nil
-}
 
 func GetAllBonds() ([]bonds.Bond, error) {
 	return GetFilteredBonds([]ydbfilter.YdbFilter{})
@@ -251,17 +200,6 @@ func PopulateBondCoupons(bondList []bonds.Bond) []bonds.Bond {
 	return bondsWithCoupons
 }
 
-func MatchCouponsWithBonds(coupons []bonds.Coupon, bonds []bonds.Bond) []bonds.Bond {
-	for _, coupon := range coupons {
-		for i, b := range bonds {
-			if coupon.Figi == b.Figi {
-				bonds[i].Coupons = append(b.Coupons, coupon)
-			}
-		}
-	}
-	return bonds
-}
-
 func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []bondquote.TinkoffBondQuote) []bonds.Bond {
 	currencyPairs := AllCurrencyPairsInBondList(bondList)
 	forexRates, _ := forexservice.GetExchangeRates(currencyPairs, time.Now())
@@ -308,7 +246,7 @@ func CalculateYtmForBonds(bondList []bonds.Bond) []bonds.Bond {
 		return []bonds.Bond{}
 	}
 
-	quotes, err := bondquote.FetchQuotesForFigis(GetBondFigis(bondList), config)
+	quotes, err := bondquote.FetchQuotesForFigis(GetBondFigis(&bondList), config)
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
 	}
@@ -364,39 +302,6 @@ func UpdateAllBondsAci() error {
 	return nil
 }
 
-func AllCurrencyPairsInBondList(bondList []bonds.Bond) []string {
-	pairs := []string{}
-
-	for _, bond := range bondList {
-		if bond.Currency != bond.NominalCurrency {
-			foundPair := false
-			for _, pair := range pairs {
-				if pair == bond.NominalCurrency+"/"+bond.Currency {
-					foundPair = true
-				}
-			}
-			if !foundPair {
-				pairs = append(pairs, bond.NominalCurrency+"/"+bond.Currency)
-			}
-		}
-	}
-	return pairs
-}
-
-func GetOnlyBondsWithFixedOrConstantCoupons(bondList []bonds.Bond) []bonds.Bond {
-	filteredBonds := []bonds.Bond{}
-	for _, bond := range bondList {
-		if len(bond.Coupons) == 0 {
-			logger.Log("Attempting to find bonds with fixed or constant coupons for a bond with no coupons", logger.WARNING)
-			continue
-		}
-		if bond.Coupons[0].CouponType == bonds.CouponType_COUPON_TYPE_CONSTANT || bond.Coupons[0].CouponType == bonds.CouponType_COUPON_TYPE_FIX {
-			filteredBonds = append(filteredBonds, bond)
-		}
-	}
-	return filteredBonds
-}
-
 // Optimized method that fetches all data asynchronously
 func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond {
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
@@ -405,7 +310,7 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 		return []bonds.Bond{}
 	}
 
-	figis := GetBondFigis(bondList)
+	figis := GetBondFigis(&bondList)
 
 	wg := sync.WaitGroup{}
 

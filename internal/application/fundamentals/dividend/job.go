@@ -44,7 +44,7 @@ func FetchAndSaveAllDividends() error {
 	return nil
 }
 
-func fetchDividendsForAllStocks() []dividend.Dividend {
+func fetchDividendsForAllStocks() *[]dividend.Dividend {
 	stocks, err := securitydb.GetAllSecuritiesFromDB()
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
@@ -56,13 +56,13 @@ func fetchDividendsForAllStocks() []dividend.Dividend {
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
-		return []dividend.Dividend{}
+		return nil
 	}
 
 	client, err := tinkoff.NewClient(context.TODO(), config, nil)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
-		return []dividend.Dividend{}
+		return nil
 	}
 
 	securityService := client.NewInstrumentsServiceClient()
@@ -81,5 +81,5 @@ func fetchDividendsForAllStocks() []dividend.Dividend {
 	}
 	logger.Log("Completed the dividend fetching job", logger.INFORMATION)
 
-	return allDividends
+	return &allDividends
 }

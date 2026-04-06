@@ -35,8 +35,8 @@ func StartDailyJobs(c *gin.Context) {
 }
 
 func StartHeavyJobs(c *gin.Context) {
-	timeseries.StartTimeSeriesImportJob(c)
-	apidividend.StartDividendFetchingJob(c)
+	timeseries.StartTimeSeriesImportJob(c) //Completes in 18 minutes if run separately
+	apidividend.StartDividendFetchingJob(c) 
 	bondsapi.StartBondAndCouponImportJob(c)
 	c.JSON(http.StatusOK, "Heavy jobs were successfully started/executed")
 }

@@ -15,6 +15,7 @@ import (
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
 )
 
+//It typically takes to 
 func FetchAndSaveHistoricalQuotes() error {
 	latestQuotes, err := timeseries.GetLatestQuotesForAllSecurities()
 	if err != nil {
@@ -22,23 +23,23 @@ func FetchAndSaveHistoricalQuotes() error {
 	}
 	quotes := []entity.SimpleQuote{}
 
-	for _, quote := range latestQuotes {
+	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
+	if err != nil {
+		return errors.New("Unable to fetch dividends due to internal configuration issues")
+	}
+	client, err := tinkoff.NewClient(context.TODO(), config, nil)
+	service := client.NewMarketDataServiceClient()
+
+	for i, quote := range latestQuotes {
 		if quote.Country != "RU" {
 			continue
 		}
-		config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
-		if err != nil {
-			return errors.New("Unable to fetch dividends due to internal configuration issues")
-		}
-
-		client, err := tinkoff.NewClient(context.TODO(), config, nil)
-		service := client.NewMarketDataServiceClient()
 
 		tQuotes, err := tinkoffapi.FetchAllHistoricalQuotesFor(service, quote.Figi, quote.Date, time.Now())
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 		}
-		logger.Log("Fetched "+strconv.Itoa(len(tQuotes))+" quotes for: "+quote.Figi, logger.INFORMATION)
+		logger.Log(strconv.Itoa(i+1)+" out of "+strconv.Itoa(len(latestQuotes))+". Fetched "+strconv.Itoa(len(tQuotes))+" quotes for: "+quote.Figi, logger.INFORMATION)
 
 		interfaceStructs := make([]entity.SimpleQuote, len(tQuotes))
 		for i := range tQuotes {
@@ -49,7 +50,7 @@ func FetchAndSaveHistoricalQuotes() error {
 		if len(quotes) == 0 {
 			continue
 		}
-		err = timeseries.SaveTimeSeriesToDB(quotes)
+		err = timeseries.SaveTimeSeriesToDB(&quotes)
 		if err != nil {
 			logger.Log("Failed to save timeseries for "+quote.Figi+" to DB due to: "+err.Error(), logger.ALERT)
 			continue
@@ -57,6 +58,8 @@ func FetchAndSaveHistoricalQuotes() error {
 
 		<-tthrottler.MarketDataServiceThrottle
 	}
+
+	logger.Log("The time series job has successfully completed", logger.INFORMATION)
 
 	return nil
 }

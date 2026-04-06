@@ -15,8 +15,8 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
-func SaveDividendsToDB(dividends []dividend.Dividend, dbDriver *ydb.Driver) error {
-	if len(dividends) == 0 {
+func SaveDividendsToDB(dividends *[]dividend.Dividend, dbDriver *ydb.Driver) error {
+	if len(*dividends) == 0 {
 		logger.Log("Attempting to save 0 dividends", logger.WARNING)
 	}
 	if dbDriver == nil {
@@ -24,7 +24,7 @@ func SaveDividendsToDB(dividends []dividend.Dividend, dbDriver *ydb.Driver) erro
 		return errors.New("Database issues")
 	}
 
-	dbModels := mapDividendToDbModel(dividends)
+	dbModels := mapDividendToDbModel(*dividends)
 
 	ydbDividends := []types.Value{}
 	for _, dividend := range dbModels {

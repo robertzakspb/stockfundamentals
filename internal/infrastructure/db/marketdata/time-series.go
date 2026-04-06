@@ -22,7 +22,7 @@ import (
 const market_date_directory_prefix = "marketdata/"
 const time_series_table_name = "time_series"
 
-func SaveTimeSeriesToDB(quotes []entity.SimpleQuote) error {
+func SaveTimeSeriesToDB(quotes *[]entity.SimpleQuote) error {
 	config, err := config.LoadConfig()
 	if err != nil {
 		return err
@@ -36,7 +36,7 @@ func SaveTimeSeriesToDB(quotes []entity.SimpleQuote) error {
 	defer db.Close(context.TODO())
 
 	ydbQuotes := []types.Value{}
-	for _, quote := range quotes {
+	for _, quote := range *quotes {
 		ydbQuote := types.StructValue(
 			types.StructFieldValue("figi", types.TextValue(quote.Figi())),
 			types.StructFieldValue("close_price", types.DoubleValue(quote.Quote())),

@@ -12,8 +12,14 @@ func GetRussianGovernmentBondsWithFixedOrConstantCoupon() ([]bonds.Bond, error) 
 		Condition:      ydbfilter.Like,
 		ConditionValue: types.TextValue("%ОФЗ%"),
 	}
+	amortizationFilter :=
+		ydbfilter.YdbFilter{
+			YqlColumnName:  "has_amortization",
+			Condition:      ydbfilter.Equal,
+			ConditionValue: types.BoolValue(false),
+		}
 
-	bondList, err := GetFilteredBonds([]ydbfilter.YdbFilter{governmentFilter})
+	bondList, err := GetFilteredBonds([]ydbfilter.YdbFilter{governmentFilter, amortizationFilter})
 	if err != nil {
 		return bondList, err
 	}

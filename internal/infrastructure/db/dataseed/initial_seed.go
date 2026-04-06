@@ -496,7 +496,7 @@ func populateDividendTable(reader *csv.Reader, db *ydb.Driver) error {
 		dividends = append(dividends, div)
 	}
 
-	err = dbdividend.SaveDividendsToDB(dividends, db)
+	err = dbdividend.SaveDividendsToDB(&dividends, db)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 		return err

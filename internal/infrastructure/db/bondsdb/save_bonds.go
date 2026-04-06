@@ -74,7 +74,7 @@ func SaveCoupons(coupons *[]CouponDbModel) error {
 	if err != nil {
 		return err
 	}
-	defer dbConnection.Close(context.TODO())
+	defer db.ReleaseDriver(dbConnection)
 
 	ydbCoupons := []types.Value{}
 	for _, c := range *coupons {
