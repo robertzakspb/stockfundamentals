@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"errors"
-	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
@@ -26,15 +26,9 @@ func ReleaseDriver(driver *ydb.Driver) error {
 	for i := range pool.connections {
 		if driver == pool.connections[i].db {
 			pool.connections[i].occupied = false
-			for i := range pool.connections {
-				fmt.Println("Connection: ", &pool.connections[i].db, ". Occupied: ", pool.connections[i].occupied)
-			}
+			logger.Log("Connection: "+driver.String()+" has been released", logger.INFORMATION)
 			return nil
 		}
-	}
-
-	for i := range pool.connections {
-		fmt.Println("Connection: ", &pool.connections[i].db, ". Occupied: ", pool.connections[i].occupied)
 	}
 
 	logger.Log("Attempting to release a ydb connection not present in the pool", logger.ERROR)
@@ -59,6 +53,7 @@ func GetReusableYdbDriver() (*ydb.Driver, error) {
 		db:       driver,
 		occupied: true,
 	})
+	logger.Log("Number of connections in the pool: " + strconv.Itoa(len(pool.connections)), logger.INFORMATION)
 	return driver, nil
 }
 
@@ -77,6 +72,8 @@ func MakeYdbDriver() (*ydb.Driver, error) {
 		logger.Log(err.Error(), logger.ALERT)
 		panic("Failed to connect to the database")
 	}
+
+	logger.Log("Connection "+db.String()+" has been provisioned", logger.INFORMATION)
 
 	return db, nil
 }
