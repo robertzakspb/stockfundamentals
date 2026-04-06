@@ -40,6 +40,7 @@ func GetReusableYdbDriver() (*ydb.Driver, error) {
 	for i := range pool.connections {
 		if !pool.connections[i].occupied {
 			pool.connections[i].occupied = true
+			logger.Log("Connection: "+pool.connections[i].db.String()+" has been occupied", logger.INFORMATION)
 			return pool.connections[i].db, nil
 		}
 	}
@@ -53,7 +54,7 @@ func GetReusableYdbDriver() (*ydb.Driver, error) {
 		db:       driver,
 		occupied: true,
 	})
-	logger.Log("Number of connections in the pool: " + strconv.Itoa(len(pool.connections)), logger.INFORMATION)
+	logger.Log("Number of connections in the pool: "+strconv.Itoa(len(pool.connections)), logger.INFORMATION)
 	return driver, nil
 }
 
