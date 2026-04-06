@@ -48,7 +48,12 @@ func importAllCoupons() error {
 	for i, bond := range bonds {
 		response, err := bondService.GetBondCoupons(bond.Figi, coupondPeriodStartDate, coupondPeriodEndDate)
 		if err != nil {
-			return err
+			logger.Log(err.Error(), logger.ERROR)
+			continue
+		}
+
+		if len(response.GetEvents()) == 0 {
+			continue
 		}
 
 		for _, tinkoffCoupon := range response.GetEvents() {
@@ -58,7 +63,7 @@ func importAllCoupons() error {
 		}
 
 		//Saving coupons in chunks of 1000
-		if len(dbCoupons) > 1000 {
+		if len(dbCoupons) > 1000 || i == len(bonds) - 1 {
 			err = bondsdb.SaveCoupons(&dbCoupons)
 			if err != nil {
 				return err
