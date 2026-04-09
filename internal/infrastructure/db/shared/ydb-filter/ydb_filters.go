@@ -9,6 +9,7 @@ import (
 
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
@@ -167,7 +168,12 @@ func mapQueryValuesToYdbFilterValues(condition YdbFilterCondition, values []stri
 			return types.Int64Value(int64(i)), nil
 		}
 
-		return types.UTF8Value(values[0]), nil
+		id, err := uuid.Parse(values[0])
+		if err == nil {
+			return types.UuidValue(id), nil
+		}
+
+		return types.TextValue(values[0]), nil
 
 	case Equal:
 		b, err := strconv.ParseBool(values[0])
@@ -180,12 +186,17 @@ func mapQueryValuesToYdbFilterValues(condition YdbFilterCondition, values []stri
 			return types.DoubleValue(f), nil
 		}
 
+		id, err := uuid.Parse(values[0])
+		if err == nil {
+			return types.UuidValue(id), nil
+		}
+
 		i, err := strconv.Atoi(values[0])
 		if err == nil {
 			return types.Int64Value(int64(i)), nil
 		}
 
-		return types.UTF8Value(values[0]), nil
+		return types.TextValue(values[0]), nil
 	case Contains:
 		return parseArrayFromQueryParameters(values)
 	}
@@ -200,10 +211,6 @@ func parseArrayFromQueryParameters(values []string) (types.Value, error) {
 
 	ydbValues := []types.Value{}
 
-	//FIXME: Verify that all elements in the values []string array are of the same type; otherwise throw an error
-
-	//Determine the array element type
-
 	//First see if it's a float
 	_, err := strconv.ParseFloat(values[0], 64)
 	if err == nil {
@@ -214,6 +221,7 @@ func parseArrayFromQueryParameters(values []string) (types.Value, error) {
 			}
 			ydbValues = append(ydbValues, types.DoubleValue(f))
 		}
+		return types.ListValue(ydbValues...), nil
 	}
 
 	//Then see if it's an int
@@ -226,12 +234,40 @@ func parseArrayFromQueryParameters(values []string) (types.Value, error) {
 			}
 			ydbValues = append(ydbValues, types.Int64Value(int64(i)))
 		}
+		return types.ListValue(ydbValues...), nil
+
+	}
+
+	_, err = uuid.Parse(values[0])
+	if err == nil {
+		for _, value := range values {
+			id, err := uuid.Parse(value)
+			if err != nil {
+				return types.ListValue(), errors.New("First element in the array is a UUID but one subsequent value is not an UUID")
+			}
+			ydbValues = append(ydbValues, types.UuidValue(id))
+		}
+		return types.ListValue(ydbValues...), nil
+
+	}
+
+	_, err = time.Parse(time.RFC3339, values[0])
+	if err == nil {
+		for _, value := range values {
+			date, err := time.Parse(time.RFC3339, value)
+			if err != nil {
+				return types.ListValue(), errors.New("First element in the array is a date but one subsequent value is not an date")
+			}
+			ydbValues = append(ydbValues, ydbhelper.ConvertToYdbDate(date))
+		}
+		return types.ListValue(ydbValues...), nil
+
 	}
 
 	//Then assume it's a string. Other parameter types will be implemented later
 	for _, value := range values {
-		ydbValues = append(ydbValues, types.UTF8Value(value))
+		ydbValues = append(ydbValues, types.TextValue(value))
 	}
 
-	return types.ListValue(), nil
+	return types.ListValue(ydbValues...), nil
 }

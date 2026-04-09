@@ -16,7 +16,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
 	dbfinancials "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/financials"
 	dbsecurity "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -57,7 +57,17 @@ func InitialSeed(c *gin.Context) {
 func createTables(ctx context.Context, db *ydb.Driver) error {
 	client := db.Table()
 
-	err := createFxRateTable(ctx, db, client)
+	err := createAccountTable(ctx, db, client)
+	if err != nil {
+		return err
+	}
+
+	err = createAccountMarketValueTable(ctx, db, client)
+	if err != nil {
+		return err
+	}
+
+	err = createFxRateTable(ctx, db, client)
 	if err != nil {
 		return err
 	}
@@ -165,6 +175,49 @@ func createStockTables(ctx context.Context, db *ydb.Driver, c table.Client) erro
 				logger.Log(err.Error(), logger.ALERT)
 				return err
 			}
+			return nil
+		})
+}
+
+func createAccountTable(ctx context.Context, dbConnection *ydb.Driver, c table.Client) error {
+	prefix := path.Join(dbConnection.Name(), db.USER_DIRECTORY_PREFIX)
+
+	return c.Do(ctx,
+		func(ctx context.Context, s table.Session) error {
+			err := s.CreateTable(ctx, path.Join(prefix, db.ACCOUNT_TABLE_NAME),
+				options.WithColumn("id", types.TypeUUID),
+				options.WithColumn("opening_date", types.TypeDate),
+				options.WithColumn("type", types.TypeText),
+				options.WithColumn("broker", types.TypeText),
+				options.WithColumn("holder", types.TypeText),
+				options.WithPrimaryKeyColumn("id"),
+			)
+			if err != nil {
+				logger.Log(err.Error(), logger.ALERT)
+				return err
+			}
+
+			return nil
+		})
+}
+
+func createAccountMarketValueTable(ctx context.Context, dbConnection *ydb.Driver, c table.Client) error {
+	prefix := path.Join(dbConnection.Name(), db.USER_DIRECTORY_PREFIX)
+
+	return c.Do(ctx,
+		func(ctx context.Context, s table.Session) error {
+			err := s.CreateTable(ctx, path.Join(prefix, db.ACCOUNT_MARKET_VALUE_HISTORY_TABLE_NAME),
+				options.WithColumn("account_id", types.TypeUUID),
+				options.WithColumn("date", types.TypeDate),
+				options.WithColumn("currency", types.TypeText),
+				options.WithColumn("eod_value", types.TypeDouble),
+				options.WithPrimaryKeyColumn("account_id", "date"),
+			)
+			if err != nil {
+				logger.Log(err.Error(), logger.ALERT)
+				return err
+			}
+
 			return nil
 		})
 }

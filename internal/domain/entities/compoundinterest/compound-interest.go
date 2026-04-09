@@ -10,7 +10,7 @@ func Compound(capital float64, numberOfYears int, annualGrowthRate float64, annu
 	currency := "₽"
 
 	fmt.Printf("Capital: %v%.3f. Annual growth rate: %v\n", currency, capital, annualGrowthRate)
-	for i := 0; i < numberOfYears; i++ {
+	for i := range numberOfYears {
 		portfolioGrowth := capital * annualGrowthRate / 100
 		capital += portfolioGrowth
 		capital += annualContribution

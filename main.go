@@ -10,6 +10,7 @@ import (
 	api_security "github.com/compoundinvest/stockfundamentals/internal/interface/api/security"
 	timeseries "github.com/compoundinvest/stockfundamentals/internal/interface/api/time-series"
 
+	accountreturnapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/account-return"
 	bondportfolioapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/bond-portfolio"
 	divcalapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/dividend-calendar"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/stock-portfolio"
@@ -35,6 +36,7 @@ func addEndpoints(router *gin.Engine) {
 	router.GET("portfolio", portfolio.GetPortfolio)
 	router.GET("account-portfolio", portfolio.GetAccountPortfolio)
 	router.POST("update-portfolio", portfolio.UpdatePortfolio)
+	router.GET("account/return", accountreturnapi.GetAccountReturn)
 
 	router.POST("fetch/dividends", dividend.StartDividendFetchingJob)
 	router.GET("all-dividends", dividend.GetAllDividends)

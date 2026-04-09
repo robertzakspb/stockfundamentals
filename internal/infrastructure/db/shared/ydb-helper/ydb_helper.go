@@ -6,6 +6,8 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
+const secondsInADay = 60 * 60 * 24
+
 func ConvertStringsToYdbList(stringVals []string) types.Value {
 	textVals := []types.Value{}
 	for _, string := range stringVals {
@@ -14,11 +16,17 @@ func ConvertStringsToYdbList(stringVals []string) types.Value {
 	return types.ListValue(textVals...)
 }
 
+func ConverTimestampsToYdbDates(timestamps []time.Time) types.Value {
+	dateValues := []types.Value{}
+	for _, time := range timestamps {
+		dateValues = append(dateValues, ConvertToYdbDate(time))
+	}
+	return types.ListValue(dateValues...)
+}
+
 func ConvertToYdbDateTime(timestamp time.Time) types.Value {
 	return types.DatetimeValue(uint32(timestamp.Unix()))
 }
-
-const secondsInADay = 60*60*24
 
 func ConvertToYdbDate(date time.Time) types.Value {
 	return types.DateValue(uint32(date.Unix() / secondsInADay))
