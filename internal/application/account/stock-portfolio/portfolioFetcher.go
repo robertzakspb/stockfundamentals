@@ -8,7 +8,6 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/application/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/portfoliodb"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 
 	"github.com/google/uuid"
@@ -25,24 +24,11 @@ func GeMyPortfolio() (portfolio.Portfolio, error) {
 	return portfolio.Portfolio{Lots: allPositions}, err
 }
 
-func GetAccountPortfolio(accountIDs uuid.UUIDs) (portfolio.Portfolio, error) {
-	dbLots, err := portfoliodb.GetAccountPortfolio(accountIDs)
-	if err != nil {
-		return portfolio.Portfolio{}, err
-	}
-	lots := []lot.Lot{}
-	for _, lot := range dbLots {
-		lots = append(lots, mapLotDbToLot(lot))
-	}
-
-	return portfolio.Portfolio{Lots: lots}, nil
-}
-
 func getExternalStockPositions() ([]lot.Lot, error) {
 	return getTinkoffStockPositions()
 }
 
-func getTinkoffStockPositions()  ([]lot.Lot, error)  {
+func getTinkoffStockPositions() ([]lot.Lot, error) {
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
 		logger.Log("Failed to initialize the configuration file", logger.ALERT)

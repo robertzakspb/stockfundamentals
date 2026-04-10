@@ -18,7 +18,7 @@ type Portfolio struct {
 
 func (portfolio Portfolio) Securities() []string {
 	uuids := []string{}
-	for _, lot := range portfolio.Lots {
+	for _, lot := range portfolio.UniquePositions() {
 		uuids = append(uuids, lot.SecurityId)
 	}
 	return uuids
@@ -134,4 +134,20 @@ func (portfolio Portfolio) WithPLs() []LotWithSecurity {
 	}
 
 	return lotsWithSecurities
+}
+
+func (p Portfolio) PositionCurrencies() []string {
+	currenciesInPortfolio := []string{}
+	for _, position := range p.UniquePositions() {
+		alreadyInArray := false
+		for _, currency := range currenciesInPortfolio {
+			if position.Currency == currency {
+				alreadyInArray = true
+			}
+		}
+		if !alreadyInArray {
+			currenciesInPortfolio = append(currenciesInPortfolio, position.Currency)
+		}
+	}
+	return currenciesInPortfolio
 }

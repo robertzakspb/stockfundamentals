@@ -7,6 +7,7 @@ import (
 
 	"github.com/compoundinvest/invest-core/quote/bondquote"
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
+	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
 	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
 	accountmvdb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/market-value"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -36,13 +37,16 @@ func GetAccountReturn(filters []ydbfilter.YdbFilter) (accountmvdomain.Return, er
 }
 
 func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time) (accountmvdomain.AccountMarketValue, error) {
-	// stockMV := CalculateAccountStockMarketValue(accountId, date)
+	stockMV, err := CalculateAccountStockMarketValue(accountId, date)
+	if err != nil {
+		return accountmvdomain.AccountMarketValue{}, err
+	}
 	bondMV, err := CalculateAccountBondMarketValue(accountId, date)
 	if err != nil {
 		return accountmvdomain.AccountMarketValue{}, err
 	}
 
-	totalMV := bondMV.EodValue //+ stockMV.EodValue
+	totalMV := bondMV.EodValue + stockMV.EodValue
 
 	mv := accountmvdomain.AccountMarketValue{
 		AccountId: accountId,
@@ -53,9 +57,26 @@ func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time) (accountmv
 	return mv, nil
 }
 
-// func CalculateAccountStockMarketValue(accountId uuid.UUID, date time.Time) accountmvdomain.AccountMarketValue {
+func CalculateAccountStockMarketValue(accountId uuid.UUID, date time.Time) (accountmvdomain.AccountMarketValue, error) {
+	targetCurrency := "RUB"
+	accountPortfolio, err := portfolio.GetAccountPortfolio([]uuid.UUID{accountId})
+	if err != nil {
+		return accountmvdomain.AccountMarketValue{}, err
+	}
 
-// }
+	stockPortfolioMarketValue, currency, err := portfolio.CalculatePortfolioMarketValue(accountPortfolio, targetCurrency)
+	if err != nil {
+		return accountmvdomain.AccountMarketValue{}, err
+	}
+
+	mv := accountmvdomain.AccountMarketValue{
+		AccountId: accountId,
+		Date:      date,
+		Currency:  currency,
+		EodValue:  stockPortfolioMarketValue,
+	}
+	return mv, nil
+}
 
 func CalculateAccountBondMarketValue(accountId uuid.UUID, date time.Time) (accountmvdomain.AccountMarketValue, error) {
 	filter := ydbfilter.YdbFilter{

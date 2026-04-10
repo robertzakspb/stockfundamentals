@@ -75,6 +75,9 @@ func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {
 }
 
 func GetExchangeRates(currencyPairs []string, date time.Time) ([]ForexRate, error) {
+	if len(currencyPairs) == 0 {
+		return []ForexRate{}, errors.New("Attempting to fetch exchange rates for no currency pairs")
+	}
 	filters := []ydbfilter.YdbFilter{{
 		YqlColumnName:  "date",
 		Condition:      ydbfilter.Equal,
