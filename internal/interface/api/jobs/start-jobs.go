@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"sync"
 
+	accountreturnapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/account-return"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/stock-portfolio"
 	bondsapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/bonds"
 	forexapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/forex"
@@ -31,6 +32,9 @@ func StartDailyJobs(c *gin.Context) {
 	wg.Wait() //Need to fetch the latest forex rates before proceeding to update the bonds' ACI
 
 	bondsapi.StartBondAccruedInterestUpdateJob(c)
+
+	accountreturnapi.StartMarketValueSnapshotJob(c)
+
 	c.JSON(http.StatusOK, "Daily jobs were successfully started/executed")
 }
 

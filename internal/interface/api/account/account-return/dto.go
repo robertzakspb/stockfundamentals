@@ -3,7 +3,7 @@ package accountreturnapi
 import (
 	"time"
 
-	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/dividend-calendar/market-value"
+	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
 )
 
 type AccountReturnDto struct {

@@ -1,7 +1,7 @@
-package accountmv
+package accountmvservice
 
 import (
-	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/dividend-calendar/market-value"
+	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
 	accountmvdb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/market-value"
 )
 

@@ -1,4 +1,4 @@
-package accountmvdb
+package accountdb
 
 import (
 	"context"
@@ -13,18 +13,18 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
 )
 
-func GetAccountMarketValues(filters []ydbfilter.YdbFilter) ([]AccountMarketValueDB, error) {
+func GetAccounts(filters []ydbfilter.YdbFilter) ([]AccountDbModel, error) {
 	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
-		return []AccountMarketValueDB{}, err
+		return []AccountDbModel{}, err
 	}
 	defer db.ReleaseDriver(dbConnection)
 
-	marketValues := []AccountMarketValueDB{}
+	accounts := []AccountDbModel{}
 
 	err = dbConnection.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
-			result, err := s.Query(ctx, makeGetAccountMarketValuesQuery(filters),
+			result, err := s.Query(ctx, makeGetAccountsQuery(filters),
 				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
 				query.WithParameters(ydbfilter.SetQueryParams(filters)))
 
@@ -46,11 +46,11 @@ func GetAccountMarketValues(filters []ydbfilter.YdbFilter) ([]AccountMarketValue
 					return err
 				}
 
-				for row, err := range sugar.UnmarshalRows[AccountMarketValueDB](resultSet.Rows(ctx)) {
+				for row, err := range sugar.UnmarshalRows[AccountDbModel](resultSet.Rows(ctx)) {
 					if err != nil {
 						return err
 					}
-					marketValues = append(marketValues, row)
+					accounts = append(accounts, row)
 				}
 			}
 
@@ -58,27 +58,27 @@ func GetAccountMarketValues(filters []ydbfilter.YdbFilter) ([]AccountMarketValue
 		},
 	)
 	if err != nil {
-		return []AccountMarketValueDB{}, err
+		return []AccountDbModel{}, err
 	}
 
-	return marketValues, nil
+	return accounts, nil
 }
 
-func makeGetAccountMarketValuesQuery(filters []ydbfilter.YdbFilter) string {
+func makeGetAccountsQuery(filters []ydbfilter.YdbFilter) string {
 	yql := fmt.Sprintf(`
 						%s
 						SELECT
-							account_id,
-							date,
-							currency,
-							eod_value
+							id,
+							opening_date,
+							type,
+							broker,
+							holder
 						FROM
 							%s
 						%s
-						ORDER BY date ASC
 					`,
 		ydbfilter.AddYqlVarDeclarations(filters),
-		"`"+path.Join(db.USER_DIRECTORY_PREFIX, db.ACCOUNT_MARKET_VALUE_HISTORY_TABLE_NAME)+"`",
+		"`"+path.Join(db.USER_DIRECTORY_PREFIX, db.ACCOUNT_TABLE_NAME)+"`",
 		ydbfilter.MakeWhereClause(filters))
 	return yql
 }
