@@ -16,10 +16,13 @@ func SaveAccountMarketValueSnapshots() {
 	}
 
 	for _, account := range accounts {
-		accountMV, err := CalculateAccountMarketValue(account.Id, time.Now())
-		if err != nil {
-			logger.Log(err.Error(), logger.ERROR)
-		}
-		go accountmvdb.SaveMarketValue(mapAccountMarketValueToDbModel(accountMV))
+		go func() {
+			accountMV, err := CalculateAccountMarketValue(account.Id, time.Now())
+			if err != nil {
+				logger.Log(err.Error(), logger.ERROR)
+			}
+			mappedMV := mapAccountMarketValueToDbModel(accountMV)
+			accountmvdb.SaveMarketValue([]accountmvdb.AccountMarketValueDB{mappedMV})
+		}()
 	}
 }

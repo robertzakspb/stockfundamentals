@@ -7,8 +7,6 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
-	"github.com/google/uuid"
-	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
 func SaveBondPositionLot(lot bonds.BondLot) error {
@@ -33,14 +31,11 @@ func SaveBondPositionLot(lot bonds.BondLot) error {
 }
 
 func GetAllPositionLots() ([]bonds.BondLot, error) {
-	//FIXME: This UUID should eventually be moved to a separate account table
-	hardCodedAccountId, _ := uuid.Parse("129274f9-ee80-4e74-aa1c-fea578bac6e6")
-	filter := ydbfilter.YdbFilter{
-		YqlColumnName:  "account_id",
-		Condition:      ydbfilter.Equal,
-		ConditionValue: types.UuidValue(hardCodedAccountId),
-	}
-	lots, err := bondsdb.GetAccountBondPortfolio([]ydbfilter.YdbFilter{filter})
+	return GetFilteredPositionLots([]ydbfilter.YdbFilter{})
+}
+
+func GetFilteredPositionLots(filters []ydbfilter.YdbFilter) ([]bonds.BondLot, error) {
+	lots, err := bondsdb.GetAccountBondPortfolio(filters)
 	if err != nil {
 		return []bonds.BondLot{}, err
 	}

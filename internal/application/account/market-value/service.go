@@ -12,6 +12,7 @@ import (
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
+	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 	"opensource.tbank.ru/invest/invest-go/investgo"
 )
 
@@ -57,7 +58,12 @@ func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time) (accountmv
 // }
 
 func CalculateAccountBondMarketValue(accountId uuid.UUID, date time.Time) (accountmvdomain.AccountMarketValue, error) {
-	bondLots, err := bondportfolio.GetAllPositionLots()
+	filter := ydbfilter.YdbFilter{
+		YqlColumnName:  "account_id",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: types.UuidValue(accountId),
+	}
+	bondLots, err := bondportfolio.GetFilteredPositionLots([]ydbfilter.YdbFilter{filter})
 	if err != nil {
 		return accountmvdomain.AccountMarketValue{}, err
 	}
