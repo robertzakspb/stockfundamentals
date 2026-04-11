@@ -43,7 +43,7 @@ func TestDbLotToLotMapping(t *testing.T) {
 	if mappedLot.UpdatedAt != updateAt {
 		t.Errorf("The specified lot's ID update at incorrect")
 	}
-	if mappedLot.SecurityId != figi {
+	if mappedLot.Figi != figi {
 		t.Errorf("The specified lot's figi is incorrect")
 	}
 	if mappedLot.AccountId != accountId {
@@ -72,7 +72,7 @@ func TestLotToDbLotMapping(t *testing.T) {
 
 	sampleLot := lot.Lot{
 		Id:           id,
-		SecurityId:   figi,
+		Figi:   figi,
 		AccountId:    accountId,
 		CreatedAt:    createdAt,
 		UpdatedAt:    updateAt,

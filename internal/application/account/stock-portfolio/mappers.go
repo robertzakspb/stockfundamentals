@@ -14,7 +14,7 @@ func mapLotDbToLot(lotDb portfoliodb.LotDb) lot.Lot {
 		PricePerUnit: lotDb.PricePerUnit,
 		Currency:     lotDb.Currency,
 		AccountId:    lotDb.AccountId,
-		SecurityId:   lotDb.Figi,
+		Figi:   lotDb.Figi,
 		CurrentPL:    0,
 	}
 }
@@ -30,7 +30,7 @@ func mapLotToDbLot(lots []lot.Lot) []portfoliodb.LotDb {
 			PricePerUnit: lot.PricePerUnit,
 			Currency:     lot.Currency,
 			AccountId:    lot.AccountId,
-			Figi:         lot.SecurityId,
+			Figi:         lot.Figi,
 		}
 		dbLots = append(dbLots, dbLot)
 

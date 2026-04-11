@@ -15,10 +15,10 @@ import (
 
 type FxRate struct {
 	Date  string         `xml:"Date,attr"`
-	Rates []*CbrCurrency `xml:"Valute"`
+	Rates []*cbrCurrency `xml:"Valute"`
 }
 
-type CbrCurrency struct {
+type cbrCurrency struct {
 	ID       string  `xml:"ID,attr"`
 	NumCode  int     `xml:"NumCode"`
 	CharCode string  `xml:"CharCode"`
@@ -48,7 +48,7 @@ func getCurrencyToRubRate(currency string, targetDate time.Time) (float64, error
 
 func getDailyRates(ctx context.Context, year int, month time.Month, day int) (*FxRate, error) {
 	const (
-		UserAgent = "cbrates/v0 (+https://github.com/robertzak)" // by some reason default go ua was getting blocked
+		UserAgent = "cbrates/v0 (+https://github.com/robertzak)"
 	)
 
 	c := http.Client{}

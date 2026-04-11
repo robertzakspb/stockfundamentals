@@ -19,7 +19,7 @@ func GetAccountDividendCalendar(accountIds uuid.UUIDs) (divcal.DividendCalendar,
 		return divcal.DividendCalendar{}, err
 	}
 
-	securityIds := portfolio.Securities()
+	securityIds := portfolio.Figis()
 	securities, err := security_master.GetSecuritiesFilteredByFigi(securityIds)
 	if err != nil {
 		return divcal.DividendCalendar{}, err
@@ -47,7 +47,7 @@ func GetAccountDividendCalendar(accountIds uuid.UUIDs) (divcal.DividendCalendar,
 
 	for _, relevantDiv := range relevantDivs {
 		for _, lot := range portfolio.Lots {
-			if relevantDiv.Figi == lot.SecurityId {
+			if relevantDiv.Figi == lot.Figi {
 				divCal.FuturePayouts = append(divCal.FuturePayouts, dividend.Payout{
 					Id:         uuid.New(),
 					DividendId: relevantDiv.Id,

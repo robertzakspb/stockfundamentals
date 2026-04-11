@@ -1,6 +1,7 @@
-package portfolio
+package stockportfolio
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
@@ -16,12 +17,12 @@ type Portfolio struct {
 	Cash []CashPosition `json:"cashPositions"` //TODO: Populate this
 }
 
-func (portfolio Portfolio) Securities() []string {
-	uuids := []string{}
+func (portfolio Portfolio) Figis() []string {
+	figis := []string{}
 	for _, lot := range portfolio.UniquePositions() {
-		uuids = append(uuids, lot.SecurityId)
+		figis = append(figis, lot.Figi)
 	}
-	return uuids
+	return figis
 }
 
 func (portfolio Portfolio) UniquePositions() []lot.Lot {
@@ -30,7 +31,7 @@ func (portfolio Portfolio) UniquePositions() []lot.Lot {
 		foundLotWithSameTicker := false
 		lotWithSameTickerIndex := 0
 		for i, uniquePosition := range uniquePositions {
-			if lot.SecurityId == uniquePosition.SecurityId {
+			if lot.Figi == uniquePosition.Figi {
 				foundLotWithSameTicker = true
 				lotWithSameTickerIndex = i
 			}
@@ -63,7 +64,7 @@ func (portfolio Portfolio) WithPLs() []LotWithSecurity {
 
 	ids := []string{}
 	for _, p := range positions {
-		ids = append(ids, p.SecurityId)
+		ids = append(ids, p.Figi)
 	}
 	securities, err := security_master.GetSecuritiesFilteredByFigi(ids)
 	if err != nil {
@@ -91,7 +92,7 @@ func (portfolio Portfolio) WithPLs() []LotWithSecurity {
 
 		var stock security.Stock
 		for _, s := range securities {
-			if s.GetId() == lot.SecurityId {
+			if s.GetId() == lot.Figi {
 				stock = security.Stock{
 					CompanyName:  s.GetCompanyName(),
 					Figi:         s.GetFigi(),
@@ -150,4 +151,39 @@ func (p Portfolio) PositionCurrencies() []string {
 		}
 	}
 	return currenciesInPortfolio
+}
+
+func LotFigis(lots []lot.Lot) []string {
+	figis := []string{}
+	for _, lot := range lots {
+		figis = append(figis, lot.Figi)
+	}
+
+	return figis
+}
+
+func MatchLotsWithStocks(lots []lot.Lot, securities []security.Stock) ([]lot.Lot, []error) {
+	errorList := []error{}
+	for i := range lots {
+		foundSecurity := false
+		for _, s := range securities {
+			if lots[i].Figi == s.GetFigi() {
+				foundSecurity = true
+				lots[i].Stock = s
+			}
+		}
+		if !foundSecurity {
+			errorList = append(errorList, errors.New("Failed to find a security for lot "+lots[i].Figi))
+		}
+	}
+
+	return lots, errorList
+}
+
+func LotStocks(lots []lot.Lot) []security.Stock {
+	stocks := []security.Stock{}
+	for i := range lots {
+		stocks = append(stocks, lots[i].Stock)
+	}
+	return stocks
 }

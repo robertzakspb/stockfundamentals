@@ -33,7 +33,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			PricePerUnit: 8457.9,
 			Currency:     "RSD",
 			AccountId:    nlbId,
-			SecurityId:   jesvId,
+			Figi:   jesvId,
 			// Security: security.Stock{
 			// 	Id:          jesvId,
 			// 	Ticker:      "JESV",
@@ -50,7 +50,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			PricePerUnit: 1495.58,
 			Currency:     "RSD",
 			AccountId:    nlbId,
-			SecurityId:   dunavId,
+			Figi:   dunavId,
 			// Security: security.Stock{
 			// 	Id:          dunavId,
 			// 	Ticker:      "DNOS",
@@ -67,7 +67,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			PricePerUnit: 2018.78,
 			Currency:     "RSD",
 			AccountId:    nlbId,
-			SecurityId:   mtlcId,
+			Figi:   mtlcId,
 			// Security: security.Stock{
 			// 	Id:          mtlcId,
 			// 	Ticker:      "MTLC",
@@ -84,7 +84,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			PricePerUnit: 838.91,
 			Currency:     "RSD",
 			AccountId:    nlbId,
-			SecurityId:   nisId,
+			Figi:   nisId,
 			// Security: security.Stock{
 			// 	Id:          nisId,
 			// 	Ticker:      "NIIS",
@@ -101,7 +101,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			PricePerUnit: 7960.4,
 			Currency:     "RSD",
 			AccountId:    nlbId,
-			SecurityId:   impolId,
+			Figi:   impolId,
 			// Security: security.Stock{
 			// 	Id:          impolId,
 			// 	Ticker:      "IMPL",
@@ -120,7 +120,7 @@ func getHardCodedStockPositions() []lot.Lot {
 		PricePerUnit: 84,
 		Currency:     "RUB",
 		AccountId:    rosselHozId,
-		SecurityId:   etalonId,
+		Figi:   etalonId,
 		// Security: security.Stock{
 		// 	//TODO: Add security ID
 		// 	Ticker:      "ETLN",
