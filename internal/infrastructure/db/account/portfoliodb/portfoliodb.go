@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"path"
+	"strings"
 
 	shared "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -103,7 +104,7 @@ func UpdateLocalPortfolio(lots []LotDb) error {
 			types.StructFieldValue("updated_at", ydbhelper.ConvertToYdbDateTime(lot.UpdatedAt)),
 			types.StructFieldValue("quantity", types.DoubleValue(lot.Quantity)),
 			types.StructFieldValue("price_per_unit", types.DoubleValue(lot.PricePerUnit)),
-			types.StructFieldValue("currency", types.UTF8Value(lot.Currency)),
+			types.StructFieldValue("currency", types.UTF8Value(strings.ToUpper(lot.Currency))),
 		)
 		ydbLots = append(ydbLots, ydbLot)
 	}

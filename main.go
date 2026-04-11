@@ -2,13 +2,16 @@ package main
 
 import (
 	"net/http"
+	"time"
 
+	accountmvservice "github.com/compoundinvest/stockfundamentals/internal/application/account/market-value"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/dataseed"
 	bondsapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/bonds"
 	forexapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/forex"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/jobs"
 	api_security "github.com/compoundinvest/stockfundamentals/internal/interface/api/security"
 	timeseries "github.com/compoundinvest/stockfundamentals/internal/interface/api/time-series"
+	"github.com/google/uuid"
 
 	accountreturnapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/account-return"
 	bondportfolioapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/bond-portfolio"
@@ -20,6 +23,8 @@ import (
 )
 
 func main() {
+	uuid, _ := uuid.Parse("3b450479-a136-4ecd-9f34-8bfac6488101")
+	accountmvservice.CalculateAccountMarketValue(uuid, time.Now(), "RSD")
 	router := gin.Default()
 	router.Use(cors.Default())
 

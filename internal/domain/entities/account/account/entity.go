@@ -7,11 +7,12 @@ import (
 )
 
 type Account struct {
-	Id          uuid.UUID
-	OpeningDate time.Time
-	Type        string
-	Broker      string
-	Holder      string
+	Id              uuid.UUID
+	OpeningDate     time.Time
+	Type            string
+	Broker          string
+	Holder          string
+	PrimaryCurrency string
 }
 
 type AccountType string

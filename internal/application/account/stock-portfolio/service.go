@@ -9,7 +9,7 @@ import (
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
-	portfolio "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/portfoliodb"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -21,27 +21,27 @@ func UpdatePortfolio() error {
 	return portfoliodb.UpdateLocalPortfolio(mapLotToDbLot(portfolio.Lots))
 }
 
-func GetAccountPortfolio(accountIDs uuid.UUIDs) (portfolio.Portfolio, error) {
+func GetAccountPortfolio(accountIDs uuid.UUIDs) (stockportfolio.Portfolio, error) {
 	dbLots, err := portfoliodb.GetAccountPortfolio(accountIDs)
 	if err != nil {
-		return portfolio.Portfolio{}, err
+		return stockportfolio.Portfolio{}, err
 	}
 	lots := []lot.Lot{}
 	for _, lot := range dbLots {
 		lots = append(lots, mapLotDbToLot(lot))
 	}
 
-	return portfolio.Portfolio{Lots: lots}, nil
+	return stockportfolio.Portfolio{Lots: lots}, nil
 }
 
 func PopulateLotSecurities(lots []lot.Lot) ([]lot.Lot, error) {
-	securities, err := security_master.GetSecuritiesFilteredByFigi(portfolio.LotFigis(lots))
+	securities, err := security_master.GetSecuritiesFilteredByFigi(stockportfolio.LotFigis(lots))
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
 		return lots, err
 	}
 
-	lots, errorList := portfolio.MatchLotsWithStocks(lots, securities)
+	lots, errorList := stockportfolio.MatchLotsWithStocks(lots, securities)
 	if len(errorList) != 0 {
 		for i := range errorList {
 			logger.Log(errorList[i].Error(), logger.ERROR)
@@ -53,15 +53,9 @@ func PopulateLotSecurities(lots []lot.Lot) ([]lot.Lot, error) {
 }
 
 // Returns the market value alongside the used currency and a possible error
-func CalculatePortfolioMarketValue(portfolio portfolio.Portfolio, currency string) (float64, string, error) {
-	securities, err := security_master.GetSecuritiesFilteredByFigi(portfolio.Figis())
-	if err != nil {
-		logger.Log(err.Error(), logger.ERROR)
-		return -1, currency, err
-	}
-
+func CalculatePortfolioMarketValue(portfolio stockportfolio.Portfolio, currency string) (float64, string, error) {
 	lotSecurities := []entity.Security{}
-	for _, s := range securities {
+	for _, s := range stockportfolio.LotStocks(portfolio.Lots) {
 		if s.GetId() == "" {
 			continue
 		}
@@ -86,10 +80,7 @@ func CalculatePortfolioMarketValue(portfolio portfolio.Portfolio, currency strin
 			currencyPairs = append(currencyPairs, positionCurrency+"/"+currency)
 		}
 	}
-	forexRates, err := forexservice.GetExchangeRates(currencyPairs, time.Now())
-	if err != nil {
-		return -1, currency, err
-	}
+	forexRates, _ := forexservice.GetExchangeRates(currencyPairs, time.Now())
 
 	totalMarketValue := 0.0
 	for _, quote := range quotes {

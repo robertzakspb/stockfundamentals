@@ -10,11 +10,12 @@ func mapDbAccountsToAccounts(dbAccounts []accountdb.AccountDbModel) []account.Ac
 
 	for _, dbAccount := range dbAccounts {
 		account := account.Account{
-			Id:          dbAccount.Id,
-			OpeningDate: dbAccount.OpeningDate,
-			Type:        string(account.AccountType_Map[dbAccount.Type]),
-			Broker:      dbAccount.Broker,
-			Holder:      dbAccount.Holder,
+			Id:              dbAccount.Id,
+			OpeningDate:     dbAccount.OpeningDate,
+			Type:            string(account.AccountType_Map[dbAccount.Type]),
+			Broker:          dbAccount.Broker,
+			Holder:          dbAccount.Holder,
+			PrimaryCurrency: dbAccount.PrimaryCurrency,
 		}
 		accounts = append(accounts, account)
 	}

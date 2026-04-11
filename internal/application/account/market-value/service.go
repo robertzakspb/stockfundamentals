@@ -2,6 +2,7 @@ package accountmvservice
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -36,12 +37,13 @@ func GetAccountReturn(filters []ydbfilter.YdbFilter) (accountmvdomain.Return, er
 	return totalReturn, nil
 }
 
-func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time) (accountmvdomain.AccountMarketValue, error) {
-	stockMV, err := CalculateAccountStockMarketValue(accountId, date)
+func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time, currency string) (accountmvdomain.AccountMarketValue, error) {
+	fmt.Println(accountId.String())
+	stockMV, err := CalculateAccountStockMarketValue(accountId, date, currency)
 	if err != nil {
 		return accountmvdomain.AccountMarketValue{}, err
 	}
-	bondMV, err := CalculateAccountBondMarketValue(accountId, date)
+	bondMV, err := CalculateAccountBondMarketValue(accountId, date, currency)
 	if err != nil {
 		return accountmvdomain.AccountMarketValue{}, err
 	}
@@ -57,14 +59,28 @@ func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time) (accountmv
 	return mv, nil
 }
 
-func CalculateAccountStockMarketValue(accountId uuid.UUID, date time.Time) (accountmvdomain.AccountMarketValue, error) {
-	targetCurrency := "RUB"
+func CalculateAccountStockMarketValue(accountId uuid.UUID, date time.Time, currency string) (accountmvdomain.AccountMarketValue, error) {
+
 	accountPortfolio, err := portfolio.GetAccountPortfolio([]uuid.UUID{accountId})
 	if err != nil {
 		return accountmvdomain.AccountMarketValue{}, err
 	}
+	if len(accountPortfolio.Lots) == 0 {
+		mv := accountmvdomain.AccountMarketValue{
+			AccountId: accountId,
+			Date:      date,
+			Currency:  currency,
+			EodValue:  0,
+		}
+		return mv, nil
+	}
 
-	stockPortfolioMarketValue, currency, err := portfolio.CalculatePortfolioMarketValue(accountPortfolio, targetCurrency)
+	accountPortfolio.Lots, err = portfolio.PopulateLotSecurities(accountPortfolio.Lots)
+	if err != nil {
+		return accountmvdomain.AccountMarketValue{}, err
+	}
+
+	stockPortfolioMarketValue, currency, err := portfolio.CalculatePortfolioMarketValue(accountPortfolio, currency)
 	if err != nil {
 		return accountmvdomain.AccountMarketValue{}, err
 	}
@@ -78,7 +94,7 @@ func CalculateAccountStockMarketValue(accountId uuid.UUID, date time.Time) (acco
 	return mv, nil
 }
 
-func CalculateAccountBondMarketValue(accountId uuid.UUID, date time.Time) (accountmvdomain.AccountMarketValue, error) {
+func CalculateAccountBondMarketValue(accountId uuid.UUID, date time.Time, currency string) (accountmvdomain.AccountMarketValue, error) {
 	filter := ydbfilter.YdbFilter{
 		YqlColumnName:  "account_id",
 		Condition:      ydbfilter.Equal,
@@ -87,6 +103,15 @@ func CalculateAccountBondMarketValue(accountId uuid.UUID, date time.Time) (accou
 	bondLots, err := bondportfolio.GetFilteredPositionLots([]ydbfilter.YdbFilter{filter})
 	if err != nil {
 		return accountmvdomain.AccountMarketValue{}, err
+	}
+	if len(bondLots) == 0 {
+		marketValue := accountmvdomain.AccountMarketValue{
+			AccountId: accountId,
+			Date:      date,
+			Currency:  currency,
+			EodValue:  0,
+		}
+		return marketValue, nil
 	}
 
 	bondLots, err = bondportfolio.PopulateLotsWithBonds(bondLots)
@@ -124,7 +149,7 @@ func CalculateAccountBondMarketValue(accountId uuid.UUID, date time.Time) (accou
 	marketValue := accountmvdomain.AccountMarketValue{
 		AccountId: accountId,
 		Date:      date,
-		Currency:  "RUB",
+		Currency:  currency,
 		EodValue:  totalMarketValue,
 	}
 

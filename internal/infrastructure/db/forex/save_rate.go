@@ -13,11 +13,11 @@ import (
 )
 
 func SaveForexRates(rates []ForexRateDb) error {
-	dbConnection, err := db.MakeYdbDriver()
+	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
 		return err
 	}
-	defer dbConnection.Close(context.TODO())
+	defer db.ReleaseDriver(dbConnection)
 
 	ydbRates := []types.Value{}
 	for _, r := range rates {

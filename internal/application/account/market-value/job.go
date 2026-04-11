@@ -17,7 +17,7 @@ func SaveAccountMarketValueSnapshots() {
 
 	for _, account := range accounts {
 		go func() {
-			accountMV, err := CalculateAccountMarketValue(account.Id, time.Now())
+			accountMV, err := CalculateAccountMarketValue(account.Id, time.Now(), account.PrimaryCurrency)
 			if err != nil {
 				logger.Log(err.Error(), logger.ERROR)
 			}
