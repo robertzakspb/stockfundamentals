@@ -23,7 +23,7 @@ import (
 )
 
 func main() {
-	uuid, _ := uuid.Parse("3b450479-a136-4ecd-9f34-8bfac6488101")
+	uuid, _ := uuid.Parse("5e3e1fdb-5c18-43a5-a7c6-f898aff2d17f")
 	accountmvservice.CalculateAccountMarketValue(uuid, time.Now(), "RSD")
 	router := gin.Default()
 	router.Use(cors.Default())

@@ -60,7 +60,6 @@ func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time, currency s
 }
 
 func CalculateAccountStockMarketValue(accountId uuid.UUID, date time.Time, currency string) (accountmvdomain.AccountMarketValue, error) {
-
 	accountPortfolio, err := portfolio.GetAccountPortfolio([]uuid.UUID{accountId})
 	if err != nil {
 		return accountmvdomain.AccountMarketValue{}, err

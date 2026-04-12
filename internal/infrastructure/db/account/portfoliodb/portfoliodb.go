@@ -85,7 +85,6 @@ func UpdateLocalPortfolio(lots []LotDb) error {
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
 		return err
-
 	}
 
 	db, err := shared.MakeYdbDriver()

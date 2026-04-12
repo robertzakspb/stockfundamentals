@@ -33,7 +33,7 @@ func (f SecurityDivForecast) CumulativeReturn() float64 {
 	return totalReturn
 }
 
-func GetForecastIndex(forecasts []SecurityDivForecast, figi string) (int, error) {
+func getForecastIndex(forecasts []SecurityDivForecast, figi string) (int, error) {
 	for i, forecast := range forecasts {
 		if forecast.Figi == figi {
 			return i, nil
@@ -42,21 +42,20 @@ func GetForecastIndex(forecasts []SecurityDivForecast, figi string) (int, error)
 	return -1, errors.New("No security with figi " + figi + " was found in the div forecasts")
 }
 
-
 func GroupForecastsBySecurity(forecasts []DividendForecast) []SecurityDivForecast {
 	secDivForecasts := []SecurityDivForecast{}
 	for i := range forecasts {
-		securityIndex, err := GetForecastIndex(secDivForecasts, forecasts[i].Stock.Figi)
+		securityIndex, err := getForecastIndex(secDivForecasts, forecasts[i].Stock.Figi)
 		if err != nil {
 			secDivForecasts = append(secDivForecasts, SecurityDivForecast{
-				Figi: forecasts[i].Stock.Figi,
+				Figi:      forecasts[i].Stock.Figi,
 				Forecasts: []DividendForecast{forecasts[i]},
 			})
 			continue
 		}
 		secDivForecasts[securityIndex].Forecasts = append(secDivForecasts[securityIndex].Forecasts, forecasts[i])
 	}
-	sort.Slice(secDivForecasts, func (i, j int) bool {
+	sort.Slice(secDivForecasts, func(i, j int) bool {
 		return secDivForecasts[i].CumulativeReturn() > secDivForecasts[j].CumulativeReturn()
 	})
 
