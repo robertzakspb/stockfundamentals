@@ -61,4 +61,5 @@ func Test_GroupForecastsBySecurity(t *testing.T) {
 	test.AssertEqual(t, "XYZ", groupedForecasts[0].Figi)
 	test.AssertEqual(t, "DDD", groupedForecasts[1].Figi)
 	test.AssertEqual(t, "ABC", groupedForecasts[2].Figi)
+	test.AssertEqual(t, 3, len(groupedForecasts))
 }
