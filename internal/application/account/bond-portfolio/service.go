@@ -82,7 +82,7 @@ func PopulateLotsWithBonds(lots []bonds.BondLot) ([]bonds.BondLot, error) {
 }
 
 func PopulateLotsWithCoupons(lots []bonds.BondLot) []bonds.BondLot {
-	bonds := bondservice.PopulateBondCoupons(getLotBonds(lots))
+	bonds := bondservice.PopulateBondCoupons(GetLotBonds(lots))
 	lotsWithCoupons := matchLotsWithBonds(lots, bonds)
 	return lotsWithCoupons
 }

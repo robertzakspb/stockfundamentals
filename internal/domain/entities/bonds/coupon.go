@@ -2,6 +2,7 @@ package bonds
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"time"
 
@@ -82,10 +83,19 @@ func AccruedInterest(bond Bond, toDate time.Time, forexRate float64) (float64, e
 	if len(bond.Coupons) == 0 {
 		return -1, errors.New("Attempting to calculate the accumulated coupon income with no coupons for " + bond.Figi)
 	}
+
 	currentCoupon, err := findCurrentCouponForBond(bond)
 	if err != nil {
 		return -1, err
 	}
+
+	todayYear, todayMonth, todayDay := time.Now().Date()
+	recordDateYear, recordDateMonth, recordDateDay := currentCoupon.RecordDate.Date()
+
+	if todayYear == recordDateYear && todayMonth == recordDateMonth && todayDay == recordDateDay {
+		return 0, nil
+	}
+
 	if currentCoupon.CouponPeriod <= 0 {
 		return -1, errors.New("Coupon period for " + bond.Figi + " is invalid")
 	}

@@ -43,6 +43,6 @@ func (lot *BondLot) TotalPrincipalRedemption(bond Bond) float64 {
 	return bond.NominalValue * lot.Quantity
 }
 
-func (lot *BondLot) MarketValue(quoteAsPercentage float64) float64 {
-	return lot.Quantity * lot.Bond.MarketValue(quoteAsPercentage)
+func (lot *BondLot) MarketValue(quoteAsPercentage, fxRate float64) float64 {
+	return lot.Quantity * lot.Bond.MarketValue(quoteAsPercentage, fxRate)
 }

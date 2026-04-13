@@ -20,7 +20,7 @@ func matchLotsWithBonds(lots []bonds.BondLot, bonds []bonds.Bond) []bonds.BondLo
 	return lots
 }
 
-func getLotBonds(lots []bonds.BondLot) []bonds.Bond {
+func GetLotBonds(lots []bonds.BondLot) []bonds.Bond {
 	bondList := []bonds.Bond{}
 
 	for _, lot := range lots {

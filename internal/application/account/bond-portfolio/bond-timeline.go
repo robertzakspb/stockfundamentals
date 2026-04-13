@@ -22,7 +22,7 @@ func generateTimeLineForLots(lots []bonds.BondLot) ([]TimeLineItem, error) {
 		return []TimeLineItem{}, errors.New("Attempting to generate a timeline for 0 lots")
 	}
 
-	bondList := getLotBonds(lots)
+	bondList := GetLotBonds(lots)
 	if len(bondList) == 0 {
 		return []TimeLineItem{}, errors.New("Provided position lots have no corresponding bonds")
 	}
