@@ -35,10 +35,14 @@ func (lot BondLot) PricePerUnitPercentage(nominalValue float64) float64 {
 	return -1
 }
 
-func (lot BondLot) CouponPayoutForPosition(coupon Coupon) float64 {
+func (lot *BondLot) CouponPayoutForPosition(coupon Coupon) float64 {
 	return coupon.PerBondAmount * lot.Quantity
 }
 
-func (lot BondLot) TotalPrincipalRedemption(bond Bond) float64 {
+func (lot *BondLot) TotalPrincipalRedemption(bond Bond) float64 {
 	return bond.NominalValue * lot.Quantity
+}
+
+func (lot *BondLot) MarketValue(quoteAsPercentage float64) float64 {
+	return lot.Quantity * lot.Bond.MarketValue(quoteAsPercentage)
 }

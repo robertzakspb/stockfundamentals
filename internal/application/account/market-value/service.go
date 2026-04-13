@@ -135,8 +135,7 @@ func CalculateAccountBondMarketValue(accountId uuid.UUID, date time.Time, curren
 		for _, lot := range bondLots {
 			if lot.Figi == quote.Figi() {
 				foundQuote = true
-				marketPriceInCurrency := quote.QuoteAsPercentage() * lot.Bond.NominalValue / 100
-				lotMarketValue := lot.Quantity * marketPriceInCurrency
+				lotMarketValue := lot.MarketValue(quote.QuoteAsPercentage())
 				totalMarketValue += lotMarketValue
 			}
 		}

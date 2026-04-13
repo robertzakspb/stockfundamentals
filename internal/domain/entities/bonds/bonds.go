@@ -155,6 +155,11 @@ func (b *Bond) HasCallOption() bool {
 	return !b.CallOptionExerciseDate.IsZero()
 }
 
-func (b Bond) IsRubleBond() bool {
+func (b *Bond) IsRubleBond() bool {
 	return strings.ToUpper(b.Currency) == "RUB" && b.Currency == b.NominalCurrency
+}
+
+func (b *Bond) MarketValue(quoteAsPercentage float64) float64 {
+	marketPriceInCurrency := quoteAsPercentage * lot.Bond.NominalValue / 100
+	return marketPriceInCurrency + b.AccruedInterest
 }
