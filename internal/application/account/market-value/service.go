@@ -11,6 +11,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	accountmvdb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/market-value"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -38,25 +39,20 @@ func GetAccountReturn(filters []ydbfilter.YdbFilter) (accountmvdomain.Return, er
 	return totalReturn, nil
 }
 
-func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time, currency string) (accountmvdomain.AccountMarketValue, error) {
+func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time, currency string) ([]accountmvdomain.AccountMarketValue, error) {
 	stockMV, err := CalculateAccountStockMarketValue(accountId, date, currency)
 	if err != nil {
-		return accountmvdomain.AccountMarketValue{}, err
+		return []accountmvdomain.AccountMarketValue{}, err
 	}
-	bondMV, err := CalculateAccountBondMarketValue(accountId, date, currency)
+	bondMVs, err := CalculateAccountBondMarketValue(accountId, date, currency)
 	if err != nil {
-		return accountmvdomain.AccountMarketValue{}, err
+		return []accountmvdomain.AccountMarketValue{}, err
 	}
 
-	totalMV := bondMV.EodValue + stockMV.EodValue
+	accountMVs := []accountmvdomain.AccountMarketValue{stockMV}
+	accountMVs = append(accountMVs, bondMVs...)
 
-	mv := accountmvdomain.AccountMarketValue{
-		AccountId: accountId,
-		Date:      date,
-		Currency:  "RUB",
-		EodValue:  totalMV,
-	}
-	return mv, nil
+	return accountMVs, nil
 }
 
 func CalculateAccountStockMarketValue(accountId uuid.UUID, date time.Time, currency string) (accountmvdomain.AccountMarketValue, error) {
@@ -93,7 +89,7 @@ func CalculateAccountStockMarketValue(accountId uuid.UUID, date time.Time, curre
 	return mv, nil
 }
 
-func CalculateAccountBondMarketValue(accountId uuid.UUID, date time.Time, currency string) (accountmvdomain.AccountMarketValue, error) {
+func CalculateAccountBondMarketValue(accountId uuid.UUID, date time.Time, currency string) ([]accountmvdomain.AccountMarketValue, error) {
 	filter := ydbfilter.YdbFilter{
 		YqlColumnName:  "account_id",
 		Condition:      ydbfilter.Equal,
@@ -101,7 +97,7 @@ func CalculateAccountBondMarketValue(accountId uuid.UUID, date time.Time, curren
 	}
 	bondLots, err := bondportfolio.GetFilteredPositionLots([]ydbfilter.YdbFilter{filter})
 	if err != nil {
-		return accountmvdomain.AccountMarketValue{}, err
+		return []accountmvdomain.AccountMarketValue{}, err
 	}
 	if len(bondLots) == 0 {
 		marketValue := accountmvdomain.AccountMarketValue{
@@ -110,13 +106,28 @@ func CalculateAccountBondMarketValue(accountId uuid.UUID, date time.Time, curren
 			Currency:  currency,
 			EodValue:  0,
 		}
-		return marketValue, nil
+		return []accountmvdomain.AccountMarketValue{marketValue}, nil
 	}
 
 	bondLots, err = bondportfolio.PopulateLotsWithBonds(bondLots)
 	if err != nil {
-		return accountmvdomain.AccountMarketValue{}, err
+		return []accountmvdomain.AccountMarketValue{}, err
 	}
+
+	lotsGroupedByNominalCurrency := bondportfolio.GroupByNominalCurrency(bondLots)
+	marketValues := []accountmvdomain.AccountMarketValue{}
+	for currency, lots := range lotsGroupedByNominalCurrency {
+		lotsMarketValue, err := CalculateBondLotsMarketValue(lots, date, currency)
+		if err != nil {
+			logger.Log(err.Error(), logger.ERROR)
+			continue
+		}
+		marketValues = append(marketValues, lotsMarketValue)
+	}
+	return marketValues, nil
+}
+
+func CalculateBondLotsMarketValue(bondLots []bonds.BondLot, date time.Time, currency string) (accountmvdomain.AccountMarketValue, error) {
 
 	figis := bondportfolio.GetLotFigis(bondLots)
 
@@ -125,14 +136,13 @@ func CalculateAccountBondMarketValue(accountId uuid.UUID, date time.Time, curren
 		logger.Log("Failed to initialize the configuration file", logger.ALERT)
 		return accountmvdomain.AccountMarketValue{}, err
 	}
-
 	quotes, err := bondquote.FetchQuotesForFigis(figis, config)
 
 	totalMarketValue := 0.0
 
 	bonds := bondportfolio.GetLotBonds(bondLots)
 	currencyPairs := bondservice.AllCurrencyPairsInBondList(bonds)
-	fxRates, err := forexservice.GetExchangeRates(currencyPairs, time.Now())
+	fxRates, err := forexservice.GetExchangeRates(currencyPairs, date)
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
 		return accountmvdomain.AccountMarketValue{}, err
@@ -164,7 +174,7 @@ func CalculateAccountBondMarketValue(accountId uuid.UUID, date time.Time, curren
 	}
 
 	marketValue := accountmvdomain.AccountMarketValue{
-		AccountId: accountId,
+		AccountId: bondLots[0].AccountId,
 		Date:      date,
 		Currency:  currency,
 		EodValue:  totalMarketValue,
