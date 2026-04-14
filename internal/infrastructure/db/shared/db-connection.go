@@ -26,7 +26,7 @@ func ReleaseDriver(driver *ydb.Driver) error {
 	for i := range pool.connections {
 		if driver == pool.connections[i].db {
 			pool.connections[i].occupied = false
-			logger.Log("Connection: "+driver.String()+" has been released", logger.INFORMATION)
+			logger.Log("DB Connection has been released", logger.INFORMATION)
 			return nil
 		}
 	}
@@ -75,6 +75,7 @@ func MakeYdbDriver() (*ydb.Driver, error) {
 	}
 
 	logger.Log("Connection "+db.String()+" has been provisioned", logger.INFORMATION)
+	logger.Log("Number of connections in the pool: "+strconv.Itoa(len(pool.connections)), logger.INFORMATION)
 
 	return db, nil
 }
