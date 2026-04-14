@@ -71,7 +71,7 @@ func GetLatestQuotesForAllSecurities() ([]QuoteDB, error) {
 		makeTimeSeriesTablePath())
 	logger.Log("Executing query: "+yqlQuery, logger.INFORMATION)
 
-	err = db.Query().Do(context.TODO(),
+	err = dbConnection.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
 			result, err := s.Query(ctx, yqlQuery)
 

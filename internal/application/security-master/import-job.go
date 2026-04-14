@@ -3,10 +3,8 @@ package security_master
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	dbsecurity "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -15,13 +13,6 @@ import (
 )
 
 func FetchAndSaveSecurities() error {
-	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
-	defer cancel()
-
-	config, err := config.LoadConfig()
-	if err != nil {
-		return errors.New("Unable to fetch dividends due to internal configuration issues")
-	}
 
 	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
@@ -41,8 +32,7 @@ func FetchAndSaveSecurities() error {
 		securities = append(securities, stock)
 	}
 
-	dbsecurity.SaveSecuritiesToDB(securities, db)
-
+	dbsecurity.SaveSecuritiesToDB(securities)
 	return nil
 }
 

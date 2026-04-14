@@ -35,7 +35,7 @@ func InitialSeed(c *gin.Context) {
 	}
 	defer db.ReleaseDriver(dbConnection)
 
-	err = createTables(ctx, dbConnection)
+	err = createTables(context.TODO(), dbConnection)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "Failed to create tables")
 	}
@@ -422,7 +422,7 @@ func populateAllTables(db *ydb.Driver) error {
 		var seedError error = nil
 		switch fileName {
 		case seedDataFolder + "security-seed.csv":
-			seedError = populateStockTable(csvReader, db)
+			seedError = populateStockTable(csvReader)
 		case seedDataFolder + "dividend-seed.csv":
 			seedError = populateDividendTable(csvReader)
 		case seedDataFolder + "revenue-income-seed.csv":
@@ -438,7 +438,7 @@ func populateAllTables(db *ydb.Driver) error {
 	return nil
 }
 
-func populateStockTable(reader *csv.Reader, db *ydb.Driver) error {
+func populateStockTable(reader *csv.Reader) error {
 	seedRecords, err := reader.ReadAll()
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
@@ -480,7 +480,7 @@ func populateStockTable(reader *csv.Reader, db *ydb.Driver) error {
 		serbianStocks = append(serbianStocks, stock)
 	}
 
-	err = dbsecurity.SaveSecuritiesToDB(serbianStocks, db)
+	err = dbsecurity.SaveSecuritiesToDB(serbianStocks)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 		return err

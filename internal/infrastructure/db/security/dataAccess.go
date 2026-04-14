@@ -13,7 +13,6 @@ import (
 	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	"github.com/ydb-platform/ydb-go-sdk/v3"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
@@ -25,7 +24,12 @@ import (
 const stock_directory_prefix = "stockfundamentals/stocks"
 const stock_table_name = "stock"
 
-func SaveSecuritiesToDB(securities []security.Security, db *ydb.Driver) error {
+func SaveSecuritiesToDB(securities []security.Security) error {
+	dbConnection, err := db.GetReusableYdbDriver()
+	if err != nil {
+		return err
+	}
+	defer db.ReleaseDriver(dbConnection)
 	ydbStocks := []types.Value{}
 	for _, stock := range securities {
 		ydbStock := types.StructValue(
@@ -44,8 +48,8 @@ func SaveSecuritiesToDB(securities []security.Security, db *ydb.Driver) error {
 		ydbStocks = append(ydbStocks, ydbStock)
 	}
 
-	securityTableName := path.Join(db.Name(), stock_directory_prefix, stock_table_name)
-	err := db.Table().BulkUpsert(
+	securityTableName := path.Join(dbConnection.Name(), stock_directory_prefix, stock_table_name)
+	err = dbConnection.Table().BulkUpsert(
 		context.TODO(),
 		securityTableName,
 		table.BulkUpsertDataRows(types.ListValue(ydbStocks...)))

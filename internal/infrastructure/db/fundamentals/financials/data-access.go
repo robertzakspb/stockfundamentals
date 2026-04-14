@@ -72,7 +72,7 @@ func FetchFinancialMetrics() ([]entity.FinancialMetric, error) {
 	dbMetrics := []FinancialMetricDbModel{}
 	parsedMetrics := []entity.FinancialMetric{}
 
-	err = db.Query().Do(context.TODO(),
+	err = dbConnection.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
 			result, err := s.Query(ctx, fmt.Sprintf(`
 						SELECT
