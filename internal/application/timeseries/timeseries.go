@@ -44,7 +44,7 @@ func FetchAndSaveHistoricalQuotes() error {
 		for i := range tQuotes {
 			interfaceStructs[i] = tQuotes[i]
 		}
-		quotes = append(quotes, interfaceStructs...)
+		quotes = interfaceStructs
 
 		if len(quotes) == 0 {
 			continue

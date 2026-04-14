@@ -22,8 +22,8 @@ type dividendDbModel struct {
 }
 
 func mapDividendToDbModel(dividends []dividend.Dividend) []dividendDbModel {
-	dbModels := []dividendDbModel{}
-	for _, dividend := range dividends {
+	dbModels := make([]dividendDbModel, len(dividends))
+	for i, dividend := range dividends {
 		dbModel := dividendDbModel{
 			Id:                      dividend.Id,
 			Figi:                    dividend.Figi,
@@ -36,15 +36,15 @@ func mapDividendToDbModel(dividends []dividend.Dividend) []dividendDbModel {
 			PaymentPeriod:           dividend.PaymentPeriod,
 			ManagementComment:       dividend.ManagementComment,
 		}
-		dbModels = append(dbModels, dbModel)
+		dbModels[i] = dbModel
 	}
 
 	return dbModels
 }
 
 func mapDbModelToDividend(dbModelds []dividendDbModel) []dividend.Dividend {
-	dividends := []dividend.Dividend{}
-	for _, dbModel := range dbModelds {
+	dividends := make([]dividend.Dividend, len(dbModelds))
+	for i, dbModel := range dbModelds {
 		newDiv := dividend.Dividend{
 			Id:                dbModel.Id,
 			Figi:              dbModel.Figi,
@@ -57,7 +57,7 @@ func mapDbModelToDividend(dbModelds []dividendDbModel) []dividend.Dividend {
 			PaymentPeriod:     dbModel.PaymentPeriod,
 			ManagementComment: dbModel.ManagementComment,
 		}
-		dividends = append(dividends, newDiv)
+		dividends[i] = newDiv
 	}
 
 	return dividends
