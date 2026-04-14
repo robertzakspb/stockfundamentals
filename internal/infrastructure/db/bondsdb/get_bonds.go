@@ -7,23 +7,21 @@ import (
 	"io"
 	"path"
 
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
-	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
 )
 
 func GetAllBonds(filters []ydbfilter.YdbFilter) ([]BondDbModel, error) {
-	db, err := utilities.MakeYdbDriver()
+	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
 		return []BondDbModel{}, err
 	}
-	defer db.Close(context.TODO())
-
+	defer db.ReleaseDriver(dbConnection)
 	bonds := []BondDbModel{}
 
-	err = db.Query().Do(context.TODO(),
+	err = dbConnection.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
 			result, err := s.Query(ctx, makeGetAllBondsQuery(filters),
 				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
