@@ -30,15 +30,16 @@ func SaveTimeSeriesToDB(quotes *[]entity.SimpleQuote) error {
 		panic("Failed to connect to the database")
 	}
 	defer db.ReleaseDriver(dbConnection)
-	ydbQuotes := []types.Value{}
-	for _, quote := range *quotes {
+
+	ydbQuotes := make([]types.Value, len(*quotes))
+	for i := range *quotes {
 		ydbQuote := types.StructValue(
-			types.StructFieldValue("figi", types.TextValue(quote.Figi())),
-			types.StructFieldValue("close_price", types.DoubleValue(quote.Quote())),
-			types.StructFieldValue("date", ydbhelper.ConvertToYdbDate(quote.Timestamp())),
+			types.StructFieldValue("figi", types.TextValue((*quotes)[i].Figi())),
+			types.StructFieldValue("close_price", types.DoubleValue((*quotes)[i].Quote())),
+			types.StructFieldValue("date", ydbhelper.ConvertToYdbDate((*quotes)[i].Timestamp())),
 		)
 
-		ydbQuotes = append(ydbQuotes, ydbQuote)
+		ydbQuotes[i] = ydbQuote
 	}
 
 	tableName := path.Join(dbConnection.Name(), market_date_directory_prefix, time_series_table_name)
