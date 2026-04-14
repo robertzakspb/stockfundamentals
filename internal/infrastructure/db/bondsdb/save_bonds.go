@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"path"
+	"strconv"
 
 	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
@@ -13,14 +14,14 @@ import (
 )
 
 func SaveBonds(bonds []BondDbModel) error {
-	dbConnection, err := db.MakeYdbDriver()
+	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
 		return err
 	}
-	defer dbConnection.Close(context.TODO())
+	defer db.ReleaseDriver(dbConnection)
 
-	ydbBonds := []types.Value{}
-	for _, bond := range bonds {
+	ydbBonds := make([]types.Value, len(bonds))
+	for i, bond := range bonds {
 		ydbBond := types.StructValue(
 			types.StructFieldValue("id", types.UuidValue(bond.Id)),
 			types.StructFieldValue("figi", types.TextValue(bond.Figi)),
@@ -53,7 +54,7 @@ func SaveBonds(bonds []BondDbModel) error {
 			types.StructFieldValue("bond_type", types.TextValue(bond.BondType)),
 			types.StructFieldValue("call_option_exercise_date", ydbhelper.ConvertToOptionalYDBdate(bond.CallOptionExerciseDate)),
 		)
-		ydbBonds = append(ydbBonds, ydbBond)
+		ydbBonds[i] = ydbBond
 	}
 
 	tableName := path.Join(dbConnection.Name(), db.BOND_DIRECTORY_PREFIX, db.BOND_TABLE_NAME)
@@ -76,8 +77,8 @@ func SaveCoupons(coupons *[]CouponDbModel) error {
 	}
 	defer db.ReleaseDriver(dbConnection)
 
-	ydbCoupons := []types.Value{}
-	for _, c := range *coupons {
+	ydbCoupons := make([]types.Value, len(*coupons))
+	for i, c := range *coupons {
 		ydbCoupon := types.StructValue(
 			types.StructFieldValue("id", types.UuidValue(c.Id)),
 			types.StructFieldValue("figi", types.TextValue(c.Figi)),
@@ -90,7 +91,7 @@ func SaveCoupons(coupons *[]CouponDbModel) error {
 			types.StructFieldValue("coupon_end_date", ydbhelper.ConvertToYdbDate(c.CouponEndDate)),
 			types.StructFieldValue("coupon_period", types.Int64Value(int64(c.CouponPeriod))),
 		)
-		ydbCoupons = append(ydbCoupons, ydbCoupon)
+		ydbCoupons[i] = ydbCoupon
 	}
 	tableName := path.Join(dbConnection.Name(), db.BOND_DIRECTORY_PREFIX, db.COUPON_TABLE_NAME)
 	err = dbConnection.Table().BulkUpsert(
@@ -101,6 +102,8 @@ func SaveCoupons(coupons *[]CouponDbModel) error {
 		logger.Log(err.Error(), logger.ERROR)
 		return errors.New("Failed to save coupons to the database")
 	}
+
+	logger.Log("Saved "+strconv.Itoa(len(ydbCoupons))+" coupons to the database", logger.INFORMATION)
 
 	return nil
 }
