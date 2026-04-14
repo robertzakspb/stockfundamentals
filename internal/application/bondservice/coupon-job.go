@@ -7,7 +7,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/application/tinkoff-throttler"
+	tthrottler "github.com/compoundinvest/stockfundamentals/internal/application/tinkoff-throttler"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -42,7 +42,6 @@ func importAllCoupons() error {
 		return nil
 	}
 
-	dbCoupons := []bondsdb.CouponDbModel{}
 	coupondPeriodEndDate, _ := time.Parse(time.DateOnly, "2100-01-01")
 	coupondPeriodStartDate, _ := time.Parse(time.DateOnly, "1970-01-01")
 	for i, bond := range bonds {
@@ -56,20 +55,11 @@ func importAllCoupons() error {
 			continue
 		}
 
-		for _, tinkoffCoupon := range response.GetEvents() {
-			coupon := mapTinkoffCouponToCoupon(bond.Figi, tinkoffCoupon)
-			dbCoupon := mapCouponToDbModel(coupon)
-			dbCoupons = append(dbCoupons, dbCoupon)
-		}
+		coupons := mapTinkoffCouponsToCoupons(response.GetEvents())
+		dbCoupons := mapCouponsToDbModels(coupons)
 
-		//Saving coupons in chunks of 1000
-		if len(dbCoupons) > 1000 || i == len(bonds) - 1 {
-			err = bondsdb.SaveCoupons(&dbCoupons)
-			if err != nil {
-				return err
-			}
-			dbCoupons = []bondsdb.CouponDbModel{}
-		}
+		
+		go bondsdb.SaveCoupons(&dbCoupons)
 
 		logger.Log(strconv.Itoa(i+1)+" out of "+strconv.Itoa(len(bonds))+". Fetched coupons for figi "+bond.Figi, logger.INFORMATION)
 

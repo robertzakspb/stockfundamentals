@@ -286,11 +286,7 @@ func UpdateAllBondsAci() error {
 		bondList[i].AccruedInterest = aci
 	}
 
-	dbBonds := []bondsdb.BondDbModel{}
-	for _, bond := range bondList {
-		dbBond := mapBondToDbBond(bond)
-		dbBonds = append(dbBonds, dbBond)
-	}
+	dbBonds := mapBondsToDbBonds(bondList)
 
 	err = bondsdb.SaveBonds(dbBonds)
 	if err != nil {

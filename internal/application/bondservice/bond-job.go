@@ -4,7 +4,6 @@ import (
 	"context"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -34,20 +33,8 @@ func ImportAllBondsAndCoupons() error {
 		logger.Log("Unexpectedly received a nil response from Tinkoff API", logger.ALERT)
 	}
 
-	dbBonds := []bondsdb.BondDbModel{}
-	for _, tinkoffBond := range response.Instruments {
-		if tinkoffBond.MaturityDate.AsTime().Before(time.Now()) {
-			//No need to import historical bonds that have matured
-			continue
-		}
-		bond := mapTinkoffBondToBond(tinkoffBond)
-		validationErr := bond.Validate()
-		if validationErr != nil {
-			logger.Log(validationErr.Error(), logger.WARNING)
-		}
-		dbBond := mapBondToDbBond(bond)
-		dbBonds = append(dbBonds, dbBond)
-	}
+	mappedBonds := mapTinkoffBondsToBonds(response.Instruments)
+	dbBonds := mapBondsToDbBonds(mappedBonds)
 
 	err = bondsdb.SaveBonds(dbBonds)
 	if err != nil {

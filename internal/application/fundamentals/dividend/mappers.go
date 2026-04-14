@@ -1,11 +1,17 @@
 package appdividend
 
 import (
+	"errors"
+	"strings"
+	"time"
+
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"github.com/google/uuid"
+	investapi "opensource.tbank.ru/invest/invest-go/proto"
 )
 
 func mapDividendForecastToDbModel(forecasts []dividend.DividendForecast) []dbdividend.DividendForecastDb {
@@ -65,4 +71,27 @@ func mapDividendForecastDbModelToDomain(dbModels []dbdividend.DividendForecastDb
 		forecasts = append(forecasts, domainStruct)
 	}
 	return forecasts
+}
+
+func mapTinkoffDividendToDividend(tinkoffDiv *investapi.Dividend, figi string) (dividend.Dividend, error) {
+
+	if figi == "" {
+		logger.Log("Missing stock ID in the provided stock for tinkoff dividend: "+tinkoffDiv.GetDeclaredDate().String()+tinkoffDiv.GetRecordDate().String(), logger.WARNING)
+		return dividend.Dividend{}, errors.New("Missing figi in the Tinkoff dividend")
+	}
+
+	dividend := dividend.Dividend{
+		Id:                uuid.New(),
+		Figi:              figi,
+		ActualDPS:         tinkoffDiv.DividendNet.ToFloat(),
+		ExpectedDPS:       0,
+		Currency:          strings.ToUpper(tinkoffDiv.DividendNet.GetCurrency()),
+		AnnouncementDate:  time.Unix(tinkoffDiv.GetDeclaredDate().GetSeconds(), 0),
+		RecordDate:        time.Unix(tinkoffDiv.GetRecordDate().GetSeconds(), 0),
+		PayoutDate:        time.Unix(tinkoffDiv.GetPaymentDate().GetSeconds(), 0),
+		PaymentPeriod:     "", //TODO: Fix
+		ManagementComment: "",
+	}
+
+	return dividend, nil
 }
