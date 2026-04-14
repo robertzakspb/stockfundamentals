@@ -8,8 +8,8 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	dbsecurity "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
+	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	"github.com/ydb-platform/ydb-go-sdk/v3"
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
 	investapi "opensource.tbank.ru/invest/invest-go/proto"
 )
@@ -23,12 +23,13 @@ func FetchAndSaveSecurities() error {
 		return errors.New("Unable to fetch dividends due to internal configuration issues")
 	}
 
-	db, err := ydb.Open(ctx, config.DB.ConnectionString)
-
+	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 		panic("Failed to connect to the database")
 	}
+	defer db.ReleaseDriver(dbConnection)
+
 	stocks := fetchTinkoffSecurities()
 	if len(stocks) == 0 {
 		logger.Log("Fetched 0 securities from Tinkoff API, this is unexpected", logger.ERROR)

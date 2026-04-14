@@ -6,14 +6,11 @@ import (
 	"fmt"
 	"io"
 	"path"
-	"time"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
@@ -56,19 +53,12 @@ func SaveTimeSeriesToDB(quotes *[]entity.SimpleQuote) error {
 }
 
 func GetLatestQuotesForAllSecurities() ([]QuoteDB, error) {
-	config, err := config.LoadConfig()
-	if err != nil {
-		return []QuoteDB{}, err
-	}
-
-	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*15)
-	defer cancel()
-	db, err := ydb.Open(ctx, config.DB.ConnectionString)
-
+	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 		panic("Failed to connect to the database")
 	}
+	defer db.ReleaseDriver(dbConnection)
 
 	dbQuotes := []QuoteDB{}
 	yqlQuery := fmt.Sprintf(

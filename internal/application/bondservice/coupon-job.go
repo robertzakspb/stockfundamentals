@@ -57,7 +57,6 @@ func importAllCoupons() error {
 
 		coupons := mapTinkoffCouponsToCoupons(response.GetEvents())
 		dbCoupons := mapCouponsToDbModels(coupons)
-
 		
 		go bondsdb.SaveCoupons(&dbCoupons)
 

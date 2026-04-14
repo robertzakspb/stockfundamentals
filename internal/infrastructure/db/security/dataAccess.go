@@ -4,14 +4,13 @@ import (
 	"context"
 	"strconv"
 	"strings"
-	"time"
 
 	"errors"
 	"fmt"
 	"io"
 	"path"
 
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
+	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
@@ -69,14 +68,8 @@ func GetSecuritiesFilteredByFigi(figis []string) ([]security.Stock, error) {
 }
 
 func FetchSecuritiesFromDBWithDriver(yqlQuery string, filters []ydbfilter.YdbFilter) ([]security.Stock, error) {
-	config, err := config.LoadConfig()
-	if err != nil {
-		return []security.Stock{}, err
-	}
-
-	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*15)
-	defer cancel()
-	db, err := ydb.Open(ctx, config.DB.ConnectionString)
+	dbConnection, err := db.GetReusableYdbDriver()
+	defer db.ReleaseDriver(dbConnection)
 
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
@@ -85,7 +78,7 @@ func FetchSecuritiesFromDBWithDriver(yqlQuery string, filters []ydbfilter.YdbFil
 
 	dbStocks := []StockDbModel{}
 	parsedStocks := []security.Stock{}
-	err = db.Query().Do(context.TODO(),
+	err = dbConnection.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
 			result, err := s.Query(ctx,
 				yqlQuery,

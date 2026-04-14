@@ -12,7 +12,6 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	entity "github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
 	dbfinancials "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/financials"
 	dbsecurity "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
@@ -29,26 +28,19 @@ import (
 )
 
 func InitialSeed(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	config, err := config.LoadConfig()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, "Unable to proceed due to internal configuration issues")
-	}
-
-	db, err := ydb.Open(ctx, config.DB.ConnectionString)
+	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "Unable to proceed due to database issues")
 		panic("Failed to connect to the database")
 	}
+	defer db.ReleaseDriver(dbConnection)
 
-	err = createTables(ctx, db)
+	err = createTables(ctx, dbConnection)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "Failed to create tables")
 	}
 
-	err = populateTables(db)
+	err = populateTables(dbConnection)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "Failed to populate tables")
 	}

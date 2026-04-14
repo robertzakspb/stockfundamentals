@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"io"
 	"path"
-	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
+	entity "github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
+	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
@@ -64,15 +63,11 @@ func SaveFinancialMetricsToDb(metrics []entity.FinancialMetric, db *ydb.Driver) 
 }
 
 func FetchFinancialMetrics() ([]entity.FinancialMetric, error) {
-	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
-	defer cancel()
-
-	config, err := config.LoadConfig()
+	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
 		return []entity.FinancialMetric{}, err
 	}
-
-	db, err := ydb.Open(ctx, config.DB.ConnectionString)
+	defer db.ReleaseDriver(dbConnection)
 
 	dbMetrics := []FinancialMetricDbModel{}
 	parsedMetrics := []entity.FinancialMetric{}
