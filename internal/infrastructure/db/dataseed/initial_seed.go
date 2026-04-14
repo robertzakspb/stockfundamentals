@@ -432,7 +432,7 @@ func populateAllTables(db *ydb.Driver) error {
 		case seedDataFolder + "security-seed.csv":
 			seedError = populateStockTable(csvReader, db)
 		case seedDataFolder + "dividend-seed.csv":
-			seedError = populateDividendTable(csvReader, db)
+			seedError = populateDividendTable(csvReader)
 		case seedDataFolder + "revenue-income-seed.csv":
 			seedError = populateFinancialMetricsTable(csvReader, db)
 		default:
@@ -497,7 +497,7 @@ func populateStockTable(reader *csv.Reader, db *ydb.Driver) error {
 	return nil
 }
 
-func populateDividendTable(reader *csv.Reader, db *ydb.Driver) error {
+func populateDividendTable(reader *csv.Reader) error {
 	seedRecords, err := reader.ReadAll()
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
@@ -550,7 +550,7 @@ func populateDividendTable(reader *csv.Reader, db *ydb.Driver) error {
 		dividends = append(dividends, div)
 	}
 
-	err = dbdividend.SaveDividendsToDB(&dividends, db)
+	err = dbdividend.SaveDividendsToDB(&dividends)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 		return err
