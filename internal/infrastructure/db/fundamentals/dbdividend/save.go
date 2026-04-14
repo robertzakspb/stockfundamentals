@@ -4,30 +4,33 @@ import (
 	"context"
 	"errors"
 	"path"
+	"strconv"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
-	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
-func SaveDividendsToDB(dividends *[]dividend.Dividend, dbDriver *ydb.Driver) error {
+func SaveDividendsToDB(dividends *[]dividend.Dividend) error {
+	dbConnection, err := db.GetReusableYdbDriver()
+	if err != nil {
+		logger.Log(err.Error(), logger.ALERT)
+		return err
+	}
+	defer db.ReleaseDriver(dbConnection)
+
 	if len(*dividends) == 0 {
 		logger.Log("Attempting to save 0 dividends", logger.WARNING)
-	}
-	if dbDriver == nil {
-		logger.Log("Database driver is nil while attempting to save dividends to the DB", logger.ALERT)
-		return errors.New("Database issues")
 	}
 
 	dbModels := mapDividendToDbModel(*dividends)
 
-	ydbDividends := []types.Value{}
-	for _, dividend := range dbModels {
+	ydbDividends := make([]types.Value, len(*dividends))
+	for i, dividend := range dbModels {
 		ydbDividend := types.StructValue(
 			types.StructFieldValue("id", types.UuidValue(dividend.Id)),
 			types.StructFieldValue("stock_id", types.TextValue(dividend.Figi)),
@@ -40,11 +43,11 @@ func SaveDividendsToDB(dividends *[]dividend.Dividend, dbDriver *ydb.Driver) err
 			types.StructFieldValue("payment_period", types.TextValue(dividend.PaymentPeriod)),
 			types.StructFieldValue("management_comment", types.TextValue(dividend.ManagementComment)),
 		)
-		ydbDividends = append(ydbDividends, ydbDividend)
+		ydbDividends[i] = ydbDividend
 	}
 
-	tableName := path.Join(dbDriver.Name(), db.STOCK_DIRECTORY_PREFIX, db.DIVIDEND_PAYMENT_TABLE_NAME)
-	err := dbDriver.Table().BulkUpsert(
+	tableName := path.Join(dbConnection.Name(), db.STOCK_DIRECTORY_PREFIX, db.DIVIDEND_PAYMENT_TABLE_NAME)
+	err = dbConnection.Table().BulkUpsert(
 		context.TODO(),
 		tableName,
 		table.BulkUpsertDataRows(types.ListValue(ydbDividends...)))
@@ -52,6 +55,8 @@ func SaveDividendsToDB(dividends *[]dividend.Dividend, dbDriver *ydb.Driver) err
 		logger.Log(err.Error(), logger.ERROR)
 		return errors.New("Failed to save dividends to the database")
 	}
+
+	logger.Log("Saved "+strconv.Itoa(len(ydbDividends))+" dividends to the database", logger.INFORMATION)
 
 	return nil
 }
