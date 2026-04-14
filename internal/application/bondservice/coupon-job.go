@@ -79,5 +79,7 @@ func importAllCoupons() error {
 	jobCompletionTime := time.Now()
 	logger.Log("The coupon import job has completed. Duration: "+jobCompletionTime.Sub(startTime).String(), logger.INFORMATION)
 
+	go UpdateAllBondsAci()
+
 	return nil
 }
