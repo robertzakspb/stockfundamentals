@@ -9,17 +9,18 @@ import (
 const secondsInADay = 60 * 60 * 24
 
 func ConvertStringsToYdbList(stringVals []string) types.Value {
-	textVals := []types.Value{}
-	for _, string := range stringVals {
-		textVals = append(textVals, types.TextValue(string))
+	textVals := make([]types.Value, len(stringVals))
+
+	for i := range stringVals {
+		textVals[i] = types.TextValue(stringVals[i])
 	}
 	return types.ListValue(textVals...)
 }
 
 func ConverTimestampsToYdbDates(timestamps []time.Time) types.Value {
-	dateValues := []types.Value{}
-	for _, time := range timestamps {
-		dateValues = append(dateValues, ConvertToYdbDate(time))
+	dateValues := make([]types.Value, len(timestamps))
+	for i := range timestamps {
+		dateValues[i] = ConvertToYdbDate(timestamps[i])
 	}
 	return types.ListValue(dateValues...)
 }
