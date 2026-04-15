@@ -6,10 +6,10 @@ import (
 )
 
 // Multiplication by 0.95 is just in case
-const instrumentServiceLimit = time.Minute / (200 * 0.95)
-const marketDataServiceLimit = time.Minute / (600 * 0.95) //Not sure what is the right limit but this one works
-// const accountServiceLimit = time.Minute / (100 * 0.95)
+const instrumentServiceLimit = time.Minute / 195
+// const marketDataServiceLimit = time.Minute / 29 //Not sure what is the right limit but this one works
+// const accountServiceLimit = time.Minute / 90
 // const operationServiceLimit = time.Minute / (200 * 0.95)
 
 var InstrumentServiceThrottle = time.Tick(instrumentServiceLimit)
-var MarketDataServiceThrottle = time.Tick(marketDataServiceLimit)
+// var MarketDataServiceThrottle = time.Tick(marketDataServiceLimit)

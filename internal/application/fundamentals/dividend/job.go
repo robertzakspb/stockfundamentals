@@ -35,6 +35,8 @@ func FetchAndSaveAllDividends() error {
 	securityService := client.NewInstrumentsServiceClient()
 
 	for _, stock := range stocks {
+		<-tthrottler.InstrumentServiceThrottle
+
 		switch stock.GetCountry() {
 		case "RU":
 			dividends := fetchTinkoffDividendsFor(securityService, stock)
@@ -45,7 +47,7 @@ func FetchAndSaveAllDividends() error {
 			logger.Log("No data provider may provide dividends for "+stock.GetCompanyName(), logger.INFORMATION)
 			continue
 		}
-		<-tthrottler.InstrumentServiceThrottle
+
 	}
 	logger.Log("Completed the dividend fetching job", logger.INFORMATION)
 

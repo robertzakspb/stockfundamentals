@@ -98,6 +98,8 @@ func GetAccountTimeline() ([]TimeLineItem, error) {
 		return []TimeLineItem{}, err
 	}
 
+	lots = PopulateLotsWithCoupons(lots)
+
 	accountTimeline, err := generateTimeLineForLots(lots)
 	if err != nil {
 		return []TimeLineItem{}, err

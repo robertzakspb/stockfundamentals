@@ -71,6 +71,7 @@ func MakeYdbDriver() (*ydb.Driver, error) {
 	db, err := ydb.Open(ctx, config.DB.ConnectionString)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
+
 		panic("Failed to connect to the database")
 	}
 

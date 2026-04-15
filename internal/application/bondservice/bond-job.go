@@ -5,6 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	tthrottler "github.com/compoundinvest/stockfundamentals/internal/application/tinkoff-throttler"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
@@ -12,6 +13,8 @@ import (
 )
 
 func ImportAllBondsAndCoupons() error {
+	<-tthrottler.InstrumentServiceThrottle
+
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
 		logger.Log("Failed to initialize the configuration file", logger.ALERT)
@@ -26,8 +29,8 @@ func ImportAllBondsAndCoupons() error {
 		logger.Log("Failed to initialize the Tinkoff API client: ", logger.ALERT)
 		return err
 	}
-
 	bondService := client.NewInstrumentsServiceClient()
+
 	response, err := bondService.Bonds(pb.InstrumentStatus_INSTRUMENT_STATUS_ALL)
 	if response == nil {
 		logger.Log("Unexpectedly received a nil response from Tinkoff API", logger.ALERT)

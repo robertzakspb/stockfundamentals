@@ -45,6 +45,8 @@ func importAllCoupons() error {
 	coupondPeriodEndDate, _ := time.Parse(time.DateOnly, "2100-01-01")
 	coupondPeriodStartDate, _ := time.Parse(time.DateOnly, "1970-01-01")
 	for i, bond := range bonds {
+		<-tthrottler.InstrumentServiceThrottle
+		
 		response, err := bondService.GetBondCoupons(bond.Figi, coupondPeriodStartDate, coupondPeriodEndDate)
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
@@ -57,12 +59,11 @@ func importAllCoupons() error {
 
 		coupons := mapTinkoffCouponsToCoupons(response.GetEvents())
 		dbCoupons := mapCouponsToDbModels(coupons)
-		
+
 		go bondsdb.SaveCoupons(&dbCoupons)
 
 		logger.Log(strconv.Itoa(i+1)+" out of "+strconv.Itoa(len(bonds))+". Fetched coupons for figi "+bond.Figi, logger.INFORMATION)
 
-		<-tthrottler.InstrumentServiceThrottle
 	}
 
 	jobCompletionTime := time.Now()

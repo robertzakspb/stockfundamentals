@@ -30,6 +30,8 @@ func FetchAndSaveHistoricalQuotes() error {
 	service := client.NewMarketDataServiceClient()
 
 	for i, quote := range latestQuotes {
+		<-tthrottler.InstrumentServiceThrottle
+
 		if quote.Country != "RU" {
 			continue
 		}
@@ -51,7 +53,6 @@ func FetchAndSaveHistoricalQuotes() error {
 		}
 		go timeseries.SaveTimeSeriesToDB(&quotes)
 
-		<-tthrottler.MarketDataServiceThrottle
 	}
 
 	logger.Log("The time series job has successfully completed", logger.INFORMATION)
