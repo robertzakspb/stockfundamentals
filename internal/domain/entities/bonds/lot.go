@@ -7,33 +7,32 @@ import (
 )
 
 type BondLot struct {
-	Id                uuid.UUID
-	Figi              string
-	Isin              string
-	OpeningDate       time.Time
-	ModificationDate  time.Time
-	AccountId         uuid.UUID
-	Quantity          float64
-	PricePerUnit      float64
-	PricePerUnitInRUB float64
-	AccruedInterest   float64
-	Bond              Bond
+	Id                     uuid.UUID
+	Figi                   string
+	Isin                   string
+	OpeningDate            time.Time
+	ModificationDate       time.Time
+	AccountId              uuid.UUID
+	Quantity               float64
+	PricePerUnitPercentage float64
+	AccruedInterest        float64
+	Bond                   Bond
 }
 
-func (lot BondLot) PricePerUnitPercentage(nominalValue float64) float64 {
-	if nominalValue <= 0 {
-		return -1
-	}
+// func (lot BondLot) PricePerUnitInNominalCurrency(nominalValue float64) float64 {
+// 	if nominalValue <= 0 {
+// 		return -1
+// 	}
 
-	if lot.PricePerUnit > 0 {
-		return lot.PricePerUnit / nominalValue
-	}
-	if lot.PricePerUnitInRUB > 0 {
-		return lot.PricePerUnitInRUB / nominalValue
-	}
+// 	if lot.PricePerUnit > 0 {
+// 		return lot.PricePerUnit / nominalValue
+// 	}
+// 	if lot.PricePerUnitInRUB > 0 {
+// 		return lot.PricePerUnitInRUB / nominalValue
+// 	}
 
-	return -1
-}
+// 	return -1
+// }
 
 func (lot *BondLot) CouponPayoutForPosition(coupon Coupon) float64 {
 	return coupon.PerBondAmount * lot.Quantity

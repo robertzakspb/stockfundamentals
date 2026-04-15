@@ -6,33 +6,8 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/test"
 )
 
-func Test_PricePerUnitPercentage_Negative(t *testing.T) {
-	lot := BondLot{}
 
-	pricePercentage := lot.PricePerUnitPercentage(0)
 
-	test.AssertEqual(t, -1, pricePercentage)
-}
-
-func Test_PricePerUnitPercentage_NonRubPrice(t *testing.T) {
-	lot := BondLot{
-		PricePerUnit: 857,
-	}
-
-	pricePercentage := lot.PricePerUnitPercentage(1000)
-
-	test.AssertEqual(t, 0.857, pricePercentage)
-}
-
-func Test_PricePerUnitPercentage_RubPrice(t *testing.T) {
-	lot := BondLot{
-		PricePerUnitInRUB: 80,
-	}
-
-	pricePercentage := lot.PricePerUnitPercentage(100)
-
-	test.AssertEqual(t, 0.8, pricePercentage)
-}
 
 func Test_CouponPayoutForPosition(t *testing.T) {
 	lot := BondLot{

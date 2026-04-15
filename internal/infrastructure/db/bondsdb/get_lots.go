@@ -7,7 +7,7 @@ import (
 	"io"
 	"path"
 
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -79,8 +79,7 @@ func makeGetBondPositionsQuery(filters []ydbfilter.YdbFilter) string {
 							modification_date,
 							account_id,
 							quantity,
-							price_per_unit,
-							price_per_unit_rub,
+							price_per_unit_percentage,
 							accumulated_coupon_income
 						FROM
 							%s

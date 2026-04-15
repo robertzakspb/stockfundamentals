@@ -5,7 +5,6 @@ import (
 	"time"
 
 	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
-	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 )
 
@@ -22,8 +21,8 @@ func validateLot(lot bonds.BondLot) (bonds.BondLot, error) {
 	if lot.ModificationDate.After(time.Now()) {
 		return lot, errors.New("Invalid modification date")
 	}
-	if lot.PricePerUnit <= 0 && lot.PricePerUnitInRUB <= 0 {
-		return lot, errors.New("Either the price per unit or price per unit in RUB must be provided")
+	if lot.PricePerUnitPercentage <= 0 && lot.PricePerUnitPercentage > 2000 {
+		return lot, errors.New("The price per unit as percentage should be greater than 0 and no greater than 2000 ")
 	}
 
 	return lot, nil
@@ -42,27 +41,6 @@ func addMissingInformationToLot(lot bonds.BondLot) (bonds.BondLot, error) {
 
 	if lot.Isin == "" {
 		lot.Isin = lot.Bond.Isin
-	}
-
-	if lot.Bond.IsRubleBond() && lot.PricePerUnitInRUB > 0.0 {
-		lot.PricePerUnit = lot.PricePerUnitInRUB
-	}
-
-	if lot.Bond.IsRubleBond() && lot.PricePerUnit > 0.0 {
-		lot.PricePerUnitInRUB = lot.PricePerUnit
-	}
-
-	if !lot.Bond.IsRubleBond() {
-		forexRate, err := forexservice.GetExchangeRate(lot.Bond.NominalCurrency, lot.Bond.Currency, lot.OpeningDate)
-		if err != nil {
-			return lot, nil
-		}
-		if lot.PricePerUnit > 0 {
-			lot.PricePerUnitInRUB = forexRate.Rate * lot.PricePerUnit
-		}
-		if lot.PricePerUnitInRUB > 0 {
-			lot.PricePerUnit = lot.PricePerUnitInRUB / forexRate.Rate
-		}
 	}
 
 	return lot, nil

@@ -29,8 +29,7 @@ func SaveBondPositionLots(lots []BondPositionLotDb) error {
 			types.StructFieldValue("modification_date", ydbhelper.ConvertToYdbDateTime(l.ModificationDate)),
 			types.StructFieldValue("account_id", types.UuidValue(l.AccountId)),
 			types.StructFieldValue("quantity", types.DoubleValue(l.Quantity)),
-			types.StructFieldValue("price_per_unit", types.DoubleValue(l.PricePerUnit)),
-			types.StructFieldValue("price_per_unit_rub", types.DoubleValue(l.PricePerUnitInRUB)),
+			types.StructFieldValue("price_per_unit_percentage", types.DoubleValue(l.PricePerUnitPercentage)),
 		)
 		ydbBondLots = append(ydbBondLots, ydbBondLot)
 	}

@@ -247,8 +247,7 @@ func createBondPositionTable(ctx context.Context, dbConnection *ydb.Driver, c ta
 				options.WithColumn("modification_date", types.TypeDatetime),
 				options.WithColumn("account_id", types.TypeUUID),
 				options.WithColumn("quantity", types.TypeDouble),
-				options.WithColumn("price_per_unit", types.TypeDouble),
-				options.WithColumn("price_per_unit_rub", types.TypeDouble),
+				options.WithColumn("price_per_unit_percentage", types.TypeDouble),
 				options.WithColumn("accumulated_coupon_income", types.TypeDouble),
 				options.WithPrimaryKeyColumn("id"),
 			)
