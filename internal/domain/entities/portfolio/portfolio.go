@@ -53,6 +53,17 @@ func (portfolio Portfolio) UniquePositions() []lot.Lot {
 	return uniquePositions
 }
 
+func (portfolio Portfolio) GetEtfLotFigis() []string {
+	etfLotFigis := []string{}
+
+	for _, lot := range portfolio.Lots {
+		if lot.Stock.SecurityType == security.ETF {
+			etfLotFigis = append(etfLotFigis, lot.Figi)
+		}
+	}
+	return etfLotFigis
+}
+
 type LotWithSecurity struct {
 	Lot   lot.Lot        `json:"lot"`
 	Stock security.Stock `json:"stock"`

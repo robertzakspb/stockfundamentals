@@ -5,15 +5,17 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/compoundinvest/invest-core/quote/bondquote"
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
+	stockportfolio "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/portfoliodb"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
+	"opensource.tbank.ru/invest/invest-go/investgo"
 )
 
 func UpdatePortfolio() error {
@@ -68,6 +70,21 @@ func CalculatePortfolioMarketValue(portfolio stockportfolio.Portfolio, currency 
 	}
 
 	quotes := quotefetcher.FetchQuotesFor(lotSecurities)
+
+	config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
+	if err != nil {
+		logger.Log("Failed to initialize the configuration file", logger.ALERT)
+		return -1, currency, errors.New("Failed to fetch quotes for ETFs in the portfolio fue to Tinkoff API configuration issues")
+	}
+	etfQuotes, err := bondquote.FetchQuotesForFigis(portfolio.GetEtfLotFigis(), config)
+	if err != nil {
+		return -1, currency, errors.New("Failed to fetch quotes for ETFs in the portfolio")
+	}
+	//TODO: Need to refactor the core package to support fetching of quotes via Tinkoff API
+	for _, etfQuote := range etfQuotes {
+		quotes = append(quotes, entity.ConvertToSimpleQuote()...)
+	}
+
 	uniquePositions := portfolio.UniquePositions()
 	if len(quotes) != len(portfolio.UniquePositions()) {
 		return -1, currency, errors.New("The portfolio has " + strconv.Itoa(len(uniquePositions)) + " positions, whereas only " + strconv.Itoa(len(quotes)) + " quotes has been fetched")

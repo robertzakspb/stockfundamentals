@@ -1,6 +1,6 @@
 package timehelpers
 
-// import "time"
+import "time"
 
 // func IsFutureDate(timestamp time.Time) bool {
 // 	currentYear, currentMonth, currentDay := time.Now().Date()
@@ -42,3 +42,12 @@ package timehelpers
 // func IsTodayOrPastDate(timestamp time.Time) bool {
 // 	return IsPastDate(timestamp) || DateIsToday(timestamp)
 // }
+
+func AreEqualDates(time1, time2 time.Time) bool {
+	time1Year, time1Month, time1Day := time1.Date()
+	time2Year, time2Month, time2Day := time2.Date()
+
+	areEqual := time1Year == time2Year && time1Month == time2Month && time1Day == time2Day
+
+	return areEqual
+}

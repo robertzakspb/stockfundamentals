@@ -39,57 +39,80 @@ func GetAccountReturn(filters []ydbfilter.YdbFilter) (accountmvdomain.Return, er
 	return totalReturn, nil
 }
 
-func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time, currency string) ([]accountmvdomain.AccountMarketValue, error) {
-	stockMV, err := CalculateAccountStockMarketValue(accountId, date, currency)
+func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time) ([]accountmvdomain.AccountMarketValue, error) {
+	stockMVs, err := AccountStockMarketValueGroupedByCurrency(accountId, date)
 	if err != nil {
 		return []accountmvdomain.AccountMarketValue{}, err
 	}
-	bondMVs, err := CalculateAccountBondMarketValue(accountId, date, currency)
+	bondMVs, err := AccountBondMarketValueGroupedByCurrency(accountId, date)
 	if err != nil {
 		return []accountmvdomain.AccountMarketValue{}, err
 	}
 
-	accountMVs := []accountmvdomain.AccountMarketValue{stockMV}
-	accountMVs = append(accountMVs, bondMVs...)
+	currencies := ExtractMarketValueCurrencies(stockMVs, bondMVs)
+
+	accountMVs := []accountmvdomain.AccountMarketValue{}
+	for i := range currencies {
+		stockMV, foundStockMV := stockMVs[currencies[i]]
+		bondMV, foundBondMV := bondMVs[currencies[i]]
+		if foundStockMV && foundBondMV {
+			accountMVs = append(accountMVs, accountmvdomain.AccountMarketValue{
+				AccountId: stockMV.AccountId,
+				Date:      stockMV.Date,
+				Currency:  stockMV.Currency,
+				EodValue:  stockMV.EodValue + bondMV.EodValue,
+			})
+		}
+		if foundStockMV && !foundBondMV {
+			accountMVs = append(accountMVs, accountmvdomain.AccountMarketValue{
+				AccountId: stockMV.AccountId,
+				Date:      stockMV.Date,
+				Currency:  stockMV.Currency,
+				EodValue:  stockMV.EodValue,
+			})
+		}
+		if !foundStockMV && foundBondMV {
+			accountMVs = append(accountMVs, accountmvdomain.AccountMarketValue{
+				AccountId: bondMV.AccountId,
+				Date:      bondMV.Date,
+				Currency:  bondMV.Currency,
+				EodValue:  bondMV.EodValue,
+			})
+		}
+	}
 
 	return accountMVs, nil
 }
 
-func CalculateAccountStockMarketValue(accountId uuid.UUID, date time.Time, currency string) (accountmvdomain.AccountMarketValue, error) {
+func AccountStockMarketValueGroupedByCurrency(accountId uuid.UUID, date time.Time) (map[string]accountmvdomain.AccountMarketValue, error) {
 	accountPortfolio, err := portfolio.GetAccountPortfolio([]uuid.UUID{accountId})
 	if err != nil {
-		return accountmvdomain.AccountMarketValue{}, err
+		return map[string]accountmvdomain.AccountMarketValue{}, err
 	}
 	if len(accountPortfolio.Lots) == 0 {
-		mv := accountmvdomain.AccountMarketValue{
-			AccountId: accountId,
-			Date:      date,
-			Currency:  currency,
-			EodValue:  0,
-		}
-		return mv, nil
+		return map[string]accountmvdomain.AccountMarketValue{}, nil
 	}
 
 	accountPortfolio.Lots, err = portfolio.PopulateLotSecurities(accountPortfolio.Lots)
 	if err != nil {
-		return accountmvdomain.AccountMarketValue{}, err
+		return map[string]accountmvdomain.AccountMarketValue{}, err
 	}
 
-	stockPortfolioMarketValue, currency, err := portfolio.CalculatePortfolioMarketValue(accountPortfolio, currency)
+	stockPortfolioMarketValue, currency, err := portfolio.CalculatePortfolioMarketValue(accountPortfolio, "RUB")
 	if err != nil {
-		return accountmvdomain.AccountMarketValue{}, err
+		return map[string]accountmvdomain.AccountMarketValue{}, err
 	}
 
-	mv := accountmvdomain.AccountMarketValue{
+	mv := map[string]accountmvdomain.AccountMarketValue{"RUB": {
 		AccountId: accountId,
 		Date:      date,
 		Currency:  currency,
 		EodValue:  stockPortfolioMarketValue,
-	}
+	}}
 	return mv, nil
 }
 
-func CalculateAccountBondMarketValue(accountId uuid.UUID, date time.Time, currency string) ([]accountmvdomain.AccountMarketValue, error) {
+func AccountBondMarketValueGroupedByCurrency(accountId uuid.UUID, date time.Time) (map[string]accountmvdomain.AccountMarketValue, error) {
 	filter := ydbfilter.YdbFilter{
 		YqlColumnName:  "account_id",
 		Condition:      ydbfilter.Equal,
@@ -97,38 +120,31 @@ func CalculateAccountBondMarketValue(accountId uuid.UUID, date time.Time, curren
 	}
 	bondLots, err := bondportfolio.GetFilteredPositionLots([]ydbfilter.YdbFilter{filter})
 	if err != nil {
-		return []accountmvdomain.AccountMarketValue{}, err
+		return map[string]accountmvdomain.AccountMarketValue{}, err
 	}
 	if len(bondLots) == 0 {
-		marketValue := accountmvdomain.AccountMarketValue{
-			AccountId: accountId,
-			Date:      date,
-			Currency:  currency,
-			EodValue:  0,
-		}
-		return []accountmvdomain.AccountMarketValue{marketValue}, nil
+		return map[string]accountmvdomain.AccountMarketValue{}, nil
 	}
 
 	bondLots, err = bondportfolio.PopulateLotsWithBonds(bondLots)
 	if err != nil {
-		return []accountmvdomain.AccountMarketValue{}, err
+		return map[string]accountmvdomain.AccountMarketValue{}, err
 	}
 
 	lotsGroupedByNominalCurrency := bondportfolio.GroupByNominalCurrency(bondLots)
-	marketValues := []accountmvdomain.AccountMarketValue{}
+	marketValues := map[string]accountmvdomain.AccountMarketValue{}
 	for currency, lots := range lotsGroupedByNominalCurrency {
 		lotsMarketValue, err := CalculateBondLotsMarketValue(lots, date, currency)
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 			continue
 		}
-		marketValues = append(marketValues, lotsMarketValue)
+		marketValues[currency] = lotsMarketValue
 	}
 	return marketValues, nil
 }
 
 func CalculateBondLotsMarketValue(bondLots []bonds.BondLot, date time.Time, currency string) (accountmvdomain.AccountMarketValue, error) {
-
 	figis := bondportfolio.GetLotFigis(bondLots)
 
 	config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
@@ -159,6 +175,7 @@ func CalculateBondLotsMarketValue(bondLots []bonds.BondLot, date time.Time, curr
 					rate, found := forexservice.FindRate(lot.Bond.NominalCurrency, lot.Bond.Currency, fxRates)
 					if !found {
 						logger.Log("Failed to find an exchange rate for "+lot.Bond.NominalCurrency+"/"+lot.Bond.Currency+". Unable to calculate the market value for the bond "+lot.Bond.Isin, logger.ERROR)
+						return accountmvdomain.AccountMarketValue{}, errors.New("Unable to calculate the market value for the bond due to the missing forex rate")
 					}
 					fxRate = rate.Rate
 				}

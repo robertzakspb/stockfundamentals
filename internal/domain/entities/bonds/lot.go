@@ -19,21 +19,6 @@ type BondLot struct {
 	Bond                   Bond
 }
 
-// func (lot BondLot) PricePerUnitInNominalCurrency(nominalValue float64) float64 {
-// 	if nominalValue <= 0 {
-// 		return -1
-// 	}
-
-// 	if lot.PricePerUnit > 0 {
-// 		return lot.PricePerUnit / nominalValue
-// 	}
-// 	if lot.PricePerUnitInRUB > 0 {
-// 		return lot.PricePerUnitInRUB / nominalValue
-// 	}
-
-// 	return -1
-// }
-
 func (lot *BondLot) CouponPayoutForPosition(coupon Coupon) float64 {
 	return coupon.PerBondAmount * lot.Quantity
 }

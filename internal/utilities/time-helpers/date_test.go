@@ -1,5 +1,12 @@
 package timehelpers
 
+import (
+	"testing"
+	"time"
+
+	"github.com/compoundinvest/stockfundamentals/internal/test"
+)
+
 // import (
 // 	"testing"
 // 	"time"
@@ -66,3 +73,21 @@ package timehelpers
 
 // 	test.AssertEqual(t, false, IsTodayOrPastDate(threeDaysFromNow))
 // }
+
+func Test_AreEqualDates_Positive(t *testing.T) {
+	date1 := time.Now()
+	date2 := time.Now().Add(time.Second)
+
+	areEqualDates := AreEqualDates(date1, date2)
+	test.AssertTrue(t, areEqualDates)
+}
+
+func Test_AreEqualDates_Negative(t *testing.T) {
+
+	
+	date1 := time.Now()
+	date2 := time.Now().Add(time.Hour * 24)
+
+	areEqualDates := AreEqualDates(date1, date2)
+	test.AssertFalse(t, areEqualDates)
+}

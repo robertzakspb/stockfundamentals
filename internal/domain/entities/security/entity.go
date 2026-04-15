@@ -34,6 +34,7 @@ const (
 	OrdinaryShare     SecurityType = "commonStock"
 	PreferredShare    SecurityType = "preferredStock"
 	DepositoryReceipt SecurityType = "depositoryReceipt"
+	ETF               SecurityType = "etf"
 )
 
 var (
@@ -42,6 +43,7 @@ var (
 		"commonStock":       OrdinaryShare,
 		"preferredStock":    PreferredShare,
 		"depositoryReceipt": DepositoryReceipt,
+		"etf":               ETF,
 	}
 )
 

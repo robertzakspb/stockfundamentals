@@ -56,6 +56,7 @@ func fetchTinkoffSecurities() []security.Stock {
 	}
 
 	securities, err := securityService.Shares(investapi.InstrumentStatus_INSTRUMENT_STATUS_BASE)
+
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
 		return []security.Stock{}
@@ -83,7 +84,34 @@ func fetchTinkoffSecurities() []security.Stock {
 		russianStocks = append(russianStocks, russianStock)
 	}
 
+	mutualFunds := fetchMutualFunds(securityService)
+	russianStocks = append(russianStocks, mutualFunds...)
+
 	return russianStocks
+}
+
+func fetchMutualFunds(securityService *tinkoff.InstrumentsServiceClient) []security.Stock {
+	//TODO: Refactor this job to import all ETFs
+	lqdt, err := securityService.EtfByFigi("TCS60A1014L8") //Figi of LQDT
+	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
+		return []security.Stock{}
+	}
+
+	lqdtAsStock := security.Stock{
+		CompanyName:  lqdt.Instrument.Name,
+		IsPublic:     true,
+		Isin:         lqdt.Instrument.Isin,
+		Figi:         lqdt.Instrument.Figi,
+		SecurityType: security.ETF,
+		Country:      lqdt.Instrument.CountryOfRisk,
+		Ticker:       lqdt.Instrument.Ticker,
+		IssueSize:    int(lqdt.Instrument.NumShares.ToFloat()),
+		Sector:       lqdt.Instrument.Sector,
+		MIC:          "MISX",
+	}
+
+	return []security.Stock{lqdtAsStock}
 }
 
 func mapTinkoffSecurityTypeToInternal(shareType investapi.ShareType) security.SecurityType {

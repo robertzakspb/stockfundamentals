@@ -5,6 +5,7 @@ import (
 	"math"
 	"time"
 
+	timehelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/time-helpers"
 	"github.com/google/uuid"
 )
 
@@ -88,10 +89,7 @@ func AccruedInterest(bond Bond, toDate time.Time, forexRate float64) (float64, e
 		return -1, err
 	}
 
-	todayYear, todayMonth, todayDay := time.Now().Date()
-	recordDateYear, recordDateMonth, recordDateDay := currentCoupon.RecordDate.Date()
-
-	if todayYear == recordDateYear && todayMonth == recordDateMonth && todayDay == recordDateDay {
+	if timehelpers.AreEqualDates(time.Now(), currentCoupon.RecordDate) {
 		return 0, nil
 	}
 
@@ -110,7 +108,7 @@ func AccruedInterest(bond Bond, toDate time.Time, forexRate float64) (float64, e
 	aci := couponAmountPerDay * float64(daysElapsedSinceCouponStartDate)
 	roundedAci := math.Round(aci*100) / 100
 
-	if bond.Currency != bond.NominalCurrency {
+	if bond.IsBondWithDifferentNominalCurrencyAndCurrency() {
 		roundedAci *= forexRate
 	}
 
@@ -119,7 +117,7 @@ func AccruedInterest(bond Bond, toDate time.Time, forexRate float64) (float64, e
 
 func findCurrentCouponForBond(bond Bond) (Coupon, error) {
 	if len(bond.Coupons) == 0 {
-		return Coupon{}, errors.New("Attempting to find a coupon with missing coupons for " + bond.Figi)
+		return Coupon{}, errors.New("Attempting to find a coupon in a bond with missing coupons for " + bond.Figi)
 	}
 
 	for i, coupon := range bond.Coupons {
