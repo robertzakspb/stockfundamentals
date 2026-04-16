@@ -77,7 +77,7 @@ func getTinkoffStockPositions() ([]lot.Lot, error) {
 	lots := []lot.Lot{}
 	securities := FetchTinkoffPositionSecurities(allPositions)
 	for _, position := range allPositions {
-		if position.GetInstrumentType() != "share" {
+		if !(position.GetInstrumentType() == "share" || position.GetInstrumentType() == "etf") {
 			continue //Skipping the cash position until it is handled separately
 		}
 

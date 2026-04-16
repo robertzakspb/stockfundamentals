@@ -25,6 +25,8 @@ github.com/cncf/xds/go v0.0.0-20211001041855-01bcc9b48dfe/go.mod h1:eXthEFrGJvWH
 github.com/cncf/xds/go v0.0.0-20211011173535-cb28da3451f1/go.mod h1:eXthEFrGJvWHgFFCl3hGmgk+/aYT6PnTQLykKQRLhEs=
 github.com/compoundinvest/invest-core v1.0.14 h1:kBlnhdwUCAdLPPEi0SYHrYROlxW6oHmd4t7F1uYxKk0=
 github.com/compoundinvest/invest-core v1.0.14/go.mod h1:hL527aBKAcLOs/SwElwXGRjEJ6Tq4/BG0j3kvv5Khqg=
+github.com/compoundinvest/invest-core v1.0.15 h1:xqoTAo30gNdlBWwqHdVIi9nTWZOKyAadQQYh4okoVMY=
+github.com/compoundinvest/invest-core v1.0.15/go.mod h1:hL527aBKAcLOs/SwElwXGRjEJ6Tq4/BG0j3kvv5Khqg=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

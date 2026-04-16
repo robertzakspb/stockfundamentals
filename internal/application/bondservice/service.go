@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/compoundinvest/invest-core/quote/bondquote"
+	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
@@ -200,7 +200,7 @@ func PopulateBondCoupons(bondList []bonds.Bond) []bonds.Bond {
 	return bondsWithCoupons
 }
 
-func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []bondquote.TinkoffBondQuote) []bonds.Bond {
+func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []tquoteservice.TQuote) []bonds.Bond {
 	currencyPairs := AllCurrencyPairsInBondList(bondList)
 	forexRates, _ := forexservice.GetExchangeRates(currencyPairs, time.Now())
 
@@ -218,7 +218,7 @@ func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []bondquote.T
 			}
 
 			if quote.Figi() == b.Figi {
-				ytm, err := b.CalcYieldToMaturity(b.Coupons, quote.QuoteAsPercentage(), forexRate)
+				ytm, err := b.CalcYieldToMaturity(b.Coupons, quote.Quote(), forexRate)
 				if err != nil {
 					logger.Log(err.Error(), logger.ERROR)
 					continue
@@ -226,7 +226,7 @@ func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []bondquote.T
 				bondList[i].YieldToMaturity = ytm
 
 				if b.HasCallOption() {
-					yieldToCallOption, err := b.CalcYieldToCallOption(b.Coupons, quote.QuoteAsPercentage(), forexRate)
+					yieldToCallOption, err := b.CalcYieldToCallOption(b.Coupons, quote.Quote(), forexRate)
 					if err != nil {
 						logger.Log(err.Error(), logger.ERROR)
 						continue
@@ -246,7 +246,7 @@ func CalculateYtmForBonds(bondList []bonds.Bond) []bonds.Bond {
 		return []bonds.Bond{}
 	}
 
-	quotes, err := bondquote.FetchQuotesForFigis(GetBondFigis(&bondList), config)
+	quotes, err := tquoteservice.FetchQuotesForFigis(GetBondFigis(&bondList), config)
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
 	}
@@ -315,9 +315,9 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 		coupons, err = GetCouponsByFigis(figis)
 	})
 
-	var quotes []bondquote.TinkoffBondQuote
+	var quotes []tquoteservice.TQuote
 	wg.Go(func() {
-		quotes, err = bondquote.FetchQuotesForFigis(figis, config)
+		quotes, err = tquoteservice.FetchQuotesForFigis(figis, config)
 	})
 
 	wg.Wait()

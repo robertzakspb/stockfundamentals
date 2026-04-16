@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/compoundinvest/invest-core/quote/bondquote"
+	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
@@ -76,13 +76,13 @@ func CalculatePortfolioMarketValue(portfolio stockportfolio.Portfolio, currency 
 		logger.Log("Failed to initialize the configuration file", logger.ALERT)
 		return -1, currency, errors.New("Failed to fetch quotes for ETFs in the portfolio fue to Tinkoff API configuration issues")
 	}
-	etfQuotes, err := bondquote.FetchQuotesForFigis(portfolio.GetEtfLotFigis(), config)
+	etfQuotes, err := tquoteservice.FetchQuotesForFigis(portfolio.GetEtfLotFigis(), config)
 	if err != nil {
 		return -1, currency, errors.New("Failed to fetch quotes for ETFs in the portfolio")
 	}
 	//TODO: Need to refactor the core package to support fetching of quotes via Tinkoff API
 	for _, etfQuote := range etfQuotes {
-		quotes = append(quotes, entity.ConvertToSimpleQuote()...)
+		quotes = append(quotes, &etfQuote)
 	}
 
 	uniquePositions := portfolio.UniquePositions()

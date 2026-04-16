@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/compoundinvest/invest-core/quote/bondquote"
+	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
@@ -152,7 +152,7 @@ func CalculateBondLotsMarketValue(bondLots []bonds.BondLot, date time.Time, curr
 		logger.Log("Failed to initialize the configuration file", logger.ALERT)
 		return accountmvdomain.AccountMarketValue{}, err
 	}
-	quotes, err := bondquote.FetchQuotesForFigis(figis, config)
+	quotes, err := tquoteservice.FetchQuotesForFigis(figis, config)
 
 	totalMarketValue := 0.0
 
@@ -180,7 +180,7 @@ func CalculateBondLotsMarketValue(bondLots []bonds.BondLot, date time.Time, curr
 					fxRate = rate.Rate
 				}
 
-				lotMarketValue := lot.MarketValue(quote.QuoteAsPercentage(), fxRate)
+				lotMarketValue := lot.MarketValue(quote.Quote(), fxRate)
 
 				totalMarketValue += lotMarketValue
 			}
