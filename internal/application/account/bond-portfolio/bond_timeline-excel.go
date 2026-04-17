@@ -3,9 +3,7 @@ package bondportfolio
 import (
 	"fmt"
 	"strconv"
-	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	"github.com/xuri/excelize/v2"
@@ -21,12 +19,19 @@ func GenerateTimeLineExcel() error {
 		}
 	}()
 
+	err := f.SetSheetName("Sheet1", CALENDAR_SHEET_TITLE)
+	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
+		return err
+	}
+
 	f.SetCellValue(CALENDAR_SHEET_TITLE, "A1", "Дата")
-	f.SetCellValue(CALENDAR_SHEET_TITLE, "B1", "Событие")
-	f.SetCellValue(CALENDAR_SHEET_TITLE, "C1", "Сумма (₽)")
-	f.SetCellValue(CALENDAR_SHEET_TITLE, "D1", "Налог (₽)")
-	f.SetCellValue(CALENDAR_SHEET_TITLE, "E1", "Сумма ($)")
-	f.SetCellValue(CALENDAR_SHEET_TITLE, "F1", "Налог ($)")
+	f.SetCellValue(CALENDAR_SHEET_TITLE, "B1", "Эмитент")
+	f.SetCellValue(CALENDAR_SHEET_TITLE, "C1", "Событие")
+	f.SetCellValue(CALENDAR_SHEET_TITLE, "D1", "Сумма (₽)")
+	f.SetCellValue(CALENDAR_SHEET_TITLE, "E1", "Налог (₽)")
+	f.SetCellValue(CALENDAR_SHEET_TITLE, "F1", "Сумма ($)")
+	f.SetCellValue(CALENDAR_SHEET_TITLE, "G1", "Налог ($)")
 
 	lots, err := GetAccountPositions(uuid.MustParse("129274f9-ee80-4e74-aa1c-fea578bac6e6"))
 	if err != nil {
@@ -40,13 +45,10 @@ func GenerateTimeLineExcel() error {
 
 	lots = PopulateLotsWithCoupons(lots)
 
-	// timeline, err := generateTimeLineForLots(lots, false)
+	timeline, err := generateTimeLineForLots(lots, false)
 
-
-	startWithRowIndex := 2 //The first row is reserved for headers
-	for _, lot := range lots {
-		startWithRowIndex = EnterLotInformationIntoSpreadsheet(f, lot, startWithRowIndex)
-	}
+	currentRow := 2                                                               //The first row is reserved for headers
+	currentRow = EnterTimelineInformationIntoSpreadsheet(f, timeline, currentRow) //FIXME: Change the method's name
 
 	if err := f.SaveAs("Portfolio_Calendar.xlsx"); err != nil {
 		logger.Log(err.Error(), logger.ERROR)
@@ -54,35 +56,69 @@ func GenerateTimeLineExcel() error {
 	return nil
 }
 
-func EnterLotInformationIntoSpreadsheet(f *excelize.File, lot bonds.BondLot, currentRow int) int {
+func EnterTimelineInformationIntoSpreadsheet(f *excelize.File, timeline []TimeLineItem, currentRow int) int {
 	totalRubPayout := 0.0
+	totalRubTaxes := 0.0
 	totalUsdPayout := 0.0
-	for _, coupon := range lot.Bond.Coupons {
-		if coupon.CouponDate.Before(time.Now()) {
-			continue
-		}
+	totalUsdTaxes := 0.0
 
-		year, month, day := coupon.CouponDate.Date()
+	for _, event := range timeline {
+		year, month, day := event.Timestamp.Date()
 		formattedDate := strconv.Itoa(day) + "." + strconv.Itoa(int(month)) + "." + strconv.Itoa(year)
 		f.SetCellValue(CALENDAR_SHEET_TITLE, "A"+strconv.Itoa(currentRow), formattedDate)
-		f.SetCellValue(CALENDAR_SHEET_TITLE, "B"+strconv.Itoa(currentRow), "Выплата купона")
+		f.SetCellValue(CALENDAR_SHEET_TITLE, "C"+strconv.Itoa(currentRow), event.EventName)
+		f.SetCellValue(CALENDAR_SHEET_TITLE, "B"+strconv.Itoa(currentRow), event.BondName)
 
-		if lot.Bond.IsRubleBond() {
-			payout := lot.Quantity * coupon.PerBondAmount
-			f.SetCellValue(CALENDAR_SHEET_TITLE, "C"+strconv.Itoa(currentRow), fmt.Sprint(payout))
-			f.SetCellValue(CALENDAR_SHEET_TITLE, "D"+strconv.Itoa(currentRow), lot.Quantity*coupon.PerBondAmount*0.13)
+		switch event.Currency {
+		case "RUB":
+			payout := event.Amount
+			if payout == 0.0 {
+				continue
+			}
+
+			f.SetCellValue(CALENDAR_SHEET_TITLE, "D"+strconv.Itoa(currentRow), "₽"+fmt.Sprintf("%.1f", payout))
+
+			if event.EventName == "Выплата купона" {
+				totalRubTaxes += payout * 0.13
+				f.SetCellValue(CALENDAR_SHEET_TITLE, "E"+strconv.Itoa(currentRow), "₽"+fmt.Sprintf("%.1f", payout*0.13))
+
+			}
+
 			totalRubPayout += payout
-		} else if lot.Bond.IsBondWithDifferentNominalCurrencyAndCurrency() {
-			payout := lot.Quantity * coupon.PerBondAmount
-			f.SetCellValue(CALENDAR_SHEET_TITLE, "E"+strconv.Itoa(currentRow), fmt.Sprint(payout))
-			f.SetCellValue(CALENDAR_SHEET_TITLE, "F"+strconv.Itoa(currentRow), lot.Quantity*coupon.PerBondAmount*0.13)
+		case "USD":
+			payout := event.Amount
+			if payout == 0.0 {
+				continue
+			}
+
+			f.SetCellValue(CALENDAR_SHEET_TITLE, "F"+strconv.Itoa(currentRow), "$"+fmt.Sprintf("%.1f", payout))
+
+			if event.EventName == "Выплата купона" {
+				f.SetCellValue(CALENDAR_SHEET_TITLE, "G"+strconv.Itoa(currentRow), "$"+fmt.Sprintf("%.1f", payout*0.13))
+				totalUsdTaxes += payout * 0.13
+			}
+
 			totalUsdPayout += payout
-		} else {
-			logger.Log("Unexpected scenario for lot "+lot.Figi, logger.ERROR)
+		default:
+			logger.Log("Unexpected currency in the timeline: "+event.Currency, logger.WARNING)
 		}
 
 		currentRow++
 	}
 
-	return 0//FIXME
+	currentRow++
+
+	style, _ := f.NewStyle(&excelize.Style{
+		Fill: excelize.Fill{Type: "pattern", Color: []string{"E0EBF5"}, Pattern: 1},
+	})
+	f.SetCellStyle(CALENDAR_SHEET_TITLE, "C"+strconv.Itoa(currentRow), "G"+strconv.Itoa(currentRow), style)
+
+	f.SetCellValue(CALENDAR_SHEET_TITLE, "C"+strconv.Itoa(currentRow), "Итого: ")
+	f.SetCellValue(CALENDAR_SHEET_TITLE, "D"+strconv.Itoa(currentRow), "₽"+fmt.Sprintf("%.1f", totalRubPayout))
+	f.SetCellValue(CALENDAR_SHEET_TITLE, "E"+strconv.Itoa(currentRow), "₽"+fmt.Sprintf("%.1f", totalRubTaxes))
+	f.SetCellValue(CALENDAR_SHEET_TITLE, "F"+strconv.Itoa(currentRow), "$"+fmt.Sprintf("%.1f", totalUsdPayout))
+	f.SetCellValue(CALENDAR_SHEET_TITLE, "G"+strconv.Itoa(currentRow), "$"+fmt.Sprintf("%.1f", totalUsdTaxes))
+	currentRow++
+
+	return currentRow
 }

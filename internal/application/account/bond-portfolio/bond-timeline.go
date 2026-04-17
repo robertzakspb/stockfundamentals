@@ -2,7 +2,6 @@ package bondportfolio
 
 import (
 	"errors"
-	"fmt"
 	"sort"
 	"time"
 
@@ -27,7 +26,7 @@ func generateTimeLineForLots(lots []bonds.BondLot, includePastEvents bool) ([]Ti
 		return []TimeLineItem{}, errors.New("Provided position lots have no corresponding bonds")
 	}
 
-	timeline := makeTimeLine(lots)
+	timeline := makeTimeLine(lots, includePastEvents)
 
 	sort.Slice(timeline, func(i, j int) bool {
 		return timeline[i].Timestamp.Before(timeline[j].Timestamp)
@@ -36,59 +35,68 @@ func generateTimeLineForLots(lots []bonds.BondLot, includePastEvents bool) ([]Ti
 	return timeline, nil
 }
 
-func makeTimeLine(lots []bonds.BondLot) []TimeLineItem {
+func makeTimeLine(lots []bonds.BondLot, includePastEvents bool) []TimeLineItem {
 	timeline := []TimeLineItem{}
 	for _, lot := range lots {
+
 		bond := lot.Bond
 
 		if bond.RegistrationDate.IsZero() == false {
-			timeline = append(timeline, TimeLineItem{
+			event := TimeLineItem{
 				Timestamp: bond.RegistrationDate,
 				EventName: "Дата Регистрации Облигации",
 				BondName:  bond.Name,
-			})
+			}
+			if !includePastEvents && event.Timestamp.After(time.Now()) {
+				timeline = append(timeline, event)
+			}
+
 		}
 		if bond.PlacementDate.IsZero() == false {
-			timeline = append(timeline, TimeLineItem{
+			event := TimeLineItem{
 				Timestamp: bond.PlacementDate,
 				EventName: "Дата Размещения Облигации",
 				BondName:  bond.Name,
-			})
+			}
+			if !includePastEvents && event.Timestamp.After(time.Now()) {
+				timeline = append(timeline, event)
+			}
 		}
+
 		if bond.CallOptionExerciseDate.IsZero() == false {
-			timeline = append(timeline, TimeLineItem{
+			event := TimeLineItem{
 				Timestamp: bond.CallOptionExerciseDate,
 				EventName: "Дата Колл-опциона",
 				BondName:  bond.Name,
-			})
+			}
+			if !includePastEvents && event.Timestamp.After(time.Now()) {
+				timeline = append(timeline, event)
+			}
 		}
-		timeline = append(timeline, TimeLineItem{
+
+		maturityDate := TimeLineItem{
 			Timestamp: bond.MaturityDate,
-			EventName: "Дата Погашения Облигации. Возврат денежных средств: " + bond.NominalCurrency + fmt.Sprint(lot.TotalPrincipalRedemption(bond)),
+			EventName: "Погашениe Облигации",
 			BondName:  bond.Name,
 			Amount:    bond.NominalValue * lot.Quantity,
 			Currency:  bond.NominalCurrency,
-		})
+		}
+		if !includePastEvents && maturityDate.Timestamp.After(time.Now()) {
+			timeline = append(timeline, maturityDate)
+		}
 
 		for _, coupon := range lot.Bond.Coupons {
-			timeline = append(timeline, TimeLineItem{
+			payout := TimeLineItem{
 				Timestamp: coupon.CouponDate,
-				EventName: "Выплата купона: " + bond.Currency + fmt.Sprint(coupon.PerBondAmount) + " * " + fmt.Sprint(lot.Quantity) + " = " + bond.Currency + fmt.Sprint(lot.CouponPayoutForPosition(coupon)),
-				BondName:  bond.Name,
-				Amount:    coupon.PerBondAmount,
+				EventName: "Выплата купона",
+				Amount:    coupon.PerBondAmount * lot.Quantity,
 				Currency:  bond.NominalCurrency,
-			})
+				BondName:  bond.Name,
+			}
+			if !includePastEvents && payout.Timestamp.After(time.Now()) {
+				timeline = append(timeline, payout)
+			}
 		}
 	}
 	return timeline
-}
-
-func totalPayoutForEventsInCurrency(events []TimeLineItem, currency string) float64 {
-	totalPayout := 0.0
-	for _, event := range events {
-		if event.Currency == currency {
-			totalPayout += event.Amount
-		}
-	}
-	return totalPayout
 }
