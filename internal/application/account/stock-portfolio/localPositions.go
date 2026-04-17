@@ -130,6 +130,22 @@ func getHardCodedStockPositions() []lot.Lot {
 	}
 
 	allStocks := append(serbianStocks, rosselhozStocks)
+	allStocks = append(allStocks, vtbLots()...)
 
 	return allStocks
+}
+
+func vtbLots() []lot.Lot {
+	lqdt := lot.Lot{
+		AccountId:    uuid.MustParse(shared.VTB_ACCOUNT_ID),
+		Id:           uuid.New(),
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
+		Quantity:     1191133,
+		PricePerUnit: 1.9339,
+		Currency:     "RUB",
+		Figi:         "TCS60A1014L8",
+	}
+
+	return []lot.Lot{lqdt}
 }
