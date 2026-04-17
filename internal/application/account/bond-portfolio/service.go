@@ -7,6 +7,8 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	"github.com/google/uuid"
+	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
 func SaveBondPositionLot(lot bonds.BondLot) error {
@@ -32,6 +34,15 @@ func SaveBondPositionLot(lot bonds.BondLot) error {
 
 func GetAllPositionLots() ([]bonds.BondLot, error) {
 	return GetFilteredPositionLots([]ydbfilter.YdbFilter{})
+}
+
+func GetAccountPositions(accountId uuid.UUID) ([]bonds.BondLot, error) {
+	accountFilter := ydbfilter.YdbFilter{
+		YqlColumnName:  "account_id",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: types.UuidValue(accountId),
+	}
+	return GetFilteredPositionLots([]ydbfilter.YdbFilter{accountFilter})
 }
 
 func GetFilteredPositionLots(filters []ydbfilter.YdbFilter) ([]bonds.BondLot, error) {
@@ -100,7 +111,7 @@ func GetAccountTimeline() ([]TimeLineItem, error) {
 
 	lots = PopulateLotsWithCoupons(lots)
 
-	accountTimeline, err := generateTimeLineForLots(lots)
+	accountTimeline, err := generateTimeLineForLots(lots, false)
 	if err != nil {
 		return []TimeLineItem{}, err
 	}
