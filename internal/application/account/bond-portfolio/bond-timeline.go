@@ -17,7 +17,7 @@ type TimeLineItem struct {
 	Currency  string
 }
 
-func generateTimeLineForLots(lots []bonds.BondLot) ([]TimeLineItem, error) {
+func generateTimeLineForLots(lots []bonds.BondLot, includePastEvents bool) ([]TimeLineItem, error) {
 	if len(lots) == 0 {
 		return []TimeLineItem{}, errors.New("Attempting to generate a timeline for 0 lots")
 	}
@@ -81,4 +81,14 @@ func makeTimeLine(lots []bonds.BondLot) []TimeLineItem {
 		}
 	}
 	return timeline
+}
+
+func totalPayoutForEventsInCurrency(events []TimeLineItem, currency string) float64 {
+	totalPayout := 0.0
+	for _, event := range events {
+		if event.Currency == currency {
+			totalPayout += event.Amount
+		}
+	}
+	return totalPayout
 }

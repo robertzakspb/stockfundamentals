@@ -9,7 +9,7 @@ import (
 )
 
 func Test_generateTimeLine_WithZeroLots(t *testing.T) {
-	_, err := generateTimeLineForLots([]bonds.BondLot{})
+	_, err := generateTimeLineForLots([]bonds.BondLot{}, false)
 	test.AssertError(t, err)
 }
 
@@ -17,7 +17,7 @@ func Test_generateTimeLine_LotsWithNoBonds(t *testing.T) {
 	lot := bonds.BondLot{
 		Isin: "test",
 	}
-	_, err := generateTimeLineForLots([]bonds.BondLot{lot})
+	_, err := generateTimeLineForLots([]bonds.BondLot{lot}, false)
 	test.AssertError(t, err)
 }
 
@@ -53,7 +53,7 @@ func Test_generateTimeline_Positive(t *testing.T) {
 		},
 	}
 
-	timeline, err := generateTimeLineForLots([]bonds.BondLot{lot})
+	timeline, err := generateTimeLineForLots([]bonds.BondLot{lot}, false)
 	test.AssertNoError(t, err)
 
 	test.AssertEqual(t, 29.92, timeline[0].Amount)
