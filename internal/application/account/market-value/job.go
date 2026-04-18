@@ -9,10 +9,11 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
 
-func SaveAccountMarketValueSnapshots() {
+func SaveAccountMarketValueSnapshots() error {
 	accounts, err := accountservice.GetAllAccounts()
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
+		return err
 	}
 
 	for _, account := range accounts {
@@ -20,9 +21,11 @@ func SaveAccountMarketValueSnapshots() {
 			accountMVs, err := CalculateAccountMarketValue(account.Id, time.Now())
 			if err != nil {
 				logger.Log(err.Error(), logger.ERROR)
+				return
 			}
 			mappedMVs := mapAccountMarketValuesToDbModels(accountMVs)
-			accountmvdb.SaveMarketValue(mappedMVs)
+			go accountmvdb.SaveMarketValue(mappedMVs)
 		}()
 	}
+	return nil
 }

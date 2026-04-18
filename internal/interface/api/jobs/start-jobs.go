@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	// accountreturnapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/account-return"
+	accountreturnapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/account-return"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/stock-portfolio"
 	bondsapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/bonds"
 	forexapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/forex"
@@ -33,7 +34,7 @@ func StartDailyJobs(c *gin.Context) {
 
 	bondsapi.StartBondAccruedInterestUpdateJob(c)
 
-	//accountreturnapi.StartMarketValueSnapshotJob(c) //FIXME
+	accountreturnapi.StartMarketValueSnapshotJob(c) //FIXME
 
 	c.JSON(http.StatusOK, "Daily jobs were successfully started/executed")
 }
@@ -44,4 +45,3 @@ func StartHeavyJobs(c *gin.Context) {
 	bondsapi.StartBondAndCouponImportJob(c) //Completes in 18.5 minutes if run separately
 	c.JSON(http.StatusOK, "Heavy jobs were successfully started/executed")
 }
-

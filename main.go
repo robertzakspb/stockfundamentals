@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
-	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/dataseed"
 	bondsapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/bonds"
 	forexapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/forex"
@@ -22,13 +20,6 @@ import (
 )
 
 func main() {
-	// uuid, _ := uuid.Parse("129274f9-ee80-4e74-aa1c-fea578bac6e6")
-	// accountmvservice.CalculateAccountMarketValue(uuid, time.Now())
-	err := bondportfolio.GenerateTimeLineExcel()
-	if err != nil {
-		fmt.Println(err)
-	}
-	
 	router := gin.Default()
 	router.Use(cors.Default())
 

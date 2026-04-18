@@ -263,22 +263,9 @@ func UpdateAllBondsAci() error {
 
 	bondList = PopulateBondCoupons(bondList)
 
-	currencyPairs := AllCurrencyPairsInBondList(bondList)
-	forexRates, _ := forexservice.GetExchangeRates(currencyPairs, time.Now())
-
 	for i, bond := range bondList {
-		forexRate := 1.0
-		if bond.Currency != bond.NominalCurrency {
-			rate, found := forexservice.FindRate(bond.NominalCurrency, bond.Currency, forexRates)
-			if found {
-				forexRate = rate.Rate
-			} else {
-				logger.Log("Failed to get the forex rate for the bond: "+bond.Isin+", skipping ACI calculation", logger.ERROR)
-				continue
-			}
-		}
 
-		aci, err := bonds.AccruedInterest(bond, time.Now(), forexRate)
+		aci, err := bonds.AccruedInterest(bond, time.Now())
 		if err != nil {
 			logger.Log(err.Error(), logger.WARNING)
 			continue

@@ -8,8 +8,8 @@ import (
 	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
-	"github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
-	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
+	// "github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
+	// "github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	accountmvdb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/market-value"
@@ -81,6 +81,10 @@ func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time) ([]account
 		}
 	}
 
+	if len(accountMVs) == 0 {
+		logger.Log("The account market value for account "+accountId.String()+" is 0.", logger.ALERT)
+	}
+
 	return accountMVs, nil
 }
 
@@ -145,6 +149,10 @@ func AccountBondMarketValueGroupedByCurrency(accountId uuid.UUID, date time.Time
 }
 
 func CalculateBondLotsMarketValue(bondLots []bonds.BondLot, date time.Time, currency string) (accountmvdomain.AccountMarketValue, error) {
+	if len(bondLots) == 0 {
+		return accountmvdomain.AccountMarketValue{}, errors.New("Attempting to calculate the market value of 0 bonds")
+	}
+
 	figis := bondportfolio.GetLotFigis(bondLots)
 
 	config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
@@ -156,9 +164,9 @@ func CalculateBondLotsMarketValue(bondLots []bonds.BondLot, date time.Time, curr
 
 	totalMarketValue := 0.0
 
-	bonds := bondportfolio.GetLotBonds(bondLots)
-	currencyPairs := bondservice.AllCurrencyPairsInBondList(bonds)
-	fxRates, err := forexservice.GetExchangeRates(currencyPairs, date)
+	// bonds := bondportfolio.GetLotBonds(bondLots)
+	// currencyPairs := bondservice.AllCurrencyPairsInBondList(bonds)
+	// fxRates, err := forexservice.GetExchangeRates(currencyPairs, date)
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
 		return accountmvdomain.AccountMarketValue{}, err
@@ -170,17 +178,17 @@ func CalculateBondLotsMarketValue(bondLots []bonds.BondLot, date time.Time, curr
 			if lot.Figi == quote.Figi() {
 				foundQuote = true
 
-				fxRate := 1.0
-				if lot.Bond.IsBondWithDifferentNominalCurrencyAndCurrency() {
-					rate, found := forexservice.FindRate(lot.Bond.NominalCurrency, lot.Bond.Currency, fxRates)
-					if !found {
-						logger.Log("Failed to find an exchange rate for "+lot.Bond.NominalCurrency+"/"+lot.Bond.Currency+". Unable to calculate the market value for the bond "+lot.Bond.Isin, logger.ERROR)
-						return accountmvdomain.AccountMarketValue{}, errors.New("Unable to calculate the market value for the bond due to the missing forex rate")
-					}
-					fxRate = rate.Rate
-				}
+				// // fxRate := 1.0
+				// if lot.Bond.IsBondWithDifferentNominalCurrencyAndCurrency() {
+				// 	rate, found := forexservice.FindRate(lot.Bond.NominalCurrency, lot.Bond.Currency, fxRates)
+				// 	if !found {
+				// 		logger.Log("Failed to find an exchange rate for "+lot.Bond.NominalCurrency+"/"+lot.Bond.Currency+". Unable to calculate the market value for the bond "+lot.Bond.Isin, logger.ERROR)
+				// 		return accountmvdomain.AccountMarketValue{}, errors.New("Unable to calculate the market value for the bond due to the missing forex rate")
+				// 	}
+				// 	// fxRate = rate.Rate
+				// }
 
-				lotMarketValue := lot.MarketValue(quote.Quote(), fxRate)
+				lotMarketValue := lot.MarketValue(quote.Quote(), 1.0)
 
 				totalMarketValue += lotMarketValue
 			}

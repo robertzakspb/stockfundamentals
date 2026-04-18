@@ -132,7 +132,7 @@ func Test_TotalCouponIncome(t *testing.T) {
 func Test_AccruedInterest_NoCoupons(t *testing.T) {
 	bond := Bond{}
 
-	_, err := AccruedInterest(bond, time.Now(), 40)
+	_, err := AccruedInterest(bond, time.Now())
 
 	test.AssertError(t, err)
 }
@@ -146,7 +146,7 @@ func Test_AccruedInterest_MissingCurrentCoupon(t *testing.T) {
 		CouponDate:      time.Now().Add(-time.Hour * 24 * 15),
 	})
 
-	_, err := AccruedInterest(bond, time.Now(), 40)
+	_, err := AccruedInterest(bond, time.Now())
 
 	test.AssertError(t, err)
 }
@@ -161,7 +161,7 @@ func Test_AccruedInterest_ZeroAccruedInterest(t *testing.T) {
 		CouponDate:      time.Now().Add(time.Hour * 24 * 15),
 	})
 
-	_, err := AccruedInterest(bond, time.Now(), 40)
+	_, err := AccruedInterest(bond, time.Now())
 
 	test.AssertNoError(t, err)
 }
@@ -192,7 +192,7 @@ func Test_AccruedInterest(t *testing.T) {
 		},
 	}
 
-	ai, err := AccruedInterest(bond, time.Now(), 0)
+	ai, err := AccruedInterest(bond, time.Now())
 	test.AssertNoError(t, err)
 	test.AssertEqual(t, 4.5, ai)
 }
@@ -226,7 +226,7 @@ func Test_AccruedInterest_UsdBond(t *testing.T) {
 		},
 	}
 
-	ai, err := AccruedInterest(bond, time.Now(), 80)
+	ai, err := AccruedInterest(bond, time.Now())
 	test.AssertNoError(t, err)
 	test.AssertEqual(t, 360, ai)
 }

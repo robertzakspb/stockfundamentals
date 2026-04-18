@@ -79,7 +79,7 @@ func TotalCouponIncome(coupons []Coupon, includePastCoupons bool, includeCoupons
 	return totalCouponIncome
 }
 
-func AccruedInterest(bond Bond, toDate time.Time, forexRate float64) (float64, error) {
+func AccruedInterest(bond Bond, toDate time.Time) (float64, error) {
 	if len(bond.Coupons) == 0 {
 		return -1, errors.New("Attempting to calculate the accumulated coupon income with no coupons for " + bond.Figi)
 	}
@@ -107,10 +107,6 @@ func AccruedInterest(bond Bond, toDate time.Time, forexRate float64) (float64, e
 	couponAmountPerDay := currentCoupon.PerBondAmount / float64(currentCoupon.CouponPeriod)
 	aci := couponAmountPerDay * float64(daysElapsedSinceCouponStartDate)
 	roundedAci := math.Round(aci*100) / 100
-
-	if bond.IsBondWithDifferentNominalCurrencyAndCurrency() {
-		roundedAci *= forexRate
-	}
 
 	return roundedAci, nil
 }

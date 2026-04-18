@@ -53,8 +53,9 @@ func Test_generateTimeline_Positive(t *testing.T) {
 		},
 	}
 
-	timeline, err := generateTimeLineForLots([]bonds.BondLot{lot}, false)
+	timeline, err := generateTimeLineForLots([]bonds.BondLot{lot}, true)
 	test.AssertNoError(t, err)
+	test.AssertEqual(t, 5, len(timeline))
 
 	test.AssertEqual(t, 29.92, timeline[0].Amount)
 	test.AssertEqual(t, 30, timeline[1].Amount)
@@ -69,7 +70,7 @@ func Test_generateTimeline_Positive(t *testing.T) {
 	test.AssertEqual(t, "RUB", timeline[2].Currency)
 	test.AssertEqual(t, "RUB", timeline[3].Currency)
 	test.AssertEqual(t, "RUB", timeline[3].Currency)
-	
+
 	test.AssertEqual(t, lot.Bond.NominalValue*10, timeline[4].Amount)
 	test.AssertEqual(t, lot.Bond.MaturityDate, timeline[4].Timestamp)
 	test.AssertEqual(t, "RUB", timeline[4].Currency)
