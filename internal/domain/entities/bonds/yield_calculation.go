@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-func (b Bond) CalcYieldToMaturity(coupons []Coupon, marketPrice float64, fxRate float64) (float64, error) {
-	yield, err := calculateYield(b, coupons, marketPrice, time.Now(), b.MaturityDate, b.MaturityDate, fxRate)
+func (b Bond) CalcYieldToMaturity(coupons []Coupon, marketPrice float64) (float64, error) {
+	yield, err := calculateYield(b, coupons, marketPrice, time.Now(), b.MaturityDate, b.MaturityDate)
 	if err != nil {
 		return -1, err
 	}
@@ -14,12 +14,12 @@ func (b Bond) CalcYieldToMaturity(coupons []Coupon, marketPrice float64, fxRate 
 	return yield, nil
 }
 
-func (b Bond) CalcYieldToCallOption(coupons []Coupon, marketPrice float64, fxRate float64) (float64, error) {
+func (b Bond) CalcYieldToCallOption(coupons []Coupon, marketPrice float64) (float64, error) {
 	if b.CallOptionExerciseDate.IsZero() {
 		return -1, errors.New("Attempting to calculate a yield to call option for a bond without a call exercise date")
 	}
 
-	yield, err := calculateYield(b, coupons, marketPrice, time.Now(), b.CallOptionExerciseDate, b.CallOptionExerciseDate, fxRate)
+	yield, err := calculateYield(b, coupons, marketPrice, time.Now(), b.CallOptionExerciseDate, b.CallOptionExerciseDate)
 	if err != nil {
 		return -1, err
 	}
@@ -27,7 +27,7 @@ func (b Bond) CalcYieldToCallOption(coupons []Coupon, marketPrice float64, fxRat
 	return yield, nil
 }
 
-func calculateYield(b Bond, coupons []Coupon, marketPricePercentage float64, acquisitionDate, redemptionDate, latestCouponDate time.Time, fxRate float64) (float64, error) {
+func calculateYield(b Bond, coupons []Coupon, marketPricePercentage float64, acquisitionDate, redemptionDate, latestCouponDate time.Time) (float64, error) {
 	if len(coupons) == 0 {
 		return -1, errors.New("Failed to calculate the yield due to missing coupons")
 	}
@@ -38,25 +38,13 @@ func calculateYield(b Bond, coupons []Coupon, marketPricePercentage float64, acq
 	holdingPeriod := redemptionDate.Sub(acquisitionDate).Hours() / 24
 
 	marketPriceInCurrency := marketPricePercentage * b.NominalValue / 100
-	if b.Currency != b.NominalCurrency {
-		marketPriceInCurrency *= fxRate
-	}
+
 	marketPrice := marketPriceInCurrency + b.AccruedInterest
 
 	tci := TotalCouponIncome(coupons, false, latestCouponDate)
 
-	//Case of foreign-denominated bonds where the accrued interest must be convereted from, say, $ to RUB
-	if b.Currency != b.NominalCurrency {
-		tci *= fxRate
-	}
-
-	adjustedNominalValue := b.NominalValue
-	if b.Currency != b.NominalCurrency {
-		adjustedNominalValue *= fxRate
-	}
-	
 	//Standard simple formula for the calculation of bond yields (coupon reinvestment is not assumed)
-	yield := (adjustedNominalValue - marketPrice + tci) / marketPrice * 365 / holdingPeriod * 100
+	yield := (b.NominalValue - marketPrice + tci) / marketPrice * 365 / holdingPeriod * 100
 	return yield, nil
 }
 

@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/compoundinvest/invest-core/quote/tquoteservice"
-	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -201,24 +200,10 @@ func PopulateBondCoupons(bondList []bonds.Bond) []bonds.Bond {
 }
 
 func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []tquoteservice.TQuote) []bonds.Bond {
-	currencyPairs := AllCurrencyPairsInBondList(bondList)
-	forexRates, _ := forexservice.GetExchangeRates(currencyPairs, time.Now())
-
 	for _, quote := range quotes {
 		for i, b := range bondList {
-			forexRate := 1.0
-			if b.Currency != b.NominalCurrency {
-				rate, found := forexservice.FindRate(b.NominalCurrency, b.Currency, forexRates)
-				if found {
-					forexRate = rate.Rate
-				} else {
-					logger.Log("Failed to get the forex rate for the bond: "+b.Isin+", skipping YTM calculation", logger.ERROR)
-					continue
-				}
-			}
-
 			if quote.Figi() == b.Figi {
-				ytm, err := b.CalcYieldToMaturity(b.Coupons, quote.Quote(), forexRate)
+				ytm, err := b.CalcYieldToMaturity(b.Coupons, quote.Quote())
 				if err != nil {
 					logger.Log(err.Error(), logger.ERROR)
 					continue
@@ -226,7 +211,7 @@ func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []tquoteservi
 				bondList[i].YieldToMaturity = ytm
 
 				if b.HasCallOption() {
-					yieldToCallOption, err := b.CalcYieldToCallOption(b.Coupons, quote.Quote(), forexRate)
+					yieldToCallOption, err := b.CalcYieldToCallOption(b.Coupons, quote.Quote())
 					if err != nil {
 						logger.Log(err.Error(), logger.ERROR)
 						continue
@@ -264,7 +249,6 @@ func UpdateAllBondsAci() error {
 	bondList = PopulateBondCoupons(bondList)
 
 	for i, bond := range bondList {
-
 		aci, err := bonds.AccruedInterest(bond, time.Now())
 		if err != nil {
 			logger.Log(err.Error(), logger.WARNING)

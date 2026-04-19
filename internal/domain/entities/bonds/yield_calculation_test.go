@@ -44,7 +44,7 @@ func Test__calculateYield(t *testing.T) {
 
 	marketPrice := (906.63 + 26.8)
 	marketPricePercentage := marketPrice / 10
-	yield, err := calculateYield(bond, coupons, marketPricePercentage, acquisitionDate, maturityDate, maturityDate, 1)
+	yield, err := calculateYield(bond, coupons, marketPricePercentage, acquisitionDate, maturityDate, maturityDate)
 	test.AssertEqual(t, err, nil)
 
 	test.AssertEqualFloat(t, 12.87, yield, 0.01)
@@ -87,8 +87,7 @@ func Test__calculateYield_UsdBond(t *testing.T) {
 	}
 
 	marketPricePercentage := 100.0
-	fxRate := 80.0
-	yield, err := calculateYield(bond, coupons, marketPricePercentage, acquisitionDate, maturityDate, maturityDate, fxRate)
+	yield, err := calculateYield(bond, coupons, marketPricePercentage, acquisitionDate, maturityDate, maturityDate)
 
 	test.AssertEqual(t, err, nil)
 	test.AssertEqualFloat(t, 0.8, yield, 0.01)
