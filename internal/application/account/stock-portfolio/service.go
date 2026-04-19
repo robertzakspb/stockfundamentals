@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
+	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	stockportfolio "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
@@ -71,18 +71,20 @@ func CalculatePortfolioMarketValue(portfolio stockportfolio.Portfolio, currency 
 
 	quotes := quotefetcher.FetchQuotesFor(lotSecurities)
 
-	config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
-	if err != nil {
-		logger.Log("Failed to initialize the configuration file", logger.ALERT)
-		return -1, currency, errors.New("Failed to fetch quotes for ETFs in the portfolio fue to Tinkoff API configuration issues")
-	}
-	etfQuotes, err := tquoteservice.FetchQuotesForFigis(portfolio.GetEtfLotFigis(), config)
-	if err != nil {
-		return -1, currency, errors.New("Failed to fetch quotes for ETFs in the portfolio")
-	}
-	//TODO: Need to refactor the core package to support fetching of quotes via Tinkoff API
-	for _, etfQuote := range etfQuotes {
-		quotes = append(quotes, &etfQuote)
+	if etfFigis := portfolio.GetEtfLotFigis(); len(etfFigis) > 0 {
+		config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
+		if err != nil {
+			logger.Log("Failed to initialize the configuration file", logger.ALERT)
+			return -1, currency, errors.New("Failed to fetch quotes for ETFs in the portfolio fue to Tinkoff API configuration issues")
+		}
+		etfQuotes, err := tquoteservice.FetchQuotesForFigis(portfolio.GetEtfLotFigis(), config)
+		if err != nil {
+			return -1, currency, errors.New("Failed to fetch quotes for ETFs in the portfolio")
+		}
+
+		for _, etfQuote := range etfQuotes {
+			quotes = append(quotes, &etfQuote)
+		}
 	}
 
 	uniquePositions := portfolio.UniquePositions()
