@@ -36,7 +36,7 @@ func GetQuasiForeignBonds() ([]bonds.Bond, error) {
 	foreignNominalFilter := ydbfilter.YdbFilter{
 		YqlColumnName:  "nominal_currency",
 		Condition:      ydbfilter.NotEqual,
-		ConditionValue: types.TextValue("RUB"),
+		ConditionValue: types.TextValue("USD"),
 	}
 	rubleCurrencyFilter := ydbfilter.YdbFilter{
 		YqlColumnName:  "currency",
