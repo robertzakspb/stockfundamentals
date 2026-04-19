@@ -44,7 +44,7 @@ func Test_generateTimeline_Positive(t *testing.T) {
 
 	lot := bonds.BondLot{
 		Isin:     "test",
-		Quantity: 10,
+		Quantity: 1,
 		Bond: bonds.Bond{
 			MaturityDate:    maturityDate,
 			NominalValue:    1000,
@@ -71,7 +71,44 @@ func Test_generateTimeline_Positive(t *testing.T) {
 	test.AssertEqual(t, "RUB", timeline[3].Currency)
 	test.AssertEqual(t, "RUB", timeline[3].Currency)
 
-	test.AssertEqual(t, lot.Bond.NominalValue*10, timeline[4].Amount)
+	test.AssertEqual(t, lot.Bond.NominalValue, timeline[4].Amount)
 	test.AssertEqual(t, lot.Bond.MaturityDate, timeline[4].Timestamp)
 	test.AssertEqual(t, "RUB", timeline[4].Currency)
+}
+
+func Test_generateTimeline_ExcludePastEvents(t *testing.T) {
+	maturityDate := time.Date(2099, 12, 12, 0, 0, 0, 0, time.UTC)
+	coupons := []bonds.Coupon{
+		{
+			PerBondAmount: 29.92,
+			CouponDate:    time.Date(2026, 1, 12, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			PerBondAmount: 30,
+			CouponDate:    time.Date(2026, 2, 12, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			PerBondAmount: 31,
+			CouponDate:    time.Now(),
+		},
+		{
+			PerBondAmount: 32,
+			CouponDate:    time.Now().Add(time.Hour * 24),
+		},
+	}
+
+	lot := bonds.BondLot{
+		Isin:     "test",
+		Quantity: 1,
+		Bond: bonds.Bond{
+			MaturityDate:    maturityDate,
+			NominalValue:    1000,
+			NominalCurrency: "RUB",
+			Coupons:         coupons,
+		},
+	}
+
+	timeline, err := generateTimeLineForLots([]bonds.BondLot{lot}, false)
+	test.AssertNoError(t, err)
+	test.AssertEqual(t, 3, len(timeline))
 }

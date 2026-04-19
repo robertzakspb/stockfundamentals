@@ -28,17 +28,13 @@ func generateTimeLineForLots(lots []bonds.BondLot, includePastEvents bool) ([]Ti
 
 	timeline := makeTimeLine(lots, includePastEvents)
 
-	sort.Slice(timeline, func(i, j int) bool {
-		return timeline[i].Timestamp.Before(timeline[j].Timestamp)
-	})
-
 	return timeline, nil
 }
 
 func makeTimeLine(lots []bonds.BondLot, includePastEvents bool) []TimeLineItem {
 	timeline := []TimeLineItem{}
-	for _, lot := range lots {
 
+	for _, lot := range lots {
 		bond := lot.Bond
 
 		if bond.RegistrationDate.IsZero() == false {
@@ -47,9 +43,8 @@ func makeTimeLine(lots []bonds.BondLot, includePastEvents bool) []TimeLineItem {
 				EventName: "Дата Регистрации Облигации",
 				BondName:  bond.Name,
 			}
-			if !includePastEvents && event.Timestamp.After(time.Now()) {
-				timeline = append(timeline, event)
-			}
+
+			timeline = append(timeline, event)
 
 		}
 		if bond.PlacementDate.IsZero() == false {
@@ -58,9 +53,9 @@ func makeTimeLine(lots []bonds.BondLot, includePastEvents bool) []TimeLineItem {
 				EventName: "Дата Размещения Облигации",
 				BondName:  bond.Name,
 			}
-			if !includePastEvents && event.Timestamp.After(time.Now()) {
-				timeline = append(timeline, event)
-			}
+
+			timeline = append(timeline, event)
+
 		}
 
 		if bond.CallOptionExerciseDate.IsZero() == false {
@@ -69,9 +64,9 @@ func makeTimeLine(lots []bonds.BondLot, includePastEvents bool) []TimeLineItem {
 				EventName: "Дата Колл-опциона",
 				BondName:  bond.Name,
 			}
-			if !includePastEvents && event.Timestamp.After(time.Now()) {
-				timeline = append(timeline, event)
-			}
+
+			timeline = append(timeline, event)
+
 		}
 
 		maturityDate := TimeLineItem{
@@ -81,9 +76,8 @@ func makeTimeLine(lots []bonds.BondLot, includePastEvents bool) []TimeLineItem {
 			Amount:    bond.NominalValue * lot.Quantity,
 			Currency:  bond.NominalCurrency,
 		}
-		if !includePastEvents && maturityDate.Timestamp.After(time.Now()) {
-			timeline = append(timeline, maturityDate)
-		}
+
+		timeline = append(timeline, maturityDate)
 
 		for _, coupon := range lot.Bond.Coupons {
 			payout := TimeLineItem{
@@ -93,10 +87,25 @@ func makeTimeLine(lots []bonds.BondLot, includePastEvents bool) []TimeLineItem {
 				Currency:  bond.NominalCurrency,
 				BondName:  bond.Name,
 			}
-			if !includePastEvents && payout.Timestamp.After(time.Now()) {
-				timeline = append(timeline, payout)
-			}
+
+			timeline = append(timeline, payout)
 		}
 	}
+
+	sort.Slice(timeline, func(i, j int) bool {
+		return timeline[i].Timestamp.Before(timeline[j].Timestamp)
+	})
+
+	if includePastEvents {
+		return timeline
+	}
+
+	//If includePasEvents == false, we need to remove all past events from the timeline
+	for i := range timeline {
+		if timeline[i].Timestamp.After(time.Now().Add(-time.Hour * 24)) {
+			return timeline[i:]
+		}
+	}
+
 	return timeline
 }
