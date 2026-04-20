@@ -151,82 +151,108 @@ func Test_AccruedInterest_MissingCurrentCoupon(t *testing.T) {
 	test.AssertError(t, err)
 }
 
-func Test_AccruedInterest_ZeroAccruedInterest(t *testing.T) {
-	bond := Bond{}
+func Test_AccruedInterest_OneDayBeforeNextCouponStartDate(t *testing.T) {
+	bond := Bond{
+		CouponCountPerYear: 12,
+		NominalValue:       100,
+		Currency:           "RUB",
+		NominalCurrency:    "USD",
+	}
 	bond.Coupons = append(bond.Coupons, Coupon{
-		PerBondAmount:   25,
-		CouponStartDate: time.Now(),
-		CouponPeriod:    10,
-		CouponEndDate:   time.Now().Add(time.Hour * 24 * 15),
-		CouponDate:      time.Now().Add(time.Hour * 24 * 15),
+		CouponPeriod:    30,
+		PerBondAmount:   0.62,
+		CouponStartDate: time.Date(2026, 2, 20, 0, 0, 0, 0, time.UTC),
+		CouponEndDate:   time.Date(2026, 3, 22, 0, 0, 0, 0, time.UTC),
+		CouponDate:      time.Date(2026, 3, 22, 0, 0, 0, 0, time.UTC),
+	})
+	bond.Coupons = append(bond.Coupons, Coupon{
+		CouponPeriod:  30,
+		PerBondAmount: 0.62,
+
+		CouponStartDate: time.Date(2026, 3, 22, 0, 0, 0, 0, time.UTC),
+		CouponEndDate:   time.Date(2026, 4, 21, 0, 0, 0, 0, time.UTC),
+		CouponDate:      time.Date(2026, 4, 21, 0, 0, 0, 0, time.UTC),
+	})
+	bond.Coupons = append(bond.Coupons, Coupon{
+		CouponPeriod:    30,
+		PerBondAmount:   0.62,
+		CouponStartDate: time.Date(2026, 4, 21, 0, 0, 0, 0, time.UTC),
+		CouponEndDate:   time.Date(2026, 5, 21, 0, 0, 0, 0, time.UTC),
+		CouponDate:      time.Date(2026, 5, 21, 0, 0, 0, 0, time.UTC),
 	})
 
-	_, err := AccruedInterest(bond, time.Now())
-
-	test.AssertNoError(t, err)
-}
-
-func Test_AccruedInterest(t *testing.T) {
-	bond := Bond{}
-	bond.Coupons = []Coupon{
-		{
-			PerBondAmount:   45,
-			CouponStartDate: time.Now(),
-			CouponPeriod:    10,
-			CouponEndDate:   time.Now().Add(time.Hour * 24 * 30),
-			CouponDate:      time.Now().Add(time.Hour * 24 * 30),
-		},
-		{
-			PerBondAmount:   70,
-			CouponPeriod:    10,
-			CouponStartDate: time.Now().Add(-time.Hour * 24),
-			CouponEndDate:   time.Now().Add(-time.Hour * 12),
-			CouponDate:      time.Now().Add(-time.Hour * 12),
-		},
-		{
-			PerBondAmount:   25,
-			CouponPeriod:    10,
-			CouponStartDate: time.Now().Add(-time.Hour * 24 * 30),
-			CouponEndDate:   time.Now().Add(-time.Hour * 24 * 15),
-			CouponDate:      time.Now().Add(-time.Hour * 24 * 15),
-		},
-	}
-
 	ai, err := AccruedInterest(bond, time.Now())
+
 	test.AssertNoError(t, err)
-	test.AssertEqual(t, 4.5, ai)
+	test.AssertEqual(t, 0, ai)
 }
 
-func Test_AccruedInterest_UsdBond(t *testing.T) {
+func Test_AccruedInterest_TodayIsCouponStartDate(t *testing.T) {
 	bond := Bond{
-		Currency: "RUB",
-		NominalCurrency: "USD",
+		CouponCountPerYear: 12,
+		NominalValue:       1000,
+		Currency:           "RUB",
+		NominalCurrency:    "RUB",
 	}
-	bond.Coupons = []Coupon{
-		{
-			PerBondAmount:   45,
-			CouponStartDate: time.Now(),
-			CouponPeriod:    10,
-			CouponEndDate:   time.Now().Add(time.Hour * 24 * 30),
-			CouponDate:      time.Now().Add(time.Hour * 24 * 30),
-		},
-		{
-			PerBondAmount:   70,
-			CouponPeriod:    10,
-			CouponStartDate: time.Now().Add(-time.Hour * 24),
-			CouponEndDate:   time.Now().Add(-time.Hour * 12),
-			CouponDate:      time.Now().Add(-time.Hour * 12),
-		},
-		{
-			PerBondAmount:   25,
-			CouponPeriod:    10,
-			CouponStartDate: time.Now().Add(-time.Hour * 24 * 30),
-			CouponEndDate:   time.Now().Add(-time.Hour * 24 * 15),
-			CouponDate:      time.Now().Add(-time.Hour * 24 * 15),
-		},
-	}
+	bond.Coupons = append(bond.Coupons, Coupon{
+		CouponPeriod:    30,
+		PerBondAmount:   10.89,
+		CouponStartDate: time.Date(2026, 3, 21, 0, 0, 0, 0, time.UTC),
+		CouponEndDate:   time.Date(2026, 4, 20, 0, 0, 0, 0, time.UTC),
+		CouponDate:      time.Date(2026, 4, 20, 0, 0, 0, 0, time.UTC),
+	})
+	bond.Coupons = append(bond.Coupons, Coupon{
+		CouponPeriod:    30,
+		PerBondAmount:   10.89,
+		CouponStartDate: time.Date(2026, 4, 20, 0, 0, 0, 0, time.UTC),
+		CouponEndDate:   time.Date(2026, 5, 20, 0, 0, 0, 0, time.UTC),
+		CouponDate:      time.Date(2026, 5, 20, 0, 0, 0, 0, time.UTC),
+	})
 
 	ai, err := AccruedInterest(bond, time.Now())
+
 	test.AssertNoError(t, err)
-	test.AssertEqual(t, 360, ai)
+	test.AssertEqual(t, 0.36, ai)
+}
+
+func Test_AccruedInterest_TypicalScenario(t *testing.T) {
+	bond := Bond{
+		CouponCountPerYear: 12,
+		NominalValue:       1000,
+		Currency:           "RUB",
+		NominalCurrency:    "USD",
+	}
+	bond.Coupons = append(bond.Coupons, Coupon{
+		CouponPeriod:    30,
+		PerBondAmount:   6.37,
+		CouponStartDate: time.Date(2026, 4, 17, 0, 0, 0, 0, time.UTC),
+		CouponEndDate:   time.Date(2026, 5, 17, 0, 0, 0, 0, time.UTC),
+		CouponDate:      time.Date(2026, 6, 17, 0, 0, 0, 0, time.UTC),
+	})
+
+	ai, err := AccruedInterest(bond, time.Now())
+
+	test.AssertNoError(t, err)
+	test.AssertEqual(t, 0.85, ai)
+}
+
+func Test_AccruedInterest_OneDayBeforeEndDate(t *testing.T) {
+	bond := Bond{
+		CouponCountPerYear: 12,
+		NominalValue:       1000,
+		Currency:           "RUB",
+		NominalCurrency:    "RUB",
+	}
+	bond.Coupons = append(bond.Coupons, Coupon{
+		CouponPeriod:    30,
+		PerBondAmount:   13.15,
+		CouponStartDate: time.Date(2026, 3, 23, 0, 0, 0, 0, time.UTC),
+		CouponEndDate:   time.Date(2026, 4, 22, 0, 0, 0, 0, time.UTC),
+		CouponDate:      time.Date(2026, 4, 22, 0, 0, 0, 0, time.UTC),
+	})
+
+	ai, err := AccruedInterest(bond, time.Now())
+
+	test.AssertNoError(t, err)
+	test.AssertEqual(t, 12.71, ai)
 }

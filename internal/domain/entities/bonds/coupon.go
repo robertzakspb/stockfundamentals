@@ -79,7 +79,7 @@ func TotalCouponIncome(coupons []Coupon, includePastCoupons bool, includeCoupons
 	return totalCouponIncome
 }
 
-func AccruedInterest(bond Bond, toDate time.Time) (float64, error) {
+func AccruedInterest(bond Bond, tillDate time.Time) (float64, error) {
 	if len(bond.Coupons) == 0 {
 		return -1, errors.New("Attempting to calculate the accumulated coupon income with no coupons for " + bond.Figi)
 	}
@@ -89,26 +89,19 @@ func AccruedInterest(bond Bond, toDate time.Time) (float64, error) {
 		return -1, err
 	}
 
-	if timehelpers.AreEqualDates(time.Now(), currentCoupon.RecordDate) {
-		return 0, nil
-	}
-
 	if currentCoupon.CouponPeriod <= 0 {
 		return -1, errors.New("Coupon period for " + bond.Figi + " is invalid")
 	}
 
-	daysFractional := toDate.Sub(currentCoupon.CouponStartDate).Hours() / 24
-	roundedDays := math.Trunc(daysFractional) + 1 //+1 is due to T+1
-	daysElapsedSinceCouponStartDate := int(roundedDays)
-	if daysElapsedSinceCouponStartDate == 0 {
-		return 0, nil
-	}
+	nominalValue := bond.NominalValue
+	couponYield := currentCoupon.PerBondAmount / bond.NominalValue
+	tPlus1 := tillDate.AddDate(0, 0, 1)
+	daysHeldSinceStartDate := math.Floor(tPlus1.Sub(currentCoupon.CouponStartDate).Hours() / 24)
 
-	couponAmountPerDay := currentCoupon.PerBondAmount / float64(currentCoupon.CouponPeriod)
-	aci := couponAmountPerDay * float64(daysElapsedSinceCouponStartDate)
-	roundedAci := math.Round(aci*100) / 100
+	accruedInterest := nominalValue * couponYield * daysHeldSinceStartDate / float64(currentCoupon.CouponPeriod)
+	roundedAI := math.Round(accruedInterest*100) / 100
 
-	return roundedAci, nil
+	return roundedAI, nil
 }
 
 func findCurrentCouponForBond(bond Bond) (Coupon, error) {
@@ -116,8 +109,10 @@ func findCurrentCouponForBond(bond Bond) (Coupon, error) {
 		return Coupon{}, errors.New("Attempting to find a coupon in a bond with missing coupons for " + bond.Figi)
 	}
 
+	tplus1 := time.Now().AddDate(0, 0, 1)
+
 	for i, coupon := range bond.Coupons {
-		if time.Now().After(coupon.CouponStartDate) && time.Now().Before(coupon.CouponEndDate) {
+		if timehelpers.DateIsLaterOrSameDate(tplus1, coupon.CouponStartDate) && timehelpers.DateIsEarlier(tplus1, coupon.CouponEndDate) {
 			return bond.Coupons[i], nil
 		}
 	}
