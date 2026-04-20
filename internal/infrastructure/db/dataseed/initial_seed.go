@@ -49,12 +49,12 @@ func InitialSeed(c *gin.Context) {
 func createTables(ctx context.Context, db *ydb.Driver) error {
 	client := db.Table()
 
-	err := createAccountTable(ctx, db, client)
+	err := createAccountMarketValueTable(ctx, db, client)
 	if err != nil {
 		return err
 	}
 
-	err = createAccountMarketValueTable(ctx, db, client)
+	err = createAccountTable(ctx, db, client)
 	if err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func createAccountMarketValueTable(ctx context.Context, dbConnection *ydb.Driver
 				options.WithColumn("date", types.TypeDate),
 				options.WithColumn("currency", types.TypeText),
 				options.WithColumn("eod_value", types.TypeDouble),
-				options.WithPrimaryKeyColumn("account_id", "date"),
+				options.WithPrimaryKeyColumn("account_id", "date", "currency"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)

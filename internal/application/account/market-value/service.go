@@ -8,6 +8,7 @@ import (
 	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
+
 	// "github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
 	// "github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
@@ -101,13 +102,16 @@ func AccountStockMarketValueGroupedByCurrency(accountId uuid.UUID, date time.Tim
 	if err != nil {
 		return map[string]accountmvdomain.AccountMarketValue{}, err
 	}
+	if len(accountPortfolio.Lots) == 0 {
+		return map[string]accountmvdomain.AccountMarketValue{}, nil
+	}
 
-	stockPortfolioMarketValue, currency, err := portfolio.CalculatePortfolioMarketValue(accountPortfolio, "RUB")
+	stockPortfolioMarketValue, currency, err := portfolio.CalculatePortfolioMarketValue(accountPortfolio, accountPortfolio.Lots[0].Currency)
 	if err != nil {
 		return map[string]accountmvdomain.AccountMarketValue{}, err
 	}
 
-	mv := map[string]accountmvdomain.AccountMarketValue{"RUB": {
+	mv := map[string]accountmvdomain.AccountMarketValue{currency: {
 		AccountId: accountId,
 		Date:      date,
 		Currency:  currency,
