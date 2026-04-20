@@ -182,6 +182,7 @@ func mapTinkoffCouponsToCoupons(tinkoffCoupons []*pb.Coupon) []bonds.Coupon {
 
 func mapCouponsToDbModels(coupons []bonds.Coupon) []bondsdb.CouponDbModel {
 	dbModels := make([]bondsdb.CouponDbModel, len(coupons))
+	
 	for i, coupon := range coupons {
 		dbModel := bondsdb.CouponDbModel{
 			Id:              coupon.Id,
