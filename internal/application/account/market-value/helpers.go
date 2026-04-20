@@ -18,3 +18,14 @@ func ExtractMarketValueCurrencies(mvMap1, mvMap2 map[string]accountmvdomain.Acco
 	currenciesSansDuplicates := stringhelpers.RemoveDuplicatesFrom(currencies)
 	return currenciesSansDuplicates
 }
+
+func MarketValueCurrencyPairs(targetCurrency string, mvs []accountmvdomain.AccountMarketValue) []string {
+	currencies := []string{}
+
+	for _, mv := range mvs {
+		currencies = append(currencies, mv.Currency+"/"+targetCurrency)
+	}
+
+	currenciesSansDuplicates := stringhelpers.RemoveDuplicatesFrom(currencies)
+	return currenciesSansDuplicates
+}

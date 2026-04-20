@@ -20,8 +20,8 @@ type Return struct {
 	AbsoluteReturn           float64
 	AbsoluteReturnPercentage float64   //12% would be set as 0.12
 	AnnualizedReturn         float64   //12% would be set as 0.12
-	StartDate                time.Time `json:"date" sql:"date"`
-	EndDate                  time.Time `json:"date" sql:"date"`
+	StartDate                time.Time `json:"startDate" sql:"date"`
+	EndDate                  time.Time `json:"endDate" sql:"date"`
 }
 
 // Returns the difference between two market values along with the currency

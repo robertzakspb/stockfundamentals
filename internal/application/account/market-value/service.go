@@ -2,12 +2,13 @@ package accountmvservice
 
 import (
 	"errors"
-	"strconv"
 	"time"
 
 	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
+	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
+	timehelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/time-helpers"
 
 	// "github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
 	// "github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
@@ -26,18 +27,72 @@ func GetAccountReturn(filters []ydbfilter.YdbFilter) (accountmvdomain.Return, er
 	if err != nil {
 		return accountmvdomain.Return{}, err
 	}
-	if len(dbMarketValues) != 2 {
-		return accountmvdomain.Return{}, errors.New("Expected two market values but got " + strconv.Itoa(len(dbMarketValues)))
-	}
 
 	marketValues := []accountmvdomain.AccountMarketValue{}
 	for _, dbMarketValue := range dbMarketValues {
 		marketValues = append(marketValues, mapAccountMarketValueDbModelToDomain(dbMarketValue))
 	}
 
-	totalReturn := accountmvdomain.CalculateAccountReturn(marketValues[0].AccountId, marketValues[0], marketValues[1])
+	const currency = "RUB"
+
+	startingDate := marketValues[0].Date
+	startingDateMVs := []accountmvdomain.AccountMarketValue{}
+	endingDateMVs := []accountmvdomain.AccountMarketValue{}
+
+	for _, mv := range marketValues {
+		if timehelpers.AreEqualDates(mv.Date, startingDate) {
+			startingDateMVs = append(startingDateMVs, mv)
+		} else {
+			endingDateMVs = append(endingDateMVs, mv)
+		}
+	}
+
+	startingDateMV, err := ConvertAccountMVsToCurrency(startingDateMVs, currency)
+	if err != nil {
+		return accountmvdomain.Return{}, err
+	}
+	endingDateMV, err := ConvertAccountMVsToCurrency(endingDateMVs, currency)
+	if err != nil {
+		return accountmvdomain.Return{}, err
+	}
+
+	totalReturn := accountmvdomain.CalculateAccountReturn(marketValues[0].AccountId, startingDateMV, endingDateMV)
 
 	return totalReturn, nil
+}
+
+func ConvertAccountMVsToCurrency(MVs []accountmvdomain.AccountMarketValue, currency string) (accountmvdomain.AccountMarketValue, error) {
+	if len(MVs) == 0 {
+		return accountmvdomain.AccountMarketValue{}, errors.New("Zero market values were provided")
+	}
+
+	totalMV := 0.0
+	currencyPairs := MarketValueCurrencyPairs(currency, MVs)
+
+	rates, err := forexservice.GetExchangeRates(currencyPairs, MVs[0].Date)
+	if err != nil {
+		return accountmvdomain.AccountMarketValue{}, err
+	}
+
+	for _, mv := range MVs {
+		if mv.Currency == currency {
+			totalMV += mv.EodValue
+		} else {
+			rate, found := forexservice.FindRate(mv.Currency, currency, rates)
+			if !found {
+				return accountmvdomain.AccountMarketValue{}, errors.New("Failed to find the rate for " + mv.Currency + "/" + currency)
+			}
+			adjustedMV := mv.EodValue * rate.Rate
+			totalMV += adjustedMV
+		}
+	}
+
+	return accountmvdomain.AccountMarketValue{
+		AccountId: MVs[0].AccountId,
+		Date:      MVs[0].Date,
+		EodValue:  totalMV,
+		Currency:  currency,
+	}, nil
 }
 
 func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time) ([]accountmvdomain.AccountMarketValue, error) {
