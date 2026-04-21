@@ -47,8 +47,8 @@ func GenerateTimeLineExcel() error {
 
 	timeline, err := generateTimeLineForLots(lots, false)
 
-	currentRow := 2                                                               //The first row is reserved for headers
-	currentRow = EnterTimelineInformationIntoSpreadsheet(f, timeline, currentRow) //FIXME: Change the method's name
+	currentRow := 2 //The first row is reserved for headers
+	currentRow = EnterTimelineInformationIntoSpreadsheet(f, timeline, currentRow)
 
 	if err := f.SaveAs("Portfolio_Calendar.xlsx"); err != nil {
 		logger.Log(err.Error(), logger.ERROR)
