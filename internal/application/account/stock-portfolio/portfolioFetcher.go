@@ -18,7 +18,8 @@ import (
 	pb "opensource.tbank.ru/invest/invest-go/proto"
 )
 
-func GeMyPortfolio() (portfolio.Portfolio, error) {
+
+func GeStockPortfolio() (portfolio.Portfolio, error) {
 	hardCodedPositions := getHardCodedStockPositions()
 	externalPositions, err := getExternalStockPositions()
 
@@ -77,7 +78,7 @@ func getTinkoffStockPositions() ([]lot.Lot, error) {
 	lots := []lot.Lot{}
 	securities := FetchTinkoffPositionSecurities(allPositions)
 	for _, position := range allPositions {
-		if !(position.GetInstrumentType() == "share" || position.GetInstrumentType() == "etf") {
+		if !(position.GetInstrumentType() == "share" || position.GetInstrumentType() == "etf" || position.GetInstrumentType() == "bond") {
 			continue //Skipping the cash position until it is handled separately
 		}
 

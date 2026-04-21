@@ -27,12 +27,12 @@ func StartDailyJobs(c *gin.Context) {
 	wg.Go(func() { api_security.StartSecurityMasterImportJob(c) })
 	wg.Wait() //Need to import the security master before updating the portfolio
 
-	go portfolio.UpdatePortfolio(c)
-
 	wg.Go(func() { forexapi.StartForexImportJob(c) })
 	wg.Wait() //Need to fetch the latest forex rates before proceeding to update the bonds' ACI
 
 	bondsapi.StartBondAccruedInterestUpdateJob(c)
+
+	portfolio.UpdatePortfolio(c)
 
 	accountreturnapi.StartMarketValueSnapshotJob(c) //FIXME
 

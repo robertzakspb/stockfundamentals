@@ -19,7 +19,7 @@ import (
 )
 
 func UpdatePortfolio() error {
-	portfolio, _ := GeMyPortfolio()
+	portfolio, _ := GeStockPortfolio()
 	return portfoliodb.UpdateLocalPortfolio(mapLotToDbLot(portfolio.Lots))
 }
 

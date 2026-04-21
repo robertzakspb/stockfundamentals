@@ -2,14 +2,15 @@ package portfolio
 
 import (
 	"net/http"
+	"sync"
 
-	"github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
+	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 func GetPortfolio(c *gin.Context) {
-	userPortfolio, err := portfolio.GeMyPortfolio()
+	userPortfolio, err := portfolio.GeStockPortfolio()
 	if err != nil {
 		c.JSON(http.StatusNoContent, "Failed to fetch user positions")
 	} else {
@@ -30,7 +31,10 @@ func GetAccountPortfolio(c *gin.Context) {
 }
 
 func UpdatePortfolio(c *gin.Context) {
-	err := portfolio.UpdatePortfolio()
+	var wg sync.WaitGroup
+	var err error
+	wg.Go(func() { err = portfolio.UpdatePortfolio() })
+
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
