@@ -43,8 +43,13 @@ func GetQuasiForeignBonds() ([]bonds.Bond, error) {
 		Condition:      ydbfilter.Equal,
 		ConditionValue: types.TextValue("RUB"),
 	}
+	riskFilter := ydbfilter.YdbFilter{
+		YqlColumnName:  "risk_level",
+		Condition:      ydbfilter.NotEqual,
+		ConditionValue: types.TextValue("HIGH_RISK_LEVEL"),
+	}
 
-	bondList, err := GetFilteredBonds([]ydbfilter.YdbFilter{foreignNominalFilter, rubleCurrencyFilter})
+	bondList, err := GetFilteredBonds([]ydbfilter.YdbFilter{foreignNominalFilter, rubleCurrencyFilter, riskFilter})
 	if err != nil {
 		return bondList, err
 	}
