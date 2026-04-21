@@ -101,6 +101,7 @@ func FetchTinkoffBondLots() ([]bonds.BondLot, error) {
 
 		var tinkoffIisId, _ = uuid.Parse(shared.TINKOFF_IIS_ACCOUNT_ID)
 		newLot := bonds.BondLot{
+			Id:                     uuid.New(),
 			Figi:                   position.GetFigi(),
 			Isin:                   "",
 			OpeningDate:            time.Now(),

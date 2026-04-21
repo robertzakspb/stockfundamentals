@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"sync"
 
+	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -34,6 +35,9 @@ func UpdatePortfolio(c *gin.Context) {
 	var wg sync.WaitGroup
 	var err error
 	wg.Go(func() { err = portfolio.UpdatePortfolio() })
+	wg.Go(func() { err = bondportfolio.ImportTinkoffBondLots() })
+
+	wg.Wait()
 
 
 	if err != nil {
