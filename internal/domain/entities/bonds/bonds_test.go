@@ -188,7 +188,7 @@ func Test_IsRubleBond_Positive(t *testing.T) {
 	bond.NominalCurrency = "RUB"
 
 	test.AssertTrue(t, bond.IsRubleBond())
-	
+
 }
 
 func generateMockValidBond() Bond {
@@ -211,6 +211,21 @@ func generateMockValidBond() Bond {
 		IssueSizePlan:          5_000_000,
 		RiskLevel:              HIGH_RISK_LEVEL,
 		BondType:               BondType_BOND_TYPE_UNSPECIFIED,
+		CallOptionExerciseDate: time.Now(),
+		YieldToMaturity:        14.3,
+		YieldToCallOption:      8.3,
+		Coupons: []Coupon{
+			{
+				Figi:            "testFigi",
+				CouponDate:      time.Now(),
+				RecordDate:      time.Now().AddDate(0, 0, -1),
+				PerBondAmount:   10.3,
+				CouponType:      CouponType_COUPON_TYPE_FIX,
+				CouponStartDate: time.Now().AddDate(0, 0, -5),
+				CouponEndDate:   time.Now(),
+				CouponPeriod:    30,
+			},
+		},
 	}
 
 	return bond
