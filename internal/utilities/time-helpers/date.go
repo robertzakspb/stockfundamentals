@@ -1,6 +1,9 @@
 package timehelpers
 
-import "time"
+import (
+	"strconv"
+	"time"
+)
 
 func AreEqualDates(time1, time2 time.Time) bool {
 	time1Year, time1Month, time1Day := time1.Date()
@@ -53,4 +56,9 @@ func ConvertTimeToMidnightUTC(timestamp time.Time) time.Time {
 	date := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 
 	return date
+}
+
+func TodayInDDMMYYYFormat() string {
+	year, month, day := time.Now().Date()
+	return strconv.Itoa(day) + "." + strconv.Itoa(int(month)) + "." + strconv.Itoa(year)
 }

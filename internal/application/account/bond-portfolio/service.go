@@ -118,16 +118,3 @@ func GetAccountTimeline() ([]TimeLineItem, error) {
 
 	return accountTimeline, nil
 }
-
-// This function assumes that the lots' bonds have already been populated with coupons
-// func CalculateAciForLots(lots []bonds.BondLot) ([]bonds.BondLot, error) {
-// 	for i, lot := range lots {
-// 		aci, err := CalcAccruedInterestForLot(lot)
-// 		if err != nil {
-// 			logger.Log(err.Error(), logger.ERROR)
-// 		}
-// 		lots[i].AccruedInterest = aci
-// 	}
-
-// 	return lots, nil
-// }

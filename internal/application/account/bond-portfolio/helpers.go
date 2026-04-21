@@ -33,6 +33,22 @@ func GetLotBonds(lots []bonds.BondLot) []bonds.Bond {
 	return bondList
 }
 
+func GetLotCoupons(lots []bonds.BondLot) []bonds.Coupon {
+	couponList := []bonds.Coupon{}
+
+	for _, lot := range lots {
+		if lot.Bond.Figi == "" && lot.Bond.Isin == "" && lot.Bond.NominalValue == 0 {
+			continue
+		}
+		for _, coupon := range lot.Bond.Coupons {
+			couponList = append(couponList, coupon)
+		}
+
+	}
+
+	return couponList
+}
+
 func GroupByNominalCurrency(lots []bonds.BondLot) map[string][]bonds.BondLot {
 	groupedLots := map[string][]bonds.BondLot{}
 
