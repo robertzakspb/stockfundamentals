@@ -10,7 +10,6 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/application/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
@@ -23,13 +22,7 @@ func ImportTinkoffBondLots() error {
 		return err
 	}
 
-	mappedDbBondLots := make([]bondsdb.BondPositionLotDb, len(bondLots))
-	for i := range bondLots {
-		mappedDbBondLot := mapBondLotToDbModel(bondLots[i])
-		mappedDbBondLots[i] = mappedDbBondLot
-	}
-
-	err = bondsdb.SaveBondPositionLots(mappedDbBondLots)
+	err = SaveBondPositionLots(bondLots)
 	if err != nil {
 		return err
 	}
