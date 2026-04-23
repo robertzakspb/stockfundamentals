@@ -31,15 +31,19 @@ func validateLot(lot bonds.BondLot) (bonds.BondLot, error) {
 func addMissingInformationToLot(lot bonds.BondLot) (bonds.BondLot, error) {
 	if lot.Figi == "" {
 		bond, err := bondservice.GetBondByIsin(lot.Isin)
-		lot.Bond = bond
-		lot.Figi = bond.Figi
-
 		if err != nil {
 			return lot, err
 		}
+		lot.Bond = bond
+		lot.Figi = bond.Figi
 	}
 
 	if lot.Isin == "" {
+		bond, err := bondservice.GetBondByFigi(lot.Figi)
+		if err != nil {
+			return lot, err
+		}
+		lot.Bond = bond
 		lot.Isin = lot.Bond.Isin
 	}
 
