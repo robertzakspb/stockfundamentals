@@ -9,36 +9,22 @@ import (
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	accountmvservice "github.com/compoundinvest/stockfundamentals/internal/application/account/market-value"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
+	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/compoundinterest"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	stringhelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/string-helpers"
 	timehelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/time-helpers"
+	"github.com/google/uuid"
 )
 
 func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 	var sb strings.Builder
 
-	sb.WriteString("Портфель по состоянию на ")
-	sb.WriteString(timehelpers.TodayInDDMMYYYFormat())
-	sb.WriteString("\n")
-	sb.WriteString("\n")
-
-	acountReturn, err := accountmvservice.GetAccountReturn(filters)
-	if err != nil {
-		return "", err
-	}
-	sb.WriteString("Текущая прибыль: ")
-	if acountReturn.AbsoluteReturn >= 0 {
-		sb.WriteString("+")
-	} else {
-		sb.WriteString("-")
-	}
-	sb.WriteString(fmt.Sprint(acountReturn.AbsoluteReturn))
-	sb.WriteString("\n")
-
 	//Adding the currency-based asset market values
 	sb.WriteString("Стоимость активов: ")
 	sb.WriteString("\n")
 
-	mvs, err := accountmvservice.CalculateAccountMarketValue(acountReturn.AccountId, time.Now())
+	mvs, err := accountmvservice.CalculateAccountMarketValue(uuid.MustParse("129274f9-ee80-4e74-aa1c-fea578bac6e6"), time.Now())
 	if err != nil {
 		return sb.String(), err
 	}
@@ -48,6 +34,13 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 		sb.WriteString(forexservice.GetCurrencySymbol(mv.Currency))
 		fmt.Fprint(&sb, mv.EodValue)
 		sb.WriteString("\n")
+
+		//Adding the current profit in the required currencies
+		accountReturn, err := accountmvservice.GetAccountReturn(filters, mv.Currency)
+		if err != nil {
+			return "", err
+		}
+		generateAccountReturnOverview(&sb, accountReturn)
 	}
 
 	//Adding the coupons payable withing the next seven days
@@ -80,6 +73,34 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 			}
 		}
 	}
-
 	return sb.String(), nil
+}
+
+func generateAccountReturnOverview(sb *strings.Builder, accountReturn accountmvdomain.Return) *strings.Builder {
+
+	sb.WriteString("Текущая прибыль на ")
+	sb.WriteString(timehelpers.TodayInDDMMYYYFormat())
+	sb.WriteString(": ")
+	sb.WriteString("\n")
+
+	sb.WriteString("  - В ")
+	sb.WriteString(forexservice.GetCurrencySymbol(accountReturn.Currency))
+	sb.WriteString(": ")
+
+	absoluteReturn, _ := stringhelpers.BeautifyNumber(accountReturn.AbsoluteReturn)
+	sb.WriteString(absoluteReturn)
+
+	sb.WriteString("( ")
+	absoluteReturnPercentage, _ := stringhelpers.BeautifyNumber(accountReturn.AbsoluteReturn)
+	sb.WriteString(absoluteReturnPercentage)
+
+	sb.WriteString("; или ")
+	annualized := compoundinterest.CalcAnnualizedReturn(accountReturn.AbsoluteReturn, accountReturn.StartDate, accountReturn.EndDate)
+	annualizedFormatted, _ := stringhelpers.BeatufityPercentage(annualized)
+	sb.WriteString(annualizedFormatted)
+	sb.WriteString(" годовых)")
+
+	sb.WriteString("\n")
+
+	return sb
 }

@@ -22,7 +22,7 @@ import (
 	"opensource.tbank.ru/invest/invest-go/investgo"
 )
 
-func GetAccountReturn(filters []ydbfilter.YdbFilter) (accountmvdomain.Return, error) {
+func GetAccountReturn(filters []ydbfilter.YdbFilter, currency string) (accountmvdomain.Return, error) {
 	dbMarketValues, err := accountmvdb.GetAccountMarketValues(filters)
 	if err != nil {
 		return accountmvdomain.Return{}, err
@@ -32,8 +32,6 @@ func GetAccountReturn(filters []ydbfilter.YdbFilter) (accountmvdomain.Return, er
 	for _, dbMarketValue := range dbMarketValues {
 		marketValues = append(marketValues, mapAccountMarketValueDbModelToDomain(dbMarketValue))
 	}
-
-	const currency = "RUB"
 
 	startingDate := marketValues[0].Date
 	startingDateMVs := []accountmvdomain.AccountMarketValue{}

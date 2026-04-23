@@ -3,6 +3,7 @@ package accountreturnapi
 import (
 	"net/http"
 
+	bondportfolioanalysis "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio-analysis"
 	accountmvservice "github.com/compoundinvest/stockfundamentals/internal/application/account/market-value"
 	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -11,7 +12,7 @@ import (
 
 func GetAccountReturn(c *gin.Context) {
 	parsedFilters := ydbfilter.MapQueryFiltersToYdb(c.Request.URL.Query(), accountmvdomain.Return{})
-	accountReturn, err := accountmvservice.GetAccountReturn(parsedFilters)
+	accountReturn, err := accountmvservice.GetAccountReturn(parsedFilters, "RUB")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
@@ -23,12 +24,14 @@ func GetAccountReturn(c *gin.Context) {
 }
 
 func GetPortfolioOverview(c *gin.Context) {
-	// parsedFilters := ydbfilter.MapQueryFiltersToYdb(c.Request.URL.Query(), accountmvdomain.Return{})
-	// accountReturn, err := accountmvservice.GetAccountReturn(parsedFilters)
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, err.Error())
-	// 	return
-	// }
+	parsedFilters := ydbfilter.MapQueryFiltersToYdb(c.Request.URL.Query(), accountmvdomain.Return{})
+	portfolioOverview, err := bondportfolioanalysis.GeneratePortfolioOverview(parsedFilters)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, portfolioOverview)
 }
 
 func StartMarketValueSnapshotJob(c *gin.Context) {
