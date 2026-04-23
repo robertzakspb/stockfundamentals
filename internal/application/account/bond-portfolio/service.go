@@ -11,6 +11,18 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
+// TODO: Optimize to remove the loop
+func SaveBondPositionLots(lots []bonds.BondLot) error {
+	for _, lot := range lots {
+		err := SaveBondPositionLot(lot)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func SaveBondPositionLot(lot bonds.BondLot) error {
 	lot, err := validateLot(lot)
 	if err != nil {
