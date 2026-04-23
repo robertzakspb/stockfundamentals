@@ -49,7 +49,12 @@ func InitialSeed(c *gin.Context) {
 func createTables(ctx context.Context, db *ydb.Driver) error {
 	client := db.Table()
 
-	err := createAccountMarketValueTable(ctx, db, client)
+	err := createBondLotTable(ctx, db, client)
+	if err != nil {
+		return err
+	}
+
+	err = createAccountMarketValueTable(ctx, db, client)
 	if err != nil {
 		return err
 	}
@@ -65,11 +70,6 @@ func createTables(ctx context.Context, db *ydb.Driver) error {
 	}
 
 	err = createCouponTable(ctx, db, client)
-	if err != nil {
-		return err
-	}
-
-	err = createBondPositionTable(ctx, db, client)
 	if err != nil {
 		return err
 	}
@@ -235,7 +235,7 @@ func createMarketDataTables(ctx context.Context, db *ydb.Driver, c table.Client)
 		})
 }
 
-func createBondPositionTable(ctx context.Context, dbConnection *ydb.Driver, c table.Client) error {
+func createBondLotTable(ctx context.Context, dbConnection *ydb.Driver, c table.Client) error {
 	prefix := path.Join(dbConnection.Name(), db.BOND_DIRECTORY_PREFIX)
 	return c.Do(ctx,
 		func(ctx context.Context, s table.Session) error {
@@ -249,7 +249,7 @@ func createBondPositionTable(ctx context.Context, dbConnection *ydb.Driver, c ta
 				options.WithColumn("quantity", types.TypeDouble),
 				options.WithColumn("price_per_unit_percentage", types.TypeDouble),
 				options.WithColumn("accumulated_coupon_income", types.TypeDouble),
-				options.WithPrimaryKeyColumn("id"),
+				options.WithPrimaryKeyColumn("figi", "account_id"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)
