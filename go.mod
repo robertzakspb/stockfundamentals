@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/xuri/excelize/v2 v2.10.1
-	github.com/ydb-platform/ydb-go-sdk/v3 v3.134.2
+	github.com/ydb-platform/ydb-go-sdk/v3 v3.135.0
 	golang.org/x/net v0.53.0
 	opensource.tbank.ru/invest/invest-go v1.48.0
 )
