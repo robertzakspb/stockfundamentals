@@ -23,7 +23,15 @@ func MarketValueCurrencyPairs(targetCurrency string, mvs []accountmvdomain.Accou
 	currencies := []string{}
 
 	for _, mv := range mvs {
-		currencies = append(currencies, mv.Currency+"/"+targetCurrency)
+		if mv.Currency == targetCurrency {
+			continue
+		}
+		cur1, cur2 := mv.Currency, targetCurrency
+		if cur2 == "USD" {
+			cur2 = cur1
+			cur1 = "USD"
+		}
+		currencies = append(currencies, cur1+"/"+cur2)
 	}
 
 	currenciesSansDuplicates := stringhelpers.RemoveDuplicatesFrom(currencies)

@@ -22,6 +22,8 @@ type Return struct {
 	AnnualizedReturn         float64   //12% would be set as 0.12
 	StartDate                time.Time `json:"startDate" sql:"date"`
 	EndDate                  time.Time `json:"endDate" sql:"date"`
+	StartDateMV              float64
+	EndDateMV                float64
 }
 
 // Returns the difference between two market values along with the currency
@@ -43,5 +45,7 @@ func CalculateAccountReturn(accountId uuid.UUID, startDateMV, endDateMV AccountM
 		AnnualizedReturn:         annualizedReturn,
 		StartDate:                startDateMV.Date,
 		EndDate:                  endDateMV.Date,
+		StartDateMV:              startDateMV.EodValue,
+		EndDateMV:                endDateMV.EodValue,
 	}
 }

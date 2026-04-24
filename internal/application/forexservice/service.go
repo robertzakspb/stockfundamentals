@@ -145,15 +145,7 @@ func GetExchangeRate(cur1, cur2 string, date time.Time) (ForexRate, error) {
 	return mapDbModelsToDomain(rates)[0], nil
 }
 
-func FindRate(cur1, cur2 string, rates []ForexRate) (ForexRate, bool) {
-	for _, rate := range rates {
-		if string(rate.Currency1) == strings.ToUpper(cur1) && string(rate.Currency2) == strings.ToUpper(cur2) {
-			return rate, true
-		}
-	}
 
-	return ForexRate{}, false
-}
 
 // func GetExchangeRatesObsolete(currencyPairs []string, date time.Time) ([]ForexRate, error) {
 // 	rates := []ForexRate{}

@@ -78,7 +78,13 @@ func ConvertAccountMVsToCurrency(MVs []accountmvdomain.AccountMarketValue, curre
 		} else {
 			rate, found := forexservice.FindRate(mv.Currency, currency, rates)
 			if !found {
-				return accountmvdomain.AccountMarketValue{}, errors.New("Failed to find the rate for " + mv.Currency + "/" + currency)
+				rate, found = forexservice.FindRate(currency, mv.Currency, rates)
+				if !found {
+					return accountmvdomain.AccountMarketValue{}, errors.New("Failed to find the rate for " + mv.Currency + "/" + currency)
+				}
+				if rate.Rate != 0 {
+					rate.Rate = 1 / rate.Rate
+				}
 			}
 			adjustedMV := mv.EodValue * rate.Rate
 			totalMV += adjustedMV

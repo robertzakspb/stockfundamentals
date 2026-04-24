@@ -22,9 +22,20 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 
 	//Adding the currency-based asset market values
 	sb.WriteString("Стоимость активов: ")
+
+	accountReturn, err := accountmvservice.GetAccountReturn(filters, "RUB")
+	if err != nil {
+		return sb.String(), err
+	}
+	mv, _ := stringhelpers.BeautifyNumber(accountReturn.EndDateMV)
+	sb.WriteString(mv)
+
 	sb.WriteString("\n")
 
-	mvs, err := accountmvservice.CalculateAccountMarketValue(uuid.MustParse("129274f9-ee80-4e74-aa1c-fea578bac6e6"), time.Now())
+	sb.WriteString("Разбиение по активам: ")
+	sb.WriteString("\n")
+	hardcodedAccountId := uuid.MustParse("129274f9-ee80-4e74-aa1c-fea578bac6e6")
+	mvs, err := accountmvservice.CalculateAccountMarketValue(hardcodedAccountId, time.Now())
 	if err != nil {
 		return sb.String(), err
 	}
@@ -32,9 +43,12 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 	for _, mv := range mvs {
 		sb.WriteString("  - ")
 		sb.WriteString(forexservice.GetCurrencySymbol(mv.Currency))
-		fmt.Fprint(&sb, mv.EodValue)
+		beautifiedEOD, _ := stringhelpers.BeautifyNumber(mv.EodValue)
+		fmt.Fprint(&sb, beautifiedEOD)
 		sb.WriteString("\n")
+	}
 
+	for _, mv := range mvs {
 		//Adding the current profit in the required currencies
 		accountReturn, err := accountmvservice.GetAccountReturn(filters, mv.Currency)
 		if err != nil {
@@ -43,36 +57,11 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 		generateAccountReturnOverview(&sb, accountReturn)
 	}
 
-	//Adding the coupons payable withing the next seven days
-	sb.WriteString("Выплачивамые на следующей неделе купоны: ")
-	portfolio, err := bondportfolio.GetAllPositionLots()
+	err = addNextWeekCoupons(&sb)
 	if err != nil {
 		return sb.String(), err
 	}
-	portfolio, err = bondportfolio.PopulateLotsWithBonds(portfolio)
-	if err != nil {
-		return sb.String(), err
-	}
-	portfolio = bondportfolio.PopulateLotsWithCoupons(portfolio)
 
-	for i := range portfolio {
-		oneWeekFromNow := time.Now().AddDate(0, 0, 7)
-		for _, coupon := range portfolio[i].Bond.Coupons {
-			//Looking up coupons payable within the next seven days
-			if timehelpers.DateIsLaterOrSameDate(coupon.CouponDate, time.Now()) && timehelpers.DateIsEarlierOrSameDate(coupon.CouponDate, oneWeekFromNow) {
-				sb.WriteString("  - ")
-				sb.WriteString(portfolio[i].Bond.Name)
-				sb.WriteString(": ")
-				sb.WriteString(forexservice.GetCurrencySymbol(portfolio[i].Bond.NominalCurrency))
-				fmt.Fprint(&sb, coupon.PerBondAmount)
-				sb.WriteString(" на ")
-				sb.WriteString(strconv.Itoa(int(portfolio[i].Quantity)))
-				sb.WriteString(" шт. = ")
-				sb.WriteString(forexservice.GetCurrencySymbol(portfolio[i].Bond.NominalCurrency))
-				fmt.Fprint(&sb, coupon.PerBondAmount*portfolio[i].Quantity)
-			}
-		}
-	}
 	return sb.String(), nil
 }
 
@@ -91,11 +80,15 @@ func generateAccountReturnOverview(sb *strings.Builder, accountReturn accountmvd
 	sb.WriteString(absoluteReturn)
 
 	sb.WriteString("( ")
-	absoluteReturnPercentage, _ := stringhelpers.BeautifyNumber(accountReturn.AbsoluteReturn)
+	absoluteReturnPercentage, _ := stringhelpers.BeatufityPercentage(accountReturn.AbsoluteReturnPercentage)
 	sb.WriteString(absoluteReturnPercentage)
+	if accountReturn.AbsoluteReturn <= 0 {
+		sb.WriteString(")")
+		return sb
+	}
 
 	sb.WriteString("; или ")
-	annualized := compoundinterest.CalcAnnualizedReturn(accountReturn.AbsoluteReturn, accountReturn.StartDate, accountReturn.EndDate)
+	annualized := compoundinterest.CalcAnnualizedReturn(accountReturn.AbsoluteReturnPercentage, accountReturn.StartDate, accountReturn.EndDate)
 	annualizedFormatted, _ := stringhelpers.BeatufityPercentage(annualized)
 	sb.WriteString(annualizedFormatted)
 	sb.WriteString(" годовых)")
@@ -103,4 +96,39 @@ func generateAccountReturnOverview(sb *strings.Builder, accountReturn accountmvd
 	sb.WriteString("\n")
 
 	return sb
+}
+
+func addNextWeekCoupons(sb *strings.Builder) error {
+	//Adding the coupons payable withing the next seven days
+	sb.WriteString("Выплачивамые на следующей неделе купоны: ")
+	portfolio, err := bondportfolio.GetAllPositionLots()
+	if err != nil {
+		return err
+	}
+	portfolio, err = bondportfolio.PopulateLotsWithBonds(portfolio)
+	if err != nil {
+		return err
+	}
+	portfolio = bondportfolio.PopulateLotsWithCoupons(portfolio)
+
+	for i := range portfolio {
+		oneWeekFromNow := time.Now().AddDate(0, 0, 7)
+		for _, coupon := range portfolio[i].Bond.Coupons {
+			//Looking up coupons payable within the next seven days
+			if timehelpers.DateIsLaterOrSameDate(coupon.CouponDate, time.Now()) && timehelpers.DateIsEarlierOrSameDate(coupon.CouponDate, oneWeekFromNow) {
+				sb.WriteString("  - ")
+				sb.WriteString(portfolio[i].Bond.Name)
+				sb.WriteString(": ")
+				sb.WriteString(forexservice.GetCurrencySymbol(portfolio[i].Bond.NominalCurrency))
+				fmt.Fprint(sb, coupon.PerBondAmount)
+				sb.WriteString(" на ")
+				sb.WriteString(strconv.Itoa(int(portfolio[i].Quantity)))
+				sb.WriteString(" шт. = ")
+				sb.WriteString(forexservice.GetCurrencySymbol(portfolio[i].Bond.NominalCurrency))
+				fmt.Fprint(sb, coupon.PerBondAmount*portfolio[i].Quantity)
+			}
+		}
+	}
+
+	return nil
 }
