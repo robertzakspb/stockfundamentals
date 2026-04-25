@@ -25,7 +25,7 @@ func GetRussianGovernmentBondsWithFixedOrConstantCoupon(c *gin.Context) {
 		return
 	}
 
-	dtos := mapBondsToDTOs(bonds)
+	dtos := mapBondsToDTOs(bonds, false)
 
 	c.JSON(http.StatusOK, dtos)
 }
@@ -37,7 +37,7 @@ func GetQuasiForeignBonds(c *gin.Context) {
 		return
 	}
 
-	dtos := mapBondsToDTOs(bonds)
+	dtos := mapBondsToDTOs(bonds, false)
 
 	c.JSON(http.StatusOK, dtos)
 }
