@@ -82,5 +82,10 @@ func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []tquoteservi
 			}
 		}
 	}
+
+	sort.Slice(bondList, func(i, j int) bool {
+		return bondList[i].YieldToMaturity > bondList[j].YieldToMaturity
+	})
+
 	return bondList
 }
