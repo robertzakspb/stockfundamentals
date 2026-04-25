@@ -2,7 +2,7 @@ package bondsapi
 
 import "github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 
-func mapBondsToDTOs(bondList []bonds.Bond) []BondDTO {
+func mapBondsToDTOs(bondList []bonds.Bond, includeCoupons bool) []BondDTO {
 	bondDtos := make([]BondDTO, len(bondList))
 
 	for i := range bondList {
@@ -38,7 +38,11 @@ func mapBondsToDTOs(bondList []bonds.Bond) []BondDTO {
 			CallOptionExerciseDate:  bondList[i].CallOptionExerciseDate,
 			YieldToMaturity:         bondList[i].YieldToMaturity,
 			YieldToCallOption:       bondList[i].YieldToCallOption,
-			Coupons:                 mapCouponsToCouponDTOs(bondList[i].Coupons),
+		}
+		if includeCoupons {
+			bondDto.Coupons = mapCouponsToCouponDTOs(bondList[i].Coupons)
+		} else {
+			bondDto.Coupons = []CouponDTO{}
 		}
 		bondDtos[i] = bondDto
 	}
