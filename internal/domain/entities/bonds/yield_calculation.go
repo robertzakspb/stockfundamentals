@@ -34,6 +34,10 @@ func calculateYield(b Bond, coupons []Coupon, marketPricePercentage float64, acq
 	if !(coupons[0].CouponType == CouponType_COUPON_TYPE_FIX || coupons[0].CouponType == CouponType_COUPON_TYPE_CONSTANT) {
 		return -1, errors.New("Unable to calculate the YTM for non-fixed and non-constant coupons")
 	}
+	if marketPricePercentage == 0 {
+		yield := -1
+		return float64(yield), errors.New("Unable to calculate the yield due to a missing market price")
+	}
 
 	holdingPeriod := redemptionDate.Sub(acquisitionDate).Hours() / 24
 
