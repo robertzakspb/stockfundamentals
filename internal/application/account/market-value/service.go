@@ -104,6 +104,7 @@ func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time) ([]account
 	if err != nil {
 		return []accountmvdomain.AccountMarketValue{}, err
 	}
+	
 	bondMVs, err := AccountBondMarketValueGroupedByCurrency(accountId, date)
 	if err != nil {
 		return []accountmvdomain.AccountMarketValue{}, err
