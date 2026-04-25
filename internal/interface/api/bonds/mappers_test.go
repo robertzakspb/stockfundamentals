@@ -49,7 +49,7 @@ func Test_mapBondsToDTOs(t *testing.T) {
 		},
 	}
 
-	mappedDtos := mapBondsToDTOs(bonds)
+	mappedDtos := mapBondsToDTOs(bonds, true)
 
 	test.AssertEqual(t, 1, len(mappedDtos))
 
