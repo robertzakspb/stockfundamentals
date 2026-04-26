@@ -35,7 +35,7 @@ func GetRussianGovernmentBondsWithFixedOrConstantCoupon() ([]bonds.Bond, error) 
 func GetQuasiForeignBonds() ([]bonds.Bond, error) {
 	foreignNominalFilter := ydbfilter.YdbFilter{
 		YqlColumnName:  "nominal_currency",
-		Condition:      ydbfilter.NotEqual,
+		Condition:      ydbfilter.Equal,
 		ConditionValue: types.TextValue("USD"),
 	}
 	rubleCurrencyFilter := ydbfilter.YdbFilter{
@@ -48,8 +48,13 @@ func GetQuasiForeignBonds() ([]bonds.Bond, error) {
 		Condition:      ydbfilter.NotEqual,
 		ConditionValue: types.TextValue("HIGH_RISK_LEVEL"),
 	}
+	countryFilter := ydbfilter.YdbFilter{
+		YqlColumnName:  "country_of_risk",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: types.TextValue("RU"),
+	}
 
-	bondList, err := GetFilteredBonds([]ydbfilter.YdbFilter{foreignNominalFilter, rubleCurrencyFilter, riskFilter})
+	bondList, err := GetFilteredBonds([]ydbfilter.YdbFilter{foreignNominalFilter, rubleCurrencyFilter, riskFilter, countryFilter})
 	if err != nil {
 		return bondList, err
 	}
