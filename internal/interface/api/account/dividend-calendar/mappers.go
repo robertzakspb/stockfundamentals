@@ -30,22 +30,10 @@ type PayoutDto struct {
 
 func mapDivCalToDto(divcal DividendCalendar) DividendCalendarDto {
 	payoutDtos := make([]PayoutDto, len(divcal.FuturePayouts))
-
 	for i, payout := range divcal.FuturePayouts {
-		dto := PayoutDto{
-			Id:               payout.Id,
-			DividendId:       payout.DividendId,
-			AccountId:        payout.AccountId,
-			Amount:           payout.Amount,
-			Figi:             payout.Dividend.Figi,
-			ActualDPS:        payout.Dividend.ActualDPS,
-			AnnouncementDate: payout.Dividend.AnnouncementDate,
-			RecordDate:       payout.Dividend.RecordDate,
-			PayoutDate:       payout.Dividend.PayoutDate,
-		}
+		dto := mapPayoutToDto(Payout(payout))
 		payoutDtos[i] = dto
 	}
-
 	divCalDto := DividendCalendarDto{
 		AccountIds:    divcal.AccountIds,
 		FuturePayouts: payoutDtos,
@@ -55,5 +43,17 @@ func mapDivCalToDto(divcal DividendCalendar) DividendCalendarDto {
 }
 
 func mapPayoutToDto(payout Payout) PayoutDto {
+	dto := PayoutDto{
+		Id:               payout.Id,
+		DividendId:       payout.DividendId,
+		AccountId:        payout.AccountId,
+		Amount:           payout.Amount,
+		Figi:             payout.Dividend.Figi,
+		ActualDPS:        payout.Dividend.ActualDPS,
+		AnnouncementDate: payout.Dividend.AnnouncementDate,
+		RecordDate:       payout.Dividend.RecordDate,
+		PayoutDate:       payout.Dividend.PayoutDate,
+	}
 
+	return dto
 }

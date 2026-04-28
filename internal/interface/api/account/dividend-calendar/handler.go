@@ -30,5 +30,7 @@ func GetAccountDividendCalendar(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, divCalendar)
+	dto := mapDivCalToDto(DividendCalendar(divCalendar))
+
+	c.JSON(http.StatusOK, dto)
 }
