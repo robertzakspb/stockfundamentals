@@ -6,6 +6,6 @@ import (
 )
 
 type DividendCalendar struct {
-	AccountIds    uuid.UUIDs        `json:"accountIds"`
-	FuturePayouts []dividend.Payout `json:"futurePayouts"`
+	AccountIds    uuid.UUIDs
+	FuturePayouts []dividend.Payout
 }
