@@ -46,7 +46,7 @@ func GetAccountDividendCalendar(accountIds uuid.UUIDs) (divcal.DividendCalendar,
 	divCal := divcal.DividendCalendar{AccountIds: accountIds}
 
 	for _, relevantDiv := range relevantDivs {
-		for _, lot := range portfolio.Lots {
+		for _, lot := range portfolio.UniquePositions() {
 			if relevantDiv.Figi == lot.Figi {
 				divCal.FuturePayouts = append(divCal.FuturePayouts, dividend.Payout{
 					Id:         uuid.New(),
