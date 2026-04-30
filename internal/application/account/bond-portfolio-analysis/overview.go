@@ -2,6 +2,7 @@ package bondportfolioanalysis
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -10,8 +11,10 @@ import (
 	accountmvservice "github.com/compoundinvest/stockfundamentals/internal/application/account/market-value"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/compoundinterest"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	stringhelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/string-helpers"
 	timehelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/time-helpers"
 	"github.com/google/uuid"
@@ -62,6 +65,8 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 		return sb.String(), err
 	}
 
+	writeAnalysisToFile(&sb)
+
 	return sb.String(), nil
 }
 
@@ -100,7 +105,8 @@ func generateAccountReturnOverview(sb *strings.Builder, accountReturn accountmvd
 
 func addNextWeekCoupons(sb *strings.Builder) error {
 	//Adding the coupons payable withing the next seven days
-	sb.WriteString("Выплачивамые на следующей неделе купоны: ")
+	const header = "Выплачивамые на следующей неделе купоны: "
+	sb.WriteString(header)
 	portfolio, err := bondportfolio.GetAllPositionLots()
 	if err != nil {
 		return err
@@ -111,6 +117,7 @@ func addNextWeekCoupons(sb *strings.Builder) error {
 	}
 	portfolio = bondportfolio.PopulateLotsWithCoupons(portfolio)
 
+	
 	for i := range portfolio {
 		oneWeekFromNow := time.Now().AddDate(0, 0, 7)
 		for _, coupon := range portfolio[i].Bond.Coupons {
@@ -129,6 +136,20 @@ func addNextWeekCoupons(sb *strings.Builder) error {
 			}
 		}
 	}
+
+	return nil
+}
+
+func writeAnalysisToFile(sb *strings.Builder) error {
+	fileName := "portfoli-analysis.txt"
+	file, err := os.Create(fileName)
+	if err != nil {
+		logger.Log(err.Error(), logger.ALERT)
+		return err
+	}
+	defer file.Close()
+
+	file.WriteString(sb.String())
 
 	return nil
 }
