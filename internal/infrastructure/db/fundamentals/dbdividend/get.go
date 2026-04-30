@@ -8,7 +8,6 @@ import (
 
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
@@ -16,14 +15,14 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
 )
 
-func GetFilteredDividends(filters []ydbfilter.YdbFilter) ([]dividend.Dividend, error) {
+func GetFilteredDividends(filters []ydbfilter.YdbFilter) ([]DividendDbModel, error) {
 	db, err := utilities.MakeYdbDriver()
 	if err != nil {
-		return []dividend.Dividend{}, err
+		return []DividendDbModel{}, err
 	}
 	defer db.Close(context.TODO())
 
-	userDividendsDbModels := []dividendDbModel{}
+	userDividendsDbModels := []DividendDbModel{}
 
 	err = db.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
@@ -50,7 +49,7 @@ func GetFilteredDividends(filters []ydbfilter.YdbFilter) ([]dividend.Dividend, e
 					return err
 				}
 
-				for row, err := range sugar.UnmarshalRows[dividendDbModel](resultSet.Rows(ctx)) {
+				for row, err := range sugar.UnmarshalRows[DividendDbModel](resultSet.Rows(ctx)) {
 					if err != nil {
 						return err
 					}
@@ -63,30 +62,22 @@ func GetFilteredDividends(filters []ydbfilter.YdbFilter) ([]dividend.Dividend, e
 		},
 	)
 	if err != nil {
-		return []dividend.Dividend{}, err
+		return []DividendDbModel{}, err
 	}
 
-	return mapDbModelToDividend(userDividendsDbModels), nil
+	return userDividendsDbModels, nil
 }
 
-func GetUpcomingDividends() ([]dividend.Dividend, error) {
+func GetUpcomingDividends() ([]DividendDbModel, error) {
 	payoutDateFilter := ydbfilter.YdbFilter{
 		YqlColumnName:  "record_date", //TODO: refactor to pull the value dynamically using reflect
 		Condition:      ydbfilter.GreaterThanOrEqualTo,
 		ConditionValue: ydbhelper.ConvertToYdbDate(time.Now()),
 	}
-	allDividends, err := GetFilteredDividends([]ydbfilter.YdbFilter{payoutDateFilter})
+	upcomingDivs, err := GetFilteredDividends([]ydbfilter.YdbFilter{payoutDateFilter})
 	if err != nil {
-		return []dividend.Dividend{}, err
+		return []DividendDbModel{}, err
 	}
-
-	upcomingDivs := []dividend.Dividend{}
-	for _, div := range allDividends {
-		if div.PayoutDate.After(time.Now()) {
-			upcomingDivs = append(upcomingDivs, div)
-		}
-	}
-
 	return upcomingDivs, nil
 }
 

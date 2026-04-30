@@ -95,3 +95,24 @@ func mapTinkoffDividendToDividend(tinkoffDiv *investapi.Dividend, figi string) (
 
 	return dividend, nil
 }
+
+func mapDbModelToDividend(dbModelds []dbdividend.DividendDbModel) []dividend.Dividend {
+	dividends := make([]dividend.Dividend, len(dbModelds))
+	for i, dbModel := range dbModelds {
+		newDiv := dividend.Dividend{
+			Id:                dbModel.Id,
+			Figi:              dbModel.Figi,
+			ExpectedDPS:       float64(dbModel.ExpectedDpsTimesMillion) / 1_000_000,
+			ActualDPS:         float64(dbModel.ActualDPSTimesMillion) / 1_000_000,
+			Currency:          dbModel.Currency,
+			AnnouncementDate:  dbModel.AnnouncementDate,
+			RecordDate:        dbModel.RecordDate,
+			PayoutDate:        dbModel.PayoutDate,
+			PaymentPeriod:     dbModel.PaymentPeriod,
+			ManagementComment: dbModel.ManagementComment,
+		}
+		dividends[i] = newDiv
+	}
+
+	return dividends
+}

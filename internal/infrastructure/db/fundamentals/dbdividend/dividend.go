@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type dividendDbModel struct {
+type DividendDbModel struct {
 	Id   uuid.UUID `sql:"id"`
 	Figi string    `sql:"stock_id" json:"figi"`
 	//For DB-related reasons, expected and actual DPS are converted to integers to remove the fractional part. Multiplied by a million for better accuracy. When reading the value, it must consequently be divided by a million
@@ -21,10 +21,10 @@ type dividendDbModel struct {
 	ManagementComment       string    `sql:"management_comment" json:"managementComment"`
 }
 
-func mapDividendToDbModel(dividends []dividend.Dividend) []dividendDbModel {
-	dbModels := make([]dividendDbModel, len(dividends))
+func mapDividendToDbModel(dividends []dividend.Dividend) []DividendDbModel {
+	dbModels := make([]DividendDbModel, len(dividends))
 	for i, dividend := range dividends {
-		dbModel := dividendDbModel{
+		dbModel := DividendDbModel{
 			Id:                      dividend.Id,
 			Figi:                    dividend.Figi,
 			ExpectedDpsTimesMillion: int64(dividend.ExpectedDPS * 1_000_000),
@@ -40,25 +40,4 @@ func mapDividendToDbModel(dividends []dividend.Dividend) []dividendDbModel {
 	}
 
 	return dbModels
-}
-
-func mapDbModelToDividend(dbModelds []dividendDbModel) []dividend.Dividend {
-	dividends := make([]dividend.Dividend, len(dbModelds))
-	for i, dbModel := range dbModelds {
-		newDiv := dividend.Dividend{
-			Id:                dbModel.Id,
-			Figi:              dbModel.Figi,
-			ExpectedDPS:       float64(dbModel.ExpectedDpsTimesMillion) / 1_000_000,
-			ActualDPS:         float64(dbModel.ActualDPSTimesMillion) / 1_000_000,
-			Currency:          dbModel.Currency,
-			AnnouncementDate:  dbModel.AnnouncementDate,
-			RecordDate:        dbModel.RecordDate,
-			PayoutDate:        dbModel.PayoutDate,
-			PaymentPeriod:     dbModel.PaymentPeriod,
-			ManagementComment: dbModel.ManagementComment,
-		}
-		dividends[i] = newDiv
-	}
-
-	return dividends
 }

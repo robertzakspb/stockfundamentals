@@ -7,7 +7,6 @@ import (
 
 	appdividend "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/gin-gonic/gin"
@@ -21,7 +20,7 @@ func StartDividendFetchingJob(c *gin.Context) {
 
 func GetAllDividends(c *gin.Context) {
 	parsedFilters := ydbfilter.MapQueryFiltersToYdb(c.Request.URL.Query(), dividend.Dividend{})
-	dividends, err := appdividend.GetFilteredDividends(parsedFilters) //FIXME: Refactor to use the service
+	dividends, err := appdividend.GetFilteredDividends(parsedFilters)
 	dtos := mapDividendToDTO(dividends)
 
 	if err != nil {
@@ -33,7 +32,7 @@ func GetAllDividends(c *gin.Context) {
 
 // TODO: Deprecate (use GetAllDividends instead)
 func GetUpcomingDividends(c *gin.Context) {
-	upcomingDividends, err := dbdividend.GetUpcomingDividends() //FIXME: Refactor to use the service
+	upcomingDividends, err := appdividend.GetAllUpcomingDividends()
 	dtos := mapDividendToDTO(upcomingDividends)
 
 	if err != nil {

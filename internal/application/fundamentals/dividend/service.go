@@ -7,9 +7,23 @@ import (
 )
 
 func GetFilteredDividends(filters []ydbfilter.YdbFilter) ([]dividend.Dividend, error) {
-	return dbdividend.GetFilteredDividends(filters)
+	dbDivs, err := dbdividend.GetFilteredDividends(filters)
+	if err != nil {
+		return []dividend.Dividend{}, err
+	}
+
+	mappedDivs := mapDbModelToDividend(dbDivs)
+
+	return mappedDivs, nil
 }
 
 func GetAllUpcomingDividends() ([]dividend.Dividend, error) {
-	return dbdividend.GetUpcomingDividends()
+	dbDivs, err := dbdividend.GetUpcomingDividends()
+	if err != nil {
+		return []dividend.Dividend{}, err
+	}
+
+	mappedDivs := mapDbModelToDividend(dbDivs)
+
+	return mappedDivs, nil
 }
