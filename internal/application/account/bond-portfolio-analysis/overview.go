@@ -23,7 +23,8 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 	var sb strings.Builder
 
 	//Adding the currency-based asset market values
-	sb.WriteString("Стоимость активов: ")
+
+	sb.WriteString("Стоимость активов на " + timehelpers.TodayInDDMMYYYFormat() + ": ")
 
 	accountReturn, err := accountmvservice.GetAccountReturn(filters, "RUB")
 	if err != nil {
@@ -50,6 +51,8 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 		sb.WriteString("\n")
 	}
 
+	sb.WriteString("Текущая прибыль")
+	sb.WriteString("\n")
 	for _, mv := range mvs {
 		//Adding the current profit in the required currencies
 		accountReturn, err := accountmvservice.GetAccountReturn(filters, mv.Currency)
@@ -71,11 +74,6 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 
 func generateAccountReturnOverview(sb *strings.Builder, accountReturn accountmvdomain.Return) *strings.Builder {
 
-	sb.WriteString("Текущая прибыль на ")
-	sb.WriteString(timehelpers.TodayInDDMMYYYFormat())
-	sb.WriteString(": ")
-	sb.WriteString("\n")
-
 	sb.WriteString("  - В ")
 	sb.WriteString(forexservice.GetCurrencySymbol(accountReturn.Currency))
 	sb.WriteString(": ")
@@ -95,7 +93,15 @@ func generateAccountReturnOverview(sb *strings.Builder, accountReturn accountmvd
 	annualized := compoundinterest.CalcAnnualizedReturn(accountReturn.AbsoluteReturnPercentage, accountReturn.StartDate, accountReturn.EndDate)
 	annualizedFormatted, _ := stringhelpers.BeatufityPercentage(annualized)
 	sb.WriteString(annualizedFormatted)
-	sb.WriteString(" годовых)")
+	sb.WriteString(" годовых). ")
+
+	sb.WriteString(forexservice.GetCurrencySymbol(accountReturn.Currency))
+	startingDateAccountValue, _ := stringhelpers.BeautifyNumber(accountReturn.StartDateMV)
+	sb.WriteString(startingDateAccountValue)
+
+	sb.WriteString(" –> ")
+	endingDateAccountValue, _ := stringhelpers.BeautifyNumber(accountReturn.EndDateMV)
+	sb.WriteString(endingDateAccountValue)
 
 	sb.WriteString("\n")
 
@@ -116,7 +122,6 @@ func addNextWeekCoupons(sb *strings.Builder) error {
 	}
 	portfolio = bondportfolio.PopulateLotsWithCoupons(portfolio)
 
-	
 	for i := range portfolio {
 		oneWeekFromNow := time.Now().AddDate(0, 0, 7)
 		for _, coupon := range portfolio[i].Bond.Coupons {
