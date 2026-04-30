@@ -11,7 +11,6 @@ import (
 	accountmvservice "github.com/compoundinvest/stockfundamentals/internal/application/account/market-value"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/compoundinterest"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
