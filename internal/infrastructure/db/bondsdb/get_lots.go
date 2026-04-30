@@ -80,7 +80,6 @@ func makeGetBondPositionsQuery(filters []ydbfilter.YdbFilter) string {
 							account_id,
 							quantity,
 							price_per_unit_percentage,
-							accumulated_coupon_income
 						FROM
 							%s
 						%s

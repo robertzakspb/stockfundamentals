@@ -43,6 +43,8 @@ func GetAccountDividendCalendar(accountIds uuid.UUIDs) (divcal.DividendCalendar,
 		return divcal.DividendCalendar{}, err
 	}
 
+	relevantDivs = dividend.MatchDividendsWithStocks(relevantDivs, securities)
+
 	divCal := divcal.DividendCalendar{AccountIds: accountIds}
 
 	for _, relevantDiv := range relevantDivs {

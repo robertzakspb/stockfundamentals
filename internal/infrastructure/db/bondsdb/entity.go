@@ -84,5 +84,5 @@ type BondPositionLotDb struct {
 	AccountId              uuid.UUID `sql:"account_id"`
 	Quantity               float64   `sql:"quantity"`
 	PricePerUnitPercentage float64   `sql:"price_per_unit_percentage"`
-	AccruedInterest        float64   `sql:"accumulated_coupon_income"`
+
 }
