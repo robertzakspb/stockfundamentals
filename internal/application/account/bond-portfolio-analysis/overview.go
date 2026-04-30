@@ -141,7 +141,7 @@ func addNextWeekCoupons(sb *strings.Builder) error {
 }
 
 func writeAnalysisToFile(sb *strings.Builder) error {
-	fileName := "portfoli-analysis.txt"
+	fileName := "portfolio-analysis.txt"
 	file, err := os.Create(fileName)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
