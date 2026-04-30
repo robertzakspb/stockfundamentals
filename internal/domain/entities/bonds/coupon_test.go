@@ -171,14 +171,14 @@ func Test_AccruedInterest_OneDayBeforeNextCouponStartDate(t *testing.T) {
 
 		CouponStartDate: time.Date(2026, 3, 22, 0, 0, 0, 0, time.UTC),
 		CouponEndDate:   time.Date(2026, 4, 21, 0, 0, 0, 0, time.UTC),
-		CouponDate:      time.Date(2026, 4, 21, 0, 0, 0, 0, time.UTC),
+		CouponDate:      time.Now().AddDate(0, 0, 1),
 	})
 	bond.Coupons = append(bond.Coupons, Coupon{
 		CouponPeriod:    30,
 		PerBondAmount:   0.62,
-		CouponStartDate: time.Date(2026, 4, 21, 0, 0, 0, 0, time.UTC),
-		CouponEndDate:   time.Date(2026, 5, 21, 0, 0, 0, 0, time.UTC),
-		CouponDate:      time.Date(2026, 5, 21, 0, 0, 0, 0, time.UTC),
+		CouponStartDate: time.Now().AddDate(0, 0, 1),
+		CouponEndDate:   time.Now().AddDate(0, 0, 30),
+		CouponDate:      time.Now().AddDate(0, 0, 30),
 	})
 
 	ai, err := AccruedInterest(bond, time.Now())
@@ -198,15 +198,15 @@ func Test_AccruedInterest_TodayIsCouponStartDate(t *testing.T) {
 		CouponPeriod:    30,
 		PerBondAmount:   10.89,
 		CouponStartDate: time.Date(2026, 3, 21, 0, 0, 0, 0, time.UTC),
-		CouponEndDate:   time.Date(2026, 4, 20, 0, 0, 0, 0, time.UTC),
-		CouponDate:      time.Date(2026, 4, 20, 0, 0, 0, 0, time.UTC),
+		CouponEndDate:   time.Now(),
+		CouponDate:      time.Now(),
 	})
 	bond.Coupons = append(bond.Coupons, Coupon{
 		CouponPeriod:    30,
 		PerBondAmount:   10.89,
-		CouponStartDate: time.Date(2026, 4, 20, 0, 0, 0, 0, time.UTC),
-		CouponEndDate:   time.Date(2026, 5, 20, 0, 0, 0, 0, time.UTC),
-		CouponDate:      time.Date(2026, 5, 20, 0, 0, 0, 0, time.UTC),
+		CouponStartDate: time.Now(),
+		CouponEndDate:   time.Now().AddDate(0, 0, 30),
+		CouponDate:      time.Now().AddDate(0, 0, 30),
 	})
 
 	ai, err := AccruedInterest(bond, time.Now())
@@ -215,7 +215,7 @@ func Test_AccruedInterest_TodayIsCouponStartDate(t *testing.T) {
 	test.AssertEqual(t, 0.36, ai)
 }
 
-func Test_AccruedInterest_TypicalScenario(t *testing.T) {
+func Test_AccruedInterest_TodayIsMiddleOfCouponPeriod(t *testing.T) {
 	bond := Bond{
 		CouponCountPerYear: 12,
 		NominalValue:       1000,
@@ -225,9 +225,9 @@ func Test_AccruedInterest_TypicalScenario(t *testing.T) {
 	bond.Coupons = append(bond.Coupons, Coupon{
 		CouponPeriod:    30,
 		PerBondAmount:   6.37,
-		CouponStartDate: time.Date(2026, 4, 17, 0, 0, 0, 0, time.UTC),
-		CouponEndDate:   time.Date(2026, 5, 17, 0, 0, 0, 0, time.UTC),
-		CouponDate:      time.Date(2026, 6, 17, 0, 0, 0, 0, time.UTC),
+		CouponStartDate: time.Now().AddDate(0, 0, -3),
+		CouponEndDate:   time.Now().AddDate(0, 0, 26),
+		CouponDate:      time.Now().AddDate(0, 0, 26),
 	})
 
 	ai, err := AccruedInterest(bond, time.Now())
@@ -246,9 +246,9 @@ func Test_AccruedInterest_OneDayBeforeEndDate(t *testing.T) {
 	bond.Coupons = append(bond.Coupons, Coupon{
 		CouponPeriod:    30,
 		PerBondAmount:   13.15,
-		CouponStartDate: time.Date(2026, 3, 23, 0, 0, 0, 0, time.UTC),
-		CouponEndDate:   time.Date(2026, 4, 22, 0, 0, 0, 0, time.UTC),
-		CouponDate:      time.Date(2026, 4, 22, 0, 0, 0, 0, time.UTC),
+		CouponStartDate: time.Now().AddDate(0, 0, -28),
+		CouponEndDate:   time.Now().AddDate(0, 0, 2),
+		CouponDate:      time.Now().AddDate(0, 0, 2),
 	})
 
 	ai, err := AccruedInterest(bond, time.Now())
