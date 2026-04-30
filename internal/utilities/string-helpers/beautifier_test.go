@@ -12,7 +12,7 @@ func Test_BeautifyNumber_LessThanThousand(t *testing.T) {
 	beautified, err := BeautifyNumber(number)
 
 	test.AssertNoError(t, err)
-	test.AssertEqual(t, "+123.3", beautified)
+	test.AssertEqual(t, "+123.31", beautified)
 }
 
 func Test_BeautifyNumber_LessThanThousandNegative(t *testing.T) {
@@ -21,7 +21,7 @@ func Test_BeautifyNumber_LessThanThousandNegative(t *testing.T) {
 	beautified, err := BeautifyNumber(number)
 
 	test.AssertNoError(t, err)
-	test.AssertEqual(t, "-123.3", beautified)
+	test.AssertEqual(t, "-123.31", beautified)
 }
 
 func Test_BeautifyNumber_LessThanMillion(t *testing.T) {
@@ -30,7 +30,7 @@ func Test_BeautifyNumber_LessThanMillion(t *testing.T) {
 	beautified, err := BeautifyNumber(number)
 
 	test.AssertNoError(t, err)
-	test.AssertEqual(t, "+123.2 тыс.", beautified)
+	test.AssertEqual(t, "+123.23 тыс.", beautified)
 }
 
 func Test_BeautifyNumber_LessThanMillionNegative(t *testing.T) {
@@ -47,7 +47,7 @@ func Test_BeautifyNumber_LessThanBillion(t *testing.T) {
 	beautified, err := BeautifyNumber(number)
 
 	test.AssertNoError(t, err)
-	test.AssertEqual(t, "+123.2 млн.", beautified)
+	test.AssertEqual(t, "+123.23 млн.", beautified)
 }
 
 func Test_BeautifyNumber_LessThanBillionNegative(t *testing.T) {

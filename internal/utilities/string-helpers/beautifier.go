@@ -22,16 +22,16 @@ func BeautifyNumber(number any) (string, error) {
 
 	formattedFloat := ""
 	if math.Abs(float) < 1000 {
-		formattedFloat = fmt.Sprintf("%.1f", float)
+		formattedFloat = fmt.Sprintf("%.2f", float)
 	} else if math.Abs(float) >= 1000 && math.Abs(float) < 1_000_000 {
-		formattedFloat = fmt.Sprintf("%.1f", float/1000)
+		formattedFloat = fmt.Sprintf("%.2f", float/1000)
 	} else if math.Abs(float) >= 1_000_000 {
-		formattedFloat = fmt.Sprintf("%.1f", float/1_000_000)
+		formattedFloat = fmt.Sprintf("%.2f", float/1_000_000)
 	}
 
 	//Removing a potential and redundant ".0 " at the end
-	if len(formattedFloat) > 0 && formattedFloat[len(formattedFloat)-2:] == ".0" {
-		formattedFloat = formattedFloat[:len(formattedFloat)-2]
+	if len(formattedFloat) > 0 && formattedFloat[len(formattedFloat)-3:] == ".00" {
+		formattedFloat = formattedFloat[:len(formattedFloat)-3]
 	}
 	sb.WriteString(formattedFloat)
 
