@@ -7,7 +7,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/test"
 )
 
-func Test_matchDividendsWithStocks(t *testing.T) {
+func Test_MatchDividendsWithStocks(t *testing.T) {
 	dividends := []Dividend{
 		{
 			Figi: "figi1",
@@ -20,7 +20,7 @@ func Test_matchDividendsWithStocks(t *testing.T) {
 		},
 	}
 
-	stocks := []security.Stock {
+	stocks := []security.Stock{
 		{
 			Figi: "figi2",
 		},
@@ -32,12 +32,10 @@ func Test_matchDividendsWithStocks(t *testing.T) {
 		},
 	}
 
-	divsWithStocks := matchDividendsWithStocks(dividends, stocks)
+	divsWithStocks := MatchDividendsWithStocks(dividends, stocks)
 
 	test.AssertEqual(t, 3, len(divsWithStocks))
 	test.AssertEqual(t, "figi1", divsWithStocks[0].Security.Figi)
 	test.AssertEqual(t, "figi2", divsWithStocks[1].Security.Figi)
 	test.AssertEqual(t, "figi3", divsWithStocks[2].Security.Figi)
-
-
 }

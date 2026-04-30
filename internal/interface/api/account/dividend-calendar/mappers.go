@@ -22,6 +22,8 @@ type PayoutDto struct {
 	AccountId        uuid.UUID `json:"accountId"`
 	Amount           float64   `json:"amount"`
 	Figi             string    `json:"figi"`
+	Isin             string    `json:"isin"`
+	Ticker           string    `json:"ticker"`
 	ActualDPS        float64   `json:"actualDPS"`
 	AnnouncementDate time.Time `json:"announcementDate"`
 	RecordDate       time.Time `json:"recordDate"`
@@ -49,6 +51,8 @@ func mapPayoutToDto(payout Payout) PayoutDto {
 		AccountId:        payout.AccountId,
 		Amount:           payout.Amount,
 		Figi:             payout.Dividend.Figi,
+		Isin:             payout.Dividend.Security.Isin,
+		Ticker:           payout.Dividend.Security.Ticker,
 		ActualDPS:        payout.Dividend.ActualDPS,
 		AnnouncementDate: payout.Dividend.AnnouncementDate,
 		RecordDate:       payout.Dividend.RecordDate,

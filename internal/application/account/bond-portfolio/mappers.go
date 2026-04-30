@@ -17,7 +17,7 @@ func mapBondLotToDbModel(lot bonds.BondLot) bondsdb.BondPositionLotDb {
 		AccountId:         lot.AccountId,
 		Quantity:          lot.Quantity,
 		PricePerUnitPercentage:      lot.PricePerUnitPercentage,
-		AccruedInterest:   lot.AccruedInterest,
+
 	}
 }
 
@@ -31,6 +31,5 @@ func mapDbBondToDomain(lot bondsdb.BondPositionLotDb) bonds.BondLot {
 		AccountId:         lot.AccountId,
 		Quantity:          lot.Quantity,
 		PricePerUnitPercentage:      lot.PricePerUnitPercentage,
-		AccruedInterest:   lot.AccruedInterest,
 	}
 }
