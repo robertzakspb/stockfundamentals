@@ -8,18 +8,24 @@ import (
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	divcal "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/dividend-calendar"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
+	stockportfolio "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/google/uuid"
 )
 
 func GetAccountDividendCalendar(accountIds uuid.UUIDs) (divcal.DividendCalendar, error) {
-	portfolio, err := portfolio.GetAccountPortfolio(accountIds)
+	accountIdFilter := ydbfilter.YdbFilter{
+		YqlColumnName:  "account_id",
+		Condition:      ydbfilter.Contains,
+		ConditionValue: ydbhelper.ConvertUUIDsToYdbList(accountIds),
+	}
+	portfolio, err := portfolio.GetAccountPortfolio([]ydbfilter.YdbFilter{accountIdFilter})
 	if err != nil {
 		return divcal.DividendCalendar{}, err
 	}
 
-	securityIds := portfolio.Figis()
+	securityIds := stockportfolio.LotFigis(portfolio.Lots)
 	securities, err := security_master.GetSecuritiesFilteredByFigi(securityIds)
 	if err != nil {
 		return divcal.DividendCalendar{}, err

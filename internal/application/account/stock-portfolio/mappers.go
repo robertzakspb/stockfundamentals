@@ -14,8 +14,7 @@ func mapLotDbToLot(lotDb portfoliodb.LotDb) lot.Lot {
 		PricePerUnit: lotDb.PricePerUnit,
 		Currency:     lotDb.Currency,
 		AccountId:    lotDb.AccountId,
-		Figi:   lotDb.Figi,
-		CurrentPL:    0,
+		Figi:         lotDb.Figi,
 	}
 }
 

@@ -20,7 +20,7 @@ func SaveAccountMarketValueSnapshots() error {
 		go func() {
 			accountMVs, err := CalculateAccountMarketValue(account.Id, time.Now())
 			if err != nil {
-				logger.Log(err.Error(), logger.ERROR)
+				logger.Log("Account ID: "+account.Id.String()+". "+err.Error(), logger.ERROR)
 				return
 			}
 			mappedMVs := mapAccountMarketValuesToDbModels(accountMVs)

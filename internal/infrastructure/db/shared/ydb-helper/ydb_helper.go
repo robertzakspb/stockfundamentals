@@ -3,6 +3,7 @@ package ydbhelper
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
@@ -10,11 +11,20 @@ const secondsInADay = 60 * 60 * 24
 
 func ConvertStringsToYdbList(stringVals []string) types.Value {
 	textVals := make([]types.Value, len(stringVals))
-
 	for i := range stringVals {
 		textVals[i] = types.TextValue(stringVals[i])
 	}
+
 	return types.ListValue(textVals...)
+}
+
+func ConvertUUIDsToYdbList(uuids []uuid.UUID) types.Value {
+	uuidValues := []types.Value{}
+	for i := range uuids {
+		uuidValues[i] = types.UuidValue(uuids[i])
+	}
+
+	return types.ListValue(uuidValues...)
 }
 
 func ConverTimestampsToYdbDates(timestamps []time.Time) types.Value {

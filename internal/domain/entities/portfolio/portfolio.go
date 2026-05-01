@@ -2,27 +2,16 @@ package stockportfolio
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
-	"github.com/compoundinvest/invest-core/quote/quotefetcher"
-	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	stringhelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/string-helpers"
 )
 
 type Portfolio struct {
-	Lots []lot.Lot      `json:"lots"`
-	Cash []CashPosition `json:"cashPositions"` //TODO: Populate this
-}
-
-func (portfolio Portfolio) Figis() []string {
-	figis := []string{}
-	for _, lot := range portfolio.UniquePositions() {
-		figis = append(figis, lot.Figi)
-	}
-	return figis
+	Lots []lot.Lot
+	Cash []CashPosition //TODO: Populate this
 }
 
 func (portfolio Portfolio) UniquePositions() []lot.Lot {
@@ -61,91 +50,21 @@ func (portfolio Portfolio) GetEtfLotFigis() []string {
 			etfLotFigis = append(etfLotFigis, lot.Figi)
 		}
 	}
+
+	etfLotFigis = stringhelpers.RemoveDuplicatesFrom(etfLotFigis)
+
 	return etfLotFigis
 }
 
-type LotWithSecurity struct {
-	Lot   lot.Lot        `json:"lot"`
-	Stock security.Stock `json:"stock"`
-}
-
-func (portfolio Portfolio) WithPLs() []LotWithSecurity {
-	positions := portfolio.UniquePositions()
-	lotsWithSecurities := []LotWithSecurity{}
-
-	ids := []string{}
-	for _, p := range positions {
-		ids = append(ids, p.Figi)
-	}
-	securities, err := security_master.GetSecuritiesFilteredByFigi(ids)
-	if err != nil {
-		logger.Log(err.Error(), logger.ERROR)
+func LotFigis(lots []lot.Lot) []string {
+	figis := []string{}
+	for _, lot := range lots {
+		figis = append(figis, lot.Figi)
 	}
 
-	entitySecurities := []entity.Security{}
-	for _, s := range securities {
-		if s.GetId() == "" {
-			continue
-		}
-		entitySecurities = append(entitySecurities, entity.Security{
-			Figi:   s.GetFigi(),
-			ISIN:   s.GetIsin(),
-			Ticker: s.GetTicker(),
-			MIC:    s.GetMic(),
-		})
-	}
+	figis = stringhelpers.RemoveDuplicatesFrom(figis)
 
-	quotes := quotefetcher.FetchQuotesFor(entitySecurities)
-
-	//Calculating the total portfolio value
-
-	for _, lot := range positions {
-
-		var stock security.Stock
-		for _, s := range securities {
-			if s.GetId() == lot.Figi {
-				stock = security.Stock{
-					CompanyName:  s.GetCompanyName(),
-					Figi:         s.GetFigi(),
-					Isin:         s.GetIsin(),
-					SecurityType: s.GetSecurityType(),
-					Country:      s.GetCountry(),
-					Ticker:       s.GetTicker(),
-					IssueSize:    s.GetIssueSize(),
-					Sector:       s.GetSector(),
-					MIC:          s.GetMic(),
-				}
-				lotsWithSecurities = append(lotsWithSecurities, LotWithSecurity{Lot: lot, Stock: stock})
-			}
-		}
-
-	}
-
-	for i, lot := range lotsWithSecurities {
-		profitOrLoss := 0.0
-		// var stockQuote entity.SimpleQuote
-		didFindQuote := false
-		for _, quote := range quotes {
-			if lot.Stock.GetFigi() == quote.Figi() {
-				profitOrLoss = lot.Lot.CurrentReturn(quote)
-				lotsWithSecurities[i].Lot.CurrentPL = profitOrLoss
-				// stockQuote = quote
-				didFindQuote = true
-			}
-		}
-		if !didFindQuote {
-			fmt.Println("Unable to fetch quotes for ", lot.Stock.GetTicker(), "Quantity: ", lot.Lot.Quantity, "Spent on position: ", lot.Lot.CostBasis())
-			continue
-		}
-		// fmt.Printf("%-6s", lot.stock.GetTicker())
-		// fmt.Printf("Quantity: %.0f | ", lot.lot.Quantity)
-		// fmt.Printf("Opening Price: %.1f | ", lot.lot.PricePerUnit)
-		// fmt.Printf("Profit: %.2f | ", profitOrLoss*100)
-		// mv, _ := lot.lot.MarketValue(stockQuote)
-		// fmt.Printf("Market value: %.0f\n", mv)
-	}
-
-	return lotsWithSecurities
+	return figis
 }
 
 func (p Portfolio) PositionCurrencies() []string {
@@ -164,15 +83,6 @@ func (p Portfolio) PositionCurrencies() []string {
 	return currenciesInPortfolio
 }
 
-func LotFigis(lots []lot.Lot) []string {
-	figis := []string{}
-	for _, lot := range lots {
-		figis = append(figis, lot.Figi)
-	}
-
-	return figis
-}
-
 func MatchLotsWithStocks(lots []lot.Lot, securities []security.Stock) ([]lot.Lot, []error) {
 	errorList := []error{}
 	for i := range lots {
@@ -189,6 +99,24 @@ func MatchLotsWithStocks(lots []lot.Lot, securities []security.Stock) ([]lot.Lot
 	}
 
 	return lots, errorList
+}
+
+func MatchLotsWithQuotes(lots []lot.Lot, quotes []entity.SimpleQuote) ([]lot.Lot, error) {
+	var err error
+	for i := range lots {
+		foundQuote := false
+		for _, q := range quotes {
+			if lots[i].Figi == q.Figi() {
+				foundQuote = true
+				lots[i].Quote = q.Quote()
+			}
+		}
+		if !foundQuote {
+			err = errors.New("Failed to find the quote for " + lots[i].Figi)
+			continue
+		}
+	}
+	return lots, err
 }
 
 func LotStocks(lots []lot.Lot) []security.Stock {

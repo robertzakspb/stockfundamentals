@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -13,15 +12,15 @@ import (
 )
 
 type Lot struct {
-	Id           uuid.UUID `json:"id"`
-	CreatedAt    time.Time `json:"createdAt"`
-	UpdatedAt    time.Time `json:"updatedAt"`
-	Quantity     float64   `json:"quantity"`
-	PricePerUnit float64   `json:"pricePerUnit"`
-	Currency     string    `json:"currency"`
-	AccountId    uuid.UUID `json:"accountId"` //ID of the corresponding brokerage account
-	Figi         string    `json:"figi"`
-	CurrentPL    float64   `json:"currentPL"`
+	Id           uuid.UUID
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	Quantity     float64
+	PricePerUnit float64
+	Currency     string
+	AccountId    uuid.UUID `json:"accountId" sql:"account_id"`
+	Figi         string
+	Quote        float64
 	Stock        security.Stock
 }
 
@@ -79,18 +78,25 @@ func (lot *Lot) MergeWith(newLot Lot) (Lot, error) {
 }
 
 // Returns the current profit on the lot given a quote (expressed as a percentage)
-func (lot Lot) CurrentReturn(quote entity.SimpleQuote) float64 {
+func (lot Lot) CurrentReturn() float64 {
 	if lot.PricePerUnit == 0 {
 		return 0
 	}
-	return (quote.Quote() - lot.PricePerUnit) / lot.PricePerUnit
+	return (lot.Quote - lot.PricePerUnit) / lot.PricePerUnit
 }
 
-func (lot Lot) MarketValue(quote entity.SimpleQuote) (float64, error) {
-	if quote.Quote() == 0 {
+func (lot Lot) CurrentPL() float64 {
+	if lot.PricePerUnit == 0 {
+		return 0
+	}
+	return (lot.Quote - lot.PricePerUnit) * lot.Quantity
+}
+
+func (lot Lot) MarketValue() (float64, error) {
+	if lot.Quote == 0 {
 		logger.Log("Quote is 0 for position "+lot.Figi, logger.ERROR)
 		return -1, errors.New("Missing quote for position " + lot.Figi)
 	}
 
-	return lot.Quantity * quote.Quote(), nil
+	return lot.Quantity * lot.Quote, nil
 }

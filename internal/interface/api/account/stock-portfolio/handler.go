@@ -6,29 +6,34 @@ import (
 
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
+	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
-func GetPortfolio(c *gin.Context) {
-	userPortfolio, err := portfolio.GeStockPortfolio()
-	if err != nil {
-		c.JSON(http.StatusNoContent, "Failed to fetch user positions")
-	} else {
-		portfolioWithPLs := userPortfolio.WithPLs()
-		c.JSON(http.StatusOK, portfolioWithPLs)
-	}
-}
-
 func GetAccountPortfolio(c *gin.Context) {
-	accountIDs := uuid.UUIDs{} //FIXME: Parse from the query parameters
-	portfolio, err := portfolio.GetAccountPortfolio(accountIDs)
+	filters := ydbfilter.MapQueryFiltersToYdb(c.Request.URL.Query(), lot.Lot{})
 
+	accountPortfolio, err := portfolio.GetAccountPortfolio(filters)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
-	} else {
-		c.JSON(http.StatusOK, portfolio)
+		return
 	}
+
+	accountPortfolio.Lots, err = portfolio.PopulateLotSecurities(accountPortfolio.Lots)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	accountPortfolio, err = portfolio.PopulateLotsWithQuotes(accountPortfolio)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	dto := mapPortfolioToDto(accountPortfolio)
+	c.JSON(http.StatusOK, dto)
 }
 
 func UpdatePortfolio(c *gin.Context) {
@@ -38,7 +43,6 @@ func UpdatePortfolio(c *gin.Context) {
 	wg.Go(func() { err = bondportfolio.ImportTinkoffBondLots() })
 
 	wg.Wait()
-
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())

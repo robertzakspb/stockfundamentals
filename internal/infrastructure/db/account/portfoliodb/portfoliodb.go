@@ -11,29 +11,18 @@ import (
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
-func GetAccountPortfolio(accountIDs uuid.UUIDs) ([]LotDb, error) {
+func GetAccountPortfolio(filters []ydbfilter.YdbFilter) ([]LotDb, error) {
 	db, err := shared.MakeYdbDriver()
 	if err != nil {
 		return []LotDb{}, err
 	}
 	defer db.Close(context.TODO())
-
-	ydbUUIDs := []types.Value{}
-	for _, id := range accountIDs {
-		ydbUUIDs = append(ydbUUIDs, types.UuidValue(id))
-	}
-	filters := []ydbfilter.YdbFilter{{
-		YqlColumnName:  "account_id",
-		Condition:      ydbfilter.Contains,
-		ConditionValue: types.ListValue(ydbUUIDs...),
-	}}
 
 	lots := []LotDb{}
 	yql := makeGetAccountPortfolioQuery(filters)

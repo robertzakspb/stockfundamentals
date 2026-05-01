@@ -2,6 +2,7 @@ package portfolio
 
 import (
 	"errors"
+	"sort"
 	"strconv"
 	"time"
 
@@ -10,11 +11,12 @@ import (
 	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
+	portfolio "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
 	stockportfolio "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/portfoliodb"
+	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	"github.com/google/uuid"
 	"opensource.tbank.ru/invest/invest-go/investgo"
 )
 
@@ -23,11 +25,12 @@ func UpdatePortfolio() error {
 	return portfoliodb.UpdateLocalPortfolio(mapLotToDbLot(portfolio.Lots))
 }
 
-func GetAccountPortfolio(accountIDs uuid.UUIDs) (stockportfolio.Portfolio, error) {
-	dbLots, err := portfoliodb.GetAccountPortfolio(accountIDs)
+func GetAccountPortfolio(filters []ydbfilter.YdbFilter) (stockportfolio.Portfolio, error) {
+	dbLots, err := portfoliodb.GetAccountPortfolio(filters)
 	if err != nil {
 		return stockportfolio.Portfolio{}, err
 	}
+
 	lots := []lot.Lot{}
 	for _, lot := range dbLots {
 		lots = append(lots, mapLotDbToLot(lot))
@@ -130,4 +133,43 @@ func CalculatePortfolioMarketValue(portfolio stockportfolio.Portfolio, currency 
 	}
 
 	return totalMarketValue, currency, nil
+}
+
+func PopulateLotsWithQuotes(portfolio portfolio.Portfolio) (portfolio.Portfolio, error) {
+	positions := portfolio.UniquePositions()
+
+	securities, err := security_master.GetSecuritiesFilteredByFigi(stockportfolio.LotFigis(positions))
+	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
+	}
+
+	positions, errorList := stockportfolio.MatchLotsWithStocks(positions, securities)
+	if len(errorList) > 0 {
+		logger.Log(errorList[0].Error(), logger.ERROR)
+	}
+
+	entitySecurities := []entity.Security{}
+	for _, s := range securities {
+		if s.GetId() == "" {
+			continue
+		}
+		entitySecurities = append(entitySecurities, entity.Security{
+			Figi:   s.GetFigi(),
+			ISIN:   s.GetIsin(),
+			Ticker: s.GetTicker(),
+			MIC:    s.GetMic(),
+		})
+	}
+	quotes := quotefetcher.FetchQuotesFor(entitySecurities)
+
+	positions, err = stockportfolio.MatchLotsWithQuotes(positions, quotes)
+	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
+	}
+
+	sort.Slice(positions, func(i, j int) bool {
+		return positions[i].CurrentReturn() > positions[j].CurrentReturn()
+	})
+
+	return stockportfolio.Portfolio{Lots: positions}, nil
 }

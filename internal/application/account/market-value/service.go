@@ -104,7 +104,7 @@ func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time) ([]account
 	if err != nil {
 		return []accountmvdomain.AccountMarketValue{}, err
 	}
-	
+
 	bondMVs, err := AccountBondMarketValueGroupedByCurrency(accountId, date)
 	if err != nil {
 		return []accountmvdomain.AccountMarketValue{}, err
@@ -150,7 +150,12 @@ func CalculateAccountMarketValue(accountId uuid.UUID, date time.Time) ([]account
 }
 
 func AccountStockMarketValueGroupedByCurrency(accountId uuid.UUID, date time.Time) (map[string]accountmvdomain.AccountMarketValue, error) {
-	accountPortfolio, err := portfolio.GetAccountPortfolio([]uuid.UUID{accountId})
+	accountFilter := ydbfilter.YdbFilter{
+		YqlColumnName:  "account_id",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: types.UuidValue(accountId),
+	}
+	accountPortfolio, err := portfolio.GetAccountPortfolio([]ydbfilter.YdbFilter{accountFilter})
 	if err != nil {
 		return map[string]accountmvdomain.AccountMarketValue{}, err
 	}
