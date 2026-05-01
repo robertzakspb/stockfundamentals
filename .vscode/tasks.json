@@ -40,7 +40,7 @@
             "type": "shell",
             "label": "Restore_Latest_Backup",
             "osx": {
-                "command": "ydb -e \"grpc://localhost:2136\" -d \"/local\" tools restore -i \"/Users/robert/Documents/backups/compound/latestbackup\" -p \".\""
+                "command": "ydb -vvv -e \"grpc://localhost:2136\" -d \"/local\" tools restore -i \"/Users/robert/Documents/backups/compound/latestbackup\" -p \".\""
             },
             "linux": { "command": "" }
         },
