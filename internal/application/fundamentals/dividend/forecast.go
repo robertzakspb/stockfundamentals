@@ -7,10 +7,14 @@ import (
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
+	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
+	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"github.com/google/uuid"
+	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
 func SaveDividendForecast(forecast dividend.DividendForecast) error {
@@ -37,6 +41,29 @@ func GetDividendForecasts() ([]dividend.DividendForecast, error) {
 	forecastsWithYields := populateYieldsForForecasts(forecasts)
 
 	return forecastsWithYields, nil
+}
+
+func GetDividendForecastsForAccount(accountId uuid.UUID) ([]dividend.Payout, error) {
+	dbForecasts, err := dbdividend.GetDividendForecasts()
+	if err != nil {
+		return []dividend.Payout{}, err
+	}
+	forecasts := mapDividendForecastDbModelToDomain(dbForecasts)
+
+	accountFilter := ydbfilter.YdbFilter{
+		YqlColumnName:  "account_id",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: types.UuidValue(accountId),
+	}
+	portfolio, err := portfolio.GetAccountPortfolio([]ydbfilter.YdbFilter{accountFilter})
+
+	//We are using the dividend.Payout entity because it contains the distributed amount per account
+	payouts, err := matchDivForecastsWithPositions(forecasts, portfolio.UniquePositions())
+	if err != nil {
+		return []dividend.Payout{}, err
+	}
+
+	return payouts, nil
 }
 
 func GetDivForecastsGroupedBySecurity() ([]dividend.SecurityDivForecast, error) {

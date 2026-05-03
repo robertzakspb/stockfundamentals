@@ -2,15 +2,19 @@ package dividend
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 )
 
 type Payout struct {
 	Id         uuid.UUID
+	Figi       string
+	Ticker     string
 	DividendId uuid.UUID
 	AccountId  uuid.UUID
 	Amount     float64
+	Date       time.Time
 	Dividend   Dividend
 }
 

@@ -27,9 +27,3 @@ func GetAllUpcomingDividends() ([]dividend.Dividend, error) {
 
 	return mappedDivs, nil
 }
-
-func PopulateDividendsWithSecurities(divs []dividend.Dividend) ([]dividend.Dividend, error) {
-	// securities, err := 
-
-	return divs, nil
-}
