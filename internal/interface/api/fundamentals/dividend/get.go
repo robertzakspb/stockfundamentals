@@ -19,6 +19,10 @@ func GetDividendForecasts(c *gin.Context) {
 	}
 }
 
+func GetDividendForecastsForAccount(c *gin.Context) {
+	
+}
+
 func GetDividendForecastsGroupedBySecurity(c *gin.Context) {
 	forecasts, err := appdividend.GetDivForecastsGroupedBySecurity()
 
