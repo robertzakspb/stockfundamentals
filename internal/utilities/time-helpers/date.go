@@ -62,3 +62,8 @@ func TodayInDDMMYYYFormat() string {
 	year, month, day := time.Now().Date()
 	return strconv.Itoa(day) + "." + strconv.Itoa(int(month)) + "." + strconv.Itoa(year)
 }
+
+//Converts a string like "2026-12-30" into a corresponding timestamp in UTC
+func DateFromISOstring(isoDate string) (time.Time, error) {
+	return time.Parse("2006-01-02", isoDate)
+}

@@ -107,3 +107,17 @@ func Test_DateIsLater_EarlierDate(t *testing.T) {
 
 	test.AssertFalse(t, DateIsLater(time1, time2))
 }
+
+func Test_DateFromISOstring_Positive(t *testing.T) {
+	expectedDate, err := time.Parse("2006-01-02", "2026-05-03")
+	test.AssertNoError(t, err)
+	parsedDate, err := DateFromISOstring("2026-05-03")
+
+	test.AssertNoError(t, err)
+	test.AssertTrue(t, AreEqualDates(parsedDate, expectedDate))
+}
+
+func Test_DateFromISOstring_Negative(t *testing.T) {
+	_, err := DateFromISOstring("foo")
+	test.AssertError(t,err)
+}
