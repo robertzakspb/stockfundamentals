@@ -34,7 +34,7 @@ func Test_mapPayoutToDto(t *testing.T) {
 		},
 	}
 
-	mappedDto := mapPayoutToDto(payout)
+	mappedDto := MapPayoutToDto(payout)
 
 	test.AssertEqual(t, mappedDto.Id, id)
 	test.AssertEqual(t, mappedDto.DividendId, divId)

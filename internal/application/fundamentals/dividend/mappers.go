@@ -19,13 +19,14 @@ func mapDividendForecastToDbModel(forecasts []dividend.DividendForecast) []dbdiv
 
 	for _, forecast := range forecasts {
 		dbModel := dbdividend.DividendForecastDb{
-			Id:            forecast.Id,
-			Figi:          forecast.Stock.Figi,
-			ExpectedDPS:   forecast.ExpectedDPS,
-			Currency:      forecast.Currency,
-			PaymentPeriod: forecast.PaymentPeriod,
-			Author:        forecast.Author,
-			Comment:       forecast.Comment,
+			Id:                 forecast.Id,
+			Figi:               forecast.Stock.Figi,
+			ExpectedDPS:        forecast.ExpectedDPS,
+			Currency:           forecast.Currency,
+			PaymentPeriod:      forecast.PaymentPeriod,
+			Author:             forecast.Author,
+			Comment:            forecast.Comment,
+			ExpectedPayoutDate: forecast.ExpectedPayoutDate,
 		}
 
 		dbModels = append(dbModels, dbModel)
@@ -59,13 +60,14 @@ func mapDividendForecastDbModelToDomain(dbModels []dbdividend.DividendForecastDb
 		}
 
 		domainStruct := dividend.DividendForecast{
-			Id:            forecast.Id,
-			Stock:         targetStock,
-			ExpectedDPS:   forecast.ExpectedDPS,
-			Currency:      forecast.Currency,
-			PaymentPeriod: forecast.PaymentPeriod,
-			Author:        forecast.Author,
-			Comment:       forecast.Comment,
+			Id:                 forecast.Id,
+			Stock:              targetStock,
+			ExpectedDPS:        forecast.ExpectedDPS,
+			Currency:           forecast.Currency,
+			PaymentPeriod:      forecast.PaymentPeriod,
+			Author:             forecast.Author,
+			Comment:            forecast.Comment,
+			ExpectedPayoutDate: forecast.ExpectedPayoutDate,
 		}
 
 		forecasts = append(forecasts, domainStruct)

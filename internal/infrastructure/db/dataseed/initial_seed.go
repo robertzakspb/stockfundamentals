@@ -315,6 +315,7 @@ func createDividendForecastTable(ctx context.Context, dbConnection *ydb.Driver, 
 				options.WithColumn("payment_period", types.TypeText),
 				options.WithColumn("forecast_author", types.TypeText),
 				options.WithColumn("comment", types.TypeText),
+				options.WithColumn("payout_date", types.TypeDate),
 				options.WithPrimaryKeyColumn("figi", "payment_period"),
 			)
 			if err != nil {

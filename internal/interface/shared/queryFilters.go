@@ -8,9 +8,7 @@ func GetFromQueryParams(name string, params map[string][]string) (string, error)
 			if len(param) == 0 {
 				continue
 			}
-			if param[0] == name {
-				return param[0], nil
-			}
+			return param[0], nil
 		}
 	}
 

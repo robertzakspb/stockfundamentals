@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 )
 
@@ -42,7 +42,8 @@ func makeGetDividendForecastQuery() string {
 							payment_period,
 							comment,
 							forecast_author,
-							expected_DPS
+							expected_DPS,
+							payout_date
 						FROM
 							%s
 					`,

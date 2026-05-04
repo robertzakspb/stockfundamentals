@@ -76,6 +76,7 @@ func SaveDividendForecastToDb(forecast DividendForecastDb) error {
 		types.StructFieldValue("payment_period", types.TextValue(forecast.PaymentPeriod)),
 		types.StructFieldValue("comment", types.TextValue(forecast.Comment)),
 		types.StructFieldValue("forecast_author", types.TextValue(forecast.Author)),
+		types.StructFieldValue("payout_date", ydbhelper.ConvertToYdbDate(forecast.ExpectedPayoutDate)),
 	)
 
 	tableName := path.Join(dbConnection.Name(), db.STOCK_DIRECTORY_PREFIX, db.DIVIDEND_FORECAST_TABLE_NAME)

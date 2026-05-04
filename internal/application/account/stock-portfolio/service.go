@@ -39,6 +39,110 @@ func GetAccountPortfolio(filters []ydbfilter.YdbFilter) (stockportfolio.Portfoli
 	return stockportfolio.Portfolio{Lots: lots}, nil
 }
 
+// Returns the market value alongside the used currency
+func CalculatePortfolioMarketValue(portfolio stockportfolio.Portfolio, currency string) (float64, string, error) {
+	portfolio, err := PopulateLotsWithQuotes(portfolio)
+	if err != nil {
+		return -1, currency, err
+	}
+
+	currencies := portfolio.PositionCurrencies()
+	currencyPairs := []string{}
+	for _, positionCurrency := range currencies {
+		if positionCurrency != currency {
+			currencyPairs = append(currencyPairs, positionCurrency+"/"+currency)
+		}
+	}
+	forexRates, err := forexservice.GetExchangeRates(currencyPairs, time.Now())
+	if err != nil {
+		return -1, currency, err
+	}
+
+	totalMarketValue := 0.0
+	for _, position := range portfolio.Lots {
+		mv, err := position.MarketValue()
+		if err != nil {
+			return -1, currency, err
+		}
+		//Case when the position's currency is already the target currency
+		if position.Currency == currency {
+			totalMarketValue += mv
+			continue
+		}
+		//Case when the position's market value must be calculated in the target currency
+		rate, found := forexservice.FindRate(position.Currency, currency, forexRates)
+		if !found {
+			return -1, currency, errors.New("Failed to find an exchange rate for " + position.Currency + "/" + currency)
+		}
+		totalMarketValue += mv * rate.Rate
+	}
+
+	return totalMarketValue, currency, nil
+}
+
+func PopulateLotsWithQuotes(portfolio portfolio.Portfolio) (portfolio.Portfolio, error) {
+	positions := portfolio.UniquePositions()
+
+	securities, err := security_master.GetSecuritiesFilteredByFigi(stockportfolio.LotFigis(positions))
+	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
+		return portfolio, err
+	}
+
+	positions, errorList := stockportfolio.MatchLotsWithStocks(positions, securities)
+	if len(errorList) > 0 {
+		logger.Log(errorList[0].Error(), logger.ERROR)
+		return portfolio, err
+	}
+
+	entitySecurities := []entity.Security{}
+	for _, s := range securities {
+		if s.GetId() == "" {
+			continue
+		}
+		entitySecurities = append(entitySecurities, entity.Security{
+			Figi:   s.GetFigi(),
+			ISIN:   s.GetIsin(),
+			Ticker: s.GetTicker(),
+			MIC:    s.GetMic(),
+		})
+	}
+
+	quotes := quotefetcher.FetchQuotesFor(entitySecurities)
+
+	//Fetching quotes through Tinkoff API, as MOEX does not return quotes for ETFs like LQDT
+	if etfFigis := portfolio.GetEtfLotFigis(); len(etfFigis) > 0 {
+		config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
+		if err != nil {
+			logger.Log("Failed to initialize the configuration file", logger.ALERT)
+			return portfolio, errors.New("Failed to fetch quotes for ETFs in the portfolio fue to Tinkoff API configuration issues")
+		}
+		etfQuotes, err := tquoteservice.FetchQuotesForFigis(portfolio.GetEtfLotFigis(), config)
+		if err != nil {
+			return portfolio, errors.New("Failed to fetch quotes for ETFs in the portfolio")
+		}
+
+		for _, etfQuote := range etfQuotes {
+			quotes = append(quotes, &etfQuote)
+		}
+	}
+
+	if len(quotes) != len(positions) {
+		return portfolio, errors.New("The portfolio has " + strconv.Itoa(len(positions)) + " unique positions, whereas only " + strconv.Itoa(len(quotes)) + " quotes has been fetched")
+	}
+
+	positions, err = stockportfolio.MatchLotsWithQuotes(positions, quotes)
+	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
+	}
+
+	sort.Slice(positions, func(i, j int) bool {
+		return positions[i].CurrentReturn() > positions[j].CurrentReturn()
+	})
+
+	return stockportfolio.Portfolio{Lots: positions}, nil
+}
+
 func PopulateLotSecurities(lots []lot.Lot) ([]lot.Lot, error) {
 	securities, err := security_master.GetSecuritiesFilteredByFigi(stockportfolio.LotFigis(lots))
 	if err != nil {
@@ -55,121 +159,4 @@ func PopulateLotSecurities(lots []lot.Lot) ([]lot.Lot, error) {
 	}
 
 	return lots, nil
-}
-
-// Returns the market value alongside the used currency and a possible error
-func CalculatePortfolioMarketValue(portfolio stockportfolio.Portfolio, currency string) (float64, string, error) {
-	lotSecurities := []entity.Security{}
-	for _, s := range stockportfolio.LotStocks(portfolio.Lots) {
-		if s.GetId() == "" {
-			continue
-		}
-		lotSecurities = append(lotSecurities, entity.Security{
-			Figi:   s.GetFigi(),
-			ISIN:   s.GetIsin(),
-			Ticker: s.GetTicker(),
-			MIC:    s.GetMic(),
-		})
-	}
-
-	quotes := quotefetcher.FetchQuotesFor(lotSecurities)
-
-	if etfFigis := portfolio.GetEtfLotFigis(); len(etfFigis) > 0 {
-		config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
-		if err != nil {
-			logger.Log("Failed to initialize the configuration file", logger.ALERT)
-			return -1, currency, errors.New("Failed to fetch quotes for ETFs in the portfolio fue to Tinkoff API configuration issues")
-		}
-		etfQuotes, err := tquoteservice.FetchQuotesForFigis(portfolio.GetEtfLotFigis(), config)
-		if err != nil {
-			return -1, currency, errors.New("Failed to fetch quotes for ETFs in the portfolio")
-		}
-
-		for _, etfQuote := range etfQuotes {
-			quotes = append(quotes, &etfQuote)
-		}
-	}
-
-	uniquePositions := portfolio.UniquePositions()
-	if len(quotes) != len(portfolio.UniquePositions()) {
-		return -1, currency, errors.New("The portfolio has " + strconv.Itoa(len(uniquePositions)) + " positions, whereas only " + strconv.Itoa(len(quotes)) + " quotes has been fetched")
-	}
-
-	currencies := portfolio.PositionCurrencies()
-	currencyPairs := []string{}
-	for _, positionCurrency := range currencies {
-		if positionCurrency != currency {
-			currencyPairs = append(currencyPairs, positionCurrency+"/"+currency)
-		}
-	}
-	forexRates, _ := forexservice.GetExchangeRates(currencyPairs, time.Now())
-
-	totalMarketValue := 0.0
-	for _, quote := range quotes {
-		foundQuote := false
-		for _, position := range uniquePositions {
-			if quote.Figi() == position.Figi {
-				foundQuote = true
-				if position.Currency == currency {
-					totalMarketValue += position.Quantity * quote.Quote()
-				} else {
-					foundRate := false
-					for _, rate := range forexRates {
-						if rate.Currency1 == forexservice.Currency(position.Currency) {
-							foundRate = true
-							totalMarketValue += position.Quantity * quote.Quote() * rate.Rate
-						}
-					}
-					if !foundRate {
-						return -1, currency, errors.New("Failed to find an exchange rate for " + position.Currency + "/" + currency)
-					}
-				}
-			}
-		}
-		if !foundQuote {
-			logger.Log("Failed to find a quote for figi "+quote.Figi(), logger.ERROR)
-			return -1, currency, errors.New("Failed to find a quote for figi " + quote.Figi())
-		}
-	}
-
-	return totalMarketValue, currency, nil
-}
-
-func PopulateLotsWithQuotes(portfolio portfolio.Portfolio) (portfolio.Portfolio, error) {
-	positions := portfolio.UniquePositions()
-
-	securities, err := security_master.GetSecuritiesFilteredByFigi(stockportfolio.LotFigis(positions))
-	if err != nil {
-		logger.Log(err.Error(), logger.ERROR)
-	}
-
-	positions, errorList := stockportfolio.MatchLotsWithStocks(positions, securities)
-	if len(errorList) > 0 {
-		logger.Log(errorList[0].Error(), logger.ERROR)
-	}
-
-	entitySecurities := []entity.Security{}
-	for _, s := range securities {
-		if s.GetId() == "" {
-			continue
-		}
-		entitySecurities = append(entitySecurities, entity.Security{
-			Figi:   s.GetFigi(),
-			ISIN:   s.GetIsin(),
-			Ticker: s.GetTicker(),
-			MIC:    s.GetMic(),
-		})
-	}
-	quotes := quotefetcher.FetchQuotesFor(entitySecurities)
-
-	positions, err = stockportfolio.MatchLotsWithQuotes(positions, quotes)
-	if err != nil {
-		logger.Log(err.Error(), logger.ERROR)
-	}
-
-	sort.Slice(positions, func(i, j int) bool {
-		return positions[i].CurrentReturn() > positions[j].CurrentReturn()
-	})
-
-	return stockportfolio.Portfolio{Lots: positions}, nil
 }
