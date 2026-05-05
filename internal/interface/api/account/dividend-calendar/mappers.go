@@ -45,6 +45,10 @@ func mapDivCalToDto(divcal DividendCalendar) DividendCalendarDto {
 }
 
 func MapPayoutToDto(payout Payout) PayoutDto {
+	payoutDate := payout.Date
+	if payoutDate.IsZero(){
+		payoutDate = payout.Dividend.PayoutDate
+	}
 	dto := PayoutDto{
 		Id:               payout.Id,
 		DividendId:       payout.DividendId,
@@ -56,7 +60,7 @@ func MapPayoutToDto(payout Payout) PayoutDto {
 		ActualDPS:        payout.Dividend.ActualDPS,
 		AnnouncementDate: payout.Dividend.AnnouncementDate,
 		RecordDate:       payout.Dividend.RecordDate,
-		PayoutDate:       payout.Date,
+		PayoutDate:       payoutDate,
 	}
 
 	return dto
