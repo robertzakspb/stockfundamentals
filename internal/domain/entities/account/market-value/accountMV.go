@@ -19,7 +19,7 @@ type Return struct {
 	Currency                 string
 	AbsoluteReturn           float64
 	AbsoluteReturnPercentage float64   //12% would be set as 0.12
-	AnnualizedReturn         float64   //12% would be set as 0.12
+	AnnualizedReturnPercentage         float64   //12% would be set as 0.12
 	StartDate                time.Time `json:"startDate" sql:"date"`
 	EndDate                  time.Time `json:"endDate" sql:"date"`
 	StartDateMV              float64
@@ -42,7 +42,7 @@ func CalculateAccountReturn(accountId uuid.UUID, startDateMV, endDateMV AccountM
 		Currency:                 startDateMV.Currency,
 		AbsoluteReturn:           absoluteReturn,
 		AbsoluteReturnPercentage: absoluteReturnPercentage,
-		AnnualizedReturn:         annualizedReturn,
+		AnnualizedReturnPercentage:         annualizedReturn,
 		StartDate:                startDateMV.Date,
 		EndDate:                  endDateMV.Date,
 		StartDateMV:              startDateMV.EodValue,
