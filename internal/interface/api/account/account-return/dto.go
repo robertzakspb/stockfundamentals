@@ -22,7 +22,7 @@ func mapDomainToDto(domain accountmvdomain.Return) AccountReturnDto {
 		Currency:                 domain.Currency,
 		AbsoluteReturn:           domain.AbsoluteReturn,
 		AbsoluteReturnPercentage: domain.AbsoluteReturnPercentage,
-		AnnualizedReturn:         domain.AnnualizedReturn,
+		AnnualizedReturn:         domain.AnnualizedReturnPercentage,
 		StartDate:                domain.StartDate,
 		EndDate:                  domain.EndDate,
 	}
