@@ -26,6 +26,9 @@ func UpdatePortfolio() error {
 }
 
 func GetAccountPortfolio(filters []ydbfilter.YdbFilter) (stockportfolio.Portfolio, error) {
+	if len(filters == 0) {
+		return stockportfolio.Portfolio{}, errors.New("Zero filters were provided; at least the account filter must be provided")
+	}
 	dbLots, err := portfoliodb.GetAccountPortfolio(filters)
 	if err != nil {
 		return stockportfolio.Portfolio{}, err
