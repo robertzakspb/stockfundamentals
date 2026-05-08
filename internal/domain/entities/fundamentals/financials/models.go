@@ -15,23 +15,23 @@ type FinancialMetric struct {
 type ReportingPeriod string
 
 const (
-	q1          ReportingPeriod = "q1"
-	q2          ReportingPeriod = "q2"
-	q3          ReportingPeriod = "q3"
-	q4          ReportingPeriod = "q4"
-	fullYear    ReportingPeriod = "fy"
-	h1          ReportingPeriod = "h1"
-	h2          ReportingPeriod = "h2"
-	nine_months ReportingPeriod = "9mo"
+	Q1            ReportingPeriod = "Q1"
+	Q2            ReportingPeriod = "Q2"
+	Q3            ReportingPeriod = "Q3"
+	Q4            ReportingPeriod = "Q4"
+	CALENDAR_YEAR ReportingPeriod = "CALENDAR_YEAR"
+	H1            ReportingPeriod = "H1"
+	H2            ReportingPeriod = "H2"
+	NINE_MONTHS   ReportingPeriod = "NINE_MONTHS"
 )
 
 var ReportingPeriodMap = map[string]ReportingPeriod{
-	"q1":  q1,
-	"q2":  q2,
-	"q3":  q3,
-	"q4":  q4,
-	"fy":  fullYear,
-	"h1":  h1,
-	"h2":  h2,
-	"9mo": nine_months,
+	"Q1":            Q1,
+	"Q2":            Q2,
+	"Q3":            Q3,
+	"Q4":            Q4,
+	"CALENDAR_YEAR": CALENDAR_YEAR,
+	"H1":            H1,
+	"H2":            H2,
+	"NINE_MONTHS":   NINE_MONTHS,
 }
