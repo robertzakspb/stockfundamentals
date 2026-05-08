@@ -588,7 +588,7 @@ func populateFinancialMetricsTable(reader *csv.Reader, db *ydb.Driver) error {
 			Id:       parsedId,
 			StockId:  parsedStockId,
 			Name:     csvMetric[2],
-			Period:   entity.ReportingPeriodMap[csvMetric[3]],
+			ReportingPeriod:   entity.ReportingPeriodMap[csvMetric[3]],
 			Year:     int(parsedYear),
 			Value:    int(parsedValue),
 			Currency: csvMetric[6],
