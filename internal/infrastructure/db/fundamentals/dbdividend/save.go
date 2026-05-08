@@ -41,6 +41,8 @@ func SaveDividendsToDB(dividends *[]dividend.Dividend) error {
 			types.StructFieldValue("record_date", ydbhelper.ConvertToOptionalYDBdate(dividend.RecordDate)),
 			types.StructFieldValue("payout_date", ydbhelper.ConvertToOptionalYDBdate(dividend.PayoutDate)),
 			types.StructFieldValue("payment_period", types.TextValue(dividend.PaymentPeriod)),
+			types.StructFieldValue("type", types.TextValue(dividend.Type)),
+			types.StructFieldValue("regularity", types.TextValue(dividend.Regularity)),
 			types.StructFieldValue("management_comment", types.TextValue(dividend.ManagementComment)),
 		)
 		ydbDividends[i] = ydbDividend

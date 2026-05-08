@@ -145,6 +145,8 @@ func createStockTables(ctx context.Context, db *ydb.Driver, c table.Client) erro
 				options.WithColumn("record_date", types.TypeDate),
 				options.WithColumn("payout_date", types.Optional(types.TypeDate)),
 				options.WithColumn("payment_period", types.TypeUTF8),
+				options.WithColumn("type", types.TypeUTF8),
+				options.WithColumn("regularity", types.TypeUTF8),
 				options.WithColumn("management_comment", types.Optional(types.TypeUTF8)),
 				options.WithPrimaryKeyColumn("stock_id", "record_date", "actual_DPS"),
 			)
@@ -585,13 +587,13 @@ func populateFinancialMetricsTable(reader *csv.Reader, db *ydb.Driver) error {
 		}
 
 		metrics = append(metrics, entity.FinancialMetric{
-			Id:       parsedId,
-			StockId:  parsedStockId,
-			Name:     csvMetric[2],
-			ReportingPeriod:   entity.ReportingPeriodMap[csvMetric[3]],
-			Year:     int(parsedYear),
-			Value:    int(parsedValue),
-			Currency: csvMetric[6],
+			Id:              parsedId,
+			StockId:         parsedStockId,
+			Name:            csvMetric[2],
+			ReportingPeriod: entity.ReportingPeriodMap[csvMetric[3]],
+			Year:            int(parsedYear),
+			Value:           int(parsedValue),
+			Currency:        csvMetric[6],
 		})
 	}
 

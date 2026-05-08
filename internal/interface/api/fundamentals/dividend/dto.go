@@ -13,6 +13,8 @@ type DividendDTO struct {
 	RecordDate        time.Time `json:"recordDate"`
 	PayoutDate        time.Time `json:"payoutDate"`
 	PaymentPeriod     string    `json:"paymentPeriod"`
+	Regularity        string    `json:"regularity"`
+	Type              string    `json:"type"`
 	ManagementComment string    `json:"managementComment"`
 }
 

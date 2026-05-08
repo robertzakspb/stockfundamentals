@@ -17,6 +17,8 @@ func mapDividendToDTO(dividends []dividend.Dividend) []DividendDTO {
 			RecordDate:        dividend.RecordDate,
 			PayoutDate:        dividend.PayoutDate,
 			PaymentPeriod:     dividend.PaymentPeriod,
+			Type:              dividend.Type,
+			Regularity:        dividend.Regularity,
 			ManagementComment: dividend.ManagementComment,
 		}
 		dtos = append(dtos, dto)
