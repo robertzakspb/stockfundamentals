@@ -13,6 +13,10 @@ import (
 )
 
 func SaveMarketValue(marketValues []AccountMarketValueDB) error {
+	if len(marketValues) == 0 {
+		return errors.New("Attempting to save 0 market values")
+	}
+
 	dbConnection, err := db.MakeYdbDriver()
 	if err != nil {
 		return err
