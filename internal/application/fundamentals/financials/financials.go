@@ -5,6 +5,6 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/financials"
 )
 
-func FetchFinancialMetrics() ([]entity.FinancialMetric, error) {
+func FetchFinancialMetrics() ([]financials.FinancialMetric, error) {
 	return dbfinancials.FetchFinancialMetrics()
 }

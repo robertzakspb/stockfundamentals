@@ -13,6 +13,10 @@ import (
 )
 
 func SaveMarketValue(marketValues []AccountMarketValueDB) error {
+	if len(marketValues) == 0 {
+		return errors.New("Attempting to save 0 market values")
+	}
+
 	dbConnection, err := db.MakeYdbDriver()
 	if err != nil {
 		return err
@@ -35,12 +39,12 @@ func SaveMarketValue(marketValues []AccountMarketValueDB) error {
 		context.TODO(),
 		tableName,
 		table.BulkUpsertDataRows(types.ListValue(dbMarketValues...)))
+	logger.Log("Saved the market value for "+marketValues[0].AccountId.String(), logger.INFORMATION)
+
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
 		return errors.New("Failed to save bond position lots to the database")
 	}
-
-	logger.Log("Saved the market value for " + marketValues[0].AccountId.String(), logger.INFORMATION)
 
 	return nil
 }

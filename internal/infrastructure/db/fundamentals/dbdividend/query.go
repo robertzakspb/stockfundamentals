@@ -21,6 +21,8 @@ func makeGetDividendQuery(filters []ydbfilter.YdbFilter) string {
 							record_date,
 							payout_date,
 							payment_period,
+							type,
+							regularity,
 							management_comment
 						FROM
 							%s

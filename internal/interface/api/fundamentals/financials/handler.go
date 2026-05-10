@@ -20,7 +20,7 @@ func mapFinancialMetricToDto(metric entity.FinancialMetric) FinancialMetricDTO {
 		Id:       metric.Id.String(),
 		StockId:  metric.StockId.String(),
 		Name:     metric.Name,
-		Period:   string(metric.Period),
+		Period:   string(metric.ReportingPeriod),
 		Year:     metric.Year,
 		Value:    metric.Value,
 		Currency: metric.Currency,

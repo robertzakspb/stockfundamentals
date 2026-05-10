@@ -19,6 +19,8 @@ type DividendDbModel struct {
 	PayoutDate              time.Time `sql:"payout_date" json:"payoutDate"`
 	PaymentPeriod           string    `sql:"payment_period" json:"paymentPeriod"`
 	ManagementComment       string    `sql:"management_comment" json:"managementComment"`
+	Type                    string    `sql:"type"`
+	Regularity              string    `sql:"regularity"`
 }
 
 func mapDividendToDbModel(dividends []dividend.Dividend) []DividendDbModel {
@@ -34,6 +36,8 @@ func mapDividendToDbModel(dividends []dividend.Dividend) []DividendDbModel {
 			RecordDate:              dividend.RecordDate,
 			PayoutDate:              dividend.PayoutDate,
 			PaymentPeriod:           dividend.PaymentPeriod,
+			Regularity:              dividend.Regularity,
+			Type:                    dividend.Type,
 			ManagementComment:       dividend.ManagementComment,
 		}
 		dbModels[i] = dbModel

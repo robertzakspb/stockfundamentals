@@ -91,6 +91,8 @@ func mapTinkoffDividendToDividend(tinkoffDiv *investapi.Dividend, figi string) (
 		AnnouncementDate:  time.Unix(tinkoffDiv.GetDeclaredDate().GetSeconds(), 0),
 		RecordDate:        time.Unix(tinkoffDiv.GetRecordDate().GetSeconds(), 0),
 		PayoutDate:        time.Unix(tinkoffDiv.GetPaymentDate().GetSeconds(), 0),
+		Regularity: tinkoffDiv.GetRegularity(),
+		Type: tinkoffDiv.GetDividendType(),
 		PaymentPeriod:     "", //TODO: Fix
 		ManagementComment: "",
 	}
