@@ -17,7 +17,7 @@ type Execution struct {
 	Description string
 }
 
-func NewExecution(accountId uuid.UUID, securityId uuid.UUID, timestamp time.Time, quantity float64, price float64, description string) (Execution, error) {
+func New(accountId uuid.UUID, securityId uuid.UUID, timestamp time.Time, quantity float64, price float64, description string) (Execution, error) {
 	if quantity < 0 {
 		return Execution{}, fmt.Errorf("quantity is smaller than 0: %f", quantity)
 	}
