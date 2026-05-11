@@ -25,6 +25,7 @@ func Test_mapPayoutToDto(t *testing.T) {
 		DividendId: divId,
 		AccountId:  accountId,
 		Amount:     amount,
+		Figi: figi,
 		Dividend: dividend.Dividend{
 			Figi:             figi,
 			ActualDPS:        dps,
@@ -63,6 +64,7 @@ func Test_mapDivCalToDto(t *testing.T) {
 		DividendId: divId,
 		AccountId:  accountId,
 		Amount:     amount,
+		Figi: figi,
 		Dividend: dividend.Dividend{
 			Figi:             figi,
 			ActualDPS:        dps,
@@ -91,5 +93,4 @@ func Test_mapDivCalToDto(t *testing.T) {
 	test.AssertEqual(t, mappedDto.FuturePayouts[0].AnnouncementDate, announcementDate)
 	test.AssertEqual(t, mappedDto.FuturePayouts[0].RecordDate, recordDate)
 	test.AssertEqual(t, mappedDto.FuturePayouts[0].PayoutDate, payoutDate)
-
 }
