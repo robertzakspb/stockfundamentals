@@ -9,6 +9,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/jobs"
 	api_security "github.com/compoundinvest/stockfundamentals/internal/interface/api/security"
 	timeseries "github.com/compoundinvest/stockfundamentals/internal/interface/api/time-series"
+	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
 
 	accountreturnapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/account-return"
 	bondportfolioapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/bond-portfolio"
@@ -41,7 +42,6 @@ func addEndpoints(router *gin.Engine) {
 
 	router.POST("fetch/dividends", dividend.StartDividendFetchingJob)
 	router.GET("all-dividends", dividend.GetAllDividends)
-	router.GET("upcoming-dividends", dividend.GetUpcomingDividends) //TODO: Deprecate (may now be simulated via /all-dividends)
 	router.POST("dividend/forecast", dividend.CreateNewDividendForecast)
 	router.GET("dividend/forecasts", dividend.GetDividendForecasts)
 	router.GET("dividend/account/forecasted-payouts", dividend.GetDividendForecastsForAccount)
@@ -70,5 +70,5 @@ func addEndpoints(router *gin.Engine) {
 }
 
 func healthCheck(c *gin.Context) {
-	c.JSON(http.StatusOK, "The service is running without any issues")
+	c.JSON(http.StatusOK, shared.StringResponse{Message: "The service is running without any issues"})
 }

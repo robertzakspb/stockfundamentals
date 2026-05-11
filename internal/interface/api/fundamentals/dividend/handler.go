@@ -9,37 +9,28 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
 	"github.com/gin-gonic/gin"
 )
 
 func StartDividendFetchingJob(c *gin.Context) {
 	go appdividend.FetchAndSaveAllDividends()
 
-	c.JSON(http.StatusOK, "Successfully started the dividend fetching job")
+	c.JSON(http.StatusOK, shared.StringResponse{Message: "Successfully started the dividend fetching job"})
 }
 
 func GetAllDividends(c *gin.Context) {
 	parsedFilters := ydbfilter.MapQueryFiltersToYdb(c.Request.URL.Query(), dividend.Dividend{})
+
 	dividends, err := appdividend.GetFilteredDividends(parsedFilters)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
+		return
+	}
+
 	dtos := mapDividendToDTO(dividends)
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
-	} else {
-		c.JSON(http.StatusOK, dtos)
-	}
-}
-
-// TODO: Deprecate (use GetAllDividends instead)
-func GetUpcomingDividends(c *gin.Context) {
-	upcomingDividends, err := appdividend.GetAllUpcomingDividends()
-	dtos := mapDividendToDTO(upcomingDividends)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
-	} else {
-		c.JSON(http.StatusOK, dtos)
-	}
+	c.JSON(http.StatusOK, dtos)
 }
 
 func CreateNewDividendForecast(c *gin.Context) {
@@ -48,7 +39,7 @@ func CreateNewDividendForecast(c *gin.Context) {
 
 	jsonData, err := io.ReadAll(bodyReader)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
 		logger.Log("Failed to read the dividend forecast json from the POST payload: "+err.Error(), logger.ERROR)
 		return
 	}
@@ -57,15 +48,15 @@ func CreateNewDividendForecast(c *gin.Context) {
 	err = json.Unmarshal(jsonData, &divForecast)
 	if err != nil {
 		logger.Log("Failed to unmarshal the dividend forecast json in the POST payload: "+err.Error(), logger.ERROR)
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
 		return
 	}
 
 	err = appdividend.SaveDividendForecast(mapDividendForecastDtoToDomain(divForecast))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
 		return
 	}
 
-	c.JSON(http.StatusOK, "The dividend forecast has been successfully saved")
+	c.JSON(http.StatusOK, shared.StringResponse{Message: "The dividend forecast has been successfully saved"})
 }

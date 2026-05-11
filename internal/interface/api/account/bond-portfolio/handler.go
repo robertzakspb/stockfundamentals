@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
+	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
 
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,7 @@ func AddBondPositionLotToAccount(c *gin.Context) {
 
 	jsonData, err := io.ReadAll(bodyReader)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
 		logger.Log("Failed to read the bond position lot json from the POST payload: "+err.Error(), logger.ERROR)
 		return
 	}
@@ -26,7 +27,7 @@ func AddBondPositionLotToAccount(c *gin.Context) {
 	err = json.Unmarshal(jsonData, &dto)
 	if err != nil {
 		logger.Log("Failed to unmarshal the dividend forecast json in the POST payload: "+err.Error(), logger.ERROR)
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
 		return
 	}
 
@@ -35,10 +36,11 @@ func AddBondPositionLotToAccount(c *gin.Context) {
 	err = bondportfolio.SaveBondPositionLot(domain)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
-	} else {
-		c.JSON(http.StatusOK, "The position lot has been successfully saved to the database")
+		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
+		return
 	}
+
+	c.JSON(http.StatusOK, shared.StringResponse{Message: "The position lot has been successfully saved to the database"})
 }
 
 func GetAccountPositionLots(c *gin.Context) {
@@ -58,7 +60,7 @@ func GetAccountPositionLots(c *gin.Context) {
 
 	lots, err := bondportfolio.GetAllPositionLots()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
 		return
 	}
 
@@ -66,7 +68,7 @@ func GetAccountPositionLots(c *gin.Context) {
 		lots, err = bondportfolio.CalculateYtmForLots(lots)
 	}
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
 		return
 	}
 
@@ -82,7 +84,7 @@ func GetAccountPositionLots(c *gin.Context) {
 func GetAccountBondTimeline(c *gin.Context) {
 	items, err := bondportfolio.GetAccountTimeline()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
 		return
 	}
 

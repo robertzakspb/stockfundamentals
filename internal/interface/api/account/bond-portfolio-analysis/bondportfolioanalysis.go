@@ -5,6 +5,7 @@ import (
 
 	bondportfolioanalysis "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio-analysis"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
@@ -20,7 +21,7 @@ func GetAccountBondPortfolioOverview(c *gin.Context) {
 	}
 	accountBondPortfolioOverview, err := bondportfolioanalysis.GeneratePortfolioOverview(filters)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
 		return
 	}
 

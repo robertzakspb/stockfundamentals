@@ -14,26 +14,26 @@ func GetDividendForecasts(c *gin.Context) {
 	forecasts, err := appdividend.GetDividendForecasts()
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
-		return
-	} else {
-		dtos := mapDividendForecastDomainToDto(forecasts)
-		c.JSON(http.StatusOK, dtos)
+		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
 		return
 	}
+
+	dtos := mapDividendForecastDomainToDto(forecasts)
+
+	c.JSON(http.StatusOK, dtos)
 }
 
 func GetDividendForecastsForAccount(c *gin.Context) {
 	accountIdString, _ := shared.GetFromQueryParams("accountId", c.Request.URL.Query())
 	accountId, err := uuid.Parse(accountIdString)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
 		return
 	}
 
 	accountPayouts, err := appdividend.GetDividendForecastsForAccount(accountId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
 		return
 	}
 
@@ -45,7 +45,7 @@ func GetDividendForecastsForAccount(c *gin.Context) {
 	}
 
 	calendar := divcalapi.DividendCalendarDto{
-		AccountIds: []uuid.UUID{accountId},
+		AccountIds:    []uuid.UUID{accountId},
 		FuturePayouts: dtos,
 	}
 
@@ -56,10 +56,11 @@ func GetDividendForecastsGroupedBySecurity(c *gin.Context) {
 	forecasts, err := appdividend.GetDivForecastsGroupedBySecurity()
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
 		return
-	} else {
-		dtos := mapSecurityDivForecastToDto(forecasts)
-		c.JSON(http.StatusOK, dtos)
 	}
+
+	dtos := mapSecurityDivForecastToDto(forecasts)
+
+	c.JSON(http.StatusOK, dtos)
 }

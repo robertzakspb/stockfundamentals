@@ -14,7 +14,8 @@ import (
 func GetAccountDividendCalendar(c *gin.Context) {
 	query, err := shared.GetFromQueryParams("accountIds", c.Request.URL.Query())
 	if err != nil {
-		c.JSON(http.StatusNotAcceptable, err)
+		c.JSON(http.StatusNotAcceptable, shared.ResponseError{Errors: []string{err.Error()}})
+		return
 	}
 	accountIds := strings.Split(query, ",")
 
@@ -30,7 +31,7 @@ func GetAccountDividendCalendar(c *gin.Context) {
 
 	divCalendar, err := divcalendarservice.GetAccountDividendCalendar(uuids)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
 		return
 	}
 

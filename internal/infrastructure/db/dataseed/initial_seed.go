@@ -17,6 +17,7 @@ import (
 	dbsecurity "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
@@ -30,19 +31,19 @@ import (
 func InitialSeed(c *gin.Context) {
 	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, "Unable to proceed due to database issues")
+		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{"Unable to proceed due to database issues"}})
 		panic("Failed to connect to the database")
 	}
 	defer db.ReleaseDriver(dbConnection)
 
 	err = createTables(context.TODO(), dbConnection)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, "Failed to create tables")
+		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{"Failed to create tables"}})
 	}
 
 	err = populateTables(dbConnection)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, "Failed to populate tables")
+		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{"Failed to populate tables"}})
 	}
 }
 
