@@ -6,13 +6,17 @@ import (
 
 	divcalendarservice "github.com/compoundinvest/stockfundamentals/internal/application/account/dividend-calendar"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 func GetAccountDividendCalendar(c *gin.Context) {
-	query := c.Request.URL.Query()["accountIds"]
-	accountIds := strings.Split(query[0], ",")
+	query, err := shared.GetFromQueryParams("accountIds", c.Request.URL.Query())
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, err)
+	}
+	accountIds := strings.Split(query, ",")
 
 	uuids := uuid.UUIDs{}
 	for _, accountId := range accountIds[1:] {
