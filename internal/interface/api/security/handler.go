@@ -3,7 +3,7 @@ package api_security
 import (
 	"net/http"
 
-	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
+	"github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
 	"github.com/gin-gonic/gin"
 )
