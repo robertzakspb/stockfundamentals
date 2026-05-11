@@ -5,13 +5,14 @@ import (
 	"sync"
 
 	// accountreturnapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/account-return"
-	accountreturnapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/account-return"
-	portfolio "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/stock-portfolio"
-	bondsapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/bonds"
-	forexapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/forex"
-	apidividend "github.com/compoundinvest/stockfundamentals/internal/interface/api/fundamentals/dividend"
-	api_security "github.com/compoundinvest/stockfundamentals/internal/interface/api/security"
-	timeseries "github.com/compoundinvest/stockfundamentals/internal/interface/api/time-series"
+	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
+	accountmvservice "github.com/compoundinvest/stockfundamentals/internal/application/account/market-value"
+	"github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
+	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
+	appdividend "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
+	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
+	"github.com/compoundinvest/stockfundamentals/internal/application/timeseries"
+	"github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
 	"github.com/gin-gonic/gin"
 )
@@ -25,23 +26,24 @@ func StartAllJobs(c *gin.Context) {
 func StartDailyJobs(c *gin.Context) {
 	wg := sync.WaitGroup{}
 
-	wg.Go(func() { api_security.StartSecurityMasterImportJob(c) })
-	wg.Go(func() { forexapi.StartForexImportJob(c) })
+	wg.Go(func() { security_master.FetchAndSaveSecurities() })
+	wg.Go(func() { forexservice.ImportForexRatesJob() })
 
-	wg.Wait() //Need to fetch the latest forex rates before proceeding to update the bonds' ACI
+	wg.Wait() //Need to fetch the latest forex rates before proceeding to update the bonds' ACI. The security master must also be updated before any other stock-related jobs are executed
 
-	bondsapi.StartBondAccruedInterestUpdateJob(c)
+	go bondservice.UpdateAllBondsAci()
 
-	portfolio.UpdatePortfolio(c)
+	portfolio.UpdatePortfolio() //The stock & bonds portfolios must be updated before the market value job so that the latest positions are used in MV calculation
+	bondportfolio.ImportTinkoffBondLots()
 
-	accountreturnapi.StartMarketValueSnapshotJob(c)
+	go accountmvservice.SaveAccountMarketValueSnapshots()
 
 	c.JSON(http.StatusOK, shared.StringResponse{Message: "Daily jobs were successfully started/executed"})
 }
 
 func StartHeavyJobs(c *gin.Context) {
-	timeseries.StartTimeSeriesImportJob(c)  //Completes in 18 minutes if run separately
-	apidividend.StartDividendFetchingJob(c) //Completes in 1.5 minutes if run separately
-	bondsapi.StartBondAndCouponImportJob(c) //Completes in 18.5 minutes if run separately
+	go timeseries.FetchAndSaveHistoricalQuotes() //Completes in 18 minutes if run separately
+	go appdividend.FetchAndSaveAllDividends()    //Completes in 1.5 minutes if run separately
+	go bondservice.ImportAllBondsAndCoupons()    //Completes in 18.5 minutes if run separately
 	c.JSON(http.StatusOK, shared.StringResponse{Message: "Heavy jobs were successfully started/executed"})
 }

@@ -9,7 +9,7 @@ import (
 )
 
 func StartForexImportJob(c *gin.Context) {
-	go forexservice.StartFxRateImportJob()
+	go forexservice.ImportForexRatesJob()
 
 	c.JSON(http.StatusOK, shared.StringResponse{Message: "The forex import job has been successfully started"})
 }

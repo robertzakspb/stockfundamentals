@@ -1,6 +1,6 @@
 package forexservice
 
-func StartFxRateImportJob() {
+func ImportForexRatesJob() {
 	var requiredCurrencyPairs = map[Currency]Currency{
 		USD: RUB,
 		EUR: RUB,
