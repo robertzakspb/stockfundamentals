@@ -3,7 +3,6 @@ package timeseriesdb
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"path"
 
@@ -61,14 +60,21 @@ func GetLatestQuotesForAllSecurities() ([]QuoteDB, error) {
 	defer db.ReleaseDriver(dbConnection)
 
 	dbQuotes := []QuoteDB{}
-	yqlQuery := fmt.Sprintf(
-		"SELECT "+
-			"`marketdata/time_series`.figi AS figi, `marketdata/time_series`.close_price AS close_price, MAX(date) AS date, `stockfundamentals/stocks/stock`.country_iso2 AS country_iso2"+
-			" FROM "+
-			"%s"+
-			" JOIN `stockfundamentals/stocks/stock` ON `marketdata/time_series`.figi = `stockfundamentals/stocks/stock`.figi"+
-			" GROUP BY `marketdata/time_series`.figi, `stockfundamentals/stocks/stock`.country_iso2",
-		makeTimeSeriesTablePath())
+	yqlQuery :=
+		"$noPriceSelection = SELECT " +
+			"`marketdata/time_series`.figi AS figi, " +
+			"MAX(date) AS date, " +
+			"`stockfundamentals/stocks/stock`.country_iso2 AS country_iso2 " +
+			" FROM " +
+			"`marketdata/time_series` JOIN `stockfundamentals/stocks/stock` " +
+			"ON `marketdata/time_series`.figi = `stockfundamentals/stocks/stock`.figi " +
+			"GROUP BY `marketdata/time_series`.figi, `stockfundamentals/stocks/stock`.country_iso2;" +
+
+			" SELECT n.figi AS figi, n.date AS date, n.country_iso2 AS country_iso2, t.close_price AS close_price " +
+			"FROM " +
+			"$noPriceSelection as n " +
+			"JOIN `marketdata/time_series` AS t " +
+			" ON t.date = n.date AND t.figi = n.figi;"
 	logger.Log("Executing query: "+yqlQuery, logger.INFORMATION)
 
 	err = dbConnection.Query().Do(context.TODO(),
@@ -111,9 +117,4 @@ func GetLatestQuotesForAllSecurities() ([]QuoteDB, error) {
 	}
 
 	return dbQuotes, nil
-}
-
-func makeTimeSeriesTablePath() string {
-	path := "`" + path.Join(market_date_directory_prefix, time_series_table_name) + "`"
-	return path
 }
