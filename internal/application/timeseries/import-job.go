@@ -10,13 +10,13 @@ import (
 	tinkoffapi "github.com/compoundinvest/invest-core/quote/tinkoffmd"
 
 	tthrottler "github.com/compoundinvest/stockfundamentals/internal/application/tinkoff-throttler"
-	timeseries "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/marketdata"
+	timeseriesdb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/marketdata"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
 )
 
 func FetchAndSaveHistoricalQuotes() error {
-	latestQuotes, err := timeseries.GetLatestQuotesForAllSecurities()
+	latestQuotes, err := timeseriesdb.GetLatestQuotesForAllSecurities()
 	if err != nil {
 		return err
 	}
@@ -51,8 +51,7 @@ func FetchAndSaveHistoricalQuotes() error {
 		if len(quotes) == 0 {
 			continue
 		}
-		go timeseries.SaveTimeSeriesToDB(&quotes)
-
+		go timeseriesdb.SaveTimeSeriesToDB(&quotes)
 	}
 
 	logger.Log("The time series job has successfully completed", logger.INFORMATION)
