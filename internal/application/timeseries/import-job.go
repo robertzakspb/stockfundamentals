@@ -24,7 +24,7 @@ func FetchAndSaveHistoricalQuotes() error {
 
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
-		return errors.New("Unable to fetch dividends due to internal configuration issues")
+		return errors.New("Unable to fetch quotes due to internal configuration issues")
 	}
 	client, err := tinkoff.NewClient(context.TODO(), config, nil)
 	service := client.NewMarketDataServiceClient()

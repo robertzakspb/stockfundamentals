@@ -63,7 +63,7 @@ func GetLatestQuotesForAllSecurities() ([]QuoteDB, error) {
 	dbQuotes := []QuoteDB{}
 	yqlQuery := fmt.Sprintf(
 		"SELECT "+
-			"`marketdata/time_series`.figi AS figi, MAX(date) AS date, `stockfundamentals/stocks/stock`.country_iso2 AS country_iso2"+
+			"`marketdata/time_series`.figi AS figi, `marketdata/time_series`.close_price AS close_price, MAX(date) AS date, `stockfundamentals/stocks/stock`.country_iso2 AS country_iso2"+
 			" FROM "+
 			"%s"+
 			" JOIN `stockfundamentals/stocks/stock` ON `marketdata/time_series`.figi = `stockfundamentals/stocks/stock`.figi"+
