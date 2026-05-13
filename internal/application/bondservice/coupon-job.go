@@ -10,13 +10,20 @@ import (
 	tthrottler "github.com/compoundinvest/stockfundamentals/internal/application/tinkoff-throttler"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
 )
 
 func importAllCoupons() error {
-	startTime := time.Now()
-	bonds, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{})
+	startTime := time.Now() //Used for calculating the time it took to execute the job
+
+	maturityFilter := ydbfilter.YdbFilter{
+		YqlColumnName: "maturity_date",
+		Condition: ydbfilter.GreaterThan,
+		ConditionValue: ydbhelper.ConvertToYdbDate(time.Now()),
+	}
+	bonds, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{maturityFilter})
 	if err != nil {
 		return err
 	}
