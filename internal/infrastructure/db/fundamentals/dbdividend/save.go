@@ -16,16 +16,18 @@ import (
 )
 
 func SaveDividendsToDB(dividends *[]dividend.Dividend) error {
+	if len(*dividends) == 0 || dividends == nil {
+		errorMessage := "Attempting to save 0 dividends"
+		logger.Log(errorMessage, logger.WARNING)
+		return errors.New(errorMessage)
+	}
+
 	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 		return err
 	}
 	defer db.ReleaseDriver(dbConnection)
-
-	if len(*dividends) == 0 {
-		logger.Log("Attempting to save 0 dividends", logger.WARNING)
-	}
 
 	dbModels := mapDividendToDbModel(*dividends)
 
