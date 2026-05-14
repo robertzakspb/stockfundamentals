@@ -587,11 +587,16 @@ func populateFinancialMetricsTable(reader *csv.Reader) error {
 			continue
 		}
 
+		reportingPeriod, found := entity.ReportingPeriodMap[csvMetric[3]]
+		if !found {
+			logger.Log("Attempting to save a financial metric with an unparsable reporting period: "+csvMetric[3], logger.ERROR)
+			continue
+		}
 		metrics = append(metrics, entity.FinancialMetric{
 			Id:              parsedId,
 			StockId:         parsedStockId,
 			Name:            csvMetric[2],
-			ReportingPeriod: entity.ReportingPeriodMap[csvMetric[3]],
+			ReportingPeriod: reportingPeriod,
 			Year:            int(parsedYear),
 			Value:           int(parsedValue),
 			Currency:        csvMetric[6],
