@@ -21,13 +21,13 @@ const stock_directory_prefix = "stockfundamentals/stocks"
 const financial_metrics_table_name = "financial_metric"
 
 type FinancialMetricDbModel struct {
-	Id       uuid.UUID `sql:"id"`
-	StockId  uuid.UUID `sql:"stock_id"`
-	Name     string    `sql:"metric"`
-	Period   string    `sql:"reporting_period"`
-	Year     int64     `sql:"year"`
-	Value    int64     `sql:"metric_value"`
-	Currency string    `sql:"metric_currency"`
+	Id              uuid.UUID `sql:"id"`
+	StockId         uuid.UUID `sql:"stock_id"`
+	Name            string    `sql:"metric"`
+	ReportingPeriod string    `sql:"reporting_period"`
+	Year            int64     `sql:"year"`
+	Value           int64     `sql:"metric_value"`
+	Currency        string    `sql:"metric_currency"`
 }
 
 func SaveFinancialMetricsToDb(dbModels []FinancialMetricDbModel) error {
@@ -44,7 +44,7 @@ func SaveFinancialMetricsToDb(dbModels []FinancialMetricDbModel) error {
 			types.StructFieldValue("id", types.UuidValue(metric.Id)),
 			types.StructFieldValue("stock_id", types.UuidValue(metric.StockId)),
 			types.StructFieldValue("metric", types.UTF8Value(metric.Name)),
-			types.StructFieldValue("reporting_period", types.UTF8Value(string(metric.Period))),
+			types.StructFieldValue("reporting_period", types.UTF8Value(string(metric.ReportingPeriod))),
 			types.StructFieldValue("year", types.Int64Value(int64(metric.Year))),
 			types.StructFieldValue("metric_value", types.Int64Value(int64(metric.Value))),
 			types.StructFieldValue("metric_currency", types.UTF8Value(metric.Currency)),
