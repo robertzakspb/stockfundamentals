@@ -1,6 +1,7 @@
 package ydbhelper
 
 import (
+	"path"
 	"time"
 
 	"github.com/google/uuid"
@@ -49,4 +50,8 @@ func ConvertToOptionalYDBdate(date time.Time) types.Value {
 	}
 
 	return ConvertToYdbDate(date)
+}
+
+func GenerateTablePath(prefix string, name string) string {
+	return "`" + path.Join(prefix, name) + "`"
 }

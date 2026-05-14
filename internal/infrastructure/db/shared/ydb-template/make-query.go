@@ -10,7 +10,7 @@ import (
 	taghelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/tag-helpers"
 )
 
-func generateGetQuery[T any](filters []ydbfilter.YdbFilter, tableName string) (string, error) {
+func generateGetQuery[T any](filters []ydbfilter.YdbFilter, tablePath string) (string, error) {
 	sb := strings.Builder{}
 
 	sb.WriteString(ydbfilter.AddYqlVarDeclarations(filters))
@@ -35,7 +35,7 @@ func generateGetQuery[T any](filters []ydbfilter.YdbFilter, tableName string) (s
 	}
 
 	sb.WriteString("FROM ")
-	sb.WriteString(tableName + " ")
+	sb.WriteString(tablePath + " ")
 	sb.WriteString(ydbfilter.MakeWhereClause(filters))
 
 	return sb.String(), nil
