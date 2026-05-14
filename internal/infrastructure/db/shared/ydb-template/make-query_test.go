@@ -17,7 +17,7 @@ func Test_GenerateGetQuery_NoFilters(t *testing.T) {
 	tableName := "fooStore"
 	expectedQuery := "SELECT a, b, FROM fooStore "
 
-	query, err :=generateGetQuery[Foo]([]ydbfilter.YdbFilter{}, tableName)
+	query, err := generateGetQuery[Foo]([]ydbfilter.YdbFilter{}, tableName)
 
 	test.AssertNoError(t, err)
 	test.AssertEqual(t, expectedQuery, query)

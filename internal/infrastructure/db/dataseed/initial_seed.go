@@ -9,11 +9,11 @@ import (
 	"strconv"
 	"time"
 
+	financialsservice "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/financials"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	entity "github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
-	dbfinancials "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/financials"
 	dbsecurity "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/security"
 	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -41,7 +41,7 @@ func InitialSeed(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{"Failed to create tables"}})
 	}
 
-	err = populateTables(dbConnection)
+	err = populateTables()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{"Failed to populate tables"}})
 	}
@@ -103,8 +103,8 @@ func createTables(ctx context.Context, db *ydb.Driver) error {
 	return nil
 }
 
-func populateTables(db *ydb.Driver) error {
-	err := populateAllTables(db)
+func populateTables() error {
+	err := populateAllTables()
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 		return err
@@ -404,7 +404,7 @@ func createBondTable(ctx context.Context, dbConnection *ydb.Driver, c table.Clie
 
 const seedDataFolder = "internal/infrastructure/db/dataseed/seed-data/"
 
-func populateAllTables(db *ydb.Driver) error {
+func populateAllTables() error {
 	files, err := os.ReadDir(seedDataFolder)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
@@ -428,7 +428,7 @@ func populateAllTables(db *ydb.Driver) error {
 		case seedDataFolder + "dividend-seed.csv":
 			seedError = populateDividendTable(csvReader)
 		case seedDataFolder + "revenue-income-seed.csv":
-			seedError = populateFinancialMetricsTable(csvReader, db)
+			seedError = populateFinancialMetricsTable(csvReader)
 		default:
 			logger.Log("Attempting to seed data from an unknow file: "+fileName, logger.ALERT)
 		}
@@ -553,7 +553,7 @@ func populateDividendTable(reader *csv.Reader) error {
 	return nil
 }
 
-func populateFinancialMetricsTable(reader *csv.Reader, db *ydb.Driver) error {
+func populateFinancialMetricsTable(reader *csv.Reader) error {
 	seedRecords, err := reader.ReadAll()
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
@@ -598,7 +598,7 @@ func populateFinancialMetricsTable(reader *csv.Reader, db *ydb.Driver) error {
 		})
 	}
 
-	err = dbfinancials.SaveFinancialMetricsToDb(metrics, db)
+	err = financialsservice.SaveFinancialMetrics(metrics)
 	if err != nil {
 		return err
 	}

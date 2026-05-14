@@ -7,11 +7,9 @@ import (
 	"io"
 	"path"
 
-	entity "github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
 	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
-	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
@@ -32,9 +30,14 @@ type FinancialMetricDbModel struct {
 	Currency string    `sql:"metric_currency"`
 }
 
-func SaveFinancialMetricsToDb(metrics []entity.FinancialMetric, db *ydb.Driver) error {
+func SaveFinancialMetricsToDb(dbModels []FinancialMetricDbModel) error {
 	ydbFinancials := []types.Value{}
-	dbModels := MapFinancialMetricModelToDbModel(metrics)
+
+	dbConnection, err := db.GetReusableYdbDriver()
+	if err != nil {
+		return err
+	}
+	defer db.ReleaseDriver(dbConnection)
 
 	for _, metric := range dbModels {
 		ydbMetric := types.StructValue(
@@ -49,8 +52,8 @@ func SaveFinancialMetricsToDb(metrics []entity.FinancialMetric, db *ydb.Driver) 
 		ydbFinancials = append(ydbFinancials, ydbMetric)
 	}
 
-	financialsTableName := path.Join(db.Name(), stock_directory_prefix, financial_metrics_table_name)
-	err := db.Table().BulkUpsert(
+	financialsTableName := path.Join(dbConnection.Name(), stock_directory_prefix, financial_metrics_table_name)
+	err = dbConnection.Table().BulkUpsert(
 		context.TODO(),
 		financialsTableName,
 		table.BulkUpsertDataRows(types.ListValue(ydbFinancials...)))
@@ -62,15 +65,15 @@ func SaveFinancialMetricsToDb(metrics []entity.FinancialMetric, db *ydb.Driver) 
 	return nil
 }
 
-func FetchFinancialMetrics() ([]entity.FinancialMetric, error) {
+func FetchFinancialMetrics() ([]FinancialMetricDbModel, error) {
+	//TODO: Refactor to use the new generic method
 	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
-		return []entity.FinancialMetric{}, err
+		return []FinancialMetricDbModel{}, err
 	}
 	defer db.ReleaseDriver(dbConnection)
 
 	dbMetrics := []FinancialMetricDbModel{}
-	parsedMetrics := []entity.FinancialMetric{}
 
 	err = dbConnection.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
@@ -116,45 +119,15 @@ func FetchFinancialMetrics() ([]entity.FinancialMetric, error) {
 			}
 
 			for _, metric := range dbMetrics {
-				parsedMetrics = append(parsedMetrics, mapYdbMetricToMetric(metric))
+				dbMetrics = append(dbMetrics, metric)
 			}
 
 			return nil
 		},
 	)
 	if err != nil {
-		return []entity.FinancialMetric{}, err
+		return []FinancialMetricDbModel{}, err
 	}
 
-	return parsedMetrics, nil
-}
-
-func mapYdbMetricToMetric(dbMetric FinancialMetricDbModel) entity.FinancialMetric {
-	return entity.FinancialMetric{
-		Id:       dbMetric.Id,
-		StockId:  dbMetric.StockId,
-		Name:     dbMetric.Name,
-		ReportingPeriod:   entity.ReportingPeriodMap[dbMetric.Period],
-		Year:     int(dbMetric.Year),
-		Value:    int(dbMetric.Value),
-		Currency: dbMetric.Currency,
-	}
-}
-
-func MapFinancialMetricModelToDbModel(metrics []entity.FinancialMetric) []FinancialMetricDbModel {
-	dbModels := []FinancialMetricDbModel{}
-	for _, metric := range metrics {
-		dbModel := FinancialMetricDbModel{
-			Id:       metric.Id,
-			StockId:  metric.StockId,
-			Name:     metric.Name,
-			Period:   string(metric.ReportingPeriod),
-			Year:     int64(metric.Year),
-			Value:    int64(metric.Value),
-			Currency: metric.Currency,
-		}
-		dbModels = append(dbModels, dbModel)
-	}
-
-	return dbModels
+	return dbMetrics, nil
 }

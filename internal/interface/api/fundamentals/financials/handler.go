@@ -1,7 +1,6 @@
 package apifinancials
 
 import (
-	"github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/financials"
 	entity "github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
 )
 
@@ -27,16 +26,16 @@ func mapFinancialMetricToDto(metric entity.FinancialMetric) FinancialMetricDTO {
 	}
 }
 
-func FetchFinancialsFromDB() ([]FinancialMetricDTO, error) {
-	metrics, err := financials.FetchFinancialMetrics()
-	if err != nil {
-		return []FinancialMetricDTO{}, err
-	}
+// func FetchFinancialsFromDB() ([]FinancialMetricDTO, error) {
+// 	metrics, err := financialsservice.FetchFinancialMetrics()
+// 	if err != nil {
+// 		return []FinancialMetricDTO{}, err
+// 	}
 
-	dtos := []FinancialMetricDTO{}
-	for _, metric := range metrics {
-		dtos = append(dtos, mapFinancialMetricToDto(metric))
-	}
+// 	dtos := []FinancialMetricDTO{}
+// 	for _, metric := range metrics {
+// 		dtos = append(dtos, mapFinancialMetricToDto(metric))
+// 	}
 
-	return dtos, nil
-}
+// 	return dtos, nil
+// }
