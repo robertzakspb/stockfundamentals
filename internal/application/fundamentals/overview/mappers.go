@@ -2,7 +2,7 @@ package stockoverview
 
 import pb "opensource.tbank.ru/invest/invest-go/proto"
 
-func MapTinkoffOverviewToInternal(tOverview pb.GetAssetFundamentalsResponse_StatisticResponse) StockOverview {
+func mapTinkoffOverviewToInternal(tOverview *pb.GetAssetFundamentalsResponse_StatisticResponse) StockOverview {
 	overview := StockOverview {
 		Figi: tOverview.AssetUid,
 		Currency: tOverview.Currency,
@@ -57,4 +57,6 @@ func MapTinkoffOverviewToInternal(tOverview pb.GetAssetFundamentalsResponse_Stat
 		TotalDebtChangeFiveYears: tOverview.TotalDebtChangeFiveYears,
 		EvToSales: tOverview.EvToSales,
 	}
+
+	return overview
 }
