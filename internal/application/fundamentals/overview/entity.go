@@ -1,0 +1,59 @@
+package stockoverview
+
+import "time"
+
+type StockOverview struct {
+	Figi                             string                                                                  
+	Currency                         string                                                                                     
+	MarketCapitalization             float64 
+	HighPriceLast_52Weeks            float64                            
+	LowPriceLast_52Weeks             float64                             
+	AverageDailyVolumeLast_10Days    float64 
+	AverageDailyVolumeLast_4Weeks    float64  
+	Beta                             float64 
+	FreeFloat                        float64                                                                               
+	ForwardAnnualDividendYield       float64                        
+	SharesOutstanding                float64                                                     
+	RevenueTtm                       float64                                                                            
+	EbitdaTtm                        float64                                                                              
+	NetIncomeTtm                     float64                                                                   
+	EpsTtm                           float64                                                                                       
+	DilutedEpsTtm                    float64                                                             
+	FreeCashFlowTtm                  float64                                                       
+	FiveYearAnnualRevenueGrowthRate  float64     
+	ThreeYearAnnualRevenueGrowthRate float64 
+	PriceToSalesTtm                  float64                                                       
+	PriceToBookTtm                   float64                                                           
+	PriceToFreeCashFlowTtm           float64                              
+	TotalEnterpriseValueMrq          float64                                
+	EvToEbitdaMrq                    float64                                                             
+	NetMarginMrq                     float64                                                                  
+	NetInterestMarginMrq             float64                                         
+	Roe                              float64                                                                                                           
+	Roa                              float64                                                                                                         
+	Roic                             float64                                                                                                          
+	TotalDebtMrq                     float64                                                                   
+	TotalDebtToEquityMrq             float64                                       
+	TotalDebtToEbitdaMrq             float64                                        
+	FreeCashFlowToPrice              float64                                          
+	NetDebtToEbitda                  float64                                                        
+	CurrentRatioMrq                  float64                                                          
+	FixedChargeCoverageRatioFy       float64                     
+	DividendsPerShare                float64                                                   
+	FiveYearsAverageDividendYield    float64            
+	FiveYearAnnualDividendGrowthRate float64 
+	DividendPayoutRatioFy            float64                                      
+	BuyBackTtm                       float64                                                                          
+	OneYearAnnualRevenueGrowthRate   float64        
+	DomicileIndicatorCode            string  
+	AdrToCommonShareRatio            float64
+	NumberOfEmployees                float64
+	ExDividendDate                   time.Time
+	FiscalPeriodStartDate            time.Time
+	FiscalPeriodEndDate              time.Time
+	RevenueChangeFiveYears           float64
+	EpsChangeFiveYears               float64
+	EbitdaChangeFiveYears            float64
+	TotalDebtChangeFiveYears         float64
+	EvToSales                        float64
+}
