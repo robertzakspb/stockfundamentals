@@ -2,16 +2,14 @@ package dbfinancials
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"io"
 	"path"
 
 	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
+	ydbtemplate "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-template"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
-	"github.com/ydb-platform/ydb-go-sdk/v3/query"
-	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
@@ -66,68 +64,10 @@ func SaveFinancialMetricsToDb(dbModels []FinancialMetricDbModel) error {
 }
 
 func FetchFinancialMetrics() ([]FinancialMetricDbModel, error) {
-	//TODO: Refactor to use the new generic method
-	dbConnection, err := db.GetReusableYdbDriver()
-	if err != nil {
-		return []FinancialMetricDbModel{}, err
-	}
-	defer db.ReleaseDriver(dbConnection)
+	filters := []ydbfilter.YdbFilter{}
+	tablePath := ydbhelper.GenerateTablePath(db.STOCK_DIRECTORY_PREFIX, db.FINANCIAL_METRIC_TABLE_NAME)
 
-	dbMetrics := []FinancialMetricDbModel{}
+	dbMetrics, err := ydbtemplate.GetEntity[FinancialMetricDbModel](filters, tablePath)
 
-	err = dbConnection.Query().Do(context.TODO(),
-		func(ctx context.Context, s query.Session) (err error) {
-			result, err := s.Query(ctx, fmt.Sprintf(`
-						SELECT
-							year, 
-                            id, 
-							stock_id, 
-							metric, 
-							reporting_period,
-							metric_value,
-							metric_currency
-						FROM
-							%s
-					`, "`"+path.Join(stock_directory_prefix, financial_metrics_table_name)+"`"),
-				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
-			)
-			if err != nil {
-				return err
-			}
-
-			defer func() {
-				_ = result.Close(ctx)
-			}()
-
-			for {
-				resultSet, err := result.NextResultSet(ctx)
-				if err != nil {
-					if errors.Is(err, io.EOF) {
-						break
-					}
-
-					return err
-				}
-
-				for row, err := range sugar.UnmarshalRows[FinancialMetricDbModel](resultSet.Rows(ctx)) {
-					if err != nil {
-						return err
-					}
-
-					dbMetrics = append(dbMetrics, row)
-				}
-			}
-
-			for _, metric := range dbMetrics {
-				dbMetrics = append(dbMetrics, metric)
-			}
-
-			return nil
-		},
-	)
-	if err != nil {
-		return []FinancialMetricDbModel{}, err
-	}
-
-	return dbMetrics, nil
+	return dbMetrics, err
 }
