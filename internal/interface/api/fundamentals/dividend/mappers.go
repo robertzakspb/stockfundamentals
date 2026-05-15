@@ -1,6 +1,8 @@
 package apidividend
 
 import (
+	"sort"
+
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 )
@@ -29,12 +31,13 @@ func mapDividendToDTO(dividends []dividend.Dividend) []DividendDTO {
 
 func mapDividendForecastDtoToDomain(dto DividendForecastDTO) dividend.DividendForecast {
 	return dividend.DividendForecast{
-		Stock:         security.Stock{Figi: dto.Figi},
-		ExpectedDPS:   dto.ExpectedDPS,
-		Currency:      dto.Currency,
-		PaymentPeriod: dto.PaymentPeriod,
-		Author:        dto.Author,
-		Comment:       dto.Comment,
+		Stock:              security.Stock{Figi: dto.Figi},
+		ExpectedDPS:        dto.ExpectedDPS,
+		Currency:           dto.Currency,
+		PaymentPeriod:      dto.PaymentPeriod,
+		Author:             dto.Author,
+		Comment:            dto.Comment,
+		ExpectedPayoutDate: dto.ExpectedPayoutDate,
 	}
 }
 
@@ -43,16 +46,25 @@ func mapDividendForecastDomainToDto(domains []dividend.DividendForecast) []Divid
 	for _, domain := range domains {
 
 		dto := DividendForecastDTO{
-			Figi:          domain.Stock.Figi,
-			ExpectedDPS:   domain.ExpectedDPS,
-			Currency:      domain.Currency,
-			PaymentPeriod: domain.PaymentPeriod,
-			Author:        domain.Author,
-			Comment:       domain.Comment,
-			Yield:         domain.Yield,
+			Figi:               domain.Stock.Figi,
+			ExpectedDPS:        domain.ExpectedDPS,
+			Currency:           domain.Currency,
+			PaymentPeriod:      domain.PaymentPeriod,
+			Author:             domain.Author,
+			Comment:            domain.Comment,
+			Yield:              domain.Yield,
+			ExpectedPayoutDate: domain.ExpectedPayoutDate,
 		}
 		dtos = append(dtos, dto)
 	}
+	sort.Slice(dtos, func(i, j int) bool {
+		if dtos[i].ExpectedPayoutDate.Before(dtos[j].ExpectedPayoutDate) {
+			return true
+		} else {
+			return false
+		}
+	})
+
 	return dtos
 }
 
