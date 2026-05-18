@@ -13,12 +13,12 @@ import (
 func GetLatestQuotes(figis []string) ([]quote.Quote, error) {
 	quotes := []quote.Quote{}
 
-	dbQuotes, err := timeseriesdb.GetLatestQuotesForAllSecurities()
+	dbQuotes, err := GetLocalQuotes(figis)
 	if err != nil {
-		return quotes, err
+		return []quote.Quote{}, err
 	}
 
-	quotes = append(quotes, mapDbQuotesToQuotes(dbQuotes)...)
+	quotes = append(quotes, dbQuotes...)
 
 	tickersWithMissingQuotes := []string{}
 	for i := range figis {
@@ -39,6 +39,20 @@ func GetLatestQuotes(figis []string) ([]quote.Quote, error) {
 	}
 
 	quotes = append(quotes, missingQuotes...)
+
+	return quotes, nil
+}
+
+func GetLocalQuotes(figis []string) ([]quote.Quote, error) {
+	quotes := []quote.Quote{}
+
+	dbQuotes, err := timeseriesdb.GetLatestQuotesForAllSecurities()
+	if err != nil {
+		return quotes, err
+	}
+
+	mappedQuotes := mapDbQuotesToQuotes(dbQuotes)
+	quotes = append(quotes, mappedQuotes...)
 
 	return quotes, nil
 }
