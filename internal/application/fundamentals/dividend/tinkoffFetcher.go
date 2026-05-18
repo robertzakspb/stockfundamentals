@@ -14,7 +14,7 @@ import (
 
 func fetchTinkoffDividendsFor(securityService *tinkoff.InstrumentsServiceClient, stock security.Security) []dividend.Dividend {
 
-	earliestDividendDate := time.Time{}
+	earliestDividendDate := time.Now().AddDate(-50, 0, 0)
 	upcomingDividendDate := time.Now().AddDate(2, 0, 0)
 
 	tinkoffDividends, err := securityService.GetDividents(stock.GetFigi(), earliestDividendDate, upcomingDividendDate)
