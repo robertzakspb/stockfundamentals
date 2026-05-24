@@ -5,6 +5,7 @@ import (
 	"reflect"
 )
 
+// Parses all fields in an entity looking for a specific tag and then returns a slice of the tag values
 func GetEntityTagValues[T any](tag string) ([]string, error) {
 	tags := []string{}
 	var instance T
