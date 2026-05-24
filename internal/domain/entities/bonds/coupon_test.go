@@ -43,7 +43,7 @@ func Test_findCurrentCouponForBond(t *testing.T) {
 	coupon, err := findCurrentCouponForBond(bond)
 
 	test.AssertNoError(t, err)
-	test.AssertEqualStrings(t, coupon.Figi, "test_figi")
+	test.AssertEqual(t, coupon.Figi, "test_figi")
 }
 
 func Test_TotalCouponIncome_NoCoupons(t *testing.T) {
