@@ -4,6 +4,7 @@ import (
 	"context"
 	"os/signal"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -19,8 +20,8 @@ func importAllCoupons() error {
 	startTime := time.Now() //Used for calculating the time it took to execute the job
 
 	maturityFilter := ydbfilter.YdbFilter{
-		YqlColumnName: "maturity_date",
-		Condition: ydbfilter.GreaterThan,
+		YqlColumnName:  "maturity_date",
+		Condition:      ydbfilter.GreaterThan,
 		ConditionValue: ydbhelper.ConvertToYdbDate(time.Now()),
 	}
 	bonds, err := bondsdb.GetAllBonds([]ydbfilter.YdbFilter{maturityFilter})
@@ -53,9 +54,16 @@ func importAllCoupons() error {
 	coupondPeriodStartDate, _ := time.Parse(time.DateOnly, "1970-01-01")
 	for i, bond := range bonds {
 		<-tthrottler.InstrumentServiceThrottle
-		
+
 		response, err := bondService.GetBondCoupons(bond.Figi, coupondPeriodStartDate, coupondPeriodEndDate)
 		if err != nil {
+			//The actual error message seems to be present in the 6th element of the Header slice
+			message, found := response.Header["message"]
+			if found {
+				logger.Log(strings.Join(message, ". "), logger.ERROR)
+			}
+
+			//Fallback in case the message was not found
 			logger.Log(err.Error(), logger.ERROR)
 			continue
 		}
