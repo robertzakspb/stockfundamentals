@@ -17,7 +17,7 @@ func Test_AddYqlVarDeclarations(t *testing.T) {
 	expected := "DECLARE $age_filter AS Int64;\nDECLARE $name_filter AS Utf8;\nDECLARE $is_resident_filter AS Bool;\n"
 	actual := AddYqlVarDeclarations(filters)
 
-	test.AssertEqualStrings(t, expected, actual)
+	test.AssertEqual(t, expected, actual)
 }
 
 func Test_AddYqlVarDeclarations_NoFilters(t *testing.T) {
@@ -26,7 +26,7 @@ func Test_AddYqlVarDeclarations_NoFilters(t *testing.T) {
 	expected := ""
 	actual := AddYqlVarDeclarations(filters)
 
-	test.AssertEqualStrings(t, expected, actual)
+	test.AssertEqual(t, expected, actual)
 }
 
 func Test_MakeWhereClause(t *testing.T) {
@@ -38,7 +38,7 @@ func Test_MakeWhereClause(t *testing.T) {
 
 	expected := " WHERE\n age > $age_filter AND name = $name_filter AND is_resident = $is_resident_filter"
 	actual := MakeWhereClause(filters)
-	test.AssertEqualStrings(t, expected, actual)
+	test.AssertEqual(t, expected, actual)
 }
 
 func Test_MakeWhereClause_NoFilters(t *testing.T) {
@@ -47,5 +47,5 @@ func Test_MakeWhereClause_NoFilters(t *testing.T) {
 	expected := ""
 	actual := MakeWhereClause(filters)
 
-	test.AssertEqualStrings(t, expected, actual)
+	test.AssertEqual(t, expected, actual)
 }
