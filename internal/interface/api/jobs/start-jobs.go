@@ -9,17 +9,19 @@ import (
 )
 
 func StartAllJobs(c *gin.Context) {
-	jobservice.StartDailyJobs()
-	jobservice.StartHeavyJobs()
+	go func() {
+		jobservice.StartDailyJobs()
+		jobservice.StartHeavyJobs()
+	}()
 	c.JSON(http.StatusOK, shared.StringResponse{Message: "All jobs were successfully started/executed"})
 }
 
 func StartDailyJobs(c *gin.Context) {
-	jobservice.StartDailyJobs()
+	go jobservice.StartDailyJobs()
 	c.JSON(http.StatusOK, shared.StringResponse{Message: "Daily jobs were successfully started"})
 }
 
 func StartHeavyJobs(c *gin.Context) {
-	jobservice.StartHeavyJobs()
+	go jobservice.StartHeavyJobs()
 	c.JSON(http.StatusOK, shared.StringResponse{Message: "Heavy jobs were successfully started/executed"})
 }
