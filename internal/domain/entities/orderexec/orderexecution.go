@@ -63,9 +63,9 @@ func New(accountId, securityId uuid.UUID, timestamp time.Time, quantity, price f
 }
 
 func (exec *Execution) IsBuyOrder() bool {
-	return exec.Quantity > 0
+	return exec.Side == Buy
 }
 
 func (exec *Execution) IsSellOrder() bool {
-	return exec.Quantity < 0
+	return exec.Side == Sell
 }

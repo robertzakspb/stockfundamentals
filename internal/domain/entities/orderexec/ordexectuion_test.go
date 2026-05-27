@@ -69,3 +69,51 @@ func Test_NewExec_InvalidOrderSide(t *testing.T) {
 
 	test.AssertError(t, err)
 }
+
+func Test_IsBuyOrder_Positive(t *testing.T) {
+	accountId, securityId := uuid.New(), uuid.New()
+	timestamp := time.Date(2026, 11, 3, 0, 0, 0, 0, time.UTC)
+	quantity, price := 10.0, 25.0
+	description, side := "description", "BUY"
+
+	exec, err := New(accountId, securityId, timestamp, float64(quantity), float64(price), description, side)
+
+	test.AssertNoError(t, err)
+	test.AssertTrue(t, exec.IsBuyOrder())
+}
+
+func Test_IsBuyOrder_Negative(t *testing.T) {
+	accountId, securityId := uuid.New(), uuid.New()
+	timestamp := time.Date(2026, 11, 3, 0, 0, 0, 0, time.UTC)
+	quantity, price := 10.0, 25.0
+	description, side := "description", "SELL"
+
+	exec, err := New(accountId, securityId, timestamp, float64(quantity), float64(price), description, side)
+
+	test.AssertNoError(t, err)
+	test.AssertFalse(t, exec.IsBuyOrder())
+}
+
+func Test_IsSellOrder_Positive(t *testing.T) {
+	accountId, securityId := uuid.New(), uuid.New()
+	timestamp := time.Date(2026, 11, 3, 0, 0, 0, 0, time.UTC)
+	quantity, price := 10.0, 25.0
+	description, side := "description", "SELL"
+
+	exec, err := New(accountId, securityId, timestamp, float64(quantity), float64(price), description, side)
+
+	test.AssertNoError(t, err)
+	test.AssertTrue(t, exec.IsSellOrder())
+}
+
+func Test_IsSellOrder_Negative(t *testing.T) {
+	accountId, securityId := uuid.New(), uuid.New()
+	timestamp := time.Date(2026, 11, 3, 0, 0, 0, 0, time.UTC)
+	quantity, price := 10.0, 25.0
+	description, side := "description", "BUY"
+
+	exec, err := New(accountId, securityId, timestamp, float64(quantity), float64(price), description, side)
+
+	test.AssertNoError(t, err)
+	test.AssertFalse(t, exec.IsSellOrder())
+}
