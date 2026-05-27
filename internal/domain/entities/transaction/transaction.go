@@ -1,4 +1,4 @@
-package orderexec
+package transaction
 
 import (
 	"errors"
@@ -8,10 +8,11 @@ import (
 	"github.com/google/uuid"
 )
 
-type Execution struct {
+type Transaction struct {
 	Id          uuid.UUID
 	AccountId   uuid.UUID
 	SecurityId  uuid.UUID
+	Type        Type
 	Timestamp   time.Time
 	Side        OrderSide
 	Quantity    float64
@@ -26,6 +27,14 @@ const (
 	Sell OrderSide = "SELL"
 )
 
+type Type string
+
+const (
+	OrderExecution Type = "OrderExecution"
+	Deposit        Type = "Deposit"
+	Withdrawal     Type = "Withdrawal"
+)
+
 var OrderSideStringValue = map[OrderSide]string{
 	Buy:  "BUY",
 	Sell: "SELL",
@@ -35,22 +44,22 @@ var OrderSideLookup = map[string]OrderSide{
 	"SELL": Sell,
 }
 
-func New(accountId, securityId uuid.UUID, timestamp time.Time, quantity, price float64, description, side string) (Execution, error) {
+func New(accountId, securityId uuid.UUID, timestamp time.Time, quantity, price float64, description, side string) (Transaction, error) {
 	if quantity < 0 {
-		return Execution{}, fmt.Errorf("quantity is smaller than 0: %f", quantity)
+		return Transaction{}, fmt.Errorf("quantity is smaller than 0: %f", quantity)
 	}
 	if price < 0 {
-		return Execution{}, fmt.Errorf("price is smaller than 0: %f", price)
+		return Transaction{}, fmt.Errorf("price is smaller than 0: %f", price)
 	}
 	if len(description) > 1000 {
-		return Execution{}, fmt.Errorf("description cannot contain more than 1000 characters")
+		return Transaction{}, fmt.Errorf("description cannot contain more than 1000 characters")
 	}
 	orderSide, found := OrderSideLookup[side]
 	if !found {
-		return Execution{}, errors.New("Invalid order side: " + side)
+		return Transaction{}, errors.New("Invalid order side: " + side)
 	}
 
-	return Execution{
+	return Transaction{
 		Id:          uuid.New(),
 		AccountId:   accountId,
 		SecurityId:  securityId,
@@ -62,10 +71,10 @@ func New(accountId, securityId uuid.UUID, timestamp time.Time, quantity, price f
 	}, nil
 }
 
-func (exec *Execution) IsBuyOrder() bool {
+func (exec *Transaction) IsBuyOrder() bool {
 	return exec.Side == Buy
 }
 
-func (exec *Execution) IsSellOrder() bool {
+func (exec *Transaction) IsSellOrder() bool {
 	return exec.Side == Sell
 }

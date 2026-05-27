@@ -1,7 +1,7 @@
 package orderprocessor
 
 import (
-	// "github.com/compoundinvest/stockfundamentals/internal/domain/entities/orderexec"
+	// "github.com/compoundinvest/stockfundamentals/internal/domain/entities/transaction"
 	// "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 )
 
