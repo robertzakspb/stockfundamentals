@@ -1,4 +1,4 @@
-package orderprocessor
+package transactionprocessor
 
 import (
 	// "github.com/compoundinvest/stockfundamentals/internal/domain/entities/transaction"
