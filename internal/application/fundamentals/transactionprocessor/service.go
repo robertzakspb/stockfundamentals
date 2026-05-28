@@ -1,38 +1,31 @@
 package transactionprocessor
 
 import (
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
+	"errors"
+
+	accountservice "github.com/compoundinvest/stockfundamentals/internal/application/account/account"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/transaction"
 )
 
-//Main method that accepts transactions of any type and processes them
-func ProcessTransactions(transactions []transaction.Transaction) error {
-	for i := range transactions {
-		switch transactions[i].Type
+func ProcessOrderExecutions(transactions []transaction.Transaction) error {
+	if len(transactions) == 0 {
+		return errors.New("Provided zero transactions")
 	}
-
-
-	return nil
-}
-
-func ProcessExecution(execs []transaction.Transaction, accountLots []lot.Lot) error {
-	for _, exec := range execs {
-		if exec.IsBuyOrder() {
-			newLots, err := calculateNewLotFromBuyExec(execs)
-			if err != nil {
-				return err
-			}
-			accountLots = append(accountLots, newLots...)
+	for i := range transactions {
+		if transactions[i].Type != transaction.OrderExecution {
+			return errors.New("Encountered a transaction of type " + string(transactions[i].Type) + " while processing order executions")
 		}
 	}
 
+	accountIds := ExtractAccountsFrom(transactions)
+	_, err := accountservice.GetAccountsById(accountIds)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func calculateNewLotFromBuyExec(exec []orderexec.Execution) ([]lot.Lot, error) {
-	// newLot := lot.NewLot()
+func AdjustPositionLots() {
 
-
-
-	return newLots, nil
 }

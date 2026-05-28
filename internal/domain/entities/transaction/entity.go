@@ -17,7 +17,7 @@ type Transaction struct {
 	Timestamp   time.Time
 	Side        OrderSide
 	Quantity    float64
-	Price       float64
+	Amount      float64
 	Description string
 }
 
@@ -81,11 +81,9 @@ func New(accountId, securityId uuid.UUID, timestamp time.Time, quantity, price f
 		SecurityId:  securityId,
 		Timestamp:   timestamp,
 		Quantity:    quantity,
-		Price:       price,
+		Amount:       price,
 		Side:        orderSide,
 		Description: description,
 		Type:        parsedType,
 	}, nil
 }
-
-
