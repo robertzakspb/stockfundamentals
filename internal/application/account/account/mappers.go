@@ -6,9 +6,9 @@ import (
 )
 
 func mapDbAccountsToAccounts(dbAccounts []accountdb.AccountDbModel) []account.Account {
-	accounts := []account.Account{}
+	accounts := make([]account.Account, len(dbAccounts))
 
-	for _, dbAccount := range dbAccounts {
+	for i, dbAccount := range dbAccounts {
 		account := account.Account{
 			Id:              dbAccount.Id,
 			OpeningDate:     dbAccount.OpeningDate,
@@ -17,7 +17,7 @@ func mapDbAccountsToAccounts(dbAccounts []accountdb.AccountDbModel) []account.Ac
 			Holder:          dbAccount.Holder,
 			PrimaryCurrency: dbAccount.PrimaryCurrency,
 		}
-		accounts = append(accounts, account)
+		accounts[i] = account
 	}
 
 	return accounts
