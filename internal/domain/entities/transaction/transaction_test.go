@@ -22,7 +22,7 @@ func Test_NewExec_Valid(t *testing.T) {
 	test.AssertEqual(t, securityId, exec.SecurityId)
 	test.AssertEqual(t, timestamp, exec.Timestamp)
 	test.AssertEqual(t, quantity, exec.Quantity)
-	test.AssertEqual(t, price, exec.Price)
+	test.AssertEqual(t, price, exec.Amount)
 	test.AssertEqual(t, description, exec.Description)
 	test.AssertEqual(t, side, OrderSideStringValue[exec.Side])
 }
