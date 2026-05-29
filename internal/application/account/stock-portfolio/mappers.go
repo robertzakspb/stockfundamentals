@@ -5,22 +5,27 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/portfoliodb"
 )
 
-func mapLotDbToLot(lotDb portfoliodb.LotDb) lot.Lot {
-	return lot.Lot{
-		Id:           lotDb.Id,
-		CreatedAt:    lotDb.CreatedAt,
-		UpdatedAt:    lotDb.UpdatedAt,
-		Quantity:     lotDb.Quantity,
-		PricePerUnit: lotDb.PricePerUnit,
-		Currency:     lotDb.Currency,
-		AccountId:    lotDb.AccountId,
-		Figi:         lotDb.Figi,
+func mapDbLotsToLots(dbLots []portfoliodb.LotDb) []lot.Lot {
+	mappedLots := []lot.Lot{}
+	for i, dbLot := range dbLots {
+		mappedLot := lot.Lot{
+			Id:           dbLot.Id,
+			CreatedAt:    dbLot.CreatedAt,
+			UpdatedAt:    dbLot.UpdatedAt,
+			Quantity:     dbLot.Quantity,
+			PricePerUnit: dbLot.PricePerUnit,
+			Currency:     dbLot.Currency,
+			AccountId:    dbLot.AccountId,
+			Figi:         dbLot.Figi,
+		}
+		mappedLots[i] = mappedLot
 	}
+	return mappedLots
 }
 
 func mapLotToDbLot(lots []lot.Lot) []portfoliodb.LotDb {
-	dbLots := []portfoliodb.LotDb{}
-	for _, lot := range lots {
+	dbLots := make([]portfoliodb.LotDb, len(lots))
+	for i, lot := range lots {
 		dbLot := portfoliodb.LotDb{
 			Id:           lot.Id,
 			CreatedAt:    lot.CreatedAt,
@@ -31,8 +36,7 @@ func mapLotToDbLot(lots []lot.Lot) []portfoliodb.LotDb {
 			AccountId:    lot.AccountId,
 			Figi:         lot.Figi,
 		}
-		dbLots = append(dbLots, dbLot)
-
+		dbLots[i] = dbLot
 	}
 	return dbLots
 }

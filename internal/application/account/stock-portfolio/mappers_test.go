@@ -32,7 +32,7 @@ func TestDbLotToLotMapping(t *testing.T) {
 		Currency:     currency,
 	}
 
-	mappedLot := mapLotDbToLot(dbLot)
+	mappedLot := mapDbLotsToLots([]portfoliodb.LotDb{dbLot})[0]
 
 	if mappedLot.Id != id {
 		t.Errorf("The specified lot's ID is incorrect")
@@ -72,7 +72,7 @@ func TestLotToDbLotMapping(t *testing.T) {
 
 	sampleLot := lot.Lot{
 		Id:           id,
-		Figi:   figi,
+		Figi:         figi,
 		AccountId:    accountId,
 		CreatedAt:    createdAt,
 		UpdatedAt:    updateAt,
