@@ -105,3 +105,34 @@ func Test_FindPortfolioByAccountId_Negative(t *testing.T) {
 
 	test.AssertError(t, err)
 }
+
+func Test_GroupLotsByAccount(t *testing.T) {
+	id1, id2 := uuid.New(), uuid.New()
+	lots := []lot.Lot{
+		{
+			AccountId: id1,
+			Quantity:  10,
+		},
+		{
+
+			AccountId: id2,
+			Quantity:  25,
+		},
+		{
+			AccountId: id1,
+			Quantity:  50,
+		},
+	}
+
+	grouped := GroupLotsByAccount(lots)
+
+	test.AssertEqual(t, 2, len(grouped))
+	test.AssertEqual(t, 2, len(grouped[id1]))
+	test.AssertEqual(t, 1, len(grouped[id2]))
+	test.AssertEqual(t, id1, grouped[id1][0].AccountId)
+	test.AssertEqual(t, 10, grouped[id1][0].Quantity)
+	test.AssertEqual(t, id1, grouped[id1][1].AccountId)
+	test.AssertEqual(t, 50, grouped[id1][1].Quantity)
+	test.AssertEqual(t, id2, grouped[id2][0].AccountId)
+	test.AssertEqual(t, 25, grouped[id2][0].Quantity)
+}

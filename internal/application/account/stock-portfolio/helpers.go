@@ -29,3 +29,13 @@ func FindPortfolioByAccountId(id uuid.UUID, portfolios []stockportfolio.Portfoli
 	}
 	return stockportfolio.Portfolio{}, errors.New("Failed to find the portfolio for account " + id.String())
 }
+
+func GroupLotsByAccount(lots []lot.Lot) map[uuid.UUID][]lot.Lot {
+	groupedLots := map[uuid.UUID][]lot.Lot{}
+
+	for i := range lots {
+		groupedLots[lots[i].AccountId] = append(groupedLots[lots[i].AccountId], lots[i])
+	}
+
+	return groupedLots
+}
