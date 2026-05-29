@@ -9,28 +9,28 @@ import (
 )
 
 func Test_ProcessOrderExecutions_EmptySlice(t *testing.T) {
-	ts := []transaction.Transaction{}
+	ts := []Transaction{}
 
-	err := ProcessOrderExecutions(ts)
+	err := ProcessStockOrderExecutions(ts)
 
 	test.AssertError(t, err)
 }
 
 func Test_ProcessOrderExecutions_InvalidTransactionType(t *testing.T) {
-	ts := []transaction.Transaction{
+	ts := []Transaction{
 		{
 			Type: transaction.Deposit,
 		},
 	}
 
-	err := ProcessOrderExecutions(ts)
+	err := ProcessStockOrderExecutions(ts)
 
 	test.AssertError(t, err)
 }
 
 func Test_ExtractAccountsFrom(t *testing.T) {
 	uuid1, uuid2 := uuid.New(), uuid.New()
-	ts := []transaction.Transaction{
+	ts := []Transaction{
 		{
 			Type:      transaction.Deposit,
 			AccountId: uuid1,
@@ -50,7 +50,7 @@ func Test_ExtractAccountsFrom(t *testing.T) {
 
 func Test_GroupByAccount(t *testing.T) {
 	uuid1, uuid2 := uuid.New(), uuid.New()
-	transactions := []transaction.Transaction{
+	transactions := []Transaction{
 		{
 			Type:      transaction.Deposit,
 			Amount:    10,

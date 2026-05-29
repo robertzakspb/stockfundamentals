@@ -25,19 +25,27 @@ func UpdatePortfolio() error {
 	return portfoliodb.UpdateLocalPortfolio(mapLotToDbLot(portfolio.Lots))
 }
 
+func GetFilteredLots(filters []ydbfilter.YdbFilter) ([]lot.Lot, error) {
+	dbLots, err := portfoliodb.GetFilteredLots(filters)
+	if err != nil {
+		return []lot.Lot{}, err
+	}
+
+	mappedLots := mapDbLotsToLots(dbLots)
+
+	return mappedLots, nil
+}
+
 func GetAccountPortfolio(filters []ydbfilter.YdbFilter) (stockportfolio.Portfolio, error) {
 	if len(filters) == 0 {
 		return stockportfolio.Portfolio{}, errors.New("Zero filters were provided; at least the account filter must be provided")
 	}
-	dbLots, err := portfoliodb.GetAccountPortfolio(filters)
+	dbLots, err := portfoliodb.GetFilteredLots(filters)
 	if err != nil {
 		return stockportfolio.Portfolio{}, err
 	}
 
-	lots := []lot.Lot{}
-	for _, lot := range dbLots {
-		lots = append(lots, mapLotDbToLot(lot))
-	}
+	lots := mapDbLotsToLots(dbLots)
 
 	return stockportfolio.Portfolio{Lots: lots}, nil
 }

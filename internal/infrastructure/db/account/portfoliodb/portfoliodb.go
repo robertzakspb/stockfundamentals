@@ -17,7 +17,7 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
-func GetAccountPortfolio(filters []ydbfilter.YdbFilter) ([]LotDb, error) {
+func GetFilteredLots(filters []ydbfilter.YdbFilter) ([]LotDb, error) {
 	db, err := shared.MakeYdbDriver()
 	if err != nil {
 		return []LotDb{}, err
