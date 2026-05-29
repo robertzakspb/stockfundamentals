@@ -1,6 +1,12 @@
 package portfolio
 
-import "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
+import (
+	"errors"
+
+	stockportfolio "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
+	"github.com/google/uuid"
+)
 
 func GroupByNominalCurrency(lots []lot.Lot) map[string][]lot.Lot {
 	groupedLots := map[string][]lot.Lot{}
@@ -10,4 +16,16 @@ func GroupByNominalCurrency(lots []lot.Lot) map[string][]lot.Lot {
 	}
 
 	return groupedLots
+}
+
+func FindPortfolioByAccountId(id uuid.UUID, portfolios []stockportfolio.Portfolio) (stockportfolio.Portfolio, error) {
+	for i := range portfolios {
+		if len(portfolios[i].Lots) == 0 {
+			continue
+		}
+		if portfolios[i].Lots[0].AccountId == id {
+			return portfolios[i], nil
+		}
+	}
+	return stockportfolio.Portfolio{}, errors.New("Failed to find the portfolio for account " + id.String())
 }
