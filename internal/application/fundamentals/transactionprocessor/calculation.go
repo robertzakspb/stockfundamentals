@@ -21,13 +21,20 @@ func recalculateLotsAndCashBalances(account account.Account, transactions []tran
 	//TODO: Check the sorting logic!!
 
 	for _, t := range transactions {
+		if !(t.IsBuyOrder() || t.IsSellOrder()) {
+			return account, lots, errors.New("Encountered an unsupported transaction type: " + string(t.Type))
+		}
 		if t.IsBuyOrder() {
-			newLot, err := lot.NewLot()
+			newLot, err := lot.NewLot(t.Figi, t.Quantity, t.PricePerUnit, t.Currency, t.AccountId)
+			if err != nil {
+				return account, lots, err
+			}
+			lots = append(lots, newLot)
 		}
 		if t.IsSellOrder() {
-
+			//TODO:
 		}
-		return account, lots, errors.New("Encountered an unsupported order type: " + string(t.Type))
+
 	}
 
 	return account, lots, nil
