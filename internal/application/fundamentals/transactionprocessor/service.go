@@ -2,6 +2,7 @@ package transactionprocessor
 
 import (
 	"errors"
+	"sort"
 	"strconv"
 
 	accountservice "github.com/compoundinvest/stockfundamentals/internal/application/account/account"
@@ -99,6 +100,7 @@ func adjustAccountStockLotsAndBalances(accounts []account.Account, transactions 
 		for i := range accounts {
 			if accounts[i].Id == updatedAccount.Id {
 				//FIXME: The cash updating logic is to be here
+				foundAccount = true
 			}
 		}
 		if !foundAccount {
@@ -120,15 +122,26 @@ func adjustAccountStockLotsAndBalances(accounts []account.Account, transactions 
 }
 
 func recalculateLotsAndCashBalances(account account.Account, transactions []Transaction, lots []lot.Lot) (account.Account, []lot.Lot, error) {
-	adjustedLots := []lot.Lot{}
+	//Transactions must be processed in chronological order, reenacting the user's behavior in the OMS
+	sort.Slice(transactions, func(i, j int) bool {
+		return transactions[i].Timestamp.After(transactions[j].Timestamp)
+	})
+	//Lots must be sorted by creation date because sales are applied according to the FIFO principle
+	sort.Slice(lots, func(i, j int) bool {
+		return lots[i].CreatedAt.After(lots[j].CreatedAt)
+	})
 
-	return account, adjustedLots, nil
+
+
+
+
+	return account, lots, nil
 }
 
 func saveLotsAndAccountsAndTransactions(accounts []account.Account, transactions []Transaction, lots []lot.Lot) error {
 	//TODO: Save the updated lots
 	//TODO: Save the updated accounts (cash balances)
 	//TODO: Save the transactions
-	//Establish a relationship between lots and transactions
+	//TODO: Establish a relationship between lots and transactions
 	return nil
 }
