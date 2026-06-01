@@ -10,15 +10,16 @@ import (
 )
 
 type Transaction struct {
-	Id          uuid.UUID
-	AccountId   uuid.UUID
-	SecurityId  uuid.UUID
-	Type        Type
-	Timestamp   time.Time
-	Side        OrderSide
-	Quantity    float64
-	Amount      float64
-	Description string
+	Id           uuid.UUID
+	AccountId    uuid.UUID
+	Figi         string
+	Type         Type
+	Timestamp    time.Time
+	Side         OrderSide
+	Quantity     float64
+	PricePerUnit float64
+	Currency     string
+	Description  string
 }
 
 type OrderSide string
@@ -56,7 +57,7 @@ var TypeLookup = map[string]Type{
 	"WITHDRAWAL":      Withdrawal,
 }
 
-func New(accountId, securityId uuid.UUID, timestamp time.Time, quantity, price float64, description, side, transactionType string) (Transaction, error) {
+func New(accountId uuid.UUID, figi string, timestamp time.Time, quantity, price float64, description, side, transactionType, currency string) (Transaction, error) {
 	if quantity < 0 {
 		return Transaction{}, fmt.Errorf("quantity is smaller than 0: %f", quantity)
 	}
@@ -65,6 +66,9 @@ func New(accountId, securityId uuid.UUID, timestamp time.Time, quantity, price f
 	}
 	if len(description) > 1000 {
 		return Transaction{}, fmt.Errorf("description cannot contain more than 1000 characters")
+	}
+	if currency == "" {
+		return Transaction{}, fmt.Errorf("Invalid currency")
 	}
 	orderSide, found := OrderSideLookup[strings.ToUpper(side)]
 	if !found {
@@ -76,14 +80,14 @@ func New(accountId, securityId uuid.UUID, timestamp time.Time, quantity, price f
 	}
 
 	return Transaction{
-		Id:          uuid.New(),
-		AccountId:   accountId,
-		SecurityId:  securityId,
-		Timestamp:   timestamp,
-		Quantity:    quantity,
-		Amount:       price,
-		Side:        orderSide,
-		Description: description,
-		Type:        parsedType,
+		Id:           uuid.New(),
+		AccountId:    accountId,
+		Figi:         figi,
+		Timestamp:    timestamp,
+		Quantity:     quantity,
+		PricePerUnit: price,
+		Side:         orderSide,
+		Description:  description,
+		Type:         parsedType,
 	}, nil
 }
