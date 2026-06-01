@@ -10,7 +10,7 @@ import (
 
 func Test_ExtractAccountsFrom(t *testing.T) {
 	uuid1, uuid2 := uuid.New(), uuid.New()
-	ts := []Transaction{
+	ts := []transaction.Transaction{
 		{
 			Type:      transaction.Deposit,
 			AccountId: uuid1,
@@ -30,7 +30,7 @@ func Test_ExtractAccountsFrom(t *testing.T) {
 
 func Test_GroupByAccount(t *testing.T) {
 	uuid1, uuid2 := uuid.New(), uuid.New()
-	transactions := []Transaction{
+	transactions := []transaction.Transaction{
 		{
 			Type:      transaction.Deposit,
 			Amount:    10,

@@ -2,7 +2,6 @@ package transactionprocessor
 
 import (
 	"errors"
-	"sort"
 	"strconv"
 
 	accountservice "github.com/compoundinvest/stockfundamentals/internal/application/account/account"
@@ -16,10 +15,9 @@ import (
 	"github.com/google/uuid"
 )
 
-type Transaction transaction.Transaction
 type Account account.Account
 
-func ProcessStockOrderExecutions(transactions []Transaction) error {
+func ProcessStockOrderExecutions(transactions []transaction.Transaction) error {
 	if len(transactions) == 0 {
 		return errors.New("Provided zero transactions")
 	}
@@ -38,7 +36,7 @@ func ProcessStockOrderExecutions(transactions []Transaction) error {
 	return nil
 }
 
-func adjustStockLotsAndCashBalances(transactions []Transaction) error {
+func adjustStockLotsAndCashBalances(transactions []transaction.Transaction) error {
 	//Grouping transactions by account, as they are applied to each account separately
 	groupedTransactions := GroupByAccount(transactions)
 
@@ -78,7 +76,7 @@ func adjustStockLotsAndCashBalances(transactions []Transaction) error {
 }
 
 // Recalculates and saves the adjusted stock lots and balances after the transactions have been applied
-func adjustAccountStockLotsAndBalances(accounts []account.Account, transactions map[uuid.UUID][]Transaction, lots map[uuid.UUID][]lot.Lot) error {
+func adjustAccountStockLotsAndBalances(accounts []account.Account, transactions map[uuid.UUID][]transaction.Transaction, lots map[uuid.UUID][]lot.Lot) error {
 	adjustedLots := []lot.Lot{}
 	for accountId, accountTransactions := range transactions {
 		account, err := accountservice.FindAccountById(accountId, accounts)
@@ -108,7 +106,7 @@ func adjustAccountStockLotsAndBalances(accounts []account.Account, transactions 
 		}
 	}
 
-	flattenedTransactions := []Transaction{}
+	flattenedTransactions := []transaction.Transaction{}
 	for _, t := range transactions {
 		flattenedTransactions = append(flattenedTransactions, t...)
 	}
@@ -121,24 +119,7 @@ func adjustAccountStockLotsAndBalances(accounts []account.Account, transactions 
 	return nil
 }
 
-func recalculateLotsAndCashBalances(account account.Account, transactions []Transaction, lots []lot.Lot) (account.Account, []lot.Lot, error) {
-	//Transactions must be processed in chronological order, reenacting the user's behavior in the OMS
-	sort.Slice(transactions, func(i, j int) bool {
-		return transactions[i].Timestamp.After(transactions[j].Timestamp)
-	})
-	//Lots must be sorted by creation date because sales are applied according to the FIFO principle
-	sort.Slice(lots, func(i, j int) bool {
-		return lots[i].CreatedAt.After(lots[j].CreatedAt)
-	})
-
-
-
-
-
-	return account, lots, nil
-}
-
-func saveLotsAndAccountsAndTransactions(accounts []account.Account, transactions []Transaction, lots []lot.Lot) error {
+func saveLotsAndAccountsAndTransactions(accounts []account.Account, transactions []transaction.Transaction, lots []lot.Lot) error {
 	//TODO: Save the updated lots
 	//TODO: Save the updated accounts (cash balances)
 	//TODO: Save the transactions

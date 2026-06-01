@@ -8,7 +8,7 @@ import (
 )
 
 func Test_ProcessOrderExecutions_EmptySlice(t *testing.T) {
-	ts := []Transaction{}
+	ts := []transaction.Transaction{}
 
 	err := ProcessStockOrderExecutions(ts)
 
@@ -16,7 +16,7 @@ func Test_ProcessOrderExecutions_EmptySlice(t *testing.T) {
 }
 
 func Test_ProcessOrderExecutions_InvalidTransactionType(t *testing.T) {
-	ts := []Transaction{
+	ts := []transaction.Transaction{
 		{
 			Type: transaction.Deposit,
 		},
