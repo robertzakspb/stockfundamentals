@@ -93,6 +93,7 @@ func UpdateLocalPortfolio(lots []LotDb) error {
 			types.StructFieldValue("quantity", types.DoubleValue(lot.Quantity)),
 			types.StructFieldValue("price_per_unit", types.DoubleValue(lot.PricePerUnit)),
 			types.StructFieldValue("currency", types.UTF8Value(strings.ToUpper(lot.Currency))),
+			types.StructFieldValue("is_closed", types.BoolValue(lot.IsClosed)),
 		)
 		ydbLots = append(ydbLots, ydbLot)
 	}
@@ -154,6 +155,7 @@ func makeGetAccountPortfolioQuery(filters []ydbfilter.YdbFilter) string {
 			"`user/position_lot`.updated_at AS updated_at," +
 			"`user/position_lot`.quantity AS quantity," +
 			"`user/position_lot`.currency AS currency, " +
+			"`user/position_lot`.is_closed AS is_closed, " +
 			"`user/position_lot`.price_per_unit AS price_per_unit" +
 			" FROM" +
 			"`" + path.Join(shared.USER_DIRECTORY_PREFIX, shared.POSITION_LOT_TABLE_NAME) + "`" +

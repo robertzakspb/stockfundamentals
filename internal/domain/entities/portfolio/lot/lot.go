@@ -22,6 +22,7 @@ type Lot struct {
 	Figi         string
 	Quote        float64
 	Stock        security.Stock
+	IsClosed     bool
 }
 
 func NewLot(figi string, quantity float64, pricePerUnit float64, currency string, accountId uuid.UUID) (Lot, error) {
@@ -34,6 +35,7 @@ func NewLot(figi string, quantity float64, pricePerUnit float64, currency string
 		Currency:     currency,
 		AccountId:    accountId,
 		Figi:         figi,
+		IsClosed:     false,
 	}
 
 	if err := newLot.validate(); err != nil {

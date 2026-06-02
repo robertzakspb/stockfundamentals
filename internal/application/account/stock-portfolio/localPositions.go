@@ -33,13 +33,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			Currency:     "RSD",
 			AccountId:    nlbId,
 			Figi:         jesvId,
-			// Security: security.Stock{
-			// 	Id:          jesvId,
-			// 	Ticker:      "JESV",
-			// 	Figi:        "BBG000BS7XH7",
-			// 	CompanyName: "Jedinstvo Sevojno",
-			// 	MIC:         "XBEL",
-			// },
+			IsClosed:       false,
 		},
 		{
 			Id:           uuid.New(),
@@ -50,13 +44,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			Currency:     "RSD",
 			AccountId:    nlbId,
 			Figi:         dunavId,
-			// Security: security.Stock{
-			// 	Id:          dunavId,
-			// 	Ticker:      "DNOS",
-			// 	Figi:        "BBG000BMX476",
-			// 	CompanyName: "Dunav Osiguranje",
-			// 	MIC:         "XBEL",
-			// },
+			IsClosed:       false,
 		},
 		{
 			Id:           uuid.New(),
@@ -67,13 +55,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			Currency:     "RSD",
 			AccountId:    nlbId,
 			Figi:         mtlcId,
-			// Security: security.Stock{
-			// 	Id:          mtlcId,
-			// 	Ticker:      "MTLC",
-			// 	Figi:        "BBG000HP5RC7",
-			// 	CompanyName: "Metalac",
-			// 	MIC:         "XBEL",
-			// },
+			IsClosed:       false,
 		},
 		{
 			Id:           uuid.New(),
@@ -84,13 +66,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			Currency:     "RSD",
 			AccountId:    nlbId,
 			Figi:         nisId,
-			// Security: security.Stock{
-			// 	Id:          nisId,
-			// 	Ticker:      "NIIS",
-			// 	Figi:        "BBG0015L55D4",
-			// 	CompanyName: "NIS",
-			// 	MIC:         "XBEL",
-			// },
+			IsClosed:       false,
 		},
 		{
 			Id:           uuid.New(),
@@ -101,13 +77,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			Currency:     "RSD",
 			AccountId:    nlbId,
 			Figi:         impolId,
-			// Security: security.Stock{
-			// 	Id:          impolId,
-			// 	Ticker:      "IMPL",
-			// 	Figi:        "BBG000HGH3F4",
-			// 	CompanyName: "Impol Seval",
-			// 	MIC:         "XBEL",
-			// },
+			IsClosed:       false,
 		},
 	}
 
@@ -120,13 +90,7 @@ func getHardCodedStockPositions() []lot.Lot {
 		Currency:     "RUB",
 		AccountId:    rosselHozId,
 		Figi:         etalonId,
-		// Security: security.Stock{
-		// 	//TODO: Add security ID
-		// 	Ticker:      "ETLN",
-		// 	Figi:        "BBG00RM6M4V5", //TODO: Update it once the ISIN changes from US29760G1031 to RU000A10C1L6
-		// 	CompanyName: "Эталон",
-		// 	MIC:         "MISX",
-		// },
+		IsClosed:       false,
 	}
 
 	allStocks := append(serbianStocks, rosselhozStocks)
@@ -145,6 +109,7 @@ func vtbLots() []lot.Lot {
 		PricePerUnit: 1.941,
 		Currency:     "RUB",
 		Figi:         "TCS60A1014L8",
+		IsClosed:       false,
 	}
 
 	return []lot.Lot{lqdt}

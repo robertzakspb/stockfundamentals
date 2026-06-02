@@ -295,6 +295,7 @@ func createPortfolioTable(ctx context.Context, dbConnection *ydb.Driver, c table
 				options.WithColumn("quantity", types.TypeDouble),
 				options.WithColumn("price_per_unit", types.TypeDouble),
 				options.WithColumn("currency", types.TypeUTF8),
+				options.WithColumn("closed", types.TypeBool),
 				options.WithPrimaryKeyColumn("id"),
 			)
 			if err != nil {

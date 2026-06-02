@@ -17,4 +17,5 @@ type LotDb struct {
 	Quantity     float64   `sql:"quantity"`
 	PricePerUnit float64   `sql:"price_per_unit"`
 	Currency     string    `sql:"currency"`
+	IsClosed     bool      `sql:"is_closed"`
 }

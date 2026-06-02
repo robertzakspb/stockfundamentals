@@ -6,7 +6,7 @@ import (
 )
 
 func mapDbLotsToLots(dbLots []portfoliodb.LotDb) []lot.Lot {
-	mappedLots := []lot.Lot{}
+	mappedLots := make([]lot.Lot, len(dbLots))
 	for i, dbLot := range dbLots {
 		mappedLot := lot.Lot{
 			Id:           dbLot.Id,
@@ -17,6 +17,7 @@ func mapDbLotsToLots(dbLots []portfoliodb.LotDb) []lot.Lot {
 			Currency:     dbLot.Currency,
 			AccountId:    dbLot.AccountId,
 			Figi:         dbLot.Figi,
+			IsClosed:     dbLot.IsClosed,
 		}
 		mappedLots[i] = mappedLot
 	}
@@ -35,6 +36,7 @@ func mapLotToDbLot(lots []lot.Lot) []portfoliodb.LotDb {
 			Currency:     lot.Currency,
 			AccountId:    lot.AccountId,
 			Figi:         lot.Figi,
+			IsClosed:     lot.IsClosed,
 		}
 		dbLots[i] = dbLot
 	}

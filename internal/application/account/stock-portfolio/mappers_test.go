@@ -6,6 +6,7 @@ import (
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/portfoliodb"
+	"github.com/compoundinvest/stockfundamentals/internal/test"
 	"github.com/google/uuid"
 )
 
@@ -18,6 +19,7 @@ func TestDbLotToLotMapping(t *testing.T) {
 	quantity := 10.0
 	pricePerUnit := 25.2
 	currency := "USD"
+	closed := true
 
 	dbLot := portfoliodb.LotDb{
 		Id:           id,
@@ -30,6 +32,7 @@ func TestDbLotToLotMapping(t *testing.T) {
 		Quantity:     quantity,
 		PricePerUnit: pricePerUnit,
 		Currency:     currency,
+		IsClosed:     closed,
 	}
 
 	mappedLot := mapDbLotsToLots([]portfoliodb.LotDb{dbLot})[0]
@@ -58,6 +61,7 @@ func TestDbLotToLotMapping(t *testing.T) {
 	if mappedLot.Currency != currency {
 		t.Errorf("The specified lot's currency is incorrect")
 	}
+	test.AssertEqual(t, closed, mappedLot.IsClosed)
 }
 
 func TestLotToDbLotMapping(t *testing.T) {
@@ -69,6 +73,7 @@ func TestLotToDbLotMapping(t *testing.T) {
 	quantity := 10.0
 	pricePerUnit := 25.2
 	currency := "USD"
+	closed := true
 
 	sampleLot := lot.Lot{
 		Id:           id,
@@ -79,6 +84,7 @@ func TestLotToDbLotMapping(t *testing.T) {
 		Quantity:     quantity,
 		PricePerUnit: pricePerUnit,
 		Currency:     currency,
+		IsClosed:     true,
 	}
 
 	mappedLot := mapLotToDbLot([]lot.Lot{sampleLot})[0]
@@ -107,4 +113,5 @@ func TestLotToDbLotMapping(t *testing.T) {
 	if mappedLot.Currency != currency {
 		t.Errorf("The specified lot's currency is incorrect")
 	}
+	test.AssertEqual(t, closed, mappedLot.IsClosed)
 }
