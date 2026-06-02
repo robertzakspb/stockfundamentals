@@ -1,13 +1,13 @@
 package lot
 
-func FindLotsByFigi(lots []Lot, figi string) []Lot {
-	filteredLots := []Lot{}
+func FindLotIndicesByFigi(lots []Lot, figi string) []int {
+	filteredLotIndices := []int{}
 
 	for i := range lots {
 		if lots[i].Figi == figi {
-			filteredLots = append(filteredLots, lots[i])
+			filteredLotIndices = append(filteredLotIndices, i)
 		}
 	}
 
-	return filteredLots
+	return filteredLotIndices
 }

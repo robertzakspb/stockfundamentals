@@ -29,10 +29,10 @@ func Test_FindLotsByFigi(t *testing.T) {
 		},
 	}
 
-	filteredLots := FindLotsByFigi(lots, targetFigi)
+	filteredLots := FindLotIndicesByFigi(lots, targetFigi)
 
 	test.AssertEqual(t, 3, len(filteredLots))
-	test.AssertEqual(t, targetFigi, filteredLots[0].Figi)
-	test.AssertEqual(t, targetFigi, filteredLots[1].Figi)
-	test.AssertEqual(t, targetFigi, filteredLots[2].Figi)
+	test.AssertEqual(t, targetFigi, lots[filteredLots[0]].Figi)
+	test.AssertEqual(t, targetFigi, lots[filteredLots[1]].Figi)
+	test.AssertEqual(t, targetFigi, lots[filteredLots[2]].Figi)
 }
