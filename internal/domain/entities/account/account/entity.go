@@ -14,6 +14,7 @@ type Account struct {
 	Broker          string
 	Holder          string
 	PrimaryCurrency string
+	CashBalance     float64
 }
 
 type AccountType string
@@ -55,4 +56,12 @@ func (a Account) validate() error {
 	}
 
 	return nil
+}
+
+func (a Account) IsCashNegative() bool {
+	return a.CashBalance < 0
+}
+
+func (a Account) IsCashPositive() bool {
+	return a.CashBalance >= 0
 }
