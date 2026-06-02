@@ -20,9 +20,9 @@ type Lot struct {
 	Currency     string
 	AccountId    uuid.UUID `json:"accountId" sql:"account_id"`
 	Figi         string
+	IsClosed     bool
 	Quote        float64
 	Stock        security.Stock
-	IsClosed     bool
 }
 
 func NewLot(figi string, quantity float64, pricePerUnit float64, currency string, accountId uuid.UUID) (Lot, error) {
