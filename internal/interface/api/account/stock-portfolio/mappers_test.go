@@ -23,6 +23,7 @@ func Test_mapLotToDto(t *testing.T) {
 	isin := "testIsin"
 	ticker := "testTicker"
 	quote := 20.0
+	closed := true
 
 	lot := lot.Lot{
 		Id:           id,
@@ -34,6 +35,7 @@ func Test_mapLotToDto(t *testing.T) {
 		AccountId:    accountId,
 		Figi:         figi,
 		Quote:        quote,
+		IsClosed:     closed,
 		Stock: security.Stock{
 			Isin:   isin,
 			Ticker: ticker,
@@ -54,6 +56,7 @@ func Test_mapLotToDto(t *testing.T) {
 	test.AssertEqual(t, quote, mappedLot.Quote)
 	test.AssertEqual(t, 125, mappedLot.CurrentPL)
 	test.AssertEqual(t, 200, mappedLot.MarketValue)
+	test.AssertEqual(t, closed, mappedLot.IsClosed)
 }
 
 func Test_mapPortfolioToDto(t *testing.T) {
@@ -68,6 +71,7 @@ func Test_mapPortfolioToDto(t *testing.T) {
 	isin := "testIsin"
 	ticker := "testTicker"
 	quote := 20.0
+	closed := true
 
 	sampleLot := lot.Lot{
 		Id:           id,
@@ -79,6 +83,7 @@ func Test_mapPortfolioToDto(t *testing.T) {
 		AccountId:    accountId,
 		Figi:         figi,
 		Quote:        quote,
+		IsClosed:     closed,
 		Stock: security.Stock{
 			Isin:   isin,
 			Ticker: ticker,
@@ -89,4 +94,5 @@ func Test_mapPortfolioToDto(t *testing.T) {
 
 	test.AssertEqual(t, 1, len(dto.Lots))
 	test.AssertEqual(t, "testFigi", dto.Lots[0].Figi)
+	test.AssertEqual(t, closed, dto.Lots[0].IsClosed)
 }

@@ -25,4 +25,5 @@ type LotDto struct {
 	Isin          string    `json:"isin"`
 	Ticker        string    `json:"ticker"`
 	MarketValue   float64   `json:"marketValue"`
+	IsClosed      bool      `json:"isClosed"`
 }

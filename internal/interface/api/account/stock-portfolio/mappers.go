@@ -31,6 +31,7 @@ func mapLotToDto(lot lot.Lot) LotDto {
 		MarketValue:   mv,
 		Isin:          lot.Stock.Isin,
 		Ticker:        lot.Stock.Ticker,
+		IsClosed:      lot.IsClosed,
 	}
 
 	return dto
