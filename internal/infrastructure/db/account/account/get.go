@@ -73,7 +73,8 @@ func makeGetAccountsQuery(filters []ydbfilter.YdbFilter) string {
 							type,
 							broker,
 							holder,
-							primary_currency
+							primary_currency,
+							cash_balance
 						FROM
 							%s
 						%s
