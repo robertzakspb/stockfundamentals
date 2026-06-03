@@ -39,7 +39,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			Id:           uuid.New(),
 			CreatedAt:    time.Now(),
 			UpdatedAt:    time.Now(),
-			Quantity:     1232,
+			Quantity:     1233,
 			PricePerUnit: 1495.58,
 			Currency:     "RSD",
 			AccountId:    nlbId,
