@@ -112,10 +112,14 @@ func adjustAccountStockLotsAndBalances(accounts []account.Account, transactions 
 }
 
 func saveLotsAndAccountsAndTransactions(accounts []account.Account, transactions []transaction.Transaction, lots []lot.Lot) error {
+	err := accountservice.SaveAccounts(accounts)
+	if err != nil {
+		return err
+	}
 	//TODO: Save the updated lots
 	//TODO: Save the updated accounts (cash balances)
 	//TODO: Save the transactions
 	//TODO: Establish a relationship between lots and transactions
-	
+
 	return nil
 }
