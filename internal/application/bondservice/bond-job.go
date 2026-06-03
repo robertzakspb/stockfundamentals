@@ -31,7 +31,7 @@ func ImportAllBondsAndCoupons() error {
 	}
 	bondService := client.NewInstrumentsServiceClient()
 
-	response, err := bondService.Bonds(pb.InstrumentStatus_INSTRUMENT_STATUS_ALL)
+	response, err := bondService.Bonds(pb.InstrumentStatus_INSTRUMENT_STATUS_BASE)
 	if response == nil {
 		logger.Log("Unexpectedly received a nil response from Tinkoff API", logger.ALERT)
 	}
