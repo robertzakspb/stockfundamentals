@@ -122,7 +122,11 @@ func saveLotsAndAccountsAndTransactions(accounts []account.Account, transactions
 		return err
 	}
 
-	//TODO: Save the updated lots
+	err = portfolio.SaveLots(lots)
+	if err != nil {
+		return err
+	}
+
 	//TODO: Establish a relationship between lots and transactions
 
 	return nil
