@@ -78,6 +78,7 @@ func adjustStockLotsAndCashBalances(transactions []transaction.Transaction) erro
 // Recalculates and saves the adjusted stock lots and balances after the transactions have been applied
 func adjustAccountStockLotsAndBalances(accounts []account.Account, transactions map[uuid.UUID][]transaction.Transaction, lots map[uuid.UUID][]lot.Lot) error {
 	adjustedLots := []lot.Lot{}
+	adjustedAccounts := []account.Account{}
 	for accountId, accountTransactions := range transactions {
 		account, err := accountservice.FindAccountById(accountId, accounts)
 		if err != nil {
@@ -93,17 +94,8 @@ func adjustAccountStockLotsAndBalances(accounts []account.Account, transactions 
 			return err
 		}
 
+		adjustedAccounts = append(adjustedAccounts, updatedAccount)
 		adjustedLots = append(adjustedLots, newLots...)
-		foundAccount := false
-		for i := range accounts {
-			if accounts[i].Id == updatedAccount.Id {
-				//FIXME: The cash updating logic is to be here
-				foundAccount = true
-			}
-		}
-		if !foundAccount {
-			return errors.New("Failed to find the account " + accountId.String() + " while updating the cash position")
-		}
 	}
 
 	flattenedTransactions := []transaction.Transaction{}
@@ -111,7 +103,7 @@ func adjustAccountStockLotsAndBalances(accounts []account.Account, transactions 
 		flattenedTransactions = append(flattenedTransactions, t...)
 	}
 
-	err := saveLotsAndAccountsAndTransactions(accounts, flattenedTransactions, adjustedLots)
+	err := saveLotsAndAccountsAndTransactions(adjustedAccounts, flattenedTransactions, adjustedLots)
 	if err != nil {
 		return err
 	}
@@ -124,5 +116,6 @@ func saveLotsAndAccountsAndTransactions(accounts []account.Account, transactions
 	//TODO: Save the updated accounts (cash balances)
 	//TODO: Save the transactions
 	//TODO: Establish a relationship between lots and transactions
+	
 	return nil
 }

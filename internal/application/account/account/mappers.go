@@ -16,6 +16,7 @@ func mapDbAccountsToAccounts(dbAccounts []accountdb.AccountDbModel) []account.Ac
 			Broker:          dbAccount.Broker,
 			Holder:          dbAccount.Holder,
 			PrimaryCurrency: dbAccount.PrimaryCurrency,
+			CashBalance:     dbAccount.CashBalance,
 		}
 		accounts[i] = account
 	}

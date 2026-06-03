@@ -25,6 +25,7 @@ func Test_mapDbAccountsToAccounts(t *testing.T) {
 		Broker:          broker,
 		Holder:          holder,
 		PrimaryCurrency: primaryCurrency,
+		CashBalance:     250,
 	}
 
 	mappedAccount := mapDbAccountsToAccounts([]accountdb.AccountDbModel{dbAccount})[0]
@@ -35,6 +36,7 @@ func Test_mapDbAccountsToAccounts(t *testing.T) {
 	test.AssertEqual(t, broker, mappedAccount.Broker)
 	test.AssertEqual(t, holder, mappedAccount.Holder)
 	test.AssertEqual(t, primaryCurrency, mappedAccount.PrimaryCurrency)
+	test.AssertEqual(t, 250, mappedAccount.CashBalance)
 }
 
 func Test_mapDbAccountsToAccounts_IIS2(t *testing.T) {

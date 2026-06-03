@@ -10,11 +10,7 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
-func SaveEntity(entities []types.Value, tablePath string) error {
-	if len(entities) == 0 {
-		return errors.New("Attempting to save 0 entities to the database")
-	}
-
+func SaveEntity(entity types.Value, tablePath string) error {
 	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
 		return err
@@ -24,7 +20,7 @@ func SaveEntity(entities []types.Value, tablePath string) error {
 	err = dbConnection.Table().BulkUpsert(
 		context.TODO(),
 		tablePath,
-		table.BulkUpsertDataRows(types.ListValue(entities...)),
+		table.BulkUpsertDataRows(entity),
 	)
 
 	if err != nil {
