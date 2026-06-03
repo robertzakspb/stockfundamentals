@@ -22,7 +22,7 @@ import (
 
 func UpdatePortfolio() error {
 	portfolio, _ := GeStockPortfolio()
-	return portfoliodb.UpdateLocalPortfolio(mapLotToDbLot(portfolio.Lots))
+	return portfoliodb.SaveLots(mapLotToDbLot(portfolio.Lots))
 }
 
 func GetFilteredLots(filters []ydbfilter.YdbFilter) ([]lot.Lot, error) {

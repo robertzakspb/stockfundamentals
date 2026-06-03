@@ -69,7 +69,7 @@ func GetFilteredLots(filters []ydbfilter.YdbFilter) ([]LotDb, error) {
 	return lots, nil
 }
 
-func UpdateLocalPortfolio(lots []LotDb) error {
+func SaveLots(lots []LotDb) error {
 	err := deleteAllLots()
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
