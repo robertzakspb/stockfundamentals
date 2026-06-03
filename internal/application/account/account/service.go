@@ -38,3 +38,11 @@ func GetAccountsById(ids uuid.UUIDs) ([]account.Account, error) {
 
 	return accounts, nil
 }
+
+func SaveAccounts(accounts []account.Account) error {
+	dbModels := mapAccountsToDbAccounts(accounts)
+
+	err := accountdb.SaveAccountsToDb(dbModels)
+
+	return err
+}
