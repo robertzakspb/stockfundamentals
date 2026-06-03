@@ -31,11 +31,13 @@ func generateGetQuery[T any](filters []ydbfilter.YdbFilter, tablePath string) (s
 
 	for i := range columnNames {
 		//Adding the column name to the query
-		sb.WriteString(columnNames[i] + ", ")
+		sb.WriteString(columnNames[i])
+		sb.WriteString(", ")
 	}
 
 	sb.WriteString("FROM ")
-	sb.WriteString(tablePath + " ")
+	sb.WriteString(tablePath)
+	sb.WriteString(" ")
 	sb.WriteString(ydbfilter.MakeWhereClause(filters))
 
 	return sb.String(), nil
