@@ -74,3 +74,32 @@ func Test_mapDbAccountsToAccounts_STANDARD(t *testing.T) {
 
 	test.AssertEqual(t, string(account.STANDARD), mappedAccount.Type)
 }
+
+func Test_mapAccountsToDbAccounts(t *testing.T) {
+	id := uuid.New()
+	openingDate := time.Now()
+	accountType := "IIS_1"
+	broker := "VTB"
+	holder := "John Doe"
+	primaryCurrency := "RUB"
+
+	sample := account.Account{
+		Id:              id,
+		OpeningDate:     openingDate,
+		Type:            accountType,
+		Broker:          broker,
+		Holder:          holder,
+		PrimaryCurrency: primaryCurrency,
+		CashBalance:     250,
+	}
+
+	mappedAccount := mapAccountsToDbAccounts([]account.Account{sample})[0]
+
+	test.AssertEqual(t, id, mappedAccount.Id)
+	test.AssertEqual(t, openingDate, mappedAccount.OpeningDate)
+	test.AssertEqual(t, string(account.IIS_1), mappedAccount.Type)
+	test.AssertEqual(t, broker, mappedAccount.Broker)
+	test.AssertEqual(t, holder, mappedAccount.Holder)
+	test.AssertEqual(t, primaryCurrency, mappedAccount.PrimaryCurrency)
+	test.AssertEqual(t, 250, mappedAccount.CashBalance)
+}

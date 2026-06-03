@@ -23,3 +23,22 @@ func mapDbAccountsToAccounts(dbAccounts []accountdb.AccountDbModel) []account.Ac
 
 	return accounts
 }
+
+func mapAccountsToDbAccounts(accounts []account.Account) []accountdb.AccountDbModel {
+	dbAccounts := make([]accountdb.AccountDbModel, len(accounts))
+
+	for i, account := range accounts {
+		account := accountdb.AccountDbModel{
+			Id:              account.Id,
+			OpeningDate:     account.OpeningDate,
+			Type:            string(account.Type),
+			Broker:          account.Broker,
+			Holder:          account.Holder,
+			PrimaryCurrency: account.PrimaryCurrency,
+			CashBalance:     account.CashBalance,
+		}
+		dbAccounts[i] = account
+	}
+
+	return dbAccounts
+}
