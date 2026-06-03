@@ -116,9 +116,13 @@ func saveLotsAndAccountsAndTransactions(accounts []account.Account, transactions
 	if err != nil {
 		return err
 	}
+
+	err = SaveTransactions(transactions)
+	if err != nil {
+		return err
+	}
+
 	//TODO: Save the updated lots
-	//TODO: Save the updated accounts (cash balances)
-	//TODO: Save the transactions
 	//TODO: Establish a relationship between lots and transactions
 
 	return nil
