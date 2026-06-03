@@ -20,6 +20,14 @@ import (
 	"opensource.tbank.ru/invest/invest-go/investgo"
 )
 
+func SaveLots(lots []lot.Lot) error {
+	dbModels := mapLotToDbLot(lots)
+
+	err := portfoliodb.SaveLots(dbModels)
+
+	return err
+}
+
 func UpdatePortfolio() error {
 	portfolio, _ := GeStockPortfolio()
 	return portfoliodb.SaveLots(mapLotToDbLot(portfolio.Lots))
