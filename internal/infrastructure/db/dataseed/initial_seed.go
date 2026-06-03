@@ -240,6 +240,7 @@ func createTransactionsTable(ctx context.Context, dbConnection *ydb.Driver, c ta
 				options.WithColumn("price_per_unit", types.TypeDouble),
 				options.WithColumn("currency", types.TypeText),
 				options.WithColumn("description", types.TypeText),
+				options.WithPrimaryKeyColumn("id"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)
