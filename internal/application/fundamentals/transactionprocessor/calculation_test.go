@@ -152,7 +152,31 @@ func Test_Recalculate_SingleSell_OneLotIsClosed(t *testing.T) {
 	test.AssertEqual(t, 525, account.CashBalance)
 }
 
-func Test_Recalculate_SingleSell_MultipleLotsAreClosed(t *testing.T) {
+func Test_Recalculate_SingleSell_MultipleLotsAreeeClosed(t *testing.T) {
+	account := account.Account{Id: uuid.New(), CashBalance: 400}
+	lots := []lot.Lot{
+		{Figi: "figi1", Quantity: 5, IsClosed: false},
+		{Figi: "figi1", Quantity: 10, IsClosed: false},
+	}
+	transactions := []transaction.Transaction{
+		{Figi: "figi1", Timestamp: time.Now().AddDate(0, 0, -7), Quantity: 15, PricePerUnit: 25, Type: transaction.OrderExecution, Side: transaction.Sell, Currency: "USD"},
+	}
+
+	account, lots, err := recalculateLotsAndCashBalances(account, transactions, lots)
+
+	test.AssertNoError(t, err)
+	test.AssertEqual(t, 2, len(lots))
+	test.AssertEqual(t, "figi1", lots[0].Figi)
+	test.AssertEqual(t, 0, lots[0].Quantity)
+	test.AssertTrue(t, lots[0].IsClosed)
+	test.AssertEqual(t, "figi1", lots[1].Figi)
+	test.AssertEqual(t, 0, lots[1].Quantity)
+	test.AssertTrue(t, lots[1].IsClosed)
+
+	test.AssertEqual(t, 775, account.CashBalance)
+}
+
+func Test_Recalculate_MultipleSells_MultipleLotsAreClosed(t *testing.T) {
 	account := account.Account{Id: uuid.New(), CashBalance: 400}
 	lots := []lot.Lot{
 		{Figi: "figi1", Quantity: 5, IsClosed: false},
