@@ -33,7 +33,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			Currency:     "RSD",
 			AccountId:    nlbId,
 			Figi:         jesvId,
-			IsClosed:       false,
+			IsClosed:     false,
 		},
 		{
 			Id:           uuid.New(),
@@ -44,7 +44,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			Currency:     "RSD",
 			AccountId:    nlbId,
 			Figi:         dunavId,
-			IsClosed:       false,
+			IsClosed:     false,
 		},
 		{
 			Id:           uuid.New(),
@@ -55,7 +55,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			Currency:     "RSD",
 			AccountId:    nlbId,
 			Figi:         mtlcId,
-			IsClosed:       false,
+			IsClosed:     false,
 		},
 		{
 			Id:           uuid.New(),
@@ -66,7 +66,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			Currency:     "RSD",
 			AccountId:    nlbId,
 			Figi:         nisId,
-			IsClosed:       false,
+			IsClosed:     false,
 		},
 		{
 			Id:           uuid.New(),
@@ -77,7 +77,7 @@ func getHardCodedStockPositions() []lot.Lot {
 			Currency:     "RSD",
 			AccountId:    nlbId,
 			Figi:         impolId,
-			IsClosed:       false,
+			IsClosed:     false,
 		},
 	}
 
@@ -90,7 +90,7 @@ func getHardCodedStockPositions() []lot.Lot {
 		Currency:     "RUB",
 		AccountId:    rosselHozId,
 		Figi:         etalonId,
-		IsClosed:       false,
+		IsClosed:     false,
 	}
 
 	allStocks := append(serbianStocks, rosselhozStocks)
@@ -109,7 +109,7 @@ func vtbLots() []lot.Lot {
 		PricePerUnit: 1.941,
 		Currency:     "RUB",
 		Figi:         "TCS60A1014L8",
-		IsClosed:       false,
+		IsClosed:     false,
 	}
 
 	return []lot.Lot{lqdt}
