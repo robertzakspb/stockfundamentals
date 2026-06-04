@@ -239,8 +239,6 @@ func createTransactionLotRelationshipTable(ctx context.Context, dbConnection *yd
 				options.WithColumn("bond_lot_id", types.TypeUUID),
 				options.WithColumn("date", types.TypeDate),
 				options.WithColumn("quantity", types.TypeDouble),
-
-				options.WithPrimaryKeyColumn("id"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)
