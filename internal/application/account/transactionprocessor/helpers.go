@@ -1,7 +1,7 @@
 package transactionprocessor
 
 import (
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/transaction"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/transaction"
 	"github.com/google/uuid"
 )
 
