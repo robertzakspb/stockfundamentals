@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/transaction"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/transaction"
 	"github.com/compoundinvest/stockfundamentals/internal/test"
 	"github.com/google/uuid"
 )

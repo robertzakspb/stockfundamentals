@@ -3,7 +3,7 @@ package transactionprocessor
 import (
 	"testing"
 
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/transaction"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/transaction"
 	"github.com/compoundinvest/stockfundamentals/internal/test"
 )
 
@@ -26,4 +26,3 @@ func Test_ProcessOrderExecutions_InvalidTransactionType(t *testing.T) {
 
 	test.AssertError(t, err)
 }
-
