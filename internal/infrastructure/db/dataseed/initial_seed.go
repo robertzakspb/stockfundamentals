@@ -235,10 +235,12 @@ func createTransactionLotRelationshipTable(ctx context.Context, dbConnection *yd
 	return c.Do(ctx,
 		func(ctx context.Context, s table.Session) error {
 			err := s.CreateTable(ctx, path.Join(prefix, db.TRANSACTION_LOT_RELATIONSHIP_TABLE_NAME),
+				options.WithColumn("id", types.TypeUUID),
 				options.WithColumn("stock_lot_id", types.TypeUUID),
 				options.WithColumn("bond_lot_id", types.TypeUUID),
 				options.WithColumn("date", types.TypeDate),
 				options.WithColumn("quantity", types.TypeDouble),
+				options.WithPrimaryKeyColumn("id"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)
