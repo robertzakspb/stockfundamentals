@@ -50,7 +50,12 @@ func InitialSeed(c *gin.Context) {
 func createTables(ctx context.Context, db *ydb.Driver) error {
 	client := db.Table()
 
-	err := createTransactionsTable(ctx, db, client)
+	err := createTransactionLotRelationshipTable(ctx, db, client)
+	if err != nil {
+		return err
+	}
+
+	err = createTransactionsTable(ctx, db, client)
 	if err != nil {
 		return err
 	}
@@ -214,6 +219,28 @@ func createAccountMarketValueTable(ctx context.Context, dbConnection *ydb.Driver
 				options.WithColumn("currency", types.TypeText),
 				options.WithColumn("eod_value", types.TypeDouble),
 				options.WithPrimaryKeyColumn("account_id", "date", "currency"),
+			)
+			if err != nil {
+				logger.Log(err.Error(), logger.ALERT)
+				return err
+			}
+
+			return nil
+		})
+}
+
+func createTransactionLotRelationshipTable(ctx context.Context, dbConnection *ydb.Driver, c table.Client) error {
+	prefix := path.Join(dbConnection.Name(), db.USER_DIRECTORY_PREFIX)
+
+	return c.Do(ctx,
+		func(ctx context.Context, s table.Session) error {
+			err := s.CreateTable(ctx, path.Join(prefix, db.TRANSACTION_LOT_RELATIONSHIP_TABLE_NAME),
+				options.WithColumn("stock_lot_id", types.TypeUUID),
+				options.WithColumn("bond_lot_id", types.TypeUUID),
+				options.WithColumn("date", types.TypeDate),
+				options.WithColumn("quantity", types.TypeDouble),
+
+				options.WithPrimaryKeyColumn("id"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)
