@@ -50,7 +50,7 @@ func adjustStockLotsAndCashBalances(transactions []transaction.Transaction) erro
 		return err
 	}
 	if len(groupedTransactions) != len(accounts) {
-		return errors.New("The account count in grouped transactions is " + strconv.Itoa(len(groupedTransactions)) + " whilte the DB account count is " + strconv.Itoa(len(accounts)))
+		return errors.New("The account count in grouped transactions is " + strconv.Itoa(len(groupedTransactions)) + " while the DB account count is " + strconv.Itoa(len(accounts)))
 	}
 
 	//Fetching the current stock portfolios to adjust them
