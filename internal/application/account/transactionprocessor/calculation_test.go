@@ -219,8 +219,8 @@ func Test_Recalculate_SingleSell_MultipleLotsAreClosed(t *testing.T) {
 	test.AssertEqual(t, lotId2, relations[1].StockLotId)
 	test.AssertEqual(t, uuid.Nil, relations[0].BondLotId)
 	test.AssertEqual(t, uuid.Nil, relations[1].BondLotId)
-	test.AssertEqual(t, time.Now().AddDate(0, 0, -7), relations[0].Date)
-	test.AssertEqual(t, time.Now().AddDate(0, 0, -7), relations[1].Date)
+	test.AssertTrue(t, timehelpers.AreEqualDates(time.Now().AddDate(0, 0, -7), relations[0].Date))
+	test.AssertTrue(t, timehelpers.AreEqualDates(time.Now().AddDate(0, 0, -7), relations[1].Date))
 	test.AssertEqual(t, -5, relations[0].Quantity)
 	test.AssertEqual(t, -10, relations[1].Quantity)
 }
@@ -256,8 +256,8 @@ func Test_Recalculate_SingleSell_OneLostIsClosedAndAnotherPartiallyClosed(t *tes
 	test.AssertEqual(t, lotId2, relations[1].StockLotId)
 	test.AssertEqual(t, uuid.Nil, relations[0].BondLotId)
 	test.AssertEqual(t, uuid.Nil, relations[1].BondLotId)
-	test.AssertEqual(t, time.Now().AddDate(0, 0, -7), relations[0].Date)
-	test.AssertEqual(t, time.Now().AddDate(0, 0, -7), relations[1].Date)
+	test.AssertTrue(t, timehelpers.AreEqualDates(time.Now().AddDate(0, 0, -7), relations[0].Date))
+	test.AssertTrue(t, timehelpers.AreEqualDates(time.Now().AddDate(0, 0, -7), relations[1].Date))
 	test.AssertEqual(t, -5, relations[0].Quantity)
 	test.AssertEqual(t, -2, relations[1].Quantity)
 }
@@ -295,8 +295,8 @@ func Test_Recalculate_MultipleSells_MultipleLotsAreClosed(t *testing.T) {
 	test.AssertEqual(t, lotId2, relations[1].StockLotId)
 	test.AssertEqual(t, uuid.Nil, relations[0].BondLotId)
 	test.AssertEqual(t, uuid.Nil, relations[1].BondLotId)
-	test.AssertEqual(t, time.Now().AddDate(0, 0, -7), relations[0].Date)
-	test.AssertEqual(t, time.Now().AddDate(0, 0, -6), relations[1].Date)
+	test.AssertTrue(t, timehelpers.AreEqualDates(time.Now().AddDate(0, 0, -7), relations[0].Date))
+	test.AssertTrue(t, timehelpers.AreEqualDates(time.Now().AddDate(0, 0, -6), relations[1].Date))
 	test.AssertEqual(t, -5, relations[0].Quantity)
 	test.AssertEqual(t, -10, relations[1].Quantity)
 }
@@ -334,8 +334,8 @@ func Test_Recalculate_SingleSell_OneFullCloseAndOnePartialClose(t *testing.T) {
 	test.AssertEqual(t, lotId2, relations[1].StockLotId)
 	test.AssertEqual(t, uuid.Nil, relations[0].BondLotId)
 	test.AssertEqual(t, uuid.Nil, relations[1].BondLotId)
-	test.AssertEqual(t, time.Now().AddDate(0, 0, -7), relations[0].Date)
-	test.AssertEqual(t, time.Now().AddDate(0, 0, -6), relations[1].Date)
+	test.AssertTrue(t, timehelpers.AreEqualDates(time.Now().AddDate(0, 0, -7), relations[0].Date))
+	test.AssertTrue(t, timehelpers.AreEqualDates(time.Now().AddDate(0, 0, -6), relations[1].Date))
 	test.AssertEqual(t, -5, relations[0].Quantity)
 	test.AssertEqual(t, -3, relations[1].Quantity)
 }

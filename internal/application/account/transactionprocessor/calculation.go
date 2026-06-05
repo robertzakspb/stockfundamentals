@@ -68,10 +68,6 @@ func recalculateLotsAndCashBalances(account account.Account, transactions []tran
 
 				//In this simple case the entire transaction only impacts the given lot
 				if quantityToSell < lot.Quantity {
-					lot.Quantity -= quantityToSell //Reducing the lot's quantity by the quantity left to sell
-					account.CashBalance += quantityToSell * t.PricePerUnit
-					quantityToSell = 0
-
 					relation, err := tranlotrelation.New(lot.Id, uuid.Nil, t.Id, t.Timestamp, quantityToSell*-1)
 					if err != nil {
 						return account, lots, relations, err
@@ -79,20 +75,25 @@ func recalculateLotsAndCashBalances(account account.Account, transactions []tran
 					}
 					relations = append(relations, relation)
 
+					lot.Quantity -= quantityToSell //Reducing the lot's quantity by the quantity left to sell
+					account.CashBalance += quantityToSell * t.PricePerUnit
+					quantityToSell = 0
+
 					break //Terminating the loop, as the transaction has been entirely processed
 
 				} else {
 					//In this scenario the given lot is not sufficient to cover the transaction and it's thus closed, and the loop proceeds to cover the next lot
-					quantityToSell -= lot.Quantity                       //Reducing the quantity left to sell by the lot's quantity, as it's being closed
-					account.CashBalance += lot.Quantity * t.PricePerUnit //Increasing the balance by the lot's quantity multiplied by the sale price
-					lot.Quantity = 0                                     // Setting the lot's quantity to 0, as it's being closed
-					lot.IsClosed = true
-
 					relation, err := tranlotrelation.New(lot.Id, uuid.Nil, t.Id, t.Timestamp, lot.Quantity*-1)
 					if err != nil {
 						return account, lots, relations, err
 					}
 					relations = append(relations, relation)
+
+					quantityToSell -= lot.Quantity                       //Reducing the quantity left to sell by the lot's quantity, as it's being closed
+					account.CashBalance += lot.Quantity * t.PricePerUnit //Increasing the balance by the lot's quantity multiplied by the sale price
+					lot.Quantity = 0                                     // Setting the lot's quantity to 0, as it's being closed
+					lot.IsClosed = true
+
 				}
 			}
 
