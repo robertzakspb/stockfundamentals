@@ -7,9 +7,10 @@ import (
 )
 
 type TransactionLotRelationDb struct {
-	Id         uuid.UUID `sql:"id"`
-	StockLotId uuid.UUID `sql:"stock_lot_id"`
-	BondLotId  uuid.UUID `sql:"bond_lot_id"`
-	Date       time.Time `sql:"date"`
-	Quantity   float64   `sql:"quantity"`
+	Id            uuid.UUID `sql:"id"`
+	TransactionId uuid.UUID `sql:"transaction_id"`
+	StockLotId    uuid.UUID `sql:"stock_lot_id"`
+	BondLotId     uuid.UUID `sql:"bond_lot_id"`
+	Date          time.Time `sql:"date"`
+	Quantity      float64   `sql:"quantity"`
 }

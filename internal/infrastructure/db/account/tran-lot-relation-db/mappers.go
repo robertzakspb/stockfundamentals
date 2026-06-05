@@ -12,6 +12,8 @@ func mapDbModelsToYdbList(dbModels []TransactionLotRelationDb) types.Value {
 
 	for i := range dbModels {
 		ydbModel := types.StructValue(
+			types.StructFieldValue("id", types.UuidValue(dbModels[i].Id)),
+			types.StructFieldValue("transaction_id", types.UuidValue(dbModels[i].TransactionId)),
 			types.StructFieldValue("stock_lot_id", types.UuidValue(dbModels[i].StockLotId)),
 			types.StructFieldValue("bond_lot_id", types.UuidValue(dbModels[i].BondLotId)),
 			types.StructFieldValue("date", ydbhelper.ConvertToYdbDate(dbModels[i].Date)),

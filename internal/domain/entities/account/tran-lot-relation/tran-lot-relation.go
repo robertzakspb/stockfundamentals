@@ -9,14 +9,18 @@ import (
 
 // Relationship between a transaction and the bond/stock lots it impacted through purchases and sales
 type TransactionLotRelation struct {
+	Id            uuid.UUID
+	TransactionId uuid.UUID
 	StockLotId    uuid.UUID
 	BondLotId     uuid.UUID
 	Date          time.Time
 	Quantity      float64
 }
 
-func New(stockLotId, bondLotId uuid.UUID, date time.Time, quantity float64) (TransactionLotRelation, error) {
+func New(stockLotId, bondLotId, transactionLotId uuid.UUID, date time.Time, quantity float64) (TransactionLotRelation, error) {
 	t := TransactionLotRelation{
+		Id:            uuid.New(),
+		TransactionId: transactionLotId,
 		StockLotId:    stockLotId,
 		BondLotId:     bondLotId,
 		Date:          date,
@@ -34,9 +38,6 @@ func (t *TransactionLotRelation) validate() error {
 	}
 	if t.Date.After(time.Now()) {
 		return errors.New("Invalid transaction date")
-	}
-	if t.Quantity <= 0 {
-		return errors.New("Transaction quantity must be greater than 0")
 	}
 
 	return nil

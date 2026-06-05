@@ -6,7 +6,9 @@ import (
 
 	accountservice "github.com/compoundinvest/stockfundamentals/internal/application/account/account"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
+	tranlotrelationservice "github.com/compoundinvest/stockfundamentals/internal/application/account/tran-lot-relation-service"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/account"
+	tranlotrelation "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/tran-lot-relation"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/transaction"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -79,6 +81,7 @@ func adjustStockLotsAndCashBalances(transactions []transaction.Transaction) erro
 func adjustAccountStockLotsAndBalances(accounts []account.Account, transactions map[uuid.UUID][]transaction.Transaction, lots map[uuid.UUID][]lot.Lot) error {
 	adjustedLots := []lot.Lot{}
 	adjustedAccounts := []account.Account{}
+	relations := []tranlotrelation.TransactionLotRelation{}
 	for accountId, accountTransactions := range transactions {
 		account, err := accountservice.FindAccountById(accountId, accounts)
 		if err != nil {
@@ -89,13 +92,14 @@ func adjustAccountStockLotsAndBalances(accounts []account.Account, transactions 
 			return errors.New("Failed to find lots for account " + accountId.String() + " in grouped lots")
 		}
 
-		updatedAccount, newLots, err := recalculateLotsAndCashBalances(account, accountTransactions, lots)
+		updatedAccount, newLots, newRelations, err := recalculateLotsAndCashBalances(account, accountTransactions, lots)
 		if err != nil {
 			return err
 		}
 
 		adjustedAccounts = append(adjustedAccounts, updatedAccount)
 		adjustedLots = append(adjustedLots, newLots...)
+		relations = append(relations, newRelations...)
 	}
 
 	flattenedTransactions := []transaction.Transaction{}
@@ -103,7 +107,7 @@ func adjustAccountStockLotsAndBalances(accounts []account.Account, transactions 
 		flattenedTransactions = append(flattenedTransactions, t...)
 	}
 
-	err := saveLotsAndAccountsAndTransactions(adjustedAccounts, flattenedTransactions, adjustedLots)
+	err := saveAllEntities(adjustedAccounts, flattenedTransactions, adjustedLots, relations)
 	if err != nil {
 		return err
 	}
@@ -111,7 +115,7 @@ func adjustAccountStockLotsAndBalances(accounts []account.Account, transactions 
 	return nil
 }
 
-func saveLotsAndAccountsAndTransactions(accounts []account.Account, transactions []transaction.Transaction, lots []lot.Lot) error {
+func saveAllEntities(accounts []account.Account, transactions []transaction.Transaction, lots []lot.Lot, relations []tranlotrelation.TransactionLotRelation) error {
 	err := accountservice.SaveAccounts(accounts)
 	if err != nil {
 		return err
@@ -128,6 +132,10 @@ func saveLotsAndAccountsAndTransactions(accounts []account.Account, transactions
 	}
 
 	//TODO: Establish a relationship between lots and transactions
+	err = tranlotrelationservice.SaveTranLotRelations(relations)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

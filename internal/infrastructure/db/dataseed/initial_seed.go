@@ -236,6 +236,7 @@ func createTransactionLotRelationshipTable(ctx context.Context, dbConnection *yd
 		func(ctx context.Context, s table.Session) error {
 			err := s.CreateTable(ctx, path.Join(prefix, db.TRANSACTION_LOT_RELATIONSHIP_TABLE_NAME),
 				options.WithColumn("id", types.TypeUUID),
+				options.WithColumn("transaction_id", types.TypeUUID),
 				options.WithColumn("stock_lot_id", types.TypeUUID),
 				options.WithColumn("bond_lot_id", types.TypeUUID),
 				options.WithColumn("date", types.TypeDate),
