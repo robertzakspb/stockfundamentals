@@ -3,7 +3,7 @@ module github.com/compoundinvest/stockfundamentals
 go 1.26.4
 
 require (
-	github.com/compoundinvest/invest-core v1.0.15
+	github.com/compoundinvest/invest-core v1.0.16
 	github.com/gin-contrib/cors v1.7.7
 	github.com/gin-gonic/gin v1.12.0
 	github.com/google/uuid v1.6.0

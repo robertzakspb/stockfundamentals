@@ -23,8 +23,8 @@ github.com/cncf/udpa/go v0.0.0-20210930031921-04548b0d99d4/go.mod h1:6pvJx4me5XP
 github.com/cncf/xds/go v0.0.0-20210922020428-25de7278fc84/go.mod h1:eXthEFrGJvWHgFFCl3hGmgk+/aYT6PnTQLykKQRLhEs=
 github.com/cncf/xds/go v0.0.0-20211001041855-01bcc9b48dfe/go.mod h1:eXthEFrGJvWHgFFCl3hGmgk+/aYT6PnTQLykKQRLhEs=
 github.com/cncf/xds/go v0.0.0-20211011173535-cb28da3451f1/go.mod h1:eXthEFrGJvWHgFFCl3hGmgk+/aYT6PnTQLykKQRLhEs=
-github.com/compoundinvest/invest-core v1.0.15 h1:xqoTAo30gNdlBWwqHdVIi9nTWZOKyAadQQYh4okoVMY=
-github.com/compoundinvest/invest-core v1.0.15/go.mod h1:hL527aBKAcLOs/SwElwXGRjEJ6Tq4/BG0j3kvv5Khqg=
+github.com/compoundinvest/invest-core v1.0.16 h1:ed/gMq6L5WHKg53oO2O/l5qAz3JszgvGUrcmlf32PZU=
+github.com/compoundinvest/invest-core v1.0.16/go.mod h1:GxFU9R6NAXaP3pU8q4x+RRf11WhFTiTqBb2gyCeHe5M=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
