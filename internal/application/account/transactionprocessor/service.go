@@ -131,7 +131,6 @@ func saveAllEntities(accounts []account.Account, transactions []transaction.Tran
 		return err
 	}
 
-	//TODO: Establish a relationship between lots and transactions
 	err = tranlotrelationservice.SaveTranLotRelations(relations)
 	if err != nil {
 		return err
