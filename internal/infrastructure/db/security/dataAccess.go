@@ -192,7 +192,9 @@ func convertStringsToYqlInExpression(filterSlice []string) string {
 	sb.WriteString("(")
 
 	for _, value := range filterSlice {
-		sb.WriteString("'" + value + "', ")
+		sb.WriteString("'")
+		sb.WriteString(value)
+		sb.WriteString("', ")
 	}
 
 	str := sb.String()[:sb.Len()-2] + ")"
