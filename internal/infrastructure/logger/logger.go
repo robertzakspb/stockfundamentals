@@ -9,7 +9,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/config"
 )
 
-var CURRENT_LOGGING_LEVELS = [4]LOG_LEVEL{INFORMATION, ERROR, ALERT, ERROR}
+var CURRENT_LOGGING_LEVELS = [4]LOG_LEVEL{DEBUG, INFORMATION, ERROR, ALERT, ERROR}
 
 type LOG_LEVEL int
 
