@@ -2,6 +2,7 @@ package transactionprocessor
 
 import (
 	"errors"
+
 	"strconv"
 
 	accountservice "github.com/compoundinvest/stockfundamentals/internal/application/account/account"
@@ -15,6 +16,7 @@ import (
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
+	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
 type Account account.Account
@@ -59,8 +61,12 @@ func adjustStockLotsAndCashBalances(transactions []transaction.Transaction) erro
 		Condition:      ydbfilter.Contains,
 		ConditionValue: ydbhelper.ConvertUUIDsToYdbList(accoundIds),
 	}
-	//FIXME: We need to add the closed flag and remove closed lots from the selection
-	lots, err := portfolio.GetFilteredLots([]ydbfilter.YdbFilter{accountfilter})
+	closedFilter := ydbfilter.YdbFilter{
+		YqlColumnName:  "is_closed",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: types.BoolValue(false),
+	}
+	lots, err := portfolio.GetFilteredLots([]ydbfilter.YdbFilter{accountfilter, closedFilter})
 	if err != nil {
 		return err
 	}
