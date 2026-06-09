@@ -51,18 +51,3 @@ func calculateYield(b Bond, coupons []Coupon, marketPricePercentage float64, acq
 	yield := (b.NominalValue - marketPrice + tci) / marketPrice * 365 / holdingPeriod * 100
 	return yield, nil
 }
-
-// Calculates the return realized on the bond given a market price, including coupons and redemption
-// // Coupon reinvestment is not assumed
-// func totalBondReturn(bond Bond, coupons []Coupon, marketPrice float64, acquisitionDate, redemptionDate time.Time) (float64, error) {
-// 	if marketPrice == 0 {
-// 		return -1, errors.New("Invalid market price")
-// 	}
-
-// 	futureCashflows := totalCouponIncome(coupons, false) + bond.NominalValue
-
-// 	cumulativeReturn := futureCashflows/marketPrice - 1
-// 	totalReturn := compoundinterest.CalcAnnualizedReturn(cumulativeReturn, acquisitionDate, redemptionDate)
-
-// 	return totalReturn, nil
-// }
