@@ -18,13 +18,17 @@ import (
 )
 
 func SaveDividendForecast(forecast dividend.DividendForecast) error {
-	figis, err := security_master.GetSecuritiesFilteredByFigi([]string{forecast.Stock.Figi})
+	if forecast.Stock.Ticker == "" {
+		return errors.New("The provided forecast is missing the ticker")
+	}
+	securities, err := security_master.GetSecuritiesByTicker([]string{forecast.Stock.Ticker})
 	if err != nil {
 		return err
 	}
-	if len(figis) == 0 {
-		return errors.New("Failed to save the dividend forecast due to a missing corresponding security for figi " + forecast.Stock.Figi)
+	if len(securities) == 0 {
+		return errors.New("Failed to find a security with ticker " + forecast.Stock.Ticker)
 	}
+	forecast.Stock.Figi = securities[0].Figi
 
 	err = dbdividend.SaveDividendForecastToDb(mapDividendForecastToDbModel([]dividend.DividendForecast{forecast})[0])
 	return err
