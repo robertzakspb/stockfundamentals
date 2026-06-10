@@ -24,7 +24,9 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 
 	//Adding the currency-based asset market values
 
-	sb.WriteString("Стоимость активов на " + timehelpers.TodayInDDMMYYYFormat() + ": ")
+	sb.WriteString("Стоимость активов на ")
+	sb.WriteString(timehelpers.TodayInDDMMYYYFormat())
+	sb.WriteString(": ")
 
 	accountReturn, err := accountmvservice.GetAccountReturn(filters, "RUB")
 	if err != nil {
@@ -112,6 +114,7 @@ func addNextWeekCoupons(sb *strings.Builder) error {
 	//Adding the coupons payable withing the next seven days
 	const header = "Выплачивамые на следующей неделе купоны: "
 	sb.WriteString(header)
+	sb.WriteString("\n")
 	portfolio, err := bondportfolio.GetAllPositionLots()
 	if err != nil {
 		return err
@@ -137,6 +140,7 @@ func addNextWeekCoupons(sb *strings.Builder) error {
 				sb.WriteString(" шт. = ")
 				sb.WriteString(forexservice.GetCurrencySymbol(portfolio[i].Bond.NominalCurrency))
 				fmt.Fprint(sb, coupon.PerBondAmount*portfolio[i].Quantity)
+				sb.WriteString("\n")
 			}
 		}
 	}
