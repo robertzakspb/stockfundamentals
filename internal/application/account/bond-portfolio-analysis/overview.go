@@ -49,7 +49,7 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 		sb.WriteString("  - ")
 		sb.WriteString(forexservice.GetCurrencySymbol(mv.Currency))
 		beautifiedEOD, _ := stringhelpers.BeautifyNumber(mv.EodValue)
-		fmt.Fprint(&sb, beautifiedEOD)
+		fmt.Fprint(&sb, beautifiedEOD[1:])
 		sb.WriteString("\n")
 	}
 
