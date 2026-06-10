@@ -47,6 +47,7 @@ func mapDividendForecastDomainToDto(domains []dividend.DividendForecast) []Divid
 
 		dto := DividendForecastDTO{
 			Figi:               domain.Stock.Figi,
+			Ticker:             domain.Stock.Ticker,
 			ExpectedDPS:        domain.ExpectedDPS,
 			Currency:           domain.Currency,
 			PaymentPeriod:      domain.PaymentPeriod,
