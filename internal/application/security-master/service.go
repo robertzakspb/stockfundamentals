@@ -35,3 +35,19 @@ func GetSecuritiesByIsin(isins []string) ([]security.Stock, error) {
 
 	return stocks, nil
 }
+
+func GetSecuritiesByTicker(tickers []string) ([]security.Stock, error) {
+	ydbTickers := ydbhelper.ConvertStringsToYdbList(tickers)
+	filters := []ydbfilter.YdbFilter{{
+		YqlColumnName:  "ticker",
+		Condition:      ydbfilter.Contains,
+		ConditionValue: ydbTickers,
+	}}
+
+	stocks, err := dbsecurity.GetFilteredSecurities(filters)
+	if err != nil {
+		return []security.Stock{}, err
+	}
+
+	return stocks, nil
+}

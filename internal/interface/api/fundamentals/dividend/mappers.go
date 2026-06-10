@@ -31,7 +31,7 @@ func mapDividendToDTO(dividends []dividend.Dividend) []DividendDTO {
 
 func mapDividendForecastDtoToDomain(dto DividendForecastDTO) dividend.DividendForecast {
 	return dividend.DividendForecast{
-		Stock:              security.Stock{Figi: dto.Figi},
+		Stock:              security.Stock{Ticker: dto.Ticker},
 		ExpectedDPS:        dto.ExpectedDPS,
 		Currency:           dto.Currency,
 		PaymentPeriod:      dto.PaymentPeriod,

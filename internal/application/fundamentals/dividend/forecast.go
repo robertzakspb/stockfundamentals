@@ -18,7 +18,6 @@ import (
 )
 
 func SaveDividendForecast(forecast dividend.DividendForecast) error {
-
 	figis, err := security_master.GetSecuritiesFilteredByFigi([]string{forecast.Stock.Figi})
 	if err != nil {
 		return err
