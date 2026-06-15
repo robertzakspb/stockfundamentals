@@ -17,5 +17,5 @@ ydb -e "grpc://localhost:2136" -d "/local" tools dump -o "/Users/robert/Library/
 To restore the local database from a local backup, use the following terminal command:
 
 ```
-ydb -e "grpc://localhost:2136" -d "/local" tools restore -i "/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup" -p "."
+ydb -vvv -e "grpc://localhost:2136" -d "/local" tools restore -i "/Users/robert/Library/Mobile Documents/com~apple~CloudDocs/Backups/stockfundamentals/latestbackup" -p "."
 ```
