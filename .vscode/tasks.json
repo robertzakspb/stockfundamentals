@@ -45,7 +45,7 @@
         {
             "type": "shell",
             "label": "Make_Backups",
-            "osx": {"command": ""},
+            "osx": {"command": "ydb -e \"grpc://localhost:2136\" -d \"/local\" tools dump -o \"/Users/robert/backups/compound/$(date +%Y%m%d_%H%M%S)\""},
             "linux": { "command": "ydb -e \"grpc://localhost:2136\" -d \"/Root/test\" tools dump -o \"/home/rob/Documents/backups/compound/$(date +%Y%m%d_%H%M%S)\"" }
         },
         {
