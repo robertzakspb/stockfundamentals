@@ -20,8 +20,6 @@ DisableAllRetry: false
 MaxRetries: 3
 ```
 
-_MAKE SURE TO ADD IT TO GITIGNORE!!_
-
 2. Create a dev.env file and add the following configurations to it:
 
 For macOS:
@@ -35,6 +33,14 @@ For Linux:
 ```text
 DB_CONNECTION_STRING=grpc://localhost:2136/Root/test
 ```
+
+3. Add the desired logging mode to the environment file:
+
+```text
+LOG_MODE={value}
+```
+
+The value may be set to either **CONSOLE** (logs are thus written using fmt.Println method) or **FILE**. In case the mode is set to **FILE**, the environment file must feature an additional entry containing the **FILE_LOCATION** parameter set to the directory where logs are to be stored.
 
 ## Starting the Project Locally
 
