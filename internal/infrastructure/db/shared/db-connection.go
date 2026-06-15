@@ -75,8 +75,8 @@ func MakeYdbDriver() (*ydb.Driver, error) {
 		panic("Failed to connect to the database")
 	}
 
-	logger.Log("Connection "+db.String()+" has been provisioned", logger.INFORMATION)
-	logger.Log("Number of connections in the pool: "+strconv.Itoa(len(pool.connections)), logger.INFORMATION)
+	logger.Log("Connection "+db.String()+" has been provisioned", logger.DEBUG)
+	logger.Log("Number of connections in the pool: "+strconv.Itoa(len(pool.connections)), logger.DEBUG)
 
 	return db, nil
 }
