@@ -26,14 +26,14 @@
             "type": "shell",
             "label": "Start_Local_DB",
             "osx": {
-                "command": "docker run -d --rm --name ydb-local -h localhost --platform linux/amd64 -p 2135:2135 -p 2136:2136 -p 8765:8765 -p 9092:9092 -v $(pwd)/ydb_certs:/ydb_certs -v $(pwd)/ydb_data:/ydb_data -e GRPC_TLS_PORT=2135 -e GRPC_PORT=2136 -e MON_PORT=8765 -e YDB_KAFKA_PROXY_PORT=9092 ydbplatform/local-ydb:latest && sleep 3"
+                "command": "cd ~/ydbd && docker run -d --rm --name ydb-local -h localhost --platform linux/amd64 -p 2135:2135 -p 2136:2136 -p 8765:8765 -p 9092:9092 -v $(pwd)/ydb_certs:/ydb_certs -v $(pwd)/ydb_data:/ydb_data -e GRPC_TLS_PORT=2135 -e GRPC_PORT=2136 -e MON_PORT=8765 -e YDB_KAFKA_PROXY_PORT=9092 ydbplatform/local-ydb:latest"
             },
             "linux": { "command": "" }  // "linux": { "command": "cd ~/ydbd && ./start.sh disk" }
         },
         {
             "type": "shell",
             "label": "Open_YDB_UI",
-            "osx": { "command": "open http://localhost:8765/" },
+            "osx": { "command": "sleep 3 && open http://localhost:8765/" },
             "linux": { "command": "setsid xdg-open http://localhost:8765/" }
         },
         //POST-DEBUG TASK THAT QUITS DOCKER AND CREATES THE REQUIRED BACKUPS
