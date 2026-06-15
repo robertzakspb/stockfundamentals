@@ -14,7 +14,7 @@
         {
             "label": "Start_DB",
             "dependsOrder": "sequence",
-            "dependsOn": ["Open_Docker", "Start_Local_DB", "Open_YDB_UI", "Restore_Latest_Backup"]
+            "dependsOn": ["Open_Docker", "Start_Local_DB", "Open_YDB_UI"]
         },
         {
             "type": "shell",
@@ -36,27 +36,11 @@
             "osx": { "command": "open http://localhost:8765/" },
             "linux": { "command": "setsid xdg-open http://localhost:8765/" }
         },
-        {
-            "type": "shell",
-            "label": "Restore_Latest_Backup",
-            "osx": {
-                "command": "ydb -vvv -e \"grpc://localhost:2136\" -d \"/local\" tools restore -i \"/Users/robert/Documents/backups/compound/latestbackup\" -p \".\""
-            },
-            "linux": { "command": "" }
-        },
         //POST-DEBUG TASK THAT QUITS DOCKER AND CREATES THE REQUIRED BACKUPS
         {
             "label": "Make_DB_Backup",
             "dependsOrder": "sequence",
-            "dependsOn": ["Remove_Old_Latest_Backup", "Make_Backups", "Stop_DB"]
-        },
-        {
-            "type": "shell",
-            "label": "Remove_Old_Latest_Backup",
-            "osx": {
-                // "command": "rm -rf  \"/Users/robert/Documents/backups/compound/latestbackup\" && sleep 1"
-            },
-            "linux": { "command": "" }
+            "dependsOn": ["Make_Backups", "Stop_DB"]
         },
         {
             "type": "shell",
@@ -69,7 +53,7 @@
             "type": "shell",
             "label": "Stop_DB",
             //TODO: Test and implement
-            "osx": { "command": "" },
+            "osx": { "command": "ps ax|grep -i docker|egrep -iv 'grep|com.docker.vmnetd'|awk '{print $1}'|xargs kill" },
             "linux": { "command": "" } //command": "cd ~/ydbd && ./stop.sh
         }
     ]
