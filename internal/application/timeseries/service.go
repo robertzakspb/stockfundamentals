@@ -43,7 +43,7 @@ func GetLatestQuotes(figis []string) ([]quote.Quote, error) {
 	return quotes, nil
 }
 
-func GetLocalQuotes(figis []string) ([]quote.Quote, error) {
+func GetLocalQuotes() ([]quote.Quote, error) {
 	quotes := []quote.Quote{}
 
 	dbQuotes, err := timeseriesdb.GetLatestQuotesForAllSecurities()
