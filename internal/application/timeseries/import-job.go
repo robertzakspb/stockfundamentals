@@ -31,7 +31,7 @@ func FetchAndSaveHistoricalQuotes() error {
 	service := client.NewMarketDataServiceClient()
 
 	for i, quote := range latestQuotes {
-		<-tthrottler.InstrumentServiceThrottle
+		<-tthrottler.MarketDataServiceThrottle
 
 		if quote.Currency != "RUB" {
 			continue
@@ -40,7 +40,7 @@ func FetchAndSaveHistoricalQuotes() error {
 		startDate := quote.Timestamp
 		//In case the DB has no latest quote for a security, the default start date is set
 		if startDate.IsZero() {
-			startDate = time.Date(2000,1,1,0,0,0,0,time.UTC)
+			startDate = time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
 		}
 
 		tQuotes, err := tinkoffapi.FetchAllHistoricalQuotesFor(service, quote.Figi, startDate, time.Now())
