@@ -51,3 +51,8 @@ func mapDbQuotesToQuotes(dbQuotes []timeseriesdb.QuoteDB) []quote.Quote {
 
 	return quotes
 }
+
+func mapDbQuoteToQuote(dbQuote timeseriesdb.QuoteDB) quote.Quote {
+	quote := mapDbQuotesToQuotes([]timeseriesdb.QuoteDB{dbQuote})[0]
+	return quote
+}
