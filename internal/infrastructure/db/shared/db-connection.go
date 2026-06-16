@@ -26,7 +26,7 @@ func ReleaseDriver(driver *ydb.Driver) error {
 	for i := range pool.connections {
 		if driver == pool.connections[i].db {
 			pool.connections[i].occupied = false
-			logger.Log("DB Connection has been released", logger.INFORMATION)
+			logger.Log("DB Connection has been released", logger.DEBUG)
 			return nil
 		}
 	}
@@ -40,7 +40,7 @@ func GetReusableYdbDriver() (*ydb.Driver, error) {
 	for i := range pool.connections {
 		if !pool.connections[i].occupied {
 			pool.connections[i].occupied = true
-			logger.Log("Connection: "+strconv.Itoa(i)+" has been occupied", logger.INFORMATION)
+			logger.Log("Connection: "+strconv.Itoa(i)+" has been occupied", logger.DEBUG)
 			return pool.connections[i].db, nil
 		}
 	}
