@@ -62,19 +62,20 @@ func GetLatestQuotesForAllSecurities() ([]QuoteDB, error) {
 	dbQuotes := []QuoteDB{}
 	yqlQuery :=
 		"$noPriceSelection = SELECT " +
-			"`marketdata/time_series`.figi AS figi, " +
+			"`stockfundamentals/stocks/stock`.figi AS figi, " +
 			"MAX(date) AS date, " +
 			"`stockfundamentals/stocks/stock`.country_iso2 AS country_iso2 " +
 			" FROM " +
-			"`marketdata/time_series` JOIN `stockfundamentals/stocks/stock` " +
-			"ON `marketdata/time_series`.figi = `stockfundamentals/stocks/stock`.figi " +
-			"GROUP BY `marketdata/time_series`.figi, `stockfundamentals/stocks/stock`.country_iso2;" +
+			"`stockfundamentals/stocks/stock` LEFT JOIN `marketdata/time_series` " +
+			"USING (figi) " +
+			"GROUP BY `stockfundamentals/stocks/stock`.figi, `stockfundamentals/stocks/stock`.country_iso2;" +
 
 			" SELECT n.figi AS figi, n.date AS date, n.country_iso2 AS country_iso2, t.close_price AS close_price " +
 			"FROM " +
 			"$noPriceSelection as n " +
-			"JOIN `marketdata/time_series` AS t " +
-			" ON t.date = n.date AND t.figi = n.figi;"
+			"LEFT JOIN `marketdata/time_series` AS t " +
+			" ON t.date = n.date AND t.figi = n.figi" +
+			" ORDER BY date DESC"
 	logger.Log("Executing query: "+yqlQuery, logger.INFORMATION)
 
 	err = dbConnection.Query().Do(context.TODO(),
