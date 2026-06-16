@@ -16,10 +16,11 @@ import (
 )
 
 func FetchAndSaveHistoricalQuotes() error {
-	latestQuotes, err := timeseriesdb.GetLatestQuotesForAllSecurities()
+	latestQuotes, err := GetLatestLocalQuotesForAllSecurities()
 	if err != nil {
 		return err
 	}
+
 	quotes := []entity.SimpleQuote{}
 
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
@@ -32,11 +33,17 @@ func FetchAndSaveHistoricalQuotes() error {
 	for i, quote := range latestQuotes {
 		<-tthrottler.InstrumentServiceThrottle
 
-		if quote.Country != "RU" {
+		if quote.Currency != "RUB" {
 			continue
 		}
 
-		tQuotes, err := tinkoffapi.FetchAllHistoricalQuotesFor(service, quote.Figi, quote.Date, time.Now())
+		startDate := quote.Timestamp
+		//In case the DB has no latest quote for a security, the default start date is set
+		if startDate.IsZero() {
+			startDate = time.Date(2000,1,1,0,0,0,0,time.UTC)
+		}
+
+		tQuotes, err := tinkoffapi.FetchAllHistoricalQuotesFor(service, quote.Figi, startDate, time.Now())
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 		}
