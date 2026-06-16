@@ -13,7 +13,7 @@ import (
 func GetLatestQuotes(figis []string) ([]quote.Quote, error) {
 	quotes := []quote.Quote{}
 
-	dbQuotes, err := GetLocalQuotes(figis)
+	dbQuotes, err := GetLatestLocalQuotesForFigis(figis)
 	if err != nil {
 		return []quote.Quote{}, err
 	}
@@ -43,7 +43,7 @@ func GetLatestQuotes(figis []string) ([]quote.Quote, error) {
 	return quotes, nil
 }
 
-func GetLocalQuotes() ([]quote.Quote, error) {
+func GetLatestLocalQuotesForAllSecurities() ([]quote.Quote, error) {
 	quotes := []quote.Quote{}
 
 	dbQuotes, err := timeseriesdb.GetLatestQuotesForAllSecurities()
@@ -54,6 +54,25 @@ func GetLocalQuotes() ([]quote.Quote, error) {
 	mappedQuotes := mapDbQuotesToQuotes(dbQuotes)
 	quotes = append(quotes, mappedQuotes...)
 
+	return quotes, nil
+}
+
+func GetLatestLocalQuotesForFigis(figis []string) ([]quote.Quote, error) {
+	quotes := []quote.Quote{}
+
+	dbQuotes, err := timeseriesdb.GetLatestQuotesForAllSecurities()
+	if err != nil {
+		return quotes, err
+	}
+
+	for i := range dbQuotes {
+		for j := range figis {
+			if dbQuotes[i].Figi == figis[j] {
+				mappedQuote := mapDbQuoteToQuote(dbQuotes[i])
+				quotes = append(quotes, mappedQuote)
+			}
+		}
+	}
 	return quotes, nil
 }
 
