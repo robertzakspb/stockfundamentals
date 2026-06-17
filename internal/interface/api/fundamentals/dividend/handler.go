@@ -52,7 +52,9 @@ func CreateNewDividendForecast(c *gin.Context) {
 		return
 	}
 
-	err = appdividend.SaveDividendForecast(mapDividendForecastDtoToDomain(divForecast))
+	mappedDomain := mapDividendForecastDtoToDomain(divForecast)
+	
+	err = appdividend.SaveDividendForecast(mappedDomain)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
 		return
