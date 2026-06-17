@@ -2,6 +2,7 @@ package apidividend
 
 import (
 	"sort"
+	"strings"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
@@ -11,10 +12,10 @@ func mapDividendToDTO(dividends []dividend.Dividend) []DividendDTO {
 	dtos := []DividendDTO{}
 	for _, dividend := range dividends {
 		dto := DividendDTO{
-			Figi:              dividend.Id.String(),
+			Figi:              strings.ToUpper(dividend.Id.String()),
 			ActualDPS:         dividend.ActualDPS,
 			ExpectedDPS:       dividend.ExpectedDPS,
-			Currency:          dividend.Currency,
+			Currency:          strings.ToUpper(dividend.Currency),
 			AnnouncementDate:  dividend.AnnouncementDate,
 			RecordDate:        dividend.RecordDate,
 			PayoutDate:        dividend.PayoutDate,
@@ -31,9 +32,9 @@ func mapDividendToDTO(dividends []dividend.Dividend) []DividendDTO {
 
 func mapDividendForecastDtoToDomain(dto DividendForecastDTO) dividend.DividendForecast {
 	return dividend.DividendForecast{
-		Stock:              security.Stock{Ticker: dto.Ticker},
+		Stock:              security.Stock{Ticker: strings.ToUpper(dto.Ticker)},
 		ExpectedDPS:        dto.ExpectedDPS,
-		Currency:           dto.Currency,
+		Currency:           strings.ToUpper(dto.Currency),
 		PaymentPeriod:      dto.PaymentPeriod,
 		Author:             dto.Author,
 		Comment:            dto.Comment,
