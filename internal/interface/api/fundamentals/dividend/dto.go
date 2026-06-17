@@ -21,7 +21,7 @@ type DividendDTO struct {
 type DividendForecastDTO struct {
 	Figi               string    `json:"figi"`
 	Ticker             string    `json:"ticker"`
-	ExpectedDPS        float64   `json:"expectedDPS,string"`
+	ExpectedDPS        float64   `json:"expectedDPS"`
 	Currency           string    `json:"currency"`
 	PaymentPeriod      string    `json:"paymentPeriod"`
 	Author             string    `json:"forecastAuthor"`
