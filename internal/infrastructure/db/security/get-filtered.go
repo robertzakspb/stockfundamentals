@@ -46,11 +46,11 @@ func GetFilteredSecurities(filters []ydbfilter.YdbFilter) ([]security.Stock, err
 					return err
 				}
 
-				for row, err := range sugar.UnmarshalRows[security.Stock](resultSet.Rows(ctx)) {
+				for row, err := range sugar.UnmarshalRows[StockDbModel](resultSet.Rows(ctx)) {
 					if err != nil {
 						return err
 					}
-					stocks = append(stocks, row)
+					stocks = append(stocks, mapYdbStockToStock(row))
 				}
 			}
 
