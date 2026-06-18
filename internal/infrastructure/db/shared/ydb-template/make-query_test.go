@@ -50,7 +50,7 @@ func Test_GenerateGetQuery_TwoFilters(t *testing.T) {
 		b float64 `sql:"b"`
 		c bool
 	}
-	expectedQuery := "DECLARE $a_filter AS Utf8;\nDECLARE $b_filter AS Double;\nSELECT a, b, FROM fooStore  WHERE\n a > $a_filter AND b <= $b_filter"
+	expectedQuery := "DECLARE $a_filter1 AS Utf8;\nDECLARE $b_filter1 AS Double;\nSELECT a, b, FROM fooStore  WHERE\n a > $a_filter1 AND b <= $b_filter1"
 	tableName := "fooStore"
 	filters := []ydbfilter.YdbFilter{
 		{

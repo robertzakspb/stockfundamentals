@@ -87,14 +87,50 @@ func Test_Declare_Uint8(t *testing.T) {
 
 func Test_MakeColumnFilterNameWithEmptyString(t *testing.T) {
 	expected := ""
-	actual := MakeColumnFilterName("")
+	actual := MakeColumnFilterName("", "")
 
 	test.AssertEqual(t, expected, actual)
 }
 
 func Test_MakeColumnFilterName(t *testing.T) {
 	expected := "$age_filter"
-	actual := MakeColumnFilterName("age")
+	actual := MakeColumnFilterName("age", "")
 
 	test.AssertEqual(t, expected, actual)
+}
+
+func Test_groupFiltersByColumnName_Positive(t *testing.T) {
+	filters := []YdbFilter{
+		{
+			YqlColumnName: "name1",
+		},
+		{
+			YqlColumnName: "name2",
+		},
+		{
+			YqlColumnName: "name2",
+		},
+		{
+			YqlColumnName: "name3",
+		},
+		{
+			YqlColumnName: "name1",
+		},
+		{
+			YqlColumnName: "name1",
+		},
+	}
+	grouped := groupFiltersByColumnName(filters)
+
+	test.AssertEqual(t, 3, len(grouped))
+	test.AssertEqual(t, 3, len(grouped["name1"]))
+	test.AssertEqual(t, 2, len(grouped["name2"]))
+	test.AssertEqual(t, 1, len(grouped["name3"]))
+}
+
+func Test_groupFiltersByColumnName_EmptySlice(t *testing.T) {
+	filters := []YdbFilter{}
+	grouped := groupFiltersByColumnName(filters)
+
+	test.AssertEqual(t, 0, len(grouped))
 }

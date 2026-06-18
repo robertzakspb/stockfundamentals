@@ -48,9 +48,12 @@ var ydbConditions = map[string]YdbFilterCondition{
 func SetQueryParams(filters []YdbFilter) *table.QueryParameters {
 	params := []table.ParameterOption{}
 
-	for _, filter := range filters {
-		param := table.ValueParam(MakeColumnFilterName(filter.YqlColumnName), filter.ConditionValue)
-		params = append(params, param)
+	groupedFilters := groupFiltersByColumnName(filters)
+	for _, filterList := range groupedFilters {
+		for i, filter := range filterList {
+			param := table.ValueParam(MakeColumnFilterName(filter.YqlColumnName, strconv.Itoa(i+1)), filter.ConditionValue)
+			params = append(params, param)
+		}
 	}
 
 	return table.NewQueryParameters(params...)
@@ -65,20 +68,27 @@ func MakeWhereClause(filters []YdbFilter) string {
 
 	b.WriteString(" WHERE\n ")
 
-	for i, filter := range filters {
-		b.WriteString(filter.YqlColumnName)
-		b.WriteString(" ")
-		b.WriteString(string(filter.Condition))
-		b.WriteString(" ")
-		b.WriteString(MakeColumnFilterName(filter.YqlColumnName))
-		if i < len(filters)-1 {
+	groupedFilters := groupFiltersByColumnName(filters)
+
+	for _, filterList := range groupedFilters {
+		for i, filter := range filterList {
+			b.WriteString(filter.YqlColumnName)
+			b.WriteString(" ")
+			b.WriteString(string(filter.Condition))
+			b.WriteString(" ")
+			b.WriteString(MakeColumnFilterName(filter.YqlColumnName, strconv.Itoa(i+1)))
+
 			b.WriteString(" ")
 			b.WriteString("AND")
 			b.WriteString(" ")
 		}
 	}
 
-	return b.String()
+	str := b.String()
+	trimmedStr := str[:len(str)-5] //Removing the last ' AND ' section of the string
+	str += ";"
+
+	return trimmedStr
 }
 
 func AddYqlVarDeclarations(filters []YdbFilter) string {
@@ -88,9 +98,13 @@ func AddYqlVarDeclarations(filters []YdbFilter) string {
 
 	b := strings.Builder{}
 
-	for _, filter := range filters {
-		yqlVarName := MakeColumnFilterName(filter.YqlColumnName)
-		b.WriteString(Declare(yqlVarName, filter.ConditionValue))
+	groupedFilters := groupFiltersByColumnName(filters)
+
+	for _, filters := range groupedFilters {
+		for i, filter := range filters {
+			yqlVarName := MakeColumnFilterName(filter.YqlColumnName, strconv.Itoa(i+1))
+			b.WriteString(Declare(yqlVarName, filter.ConditionValue))
+		}
 	}
 
 	return b.String()
@@ -100,45 +114,57 @@ func MapQueryFiltersToYdb(filters map[string][]string, entity any) []YdbFilter {
 	ydbFilters := []YdbFilter{}
 
 	for parameter, queryValues := range filters {
-		values := strings.Split(queryValues[0], ",") //We assume that any given query parameter has only 1 string
-		v := reflect.ValueOf(entity)
-
-		for i := 0; i < v.NumField(); i++ {
-			jsonTagValue, found := v.Type().Field(i).Tag.Lookup("json")
-			if !found {
-				logger.Log("Failed to find the json tag in "+v.Type().Name()+" for field "+v.Type().Field(i).Name+" which is unexpected for a DTO struct", logger.WARNING)
+		for _, queryValue := range queryValues {
+			values := strings.Split(queryValue, ",") //We assume that any given query parameter has only 1 string
+			filter, err := convertQueryParamToYdbFilter(parameter, entity, values)
+			if err != nil {
+				logger.Log(err.Error(), logger.ERROR)
 				continue
 			}
-			if jsonTagValue == parameter {
-				sqlTagValue, found := v.Type().Field(i).Tag.Lookup("sql")
-				if !found {
-					logger.Log("Failed to find the sql tag in "+v.Type().Name()+" for field "+v.Type().Field(i).Name+" which is unexpected for a DTO struct", logger.ERROR)
-					continue
-				}
-
-				condition, err := mapQueryConditionToYdb(values[0])
-				if err != nil {
-					logger.Log("Failed to map the API query parameter – "+values[0]+"to a YDB filter. Fix the API call.", logger.ERROR)
-					continue
-				}
-
-				filterValues, err := mapQueryValuesToYdbFilterValues(condition, values[1:])
-				if err != nil {
-					logger.Log("Failed to generate filter values", logger.ERROR)
-					continue
-				}
-
-				ydbFilters = append(ydbFilters, YdbFilter{
-					sqlTagValue,
-					condition,
-					filterValues,
-				})
-			}
+			ydbFilters = append(ydbFilters, filter)
 		}
-
 	}
 
 	return ydbFilters
+}
+
+func convertQueryParamToYdbFilter(parameter string, entity any, values []string) (YdbFilter, error) {
+	v := reflect.ValueOf(entity)
+	for i := 0; i < v.NumField(); i++ {
+		jsonTagValue, found := v.Type().Field(i).Tag.Lookup("json")
+		if !found {
+			logger.Log("Failed to find the json tag in "+v.Type().Name()+" for field "+v.Type().Field(i).Name+" which is unexpected for a DTO struct", logger.WARNING)
+			continue
+		}
+		if jsonTagValue == parameter {
+			sqlTagValue, found := v.Type().Field(i).Tag.Lookup("sql")
+			if !found {
+				logger.Log("Failed to find the sql tag in "+v.Type().Name()+" for field "+v.Type().Field(i).Name+" which is unexpected for a DTO struct", logger.ERROR)
+				continue
+			}
+
+			condition, err := mapQueryConditionToYdb(values[0])
+			if err != nil {
+				logger.Log("Failed to map the API query parameter – "+values[0]+"to a YDB filter. Fix the API call.", logger.ERROR)
+				continue
+			}
+
+			filterValues, err := mapQueryValuesToYdbFilterValues(condition, values[1:])
+			if err != nil {
+				logger.Log("Failed to generate filter values", logger.ERROR)
+				continue
+			}
+
+			filter := YdbFilter{
+				sqlTagValue,
+				condition,
+				filterValues,
+			}
+			return filter, nil
+		}
+	}
+
+	return YdbFilter{}, errors.New("Failed to generate a YDB filter with provided values")
 }
 
 func mapQueryConditionToYdb(condition string) (YdbFilterCondition, error) {
