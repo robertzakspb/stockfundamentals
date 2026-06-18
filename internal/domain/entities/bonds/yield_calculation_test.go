@@ -8,9 +8,9 @@ import (
 )
 
 func Test__calculateYield(t *testing.T) {
-	acquisitionDate, err := time.Parse("2006-01-02", "2026-03-19")
+	acquisitionDate, err := time.Parse("2006-01-02", "2076-03-19")
 	test.AssertEqual(t, err, nil)
-	maturityDate, err := time.Parse("2006-01-02", "2027-10-06")
+	maturityDate, err := time.Parse("2006-01-02", "2077-10-06")
 	test.AssertEqual(t, err, nil)
 
 	bond := Bond{
@@ -23,22 +23,22 @@ func Test__calculateYield(t *testing.T) {
 		{
 			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
 			PerBondAmount: 29.92,
-			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+			CouponDate:    time.Date(2076, 6, 12, 0, 0, 0, 0, time.UTC),
 		},
 		{
 			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
 			PerBondAmount: 29.92,
-			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+			CouponDate:    time.Date(2076, 6, 12, 0, 0, 0, 0, time.UTC),
 		},
 		{
 			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
 			PerBondAmount: 29.92,
-			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+			CouponDate:    time.Date(2076, 6, 12, 0, 0, 0, 0, time.UTC),
 		},
 		{
 			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
 			PerBondAmount: 29.92,
-			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+			CouponDate:    time.Date(2076, 6, 12, 0, 0, 0, 0, time.UTC),
 		},
 	}
 
@@ -51,9 +51,9 @@ func Test__calculateYield(t *testing.T) {
 }
 
 func Test__calculateYield_UsdBond(t *testing.T) {
-	acquisitionDate, err := time.Parse("2006-01-02", "2026-03-19")
+	acquisitionDate, err := time.Parse("2006-01-02", "2076-03-19")
 	test.AssertEqual(t, err, nil)
-	maturityDate, err := time.Parse("2006-01-02", "2027-03-19")
+	maturityDate, err := time.Parse("2006-01-02", "2077-03-19")
 	test.AssertEqual(t, err, nil)
 
 	bond := Bond{
@@ -67,22 +67,22 @@ func Test__calculateYield_UsdBond(t *testing.T) {
 		{
 			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
 			PerBondAmount: 2,
-			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+			CouponDate:    time.Date(2076, 6, 12, 0, 0, 0, 0, time.UTC),
 		},
 		{
 			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
 			PerBondAmount: 2,
-			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+			CouponDate:    time.Date(2076, 6, 12, 0, 0, 0, 0, time.UTC),
 		},
 		{
 			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
 			PerBondAmount: 2,
-			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+			CouponDate:    time.Date(2076, 6, 12, 0, 0, 0, 0, time.UTC),
 		},
 		{
 			CouponType:    CouponType_COUPON_TYPE_CONSTANT,
 			PerBondAmount: 2,
-			CouponDate:    time.Date(2026, 6, 12, 0, 0, 0, 0, time.UTC),
+			CouponDate:    time.Date(2076, 6, 12, 0, 0, 0, 0, time.UTC),
 		},
 	}
 
