@@ -146,7 +146,7 @@ func GetExchangeRate(cur1, cur2 string, date time.Time) (ForexRate, error) {
 	return mapDbModelsToDomain(rates)[0], nil
 }
 
-func GeFilteredtExchangeRates(filters []ydbfilter.YdbFilter) ([]ForexRate, error) {
+func GetFilteredExchangeRates(filters []ydbfilter.YdbFilter) ([]ForexRate, error) {
 	rates, err := forexdb.GetAllFxRates(filters)
 	if err != nil {
 		return []ForexRate{}, err
