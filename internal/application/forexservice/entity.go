@@ -6,10 +6,10 @@ import (
 )
 
 type ForexRate struct {
-	Currency1 Currency
-	Currency2 Currency
-	Rate      float64
-	Date      time.Time
+	Currency1 Currency  `sql:"currency_1" json:"currency1"`
+	Currency2 Currency  `sql:"currency_2" json:"currency2"`
+	Rate      float64   `sql:"rate" json:"rate"`
+	Date      time.Time `sql:"date" json:"date"`
 }
 
 type Currency string
