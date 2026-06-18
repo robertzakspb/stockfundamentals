@@ -63,6 +63,7 @@ func addEndpoints(router *gin.Engine) {
 	router.POST("fetch/time-series", timeseries.StartTimeSeriesImportJob)
 
 	router.POST("fetch/fx-rates", forexapi.StartForexImportJob)
+	router.GET("fx-rates", forexapi.GetFilteredExchangeRates)
 
 	router.POST("start-all-jobs", jobs.StartAllJobs)
 	router.POST("start-daily-jobs", jobs.StartDailyJobs)
