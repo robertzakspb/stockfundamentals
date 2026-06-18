@@ -196,7 +196,7 @@ func createAccountTable(ctx context.Context, dbConnection *ydb.Driver, c table.C
 				options.WithColumn("broker", types.TypeText),
 				options.WithColumn("holder", types.TypeText),
 				options.WithColumn("primary_currency", types.TypeText),
-				options.WithColumn("cash_position", types.TypeDouble),
+				options.WithColumn("cash_balance", types.TypeDouble),
 				options.WithPrimaryKeyColumn("id"),
 			)
 			if err != nil {
