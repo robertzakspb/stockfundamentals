@@ -49,6 +49,7 @@ func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {
 		rate, err := getCurrencyToRubRate(cur1, targetDate)
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
+			targetDate = targetDate.Add(time.Hour * 24)
 			continue
 		}
 		rates = append(rates, ForexRate{
