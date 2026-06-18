@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"golang.org/x/net/html/charset"
 )
 
@@ -55,6 +56,7 @@ func getDailyRates(ctx context.Context, year int, month time.Month, day int) (*F
 
 	date := time.Date(year, month, day, 0, 0, 0, 0, time.UTC).Format("02.01.2006")
 	url := fmt.Sprintf("http://www.cbr.ru/scripts/XML_daily.asp?date_req=%s", date)
+	logger.Log("Fetching the forex rates from cbr.ru for " + date + " . Time: " + time.Now().String(), logger.INFORMATION)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
