@@ -146,48 +146,16 @@ func GetExchangeRate(cur1, cur2 string, date time.Time) (ForexRate, error) {
 	return mapDbModelsToDomain(rates)[0], nil
 }
 
+func GeFilteredtExchangeRates(filters []ydbfilter.YdbFilter) ([]ForexRate, error) {
+	rates, err := forexdb.GetAllFxRates(filters)
+	if err != nil {
+		return []ForexRate{}, err
+	}
+	if len(rates) == 0 {
+		return []ForexRate{}, errors.New("Retrieved 0 forex rates from the database")
+	}
 
+	mappedRates := mapDbModelsToDomain(rates)
 
-// func GetExchangeRatesObsolete(currencyPairs []string, date time.Time) ([]ForexRate, error) {
-// 	rates := []ForexRate{}
-
-// 	for _, pair := range currencyPairs {
-// 		split := strings.Split(pair, "/")
-// 		cur1, cur2 := strings.ToUpper(split[0]), strings.ToUpper(split[1])
-// 		if cur2 != "RUB" {
-// 			logger.Log("Skipping the currency pair "+cur1+"/"+cur2+" due to missing rates", logger.INFORMATION)
-// 			continue
-// 		}
-// 		rate, err := GetExchangeRate(cur1, cur2, date)
-// 		if err != nil {
-// 			logger.Log("Failed to get the forex rate for "+cur1+"/"+cur2, logger.ERROR)
-// 			continue
-// 		}
-// 		rates = append(rates, rate)
-// 	}
-
-// 	return rates, nil
-// }
-
-// func GetExchangeRateForPair(currency1, currency2 string, dp ForexDataProvider) (float64, error) {
-// 	if currency1 == currency2 {
-// 		return 1, nil
-// 	}
-
-// 	usdToCur1, err := dp.GetExchangeRateUsdTo(currency1)
-// 	usdToCur2, err := dp.GetExchangeRateUsdTo(currency2)
-// 	if err != nil || usdToCur2 == 0 {
-// 		return 0, fmt.Errorf("%s", "failed to find the exchange rate between "+string(USD)+"and "+currency2)
-// 	}
-
-// 	return usdToCur1 / usdToCur2, nil
-// }
-
-// func ConvertPriceToDifferentCurrency(price float64, priceCur, targetCur string, dp ForexDataProvider) (float64, error) {
-// 	exRate, err := GetExchangeRateForPair(targetCur, priceCur, dp)
-// 	if err != nil {
-// 		return 0, err
-// 	}
-
-// 	return price / exRate, nil
-// }
+	return mappedRates, nil
+}
