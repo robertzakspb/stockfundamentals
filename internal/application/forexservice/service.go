@@ -11,6 +11,7 @@ import (
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	timehelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/time-helpers"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 )
 
@@ -35,7 +36,7 @@ func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {
 	rates := []ForexRate{}
 	targetDate := time.Now().Add(-time.Hour * 24 * 365)
 	for {
-		if targetDate.After(time.Now()) {
+		if targetDate.After(time.Now().AddDate(0, 0, 1)) {
 			break
 		}
 
@@ -48,7 +49,13 @@ func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {
 
 		rate, err := getCurrencyToRubRate(cur1, targetDate)
 		if err != nil {
-			logger.Log(err.Error(), logger.ERROR)
+			//The rate for the following day may or may not be provided; hence, a warning is sufficient. Otherwise, an error.
+			if timehelpers.AreEqualDates(time.Now().AddDate(0, 0, 1), targetDate) {
+				logger.Log(err.Error(), logger.WARNING)
+			} else {
+				logger.Log(err.Error(), logger.ERROR)
+			}
+
 			targetDate = targetDate.Add(time.Hour * 24)
 			continue
 		}
