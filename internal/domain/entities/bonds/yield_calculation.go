@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (b Bond) CalcYieldToMaturity(coupons []Coupon, marketPrice float64) (float64, error) {
+func (b Bond) CalcSimpleYieldToMaturity(coupons []Coupon, marketPrice float64) (float64, error) {
 	yield, err := calculateYield(b, coupons, marketPrice, time.Now(), b.MaturityDate, b.MaturityDate)
 	if err != nil {
 		return -1, err
@@ -14,7 +14,7 @@ func (b Bond) CalcYieldToMaturity(coupons []Coupon, marketPrice float64) (float6
 	return yield, nil
 }
 
-func (b Bond) CalcYieldToCallOption(coupons []Coupon, marketPrice float64) (float64, error) {
+func (b Bond) CalcSimpleYieldToCallOption(coupons []Coupon, marketPrice float64) (float64, error) {
 	if b.CallOptionExerciseDate.IsZero() {
 		return -1, errors.New("Attempting to calculate a yield to call option for a bond without a call exercise date")
 	}

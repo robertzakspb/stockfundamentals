@@ -88,7 +88,7 @@ func CalculateYtmForLots(lots []bonds.BondLot) ([]bonds.BondLot, error) {
 	lots = matchLotsWithBonds(lots, bondList)
 
 	sort.Slice(lots, func(i, j int) bool {
-		return lots[i].Bond.YieldToMaturity > lots[j].Bond.YieldToMaturity
+		return lots[i].Bond.SimpleYieldToMaturity > lots[j].Bond.SimpleYieldToMaturity
 	})
 
 	return lots, nil

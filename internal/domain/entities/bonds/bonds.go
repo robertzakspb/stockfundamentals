@@ -42,7 +42,7 @@ type Bond struct {
 	BondType                BondType
 	CallOptionExerciseDate  time.Time
 	Coupons                 []Coupon
-	YieldToMaturity         float64
+	SimpleYieldToMaturity   float64
 	YieldToCallOption       float64
 }
 

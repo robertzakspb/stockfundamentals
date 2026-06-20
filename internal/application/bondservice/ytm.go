@@ -38,7 +38,7 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 	bondList = CalculateYtmForBondsUsingQuotes(bondList, quotes)
 
 	sort.Slice(bondList, func(i, j int) bool {
-		return bondList[i].YieldToMaturity > bondList[i].YieldToMaturity
+		return bondList[i].SimpleYieldToMaturity > bondList[i].SimpleYieldToMaturity
 	})
 
 	return bondList
@@ -64,15 +64,15 @@ func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []tquoteservi
 	for _, quote := range quotes {
 		for i, b := range bondList {
 			if quote.Figi() == b.Figi {
-				ytm, err := b.CalcYieldToMaturity(b.Coupons, quote.Quote())
+				ytm, err := b.CalcSimpleYieldToMaturity(b.Coupons, quote.Quote())
 				if err != nil {
 					logger.Log(err.Error(), logger.ERROR)
 					continue
 				}
-				bondList[i].YieldToMaturity = ytm
+				bondList[i].SimpleYieldToMaturity = ytm
 
 				if b.HasCallOption() {
-					yieldToCallOption, err := b.CalcYieldToCallOption(b.Coupons, quote.Quote())
+					yieldToCallOption, err := b.CalcSimpleYieldToCallOption(b.Coupons, quote.Quote())
 					if err != nil {
 						logger.Log(err.Error(), logger.ERROR)
 						continue
@@ -84,7 +84,7 @@ func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []tquoteservi
 	}
 
 	sort.Slice(bondList, func(i, j int) bool {
-		return bondList[i].YieldToMaturity > bondList[j].YieldToMaturity
+		return bondList[i].SimpleYieldToMaturity > bondList[j].SimpleYieldToMaturity
 	})
 
 	return bondList

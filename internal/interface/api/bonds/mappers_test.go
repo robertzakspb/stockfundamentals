@@ -32,7 +32,7 @@ func Test_mapBondsToDTOs(t *testing.T) {
 			RiskLevel:              bonds.HIGH_RISK_LEVEL,
 			BondType:               bonds.BondType_BOND_TYPE_UNSPECIFIED,
 			CallOptionExerciseDate: time.Now(),
-			YieldToMaturity:        14.3,
+			SimpleYieldToMaturity:        14.3,
 			YieldToCallOption:      8.3,
 			Coupons: []bonds.Coupon{
 				{
@@ -70,7 +70,7 @@ func Test_mapBondsToDTOs(t *testing.T) {
 	test.AssertEqual(t, "HIGH_RISK_LEVEL", mappedDtos[0].RiskLevel)
 	test.AssertEqual(t, "BOND_TYPE_UNSPECIFIED", mappedDtos[0].BondType)
 	test.AssertTrue(t, timehelpers.AreEqualDates(time.Now(), mappedDtos[0].CallOptionExerciseDate))
-	test.AssertEqual(t, 14.3, mappedDtos[0].YieldToMaturity)
+	test.AssertEqual(t, 14.3, mappedDtos[0].SimpleYieldToMaturity)
 	test.AssertEqual(t, 8.3, mappedDtos[0].YieldToCallOption)
 
 	test.AssertEqual(t, 1, len(mappedDtos[0].Coupons))

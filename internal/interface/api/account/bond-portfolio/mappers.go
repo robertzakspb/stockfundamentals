@@ -31,7 +31,7 @@ func mapBondLotToDto(lot bonds.BondLot) bondPositionLotDto {
 		AccountId:              lot.AccountId.String(),
 		Quantity:               lot.Quantity,
 		PricePerUnitPercentage: lot.PricePerUnitPercentage,
-		CurrentYtm:             lot.Bond.YieldToMaturity,
+		CurrentYtm:             lot.Bond.SimpleYieldToMaturity,
 		YieldToCallOption:      lot.Bond.YieldToCallOption,
 	}
 

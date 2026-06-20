@@ -212,7 +212,7 @@ func generateMockValidBond() Bond {
 		RiskLevel:              HIGH_RISK_LEVEL,
 		BondType:               BondType_BOND_TYPE_UNSPECIFIED,
 		CallOptionExerciseDate: time.Now(),
-		YieldToMaturity:        14.3,
+		SimpleYieldToMaturity:        14.3,
 		YieldToCallOption:      8.3,
 		Coupons: []Coupon{
 			{
