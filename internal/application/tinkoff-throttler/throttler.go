@@ -4,10 +4,9 @@ package tthrottler
 import (
 	"time"
 )
-
-// Multiplication by 0.95 is just in case
-const instrumentServiceLimit = time.Minute / 195
-const marketDataServiceLimit = time.Minute / 29 //Not sure what is the right limit but this one works
+//These limits were discovered empirically; the limits provided in the official documentation, however, frequent ceiling breaches
+const instrumentServiceLimit = time.Minute / 150
+const marketDataServiceLimit = time.Minute / 29 
 
 var InstrumentServiceThrottle = time.Tick(instrumentServiceLimit)
 var MarketDataServiceThrottle = time.Tick(marketDataServiceLimit)
