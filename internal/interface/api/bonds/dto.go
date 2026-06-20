@@ -17,7 +17,7 @@ type BondDTO struct {
 	InitialNominalValue     float64     `json:"initialNominalValue"`
 	InitialNominalCurrency  string      `json:"initialNominalCurrency"`
 	RegistrationDate        time.Time   `json:"registrationDate"`
-	PlacementDate           time.Time   `json:"placementDAte"`
+	PlacementDate           time.Time   `json:"placementDate"`
 	PlacementPrice          float64     `json:"placementPrice"`
 	PlacementCurrency       string      `json:"placementCurrency"`
 	AccruedInterest         float64     `json:"accruedInterest"`
@@ -32,7 +32,7 @@ type BondDTO struct {
 	RiskLevel               string      `json:"riskLevel"`
 	BondType                string      `json:"bondType"`
 	CallOptionExerciseDate  time.Time   `json:"callOptionExerciseDate"`
-	YieldToMaturity         float64     `json:"yieldToMaturity"`
+	SimpleYieldToMaturity   float64     `json:"SimpleYieldToMaturity"`
 	YieldToCallOption       float64     `json:"yieldToCallOption"`
 	Coupons                 []CouponDTO `json:"coupons"`
 }
