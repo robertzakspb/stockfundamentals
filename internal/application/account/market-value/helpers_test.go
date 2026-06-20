@@ -1,6 +1,7 @@
 package accountmvservice
 
 import (
+	"slices"
 	"testing"
 
 	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
@@ -20,8 +21,16 @@ func Test_ExtractMarketValueCurrencies(t *testing.T) {
 
 	currencies := ExtractMarketValueCurrencies(map1, map2)
 
+	slices.SortFunc(currencies, func(cur1, cur2 string) int {
+		if cur1 < cur2 {
+			return -1
+		} else {
+			return 1
+		}
+	})
+
 	test.AssertEqual(t, 3, len(currencies))
-	test.AssertEqual(t, "RUB", currencies[0])
-	test.AssertEqual(t, "USD", currencies[1])
-	test.AssertEqual(t, "EUR", currencies[2])
+	test.AssertEqual(t, "EUR", currencies[0])
+	test.AssertEqual(t, "RUB", currencies[1])
+	test.AssertEqual(t, "USD", currencies[2])
 }
