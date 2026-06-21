@@ -5,8 +5,12 @@ import (
 	"time"
 )
 
+func (b Bond) CalcYieldToMaturity(coupons []Coupon, marketPrice float64) (float64, error) {
+
+}
+
 func (b Bond) CalcSimpleYieldToMaturity(coupons []Coupon, marketPrice float64) (float64, error) {
-	yield, err := calculateYield(b, coupons, marketPrice, time.Now(), b.MaturityDate, b.MaturityDate)
+	yield, err := calculateSimpleYield(b, coupons, marketPrice, time.Now(), b.MaturityDate, b.MaturityDate)
 	if err != nil {
 		return -1, err
 	}
@@ -19,7 +23,7 @@ func (b Bond) CalcSimpleYieldToCallOption(coupons []Coupon, marketPrice float64)
 		return -1, errors.New("Attempting to calculate a yield to call option for a bond without a call exercise date")
 	}
 
-	yield, err := calculateYield(b, coupons, marketPrice, time.Now(), b.CallOptionExerciseDate, b.CallOptionExerciseDate)
+	yield, err := calculateSimpleYield(b, coupons, marketPrice, time.Now(), b.CallOptionExerciseDate, b.CallOptionExerciseDate)
 	if err != nil {
 		return -1, err
 	}
@@ -27,7 +31,7 @@ func (b Bond) CalcSimpleYieldToCallOption(coupons []Coupon, marketPrice float64)
 	return yield, nil
 }
 
-func calculateYield(b Bond, coupons []Coupon, marketPricePercentage float64, acquisitionDate, redemptionDate, latestCouponDate time.Time) (float64, error) {
+func calculateSimpleYield(b Bond, coupons []Coupon, marketPricePercentage float64, acquisitionDate, redemptionDate, latestCouponDate time.Time) (float64, error) {
 	if len(coupons) == 0 {
 		return -1, errors.New("Failed to calculate the yield due to missing coupons")
 	}
