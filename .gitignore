@@ -12,3 +12,4 @@ ydb_certs
 __debug_bin*
 main
 logs.txt
+*.xlsx
