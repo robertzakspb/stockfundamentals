@@ -202,6 +202,11 @@ func mapQueryValuesToYdbFilterValues(condition YdbFilterCondition, values []stri
 		return types.TextValue(values[0]), nil
 
 	case Equal:
+		date, err := time.Parse("2006-01-02", values[0])
+		if err == nil {
+			return ydbhelper.ConvertToYdbDate(date), nil
+		}
+
 		b, err := strconv.ParseBool(values[0])
 		if err == nil {
 			return types.BoolValue(b), nil
