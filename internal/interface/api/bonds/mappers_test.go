@@ -71,7 +71,7 @@ func Test_mapBondsToDTOs(t *testing.T) {
 	test.AssertEqual(t, "BOND_TYPE_UNSPECIFIED", mappedDtos[0].BondType)
 	test.AssertTrue(t, timehelpers.AreEqualDates(time.Now(), mappedDtos[0].CallOptionExerciseDate))
 	test.AssertEqual(t, 14.3, mappedDtos[0].SimpleYieldToMaturity)
-	test.AssertEqual(t, 8.3, mappedDtos[0].YieldToCallOption)
+	test.AssertEqual(t, 8.3, mappedDtos[0].SimpleYieldToCallOption)
 
 	test.AssertEqual(t, 1, len(mappedDtos[0].Coupons))
 
