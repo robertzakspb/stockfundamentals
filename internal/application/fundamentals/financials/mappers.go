@@ -11,7 +11,7 @@ func MapFinancialMetricsModelToDbModels(metrics []financials.FinancialMetric) []
 		dbModel := dbfinancials.FinancialMetricDbModel{
 			Id:              metric.Id,
 			StockId:         metric.StockId,
-			Name:            metric.Name,
+			Name:            string(metric.Name),
 			ReportingPeriod: string(metric.ReportingPeriod),
 			Year:            int64(metric.Year),
 			Value:           int64(metric.Value),

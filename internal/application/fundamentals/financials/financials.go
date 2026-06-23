@@ -2,8 +2,6 @@ package financialsservice
 
 import (
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
 
@@ -20,8 +18,10 @@ func ExecuteFundamentalsJob() error {
 		}
 
 	}
+
+	return nil
 }
 
-func FetchFundamentalsForSecurity(security security.Stock) []financials.FinancialMetric {
-	
-}
+// func FetchFundamentalsForSecurity(security security.Stock) []financials.FinancialMetric {
+
+// }

@@ -12,13 +12,13 @@ import (
 func Test_MapFinancialMetricsModelToDbModels(t *testing.T) {
 	id1, id2 := uuid.New(), uuid.New()
 	stockId1, stockId2 := uuid.New(), uuid.New()
-	name1, name2 := "testName1", "testName2"
+	name1, name2 := "REVENUE", "DIVIDEND"
 
 	metrics := []financials.FinancialMetric{
 		{
 			Id:              id1,
 			StockId:         stockId1,
-			Name:            name1,
+			Name:            financials.MetricMap[name1],
 			ReportingPeriod: financials.H2,
 			Year:            2025,
 			Value:           1_000_000,
@@ -27,7 +27,7 @@ func Test_MapFinancialMetricsModelToDbModels(t *testing.T) {
 		{
 			Id:              id2,
 			StockId:         stockId2,
-			Name:            name2,
+			Name:            financials.MetricMap[name2],
 			ReportingPeriod: financials.Q1,
 			Year:            2026,
 			Value:           2_000_000,
@@ -59,7 +59,7 @@ func Test_MapFinancialMetricsModelToDbModels(t *testing.T) {
 func Test_mapYdbMetricsToMetrics_Basic(t *testing.T) {
 	id1, id2 := uuid.New(), uuid.New()
 	stockId1, stockId2 := uuid.New(), uuid.New()
-	name1, name2 := "testName1", "testName2"
+	name1, name2 := "REVENUE", "DIVIDEND"
 
 	dbMetrics := []dbfinancials.FinancialMetricDbModel{
 		{
@@ -88,7 +88,7 @@ func Test_mapYdbMetricsToMetrics_Basic(t *testing.T) {
 
 	test.AssertEqual(t, id1, mappedMetrics[0].Id)
 	test.AssertEqual(t, stockId1, mappedMetrics[0].StockId)
-	test.AssertEqual(t, name1, mappedMetrics[0].Name)
+	test.AssertEqual(t, name1, string(mappedMetrics[0].Name))
 	test.AssertEqual(t, financials.H2, mappedMetrics[0].ReportingPeriod)
 	test.AssertEqual(t, 2025, mappedMetrics[0].Year)
 	test.AssertEqual(t, 1_000_000, mappedMetrics[0].Value)
@@ -96,7 +96,7 @@ func Test_mapYdbMetricsToMetrics_Basic(t *testing.T) {
 
 	test.AssertEqual(t, id2, mappedMetrics[1].Id)
 	test.AssertEqual(t, stockId2, mappedMetrics[1].StockId)
-	test.AssertEqual(t, name2, mappedMetrics[1].Name)
+	test.AssertEqual(t, name2, string(mappedMetrics[1].Name))
 	test.AssertEqual(t, financials.Q1, mappedMetrics[1].ReportingPeriod)
 	test.AssertEqual(t, 2026, mappedMetrics[1].Year)
 	test.AssertEqual(t, 2_000_000, mappedMetrics[1].Value)

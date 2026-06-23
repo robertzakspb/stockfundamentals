@@ -11,6 +11,7 @@ import (
 
 	financialsservice "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/financials"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
 	entity "github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
@@ -657,7 +658,7 @@ func populateFinancialMetricsTable(reader *csv.Reader) error {
 		metrics = append(metrics, entity.FinancialMetric{
 			Id:              parsedId,
 			StockId:         parsedStockId,
-			Name:            csvMetric[2],
+			Name:            financials.MetricMap[csvMetric[2]],
 			ReportingPeriod: reportingPeriod,
 			Year:            int(parsedYear),
 			Value:           int(parsedValue),

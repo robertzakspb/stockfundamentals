@@ -5,7 +5,7 @@ import "github.com/google/uuid"
 type FinancialMetric struct {
 	Id              uuid.UUID
 	StockId         uuid.UUID
-	Name            string
+	Name            Metric
 	ReportingPeriod Period
 	Year            int
 	Value           int
@@ -34,4 +34,26 @@ var ReportingPeriodMap = map[string]Period{
 	"H1":            H1,
 	"H2":            H2,
 	"NINE_MONTHS":   NINE_MONTHS,
+}
+
+type Metric string
+
+const (
+	Revenue      Metric = "Revenue"
+	EBITDA       Metric = "EBITDA"
+	OperatingIncome Metric = "OPERATING_INCOME"
+	NetIncome    Metric = "NET_INCOME"
+	FreeCashFlow Metric = "FREE_CASH_FLOW"
+	Dividend     Metric = "DIVIDEND"
+	NetDebt      Metric = "NET_DEBT"
+)
+
+var MetricMap = map[string]Metric{
+	"Revenue":        Revenue,
+	"EBITDA":         EBITDA,
+	"NET_INCOME":     NetIncome,
+	"FREE_CASH_FLOW": FreeCashFlow,
+	"DIVIDEND":       Dividend,
+	"NET_DEBT":       NetDebt,
+	"OPERATING_INCOME": OperatingIncome,
 }
