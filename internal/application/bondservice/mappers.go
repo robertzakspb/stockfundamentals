@@ -1,7 +1,6 @@
 package bondservice
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -52,7 +51,6 @@ func mapTinkoffBondsToBonds(tinkoffBonds []*pb.Bond) []bonds.Bond {
 			RiskLevel:               mapTinkoffRiskLevel(tinkoffBond.RiskLevel),
 			BondType:                bonds.BondType(tinkoffBond.BondType),
 			CallOptionExerciseDate:  tinkoffBond.CallDate.AsTime(),
-
 		}
 		validationErr := bond.Validate()
 		if validationErr != nil {
