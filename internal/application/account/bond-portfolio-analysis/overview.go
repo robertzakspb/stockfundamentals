@@ -23,7 +23,6 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 	var sb strings.Builder
 
 	//Adding the currency-based asset market values
-
 	sb.WriteString("Стоимость активов на ")
 	sb.WriteString(timehelpers.TodayInDDMMYYYFormat())
 	sb.WriteString(": ")
