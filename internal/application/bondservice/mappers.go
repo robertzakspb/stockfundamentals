@@ -1,6 +1,7 @@
 package bondservice
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -18,6 +19,10 @@ func mapTinkoffBondsToBonds(tinkoffBonds []*pb.Bond) []bonds.Bond {
 		if tinkoffBond == nil ||
 			tinkoffBond.MaturityDate.AsTime().Before(time.Now()) { //No need to import historical bonds that have matured
 			continue
+		}
+
+		if tinkoffBond.Isin == "RU000A10BVH7" {
+			fmt.Println("26250")
 		}
 
 		bond := bonds.Bond{
@@ -182,7 +187,7 @@ func mapTinkoffCouponsToCoupons(tinkoffCoupons []*pb.Coupon) []bonds.Coupon {
 
 func mapCouponsToDbModels(coupons []bonds.Coupon) []bondsdb.CouponDbModel {
 	dbModels := make([]bondsdb.CouponDbModel, len(coupons))
-	
+
 	for i, coupon := range coupons {
 		dbModel := bondsdb.CouponDbModel{
 			Id:              coupon.Id,

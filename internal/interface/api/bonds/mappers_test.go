@@ -33,7 +33,7 @@ func Test_mapBondsToDTOs(t *testing.T) {
 			BondType:               bonds.BondType_BOND_TYPE_UNSPECIFIED,
 			CallOptionExerciseDate: time.Now(),
 			SimpleYieldToMaturity:        14.3,
-			YieldToCallOption:      8.3,
+			SimpleYieldToCallOption:      8.3,
 			Coupons: []bonds.Coupon{
 				{
 					Figi:            "testFigi",

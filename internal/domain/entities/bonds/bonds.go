@@ -43,7 +43,8 @@ type Bond struct {
 	CallOptionExerciseDate  time.Time
 	Coupons                 []Coupon
 	SimpleYieldToMaturity   float64
-	YieldToCallOption       float64
+	SimpleYieldToCallOption       float64
+
 }
 
 type RiskLevel int

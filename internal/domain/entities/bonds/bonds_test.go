@@ -213,7 +213,7 @@ func generateMockValidBond() Bond {
 		BondType:               BondType_BOND_TYPE_UNSPECIFIED,
 		CallOptionExerciseDate: time.Now(),
 		SimpleYieldToMaturity:        14.3,
-		YieldToCallOption:      8.3,
+		SimpleYieldToCallOption:      8.3,
 		Coupons: []Coupon{
 			{
 				Figi:            "testFigi",

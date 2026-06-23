@@ -77,7 +77,7 @@ func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []tquoteservi
 						logger.Log(err.Error(), logger.ERROR)
 						continue
 					}
-					bondList[i].YieldToCallOption = yieldToCallOption
+					bondList[i].SimpleYieldToCallOption = yieldToCallOption
 				}
 			}
 		}
