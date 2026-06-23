@@ -1,25 +1,27 @@
 package financialsservice
 
 import (
+	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
-	dbfinancials "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/financials"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
 
-func GetFinancialMetrics() ([]financials.FinancialMetric, error) {
-	dbMetrics, err := dbfinancials.FetchFinancialMetrics()
+func ExecuteFundamentalsJob() error {
+	securities, err := security_master.GetAllSecuritiesFromDB()
 	if err != nil {
-		return []financials.FinancialMetric{}, err
+		logger.Log(err.Error(), logger.ERROR)
 	}
 
-	mappedMetrics := mapYdbMetricsToMetrics(dbMetrics)
+	for _, security := range securities {
+		//Currently no fundamentals are available for non-RU countries
+		if security.Country != "RU" {
+			continue
+		}
 
-	return mappedMetrics, nil
+	}
 }
 
-func SaveFinancialMetrics(metrics []financials.FinancialMetric) error {
-	dbModels := MapFinancialMetricsModelToDbModels(metrics)
-
-	err := dbfinancials.SaveFinancialMetricsToDb(dbModels)
-
-	return err
+func FetchFundamentalsForSecurity(security security.Stock) []financials.FinancialMetric {
+	
 }
