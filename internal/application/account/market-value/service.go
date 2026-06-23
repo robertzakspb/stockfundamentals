@@ -233,9 +233,6 @@ func CalculateBondLotsMarketValue(bondLots []bonds.BondLot, date time.Time, curr
 
 	totalMarketValue := 0.0
 
-	// bonds := bondportfolio.GetLotBonds(bondLots)
-	// currencyPairs := bondservice.AllCurrencyPairsInBondList(bonds)
-	// fxRates, err := forexservice.GetExchangeRates(currencyPairs, date)
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
 		return accountmvdomain.AccountMarketValue{}, err
@@ -246,19 +243,7 @@ func CalculateBondLotsMarketValue(bondLots []bonds.BondLot, date time.Time, curr
 		for _, lot := range bondLots {
 			if lot.Figi == quote.Figi() {
 				foundQuote = true
-
-				// // fxRate := 1.0
-				// if lot.Bond.IsBondWithDifferentNominalCurrencyAndCurrency() {
-				// 	rate, found := forexservice.FindRate(lot.Bond.NominalCurrency, lot.Bond.Currency, fxRates)
-				// 	if !found {
-				// 		logger.Log("Failed to find an exchange rate for "+lot.Bond.NominalCurrency+"/"+lot.Bond.Currency+". Unable to calculate the market value for the bond "+lot.Bond.Isin, logger.ERROR)
-				// 		return accountmvdomain.AccountMarketValue{}, errors.New("Unable to calculate the market value for the bond due to the missing forex rate")
-				// 	}
-				// 	// fxRate = rate.Rate
-				// }
-
 				lotMarketValue := lot.MarketValue(quote.Quote(), 1.0)
-
 				totalMarketValue += lotMarketValue
 			}
 		}
