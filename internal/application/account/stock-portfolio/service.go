@@ -129,8 +129,9 @@ func PopulateLotsWithQuotes(portfolio portfolio.Portfolio) (portfolio.Portfolio,
 
 	quotes := quotefetcher.FetchQuotesFor(entitySecurities)
 
-	//Fetching quotes through Tinkoff API, as MOEX does not return quotes for ETFs like LQDT
-	if etfFigis := portfolio.GetEtfLotFigis(); len(etfFigis) > 0 {
+	//Occasionally the MOEX API does not return quotes for ETFs and quote fetching should thus fall back to the Tinkoff API
+	//Condition len(quotes) != len(positions) indicates that these quotes are missing
+	if etfFigis := portfolio.GetEtfLotFigis(); len(etfFigis) > 0 && len(quotes) != len(positions) {
 		config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
 		if err != nil {
 			logger.Log("Failed to initialize the configuration file", logger.ALERT)
