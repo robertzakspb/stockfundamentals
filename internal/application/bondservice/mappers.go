@@ -21,10 +21,6 @@ func mapTinkoffBondsToBonds(tinkoffBonds []*pb.Bond) []bonds.Bond {
 			continue
 		}
 
-		if tinkoffBond.Isin == "RU000A10BVH7" {
-			fmt.Println("26250")
-		}
-
 		bond := bonds.Bond{
 			Id:                      uuid.New(),
 			Figi:                    tinkoffBond.Figi,
@@ -56,6 +52,7 @@ func mapTinkoffBondsToBonds(tinkoffBonds []*pb.Bond) []bonds.Bond {
 			RiskLevel:               mapTinkoffRiskLevel(tinkoffBond.RiskLevel),
 			BondType:                bonds.BondType(tinkoffBond.BondType),
 			CallOptionExerciseDate:  tinkoffBond.CallDate.AsTime(),
+
 		}
 		validationErr := bond.Validate()
 		if validationErr != nil {
