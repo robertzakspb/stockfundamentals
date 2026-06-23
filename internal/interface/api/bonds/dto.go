@@ -33,7 +33,7 @@ type BondDTO struct {
 	BondType                string      `json:"bondType"`
 	CallOptionExerciseDate  time.Time   `json:"callOptionExerciseDate"`
 	SimpleYieldToMaturity   float64     `json:"simpleYieldToMaturity"`
-	YieldToCallOption       float64     `json:"yieldToCallOption"`
+	SimpleYieldToCallOption       float64     `json:"yieldToCallOption"`
 	Coupons                 []CouponDTO `json:"coupons"`
 }
 
