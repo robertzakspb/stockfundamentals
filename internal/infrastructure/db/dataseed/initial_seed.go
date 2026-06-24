@@ -51,7 +51,12 @@ func InitialSeed(c *gin.Context) {
 func createTables(ctx context.Context, db *ydb.Driver) error {
 	client := db.Table()
 
-	err := createTransactionLotRelationshipTable(ctx, db, client)
+	err := createDividendForecastTable(ctx, db, client)
+	if err != nil {
+		return err
+	}
+
+	err = createTransactionLotRelationshipTable(ctx, db, client)
 	if err != nil {
 		return err
 	}
@@ -97,11 +102,6 @@ func createTables(ctx context.Context, db *ydb.Driver) error {
 	}
 
 	err = createPortfolioTable(ctx, db, client)
-	if err != nil {
-		return err
-	}
-
-	err = createDividendForecastTable(ctx, db, client)
 	if err != nil {
 		return err
 	}
@@ -382,7 +382,7 @@ func createDividendForecastTable(ctx context.Context, dbConnection *ydb.Driver, 
 				options.WithColumn("forecast_author", types.TypeText),
 				options.WithColumn("comment", types.TypeText),
 				options.WithColumn("payout_date", types.TypeDate),
-				options.WithPrimaryKeyColumn("figi", "payment_period"),
+				options.WithPrimaryKeyColumn("figi", "payout_date"),
 			)
 			if err != nil {
 				logger.Log(err.Error(), logger.ALERT)
