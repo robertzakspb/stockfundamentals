@@ -67,7 +67,6 @@ func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []tquoteservi
 				ytm, err := b.CalcSimpleYieldToMaturity(b.Coupons, quote.Quote())
 				if err != nil {
 					logger.Log(err.Error(), logger.ERROR)
-					continue
 				}
 				bondList[i].SimpleYieldToMaturity = ytm
 
