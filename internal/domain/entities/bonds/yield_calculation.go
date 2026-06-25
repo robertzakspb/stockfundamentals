@@ -52,9 +52,9 @@ func calculateSimpleYield(b Bond, coupons []Coupon, marketPricePercentage float6
 	if len(coupons) == 0 {
 		return -1, errors.New("Failed to calculate the yield due to missing coupons")
 	}
-	if !(coupons[0].CouponType == CouponType_COUPON_TYPE_FIX || coupons[0].CouponType == CouponType_COUPON_TYPE_CONSTANT) {
-		return -1, errors.New("Unable to calculate the YTM for non-fixed and non-constant coupons")
-	}
+	// if !(coupons[0].CouponType == CouponType_COUPON_TYPE_FIX || coupons[0].CouponType == CouponType_COUPON_TYPE_CONSTANT) {
+	// 	return -1, errors.New("Unable to calculate the YTM for non-fixed and non-constant coupons")
+	// }
 	if marketPricePercentage == 0 {
 		return -1, errors.New("Unable to calculate the yield due to a missing market price")
 	}
