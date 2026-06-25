@@ -64,20 +64,20 @@ func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []tquoteservi
 	for _, quote := range quotes {
 		for i, b := range bondList {
 			if quote.Figi() == b.Figi {
+				if b.HasCallOption() {
+					yieldToCallOption, err := b.CalcSimpleYieldToCallOption(b.Coupons, quote.Quote())
+					if err != nil {
+						logger.Log(err.Error(), logger.ERROR)
+					}
+					bondList[i].SimpleYieldToCallOption = yieldToCallOption
+					continue
+				}
+
 				ytm, err := b.CalcSimpleYieldToMaturity(b.Coupons, quote.Quote())
 				if err != nil {
 					logger.Log(err.Error(), logger.ERROR)
 				}
 				bondList[i].SimpleYieldToMaturity = ytm
-
-				if b.HasCallOption() {
-					yieldToCallOption, err := b.CalcSimpleYieldToCallOption(b.Coupons, quote.Quote())
-					if err != nil {
-						logger.Log(err.Error(), logger.ERROR)
-						continue
-					}
-					bondList[i].SimpleYieldToCallOption = yieldToCallOption
-				}
 			}
 		}
 	}
