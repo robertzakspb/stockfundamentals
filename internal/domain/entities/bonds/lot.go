@@ -17,6 +17,7 @@ type BondLot struct {
 	PricePerUnitPercentage float64
 	AccruedInterest        float64
 	Bond                   Bond
+	MarketValueInRUB       float64
 }
 
 func (lot *BondLot) CouponPayoutForPosition(coupon Coupon) float64 {

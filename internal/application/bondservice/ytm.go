@@ -36,6 +36,7 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 
 	bondList = MatchCouponsWithBonds(coupons, bondList)
 	bondList = CalculateYtmForBondsUsingQuotes(bondList, quotes)
+	bondList = CalculateRubMarketValue(bondList, quotes) //FIXME: Need to test this!!!
 
 	sort.Slice(bondList, func(i, j int) bool {
 		return bondList[i].SimpleYieldToMaturity > bondList[i].SimpleYieldToMaturity
