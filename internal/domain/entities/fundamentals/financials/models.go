@@ -39,7 +39,7 @@ var ReportingPeriodMap = map[string]Period{
 type Metric string
 
 const (
-	Revenue      Metric = "Revenue"
+	Revenue      Metric = "REVENUE"
 	EBITDA       Metric = "EBITDA"
 	OperatingIncome Metric = "OPERATING_INCOME"
 	NetIncome    Metric = "NET_INCOME"
@@ -49,7 +49,7 @@ const (
 )
 
 var MetricMap = map[string]Metric{
-	"Revenue":        Revenue,
+	"REVENUE":        Revenue,
 	"EBITDA":         EBITDA,
 	"NET_INCOME":     NetIncome,
 	"FREE_CASH_FLOW": FreeCashFlow,
