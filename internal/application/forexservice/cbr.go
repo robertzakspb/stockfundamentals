@@ -14,7 +14,7 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
-type FxRate struct {
+type cbrFxRate struct {
 	Date  string         `xml:"Date,attr"`
 	Rates []*cbrCurrency `xml:"Valute"`
 }
@@ -47,7 +47,7 @@ func getCurrencyToRubRate(currency string, targetDate time.Time) (float64, error
 	return -1, errors.New("Failed to find the target forex rate")
 }
 
-func getDailyRates(ctx context.Context, year int, month time.Month, day int) (*FxRate, error) {
+func getDailyRates(ctx context.Context, year int, month time.Month, day int) (*cbrFxRate, error) {
 	const (
 		UserAgent = "cbrates/v0 (+https://github.com/robertzak)"
 	)
@@ -56,7 +56,7 @@ func getDailyRates(ctx context.Context, year int, month time.Month, day int) (*F
 
 	date := time.Date(year, month, day, 0, 0, 0, 0, time.UTC).Format("02.01.2006")
 	url := fmt.Sprintf("http://www.cbr.ru/scripts/XML_daily.asp?date_req=%s", date)
-	logger.Log("Fetching the forex rates from cbr.ru for " + date + " . Time: " + time.Now().String(), logger.INFORMATION)
+	logger.Log("Fetching the forex rates from cbr.ru for "+date+" . Time: "+time.Now().String(), logger.INFORMATION)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func getDailyRates(ctx context.Context, year int, month time.Month, day int) (*F
 	}
 	defer resp.Body.Close()
 
-	var result FxRate
+	var result cbrFxRate
 	decoder := xml.NewDecoder(resp.Body)
 	decoder.CharsetReader = charset.NewReaderLabel
 	err = decoder.Decode(&result)
