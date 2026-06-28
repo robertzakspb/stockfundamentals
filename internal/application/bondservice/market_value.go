@@ -9,7 +9,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
 
-func CalculateRubMarketValue(bondList []bonds.Bond, quotes []tquoteservice.TQuote) []bonds.Bond { 
+func CalculateRubMarketValue(bondList []bonds.Bond, quotes []tquoteservice.TQuote) []bonds.Bond {
 	pairs := AllCurrencyPairsInBondList(bondList)
 
 	rates, err := forexservice.GetExchangeRates(pairs, time.Now())
@@ -17,6 +17,12 @@ func CalculateRubMarketValue(bondList []bonds.Bond, quotes []tquoteservice.TQuot
 		logger.Log(err.Error(), logger.ERROR)
 	}
 
+	bondList = calculateRubMarketValue(bondList, quotes, rates)
+
+	return bondList
+}
+
+func calculateRubMarketValue(bondList []bonds.Bond, quotes []tquoteservice.TQuote, rates []forexservice.ForexRate) []bonds.Bond {
 	for _, quote := range quotes {
 		for i := range bondList {
 			if quote.Figi() == bondList[i].Figi {
