@@ -19,7 +19,7 @@
         {
             "type": "shell",
             "label": "Open_Docker",
-            "osx": { "command": "open -a Docker && sleep 6" },
+            "osx": { "command": "open -a Docker && sleep 8" },
             "linux": { "command": "" }
         },
         {
