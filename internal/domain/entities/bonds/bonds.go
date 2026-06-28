@@ -166,7 +166,7 @@ func (b *Bond) IsBondWithDifferentNominalCurrencyAndCurrency() bool {
 
 func (b *Bond) MarketValue(quoteAsPercentage, fxRate float64) float64 {
 	marketPriceInCurrency := quoteAsPercentage * b.NominalValue / 100
-	marketPriceInCurrency *= fxRate
 	mv := marketPriceInCurrency + b.AccruedInterest
-	return mv
+	mvInCurrency := mv * fxRate
+	return mvInCurrency
 }
