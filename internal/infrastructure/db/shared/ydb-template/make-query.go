@@ -21,6 +21,8 @@ func generateGetQuery[T any](filters []ydbfilter.YdbFilter, tablePath string) (s
 		return sb.String(), err
 	}
 
+	slices.Sort(columnNames)
+
 	//Ensuring the provided filters' column names are present in T's sql tag values
 	for i := range filters {
 		if !slices.Contains(columnNames, filters[i].YqlColumnName) {
