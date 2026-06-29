@@ -40,7 +40,7 @@ DB_CONNECTION_STRING=grpc://localhost:2136/Root/test
 LOG_MODE={value}
 ```
 
-The value may be set to either **CONSOLE** (logs are thus written using fmt.Println method) or **FILE**. In case the mode is set to **FILE**, the environment file must feature an additional entry containing the **FILE_LOCATION** parameter set to the directory where logs are to be stored.
+The value may be set to either **CONSOLE** (logs are thus written using the fmt.Println method) or **FILE**. In case the mode is set to **FILE**, the environment file must feature an additional entry containing the **FILE_LOCATION** parameter set to the directory where logs are to be stored.
 
 ## Starting the Project Locally
 
