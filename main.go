@@ -12,6 +12,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
 
 	accountreturnapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/account-return"
+	accountsapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/accounts"
 	bondportfolioapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/bond-portfolio"
 	divcalapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/dividend-calendar"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/stock-portfolio"
@@ -33,6 +34,8 @@ func addEndpoints(router *gin.Engine) {
 	router.POST("migration/initial-seed", dataseed.InitialSeed)
 
 	router.GET("health-check", healthCheck)
+
+	router.GET("account", accountsapi.GetAllAccounts)
 
 	router.GET("account-portfolio", portfolio.GetAccountPortfolio)
 	router.POST("update-portfolio", portfolio.UpdatePortfolio)
