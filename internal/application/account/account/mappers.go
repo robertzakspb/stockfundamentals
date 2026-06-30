@@ -12,7 +12,7 @@ func mapDbAccountsToAccounts(dbAccounts []accountdb.AccountDbModel) []account.Ac
 		account := account.Account{
 			Id:              dbAccount.Id,
 			OpeningDate:     dbAccount.OpeningDate,
-			Type:            string(account.AccountType_Map[dbAccount.Type]),
+			Type:            account.AccountType_Map[dbAccount.Type],
 			Broker:          dbAccount.Broker,
 			Holder:          dbAccount.Holder,
 			PrimaryCurrency: dbAccount.PrimaryCurrency,

@@ -32,7 +32,7 @@ func Test_mapDbAccountsToAccounts(t *testing.T) {
 
 	test.AssertEqual(t, id, mappedAccount.Id)
 	test.AssertEqual(t, openingDate, mappedAccount.OpeningDate)
-	test.AssertEqual(t, string(account.IIS_1), mappedAccount.Type)
+	test.AssertEqual(t, account.IIS_1, mappedAccount.Type)
 	test.AssertEqual(t, broker, mappedAccount.Broker)
 	test.AssertEqual(t, holder, mappedAccount.Holder)
 	test.AssertEqual(t, primaryCurrency, mappedAccount.PrimaryCurrency)
@@ -48,7 +48,7 @@ func Test_mapDbAccountsToAccounts_IIS2(t *testing.T) {
 
 	mappedAccount := mapDbAccountsToAccounts([]accountdb.AccountDbModel{dbAccount})[0]
 
-	test.AssertEqual(t, string(account.IIS_2), mappedAccount.Type)
+	test.AssertEqual(t, account.IIS_2, mappedAccount.Type)
 }
 
 func Test_mapDbAccountsToAccounts_IIS3(t *testing.T) {
@@ -60,7 +60,7 @@ func Test_mapDbAccountsToAccounts_IIS3(t *testing.T) {
 
 	mappedAccount := mapDbAccountsToAccounts([]accountdb.AccountDbModel{dbAccount})[0]
 
-	test.AssertEqual(t, string(account.IIS_3), mappedAccount.Type)
+	test.AssertEqual(t, account.IIS_3, mappedAccount.Type)
 }
 
 func Test_mapDbAccountsToAccounts_STANDARD(t *testing.T) {
@@ -72,7 +72,7 @@ func Test_mapDbAccountsToAccounts_STANDARD(t *testing.T) {
 
 	mappedAccount := mapDbAccountsToAccounts([]accountdb.AccountDbModel{dbAccount})[0]
 
-	test.AssertEqual(t, string(account.STANDARD), mappedAccount.Type)
+	test.AssertEqual(t, account.STANDARD, mappedAccount.Type)
 }
 
 func Test_mapAccountsToDbAccounts(t *testing.T) {
@@ -86,7 +86,7 @@ func Test_mapAccountsToDbAccounts(t *testing.T) {
 	sample := account.Account{
 		Id:              id,
 		OpeningDate:     openingDate,
-		Type:            accountType,
+		Type:            account.AccountType_Map[accountType],
 		Broker:          broker,
 		Holder:          holder,
 		PrimaryCurrency: primaryCurrency,
