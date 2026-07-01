@@ -14,7 +14,7 @@
         {
             "label": "Start_DB",
             "dependsOrder": "sequence",
-            "dependsOn": ["Open_Docker", "Start_Local_DB", "Open_YDB_UI"]
+            "dependsOn": ["Open_Docker", "Start_Local_DB", "Open_YDB_UI", "Apply_Migrations"]
         },
         {
             "type": "shell",
@@ -35,6 +35,12 @@
             "label": "Open_YDB_UI",
             "osx": { "command": "sleep 3 && open http://localhost:8765/" },
             "linux": { "command": "setsid xdg-open http://localhost:8765/" }
+        },
+        {
+            "type": "shell",
+            "label": "Apply_Migrations",
+            "osx": { "command": "goose -env=\"dev.env\" up" },
+            "linux": { "command": "goose -env=\"dev.env\" up" }
         },
         //POST-DEBUG TASK THAT QUITS DOCKER AND CREATES THE REQUIRED BACKUPS
         {
