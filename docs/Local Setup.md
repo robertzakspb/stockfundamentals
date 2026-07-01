@@ -45,3 +45,23 @@ The value may be set to either **CONSOLE** (logs are thus written using the fmt.
 ## Starting the Project Locally
 
 That's it, you are officially good to go. The tasks.json file contains the automatic tasks that start the database on both macOS and Linux and even create backups following the debug session.
+
+## Migrations
+
+Migrations are applied via the _goose_ database migration tool. Install _goose_ by executing the following commands:
+
+For macOS:
+
+```
+brew install goose
+```
+
+Having installed _goose_, proceed to append the required environment variables to the corresponding .env file:
+
+```
+GOOSE_DRIVER=ydb
+GOOSE_DBSTRING=grpc://localhost:2136/local?go_query_mode=scripting&go_fake_tx=scripting&go_query_bind=declare,numeric
+GOOSE_MIGRATION_DIR=./migrations
+```
+
+Note that the connection string might differ depending on the operating system.
