@@ -1,0 +1,42 @@
+-- +goose Up
+
+UPSERT INTO `stockfundamentals/stocks/dividend_payment` (id, stock_id, actual_DPS, expected_DPS, currency, record_date, payout_date, payment_period, regularity, type) VALUES
+(Uuid('12415403-e0ce-469b-bae1-9303d76558ca'), 'BBG000BMX476', 359630000, 0, 'RSD', Date('2021-04-14'), Date('2021-07-7'), 'CALENDAR_YEAR', '', ''),
+(Uuid('da0e26f5-7bd5-42e1-8ca4-db99b0baa942'), 'BBG000BMX476', 103440000, 0, 'RSD', Date('2022-04-26'), Date('2022-07-7'), 'CALENDAR_YEAR', '', ''),
+(Uuid('2472315b-ee7a-4322-a664-8e1bb57f4d14'), 'BBG000BMX476', 33890000, 0, 'RSD', Date('2023-04-13'), Date('2023-07-7'), 'CALENDAR_YEAR', '', ''),
+(Uuid('9e26423b-afa4-4633-98ce-50c68699a2fb'), 'BBG000BMX476', 51640000, 0, 'RSD', Date('2024-04-15'), Date('2024-07-5'), 'CALENDAR_YEAR', '', ''),
+(Uuid('611e61db-7408-4305-8abb-709ecf06fc07'), 'BBG000BMX476', 121450000, 0, 'RSD', Date('2025-04-20'), Date('2025-07-4'), 'CALENDAR_YEAR', '', ''),
+(Uuid('d090e857-9cf1-4a55-a851-b0c417e95eff'), 'BBG000BS7XH7', 411760000, 0, 'RSD', Date('2018-12-29'), Date('2019-08-5'), 'CALENDAR_YEAR', '', ''),
+(Uuid('e27cade0-1822-495b-badb-aeb297cb608b'), 'BBG000BS7XH7', 705880000, 0, 'RSD', Date('2019-12-29'), Date('2020-12-31'), 'CALENDAR_YEAR', '', ''),
+(Uuid('4de17308-db03-4a71-8344-e62c053cadb2'), 'BBG000BS7XH7', 705880000, 0, 'RSD', Date('2020-12-29'), Date('2021-12-31'), 'CALENDAR_YEAR', '', ''),
+(Uuid('86c4f1d5-b55f-4ce4-98fc-d11efa35e591'), 'BBG000BS7XH7', 705880000, 0, 'RSD', Date('2021-12-29'), Date('2022-12-31'), 'CALENDAR_YEAR', '', ''),
+(Uuid('617faedb-6527-42fe-8ef5-32275d6028ba'), 'BBG000BS7XH7', 411760000, 0, 'RSD', Date('2022-12-29'), Date('2023-12-31'), 'CALENDAR_YEAR', '', ''),
+(Uuid('8af3d392-4849-476a-b355-4e8137ccc013'), 'BBG000BS7XH7', 647060000, 0, 'RSD', Date('2023-12-29'), Date('2024-12-31'), 'CALENDAR_YEAR', '', ''),
+(Uuid('841ea456-3e19-48c5-83c1-05f7e0e577e4'), 'BBG000BS7XH7', 764700000, 0, 'RSD', Date('2024-12-31'), Date('2025-08-11'), 'CALENDAR_YEAR', '', ''),
+(Uuid('c0671faa-5a35-4b4f-9284-aed6867e94b0'), 'BBG0015L55D4', 75830000, 45500000, 'RSD', Date('2013-06-8'), Date('2013-08-20'), 'CALENDAR_YEAR', '', ''),
+(Uuid('5c77a15e-ac3e-4e84-8358-b5812361ab56'), 'BBG0015L55D4', 80220000, 48130000, 'RSD', Date('2014-06-20'), Date('2014-11-25'), 'CALENDAR_YEAR', '', ''),
+(Uuid('2268907a-2bb3-48e1-9e8b-8678307c4599'), 'BBG0015L55D4', 46850000, 28110000, 'RSD', Date('2015-06-13'), Date('2015-08-31'), 'CALENDAR_YEAR', '', ''),
+(Uuid('2b94f723-8e70-4ee9-94dc-94742195e591'), 'BBG0015L55D4', 24690000, 14810000, 'RSD', Date('2016-06-18'), Date('2016-09-19'), 'CALENDAR_YEAR', '', ''),
+(Uuid('5efb2eb6-b14e-4707-b47e-29df96343f8e'), 'BBG0015L55D4', 24660000, 14790000, 'RSD', Date('2017-06-17'), Date('2017-08-18'), 'CALENDAR_YEAR', '', ''),
+(Uuid('cbbe797b-7305-4a9c-8f08-434b03d9fea8'), 'BBG0015L55D4', 42610000, 25560000, 'RSD', Date('2018-06-11'), Date('2018-08-27'), 'CALENDAR_YEAR', '', ''),
+(Uuid('ad594587-8724-4ba4-ba7d-c25cd9fab52e'), 'BBG0015L55D4', 39970000, 23980000, 'RSD', Date('2019-06-17'), Date('2019-09-17'), 'CALENDAR_YEAR', '', ''),
+(Uuid('d9ccfda6-9d29-46fe-b8c2-c9b8c9b28217'), 'BBG0015L55D4', 27140000, 16280000, 'RSD', Date('2020-06-20'), Date('2020-11-27'), 'CALENDAR_YEAR', '', ''),
+(Uuid('e7fbacf3-7505-46ca-b506-b776e63c9b27'), 'BBG0015L55D4', 6140000, 0, 'RSD', Date('2021-06-19'), Date('2021-08-31'), 'CALENDAR_YEAR', '', ''),
+(Uuid('e1810da0-cc85-4bf6-9ebf-396845d700ec'), 'BBG0015L55D4', 35460000, 21280000, 'RSD', Date('2022-06-19'), Date('2022-08-22'), 'CALENDAR_YEAR', '', ''),
+(Uuid('85ac4f83-513d-4342-94cb-8770737426f2'), 'BBG0015L55D4', 143290000, 85970000, 'RSD', Date('2023-06-19'), Date('2023-08-24'), 'CALENDAR_YEAR', '', ''),
+(Uuid('6f3beb5d-82de-4c6d-90e5-91258ac02aeb'), 'BBG0015L55D4', 64260000, 67770000, 'RSD', Date('2024-06-17'), Date('2024-08-28'), 'CALENDAR_YEAR', '', ''),
+(Uuid('5d7b766f-b69b-4030-a1a1-5c4fee41d13a'), 'BBG0015L55D4', 28180000, 28180000, 'RSD', Date('2025-06-20'), Date('2025-10-22'), 'CALENDAR_YEAR', '', ''),
+(Uuid('f26e70b1-4f31-4485-85ec-1851d0c5ec83'), 'BBG000HP5RC7', 150000000, 0, 'RSD', Date('2015-04-14'), Date('2015-10-31'), 'CALENDAR_YEAR', '', ''),
+(Uuid('dcb2d8ef-7c5a-492c-92af-6993190ea49e'), 'BBG000HP5RC7', 155000000, 0, 'RSD', Date('2016-05-17'), Date('1970-01-1'), 'CALENDAR_YEAR', '', ''),
+(Uuid('dbf22edb-4ea4-4cf7-87d3-58547caffbd1'), 'BBG000HP5RC7', 80000000, 0, 'RSD', Date('2017-04-18'), Date('1970-01-1'), 'CALENDAR_YEAR', '', ''),
+(Uuid('85f313aa-2224-4ac7-b732-71209c77770d'), 'BBG000HP5RC7', 85000000, 0, 'RSD', Date('2018-04-16'), Date('1970-01-1'), 'CALENDAR_YEAR', '', ''),
+(Uuid('0f688d8b-9a07-4d53-96b0-52162ad98cf6'), 'BBG000HP5RC7', 85000000, 0, 'RSD', Date('2019-04-14'), Date('1970-01-1'), 'CALENDAR_YEAR', '', ''),
+(Uuid('23ad03cb-6cf0-4771-ba2c-d3b69320460f'), 'BBG000HP5RC7', 85000000, 0, 'RSD', Date('2020-06-16'), Date('1970-01-1'), 'CALENDAR_YEAR', '', ''),
+(Uuid('ed44e2ae-9e7f-4789-b57f-01d8c6eaf80f'), 'BBG000HP5RC7', 65000000, 0, 'RSD', Date('2021-04-18'), Date('1970-01-1'), 'CALENDAR_YEAR', '', ''),
+(Uuid('0a3baef2-ee61-4141-a27f-55a674aa951b'), 'BBG000HP5RC7', 85000000, 0, 'RSD', Date('2022-05-16'), Date('1970-01-1'), 'CALENDAR_YEAR', '', ''),
+(Uuid('b45f5c93-7ba1-41cf-afb6-f11adc799a73'), 'BBG000HP5RC7', 90000000, 0, 'RSD', Date('2023-05-9'), Date('1970-01-1'), 'CALENDAR_YEAR', '', ''),
+(Uuid('8c389a54-3442-4975-a584-0ddf3b9716ae'), 'BBG000HP5RC7', 90000000, 0, 'RSD', Date('2024-05-25'), Date('1970-01-1'), 'CALENDAR_YEAR', '', ''),
+(Uuid('b3b454ec-c464-4f26-b1b7-634a96814946'), 'BBG000HP5RC7', 95000000, 0, 'RSD', Date('2025-05-13'), Date('1970-01-1'), 'CALENDAR_YEAR', '', '')
+
+-- +goose Down
+
