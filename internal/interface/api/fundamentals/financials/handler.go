@@ -17,7 +17,7 @@ type FinancialMetricDTO struct {
 func mapFinancialMetricToDto(metric entity.FinancialMetric) FinancialMetricDTO {
 	return FinancialMetricDTO{
 		Id:       metric.Id.String(),
-		StockId:  metric.StockId.String(),
+		StockId:  metric.StockId,
 		Name:     string(metric.Name),
 		Period:   string(metric.ReportingPeriod),
 		Year:     metric.Year,

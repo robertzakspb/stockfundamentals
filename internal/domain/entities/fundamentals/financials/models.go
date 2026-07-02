@@ -4,7 +4,7 @@ import "github.com/google/uuid"
 
 type FinancialMetric struct {
 	Id              uuid.UUID
-	StockId         uuid.UUID
+	StockId         string
 	Name            Metric
 	ReportingPeriod Period
 	Year            int

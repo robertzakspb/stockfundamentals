@@ -3,6 +3,7 @@ package dataseed
 import (
 	"context"
 	"encoding/csv"
+	"fmt"
 	"net/http"
 	"os"
 	"path"
@@ -42,7 +43,7 @@ func InitialSeed(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{"Failed to create tables"}})
 	}
 
-	err = populateTables()
+	err = PopulateTables()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{"Failed to populate tables"}})
 	}
@@ -114,7 +115,7 @@ func createTables(ctx context.Context, db *ydb.Driver) error {
 	return nil
 }
 
-func populateTables() error {
+func PopulateTables() error {
 	err := PopulateAllTables()
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
@@ -496,7 +497,7 @@ func PopulateAllTables() error {
 			logger.Log("Attempting to seed data from an unknow file: "+fileName, logger.ALERT)
 		}
 		if seedError != nil {
-			return seedError
+			fmt.Println(seedError)
 		}
 	}
 
@@ -511,39 +512,60 @@ func populateStockTable(reader *csv.Reader) error {
 
 	serbianStocks := []security.Security{}
 	recordsLessHeader := seedRecords[1:]
+	str := ""
+	str += "UPSERT INTO `stockfundamentals/stocks/stock` (figi, company_name, is_public, isin, security_type, country_iso2, MIC, ticker, issue_size, sector) VALUES \n"
+
 	for _, record := range recordsLessHeader {
-		isPublic, err := strconv.ParseBool(record[2])
+		isPublic, err := strconv.ParseBool(record[1])
 		if err != nil {
-			logger.Log("Failed to parse the is public flag "+record[2]+" in the stock seed file", logger.ALERT)
+			logger.Log("Failed to parse the is public flag "+record[1]+" in the stock seed file", logger.ALERT)
 			continue
 		}
 
-		securityType, found := security.SecurityTypeMap[record[4]]
+		securityType, found := security.SecurityTypeMap[record[3]]
 		if !found {
-			logger.Log("Failed to parse the security type"+record[4]+" in the stock seed file", logger.ALERT)
+			logger.Log("Failed to parse the security type"+record[3]+" in the stock seed file", logger.ALERT)
 			continue
 		}
 
-		issueSize, err := strconv.Atoi(record[7])
+		issueSize, err := strconv.Atoi(record[6])
 		if err != nil {
-			logger.Log("Failed to parse the issue size "+record[7]+" in the stock seed file", logger.ALERT)
+			logger.Log("Failed to parse the issue size "+record[6]+" in the stock seed file", logger.ALERT)
 			continue
 		}
 
 		stock := security.Stock{
-			Isin:         record[3],
-			Figi:         record[9],
-			CompanyName:  record[1],
+			Isin:         record[2],
+			Figi:         record[8],
+			CompanyName:  record[0],
 			IsPublic:     isPublic,
 			SecurityType: securityType,
-			Country:      record[5],
-			Ticker:       record[6],
+			Country:      record[4],
+			Ticker:       record[5],
 			IssueSize:    issueSize,
-			Sector:       record[8],
-			MIC:          record[10],
+			Sector:       record[7],
+			MIC:          record[9],
 		}
 		serbianStocks = append(serbianStocks, stock)
+		str += "("
+		str += "'" + stock.Figi + "'" + ", "
+		str += "'" + stock.CompanyName + "'" + ", "
+		str += strconv.FormatBool(stock.IsPublic) + ", "
+		str += "'" + stock.Isin + "'" + ", "
+		str += "'" + string(stock.SecurityType) + "'" + ", "
+		str += "'" + stock.Country + "'" + ", "
+		str += "'" + stock.MIC + "'" + ", "
+		str += "'" + stock.Ticker + "'" + ", "
+		str += strconv.Itoa(stock.IssueSize) + ", "
+		str += "'" + stock.Sector + "'"
+		// if i < len(recordsLessHeader)-1 {
+		// 	str += ", "
+		// }
+		str += "),\n"
+
 	}
+	str += ";"
+	fmt.Println(str)
 
 	err = dbsecurity.SaveSecuritiesToDB(serbianStocks)
 	if err != nil {
@@ -563,6 +585,7 @@ func populateDividendTable(reader *csv.Reader) error {
 	dividends := []dividend.Dividend{}
 	csvDividends := seedRecords[1:]
 
+	yql := "UPSERT INTO `stockfundamentals/stocks/dividend_payment` (id, stock_id, actual_DPS, expected_DPS, currency, record_date, payout_date, payment_period, regularity, type) VALUES\n"
 	for _, csvDividend := range csvDividends {
 		parsedId, err := uuid.Parse(csvDividend[0])
 		if err != nil {
@@ -605,7 +628,25 @@ func populateDividendTable(reader *csv.Reader) error {
 			PaymentPeriod: csvDividend[7],
 		}
 		dividends = append(dividends, div)
+
+		yql += "("
+		yql += "Uuid('" + div.Id.String() + "'), "
+		yql += "'" + div.Figi + "'" + ", "
+		yql += strconv.Itoa(int(div.ActualDPS*1_000_000)) + ", "
+		yql += strconv.Itoa(int(div.ExpectedDPS*1_000_000)) + ", "
+		yql += "'" + div.Currency + "'" + ", "
+		yql += "Date('" + dateToISOString(div.RecordDate) + "'), "
+		yql += "Date('" + dateToISOString(div.PayoutDate) + "'), "
+		yql += "'" + div.PaymentPeriod + "', "
+		yql += "'" + div.Regularity + "', "
+		yql += "'" + div.Type + "'"
+		// if i < len(csvDividends)-1 {
+		// 	yql += ", "
+		// }
+		yql += "),\n"
 	}
+	yql += ";"
+	fmt.Println(yql)
 
 	err = dbdividend.SaveDividendsToDB(&dividends)
 	if err != nil {
@@ -614,6 +655,19 @@ func populateDividendTable(reader *csv.Reader) error {
 	}
 
 	return nil
+}
+
+func dateToISOString(date time.Time) string {
+	year, month, day := date.Date()
+	monthStr := strconv.Itoa(int(month))
+	if len(monthStr) == 1 {
+		monthStr = "0" + monthStr
+	}
+	dayStr := strconv.Itoa(day)
+	if len(monthStr) == 1 {
+		dayStr = "0" + dayStr
+	}
+	return strconv.Itoa(year) + "-" + monthStr + "-" + dayStr
 }
 
 func populateFinancialMetricsTable(reader *csv.Reader) error {
@@ -625,6 +679,7 @@ func populateFinancialMetricsTable(reader *csv.Reader) error {
 	csvMetrics := seedRecords[1:]
 	metrics := []entity.FinancialMetric{}
 
+	yql := "UPSERT INTO `stockfundamentals/stocks/financial_metric` (id, figi, metric, reporting_period, year, metric_value, metric_currency) VALUES\n"
 	for _, csvMetric := range csvMetrics {
 		parsedId, err := uuid.Parse(csvMetric[0])
 		if err != nil {
@@ -632,11 +687,7 @@ func populateFinancialMetricsTable(reader *csv.Reader) error {
 			continue
 		}
 
-		parsedStockId, err := uuid.Parse(csvMetric[1])
-		if err != nil {
-			logger.Log("Failed to parse the stock ID from value "+csvMetric[1]+" in the revenue-income seed file", logger.ALERT)
-			continue
-		}
+		parsedStockId := csvMetric[1]
 
 		parsedYear, err := strconv.ParseInt(csvMetric[4], 0, 64)
 		if err != nil {
@@ -655,7 +706,7 @@ func populateFinancialMetricsTable(reader *csv.Reader) error {
 			logger.Log("Attempting to save a financial metric with an unparsable reporting period: "+csvMetric[3], logger.ERROR)
 			continue
 		}
-		metrics = append(metrics, entity.FinancialMetric{
+		metric := entity.FinancialMetric{
 			Id:              parsedId,
 			StockId:         parsedStockId,
 			Name:            financials.MetricMap[csvMetric[2]],
@@ -663,8 +714,24 @@ func populateFinancialMetricsTable(reader *csv.Reader) error {
 			Year:            int(parsedYear),
 			Value:           int(parsedValue),
 			Currency:        csvMetric[6],
-		})
+		}
+		metrics = append(metrics, metric)
+
+		yql += "("
+		yql += "Uuid('" + metric.Id.String() + "'), "
+		yql += "'" + metric.StockId + "'" + ", "
+		yql += "'" + string(metric.Name) + "'" + ", "
+		yql += "'" + string(metric.ReportingPeriod) + "'" + ", "
+		yql += strconv.Itoa(metric.Year) + ", "
+		yql += strconv.Itoa(metric.Value) + ", "
+		yql += "'" + metric.Currency + "'"
+		// if i < len(csvMetrics)-1 {
+		// 	yql += ", "
+		// }
+		yql += "),\n"
 	}
+	yql += ";"
+	fmt.Println(yql)
 
 	err = financialsservice.SaveFinancialMetrics(metrics)
 	if err != nil {
