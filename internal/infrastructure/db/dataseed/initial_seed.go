@@ -115,7 +115,7 @@ func createTables(ctx context.Context, db *ydb.Driver) error {
 }
 
 func populateTables() error {
-	err := populateAllTables()
+	err := PopulateAllTables()
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 		return err
@@ -467,7 +467,7 @@ func createBondTable(ctx context.Context, dbConnection *ydb.Driver, c table.Clie
 
 const seedDataFolder = "internal/infrastructure/db/dataseed/seed-data/"
 
-func populateAllTables() error {
+func PopulateAllTables() error {
 	files, err := os.ReadDir(seedDataFolder)
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
