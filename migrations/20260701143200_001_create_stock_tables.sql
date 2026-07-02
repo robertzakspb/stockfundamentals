@@ -20,7 +20,7 @@ CREATE TABLE `stockfundamentals/stocks/stock`(
     country_iso2 Text,
     MIC Text,
     ticker Text,
-    issue_size Text,
+    issue_size Int64,
     sector Text,
     PRIMARY KEY(figi)
 );

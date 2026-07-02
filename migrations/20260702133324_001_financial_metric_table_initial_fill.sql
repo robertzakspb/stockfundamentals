@@ -15,7 +15,7 @@ UPSERT INTO `stockfundamentals/stocks/financial_metric` (id, figi, metric, repor
 (Uuid('9a9552c8-e8df-44bb-b9a1-84657fa1cd42'), 'BBG000HP5RC7', 'NET_INCOME', 'CALENDAR_YEAR', 2023, 678438000, 'RSD'),
 (Uuid('7d7890da-e7f7-41ce-b4ec-0e2fb05f388b'), 'BBG000HP5RC7', 'REVENUE', 'CALENDAR_YEAR', 2014, 7824790000, 'RSD'),
 (Uuid('74b3ace7-efca-4802-964a-75a6e6694e71'), 'BBG000HP5RC7', 'NET_INCOME', 'CALENDAR_YEAR', 2022, 616283000, 'RSD'),
-(Uuid('1127aaff-ff53-41d3-b24a-f0c7bb36d618'), 'BBG000HP5RC7', 'REVENUE', 'CALENDAR_YEAR', 2015, 8284390000, 'RSD')
+(Uuid('1127aaff-ff53-41d3-b24a-f0c7bb36d618'), 'BBG000HP5RC7', 'REVENUE', 'CALENDAR_YEAR', 2015, 8284390000, 'RSD');
 
 -- +goose Down
 

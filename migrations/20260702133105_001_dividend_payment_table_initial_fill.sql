@@ -36,7 +36,7 @@ UPSERT INTO `stockfundamentals/stocks/dividend_payment` (id, stock_id, actual_DP
 (Uuid('0a3baef2-ee61-4141-a27f-55a674aa951b'), 'BBG000HP5RC7', 85000000, 0, 'RSD', Date('2022-05-16'), Date('1970-01-1'), 'CALENDAR_YEAR', '', ''),
 (Uuid('b45f5c93-7ba1-41cf-afb6-f11adc799a73'), 'BBG000HP5RC7', 90000000, 0, 'RSD', Date('2023-05-9'), Date('1970-01-1'), 'CALENDAR_YEAR', '', ''),
 (Uuid('8c389a54-3442-4975-a584-0ddf3b9716ae'), 'BBG000HP5RC7', 90000000, 0, 'RSD', Date('2024-05-25'), Date('1970-01-1'), 'CALENDAR_YEAR', '', ''),
-(Uuid('b3b454ec-c464-4f26-b1b7-634a96814946'), 'BBG000HP5RC7', 95000000, 0, 'RSD', Date('2025-05-13'), Date('1970-01-1'), 'CALENDAR_YEAR', '', '')
+(Uuid('b3b454ec-c464-4f26-b1b7-634a96814946'), 'BBG000HP5RC7', 95000000, 0, 'RSD', Date('2025-05-13'), Date('1970-01-1'), 'CALENDAR_YEAR', '', '');
 
 -- +goose Down
 
