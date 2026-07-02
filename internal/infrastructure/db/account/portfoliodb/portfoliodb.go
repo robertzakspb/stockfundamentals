@@ -149,14 +149,14 @@ func makeGetAccountPortfolioQuery(filters []ydbfilter.YdbFilter) string {
 			"`stockfundamentals/stocks/stock`.figi AS figi," +
 			"`stockfundamentals/stocks/stock`.company_name AS company_name," +
 			"`stockfundamentals/stocks/stock`.ticker AS ticker," +
-			"`user/position_lot`.id AS id," +
-			"`user/position_lot`.account_id AS account_id," +
-			"`user/position_lot`.created_at AS created_at," +
-			"`user/position_lot`.updated_at AS updated_at," +
-			"`user/position_lot`.quantity AS quantity," +
-			"`user/position_lot`.currency AS currency, " +
-			"`user/position_lot`.is_closed AS is_closed, " +
-			"`user/position_lot`.price_per_unit AS price_per_unit" +
+			"`user/stock_position_lot`.id AS id," +
+			"`user/stock_position_lot`.account_id AS account_id," +
+			"`user/stock_position_lot`.created_at AS created_at," +
+			"`user/stock_position_lot`.updated_at AS updated_at," +
+			"`user/stock_position_lot`.quantity AS quantity," +
+			"`user/stock_position_lot`.currency AS currency, " +
+			"`user/stock_position_lot`.is_closed AS is_closed, " +
+			"`user/stock_position_lot`.price_per_unit AS price_per_unit" +
 			" FROM" +
 			"`" + path.Join(shared.USER_DIRECTORY_PREFIX, shared.POSITION_LOT_TABLE_NAME) + "`" +
 			" JOIN " +
