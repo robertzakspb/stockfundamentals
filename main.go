@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/dataseed"
 	bondsapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/bonds"
 	forexapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/forex"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/jobs"
@@ -31,8 +30,6 @@ func main() {
 }
 
 func addEndpoints(router *gin.Engine) {
-	router.POST("migration/initial-seed", dataseed.InitialSeed)
-
 	router.GET("health-check", healthCheck)
 
 	router.GET("account", accountsapi.GetAllAccounts)
