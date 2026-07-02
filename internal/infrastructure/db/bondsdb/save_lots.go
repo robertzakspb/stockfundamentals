@@ -34,7 +34,7 @@ func SaveBondPositionLots(lots []BondPositionLotDb) error {
 		ydbBondLots = append(ydbBondLots, ydbBondLot)
 	}
 
-	tableName := path.Join(dbConnection.Name(), db.BOND_DIRECTORY_PREFIX, db.BOND_POSITION_LOT_TABLE_NAME)
+	tableName := path.Join(dbConnection.Name(), db.USER_DIRECTORY_PREFIX, db.BOND_POSITION_LOT_TABLE_NAME)
 	err = dbConnection.Table().BulkUpsert(
 		context.TODO(),
 		tableName,

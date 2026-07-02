@@ -85,7 +85,7 @@ func makeGetBondPositionsQuery(filters []ydbfilter.YdbFilter) string {
 						%s
 					`,
 		ydbfilter.AddYqlVarDeclarations(filters),
-		"`"+path.Join(db.BOND_DIRECTORY_PREFIX, db.BOND_POSITION_LOT_TABLE_NAME)+"`",
+		"`"+path.Join(db.USER_DIRECTORY_PREFIX, db.BOND_POSITION_LOT_TABLE_NAME)+"`",
 		ydbfilter.MakeWhereClause(filters))
 	return yql
 }
