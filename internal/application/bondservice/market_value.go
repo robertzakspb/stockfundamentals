@@ -1,28 +1,13 @@
 package bondservice
 
 import (
-	"time"
-
 	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
 
-func CalculateRubMarketValue(bondList []bonds.Bond, quotes []tquoteservice.BondQuote) []bonds.Bond {
-	pairs := AllCurrencyPairsInBondList(bondList)
-
-	rates, err := forexservice.GetExchangeRates(pairs, time.Now())
-	if err != nil {
-		logger.Log(err.Error(), logger.ERROR)
-	}
-
-	bondList = calculateRubMarketValue(bondList, quotes, rates)
-
-	return bondList
-}
-
-func calculateRubMarketValue(bondList []bonds.Bond, quotes []tquoteservice.BondQuote, rates []forexservice.ForexRate) []bonds.Bond {
+func CalculateRubMarketValue(bondList []bonds.Bond, quotes []tquoteservice.BondQuote, rates []forexservice.ForexRate) []bonds.Bond {
 	for _, quote := range quotes {
 		for i := range bondList {
 			if quote.Ticker == bondList[i].Ticker {

@@ -44,7 +44,7 @@ func Test_calculateRubMarketValue(t *testing.T) {
 		},
 	}
 
-	bondList = calculateRubMarketValue(bondList, quotes, rates)
+	bondList = CalculateRubMarketValue(bondList, quotes, rates)
 
 	test.AssertEqual(t, 2, len(bondList))
 	test.AssertEqual(t, 962, bondList[0].MarketValueInRUB)
