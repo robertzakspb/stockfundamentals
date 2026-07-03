@@ -54,6 +54,9 @@ func AllCurrencyPairsInBondList(bondList []bonds.Bond) []string {
 func MatchCouponsWithBonds(coupons []bonds.Coupon, bonds []bonds.Bond) []bonds.Bond {
 	for _, coupon := range coupons {
 		for i, b := range bonds {
+			if coupon.Figi == "" && b.Figi == "" {
+				continue
+			}
 			if coupon.Figi == b.Figi {
 				bonds[i].Coupons = append(b.Coupons, coupon)
 			}
