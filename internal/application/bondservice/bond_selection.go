@@ -3,7 +3,7 @@ package bondservice
 import (
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
-	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
+	"github.com/ydb-platform/ydb-go-sdk/v3/types"
 )
 
 func GetRussianGovernmentBondsWithFixedOrConstantCoupon() ([]bonds.Bond, error) {

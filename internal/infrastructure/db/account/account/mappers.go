@@ -2,7 +2,7 @@ package accountdb
 
 import (
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
-	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
+	"github.com/ydb-platform/ydb-go-sdk/v3/types"
 )
 
 func mapAccountDbModelToYdbEntity(dbModels []AccountDbModel) types.Value {

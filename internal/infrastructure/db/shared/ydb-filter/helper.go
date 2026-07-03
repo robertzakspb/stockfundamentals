@@ -3,7 +3,7 @@ package ydbfilter
 import (
 	"fmt"
 
-	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
+	"github.com/ydb-platform/ydb-go-sdk/v3/types"
 )
 
 func Declare(yqlVarName string, yqlValue types.Value) string {

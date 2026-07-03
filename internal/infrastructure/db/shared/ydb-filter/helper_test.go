@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/test"
-	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
+	"github.com/ydb-platform/ydb-go-sdk/v3/types"
 )
 
 func Test_Declare_EmptyString(t *testing.T) {

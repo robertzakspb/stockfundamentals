@@ -7,7 +7,7 @@ import (
 	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
-	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
+	"github.com/ydb-platform/ydb-go-sdk/v3/types"
 )
 
 func SaveEntity(entity types.Value, tablePath string) error {

@@ -10,7 +10,7 @@ import (
 	ydbtemplate "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-template"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
-	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
+	"github.com/ydb-platform/ydb-go-sdk/v3/types"
 
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
 )
@@ -20,7 +20,7 @@ const financial_metrics_table_name = "financial_metric"
 
 type FinancialMetricDbModel struct {
 	Id              uuid.UUID `sql:"id"`
-	StockId         string `sql:"stock_id"`
+	StockId         string    `sql:"stock_id"`
 	Name            string    `sql:"metric"`
 	ReportingPeriod string    `sql:"reporting_period"`
 	Year            int64     `sql:"year"`

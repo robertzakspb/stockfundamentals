@@ -12,7 +12,7 @@ import (
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	timehelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/time-helpers"
-	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
+	"github.com/ydb-platform/ydb-go-sdk/v3/types"
 )
 
 func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {

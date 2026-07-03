@@ -8,7 +8,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
+	"github.com/ydb-platform/ydb-go-sdk/v3/types"
 )
 
 func GetAccountBondPortfolioOverview(c *gin.Context) {
