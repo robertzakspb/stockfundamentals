@@ -1,6 +1,10 @@
 package bondsapi
 
-import "github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
+import (
+	"slices"
+
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
+)
 
 func mapBondsToDTOs(bondList []bonds.Bond, includeCoupons bool) []BondDTO {
 	bondDtos := make([]BondDTO, len(bondList))
@@ -49,6 +53,14 @@ func mapBondsToDTOs(bondList []bonds.Bond, includeCoupons bool) []BondDTO {
 		}
 		bondDtos[i] = bondDto
 	}
+
+	slices.SortFunc(bondDtos, func(dto1, dto2 BondDTO) int {
+		if dto1.Ytm > dto2.Ytm {
+			return -1
+		} else {
+			return 1
+		}
+	})
 
 	return bondDtos
 }

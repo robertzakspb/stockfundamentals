@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"slices"
 
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
@@ -77,6 +78,14 @@ func GetAccountPositionLots(c *gin.Context) {
 		mappedLot := mapBondLotToDto(lot)
 		mappedLots = append(mappedLots, mappedLot)
 	}
+
+	slices.SortFunc(mappedLots, func(dto1, dto2 bondPositionLotDto) int {
+		if dto1.Ytm > dto2.Ytm {
+			return -1
+		} else {
+			return 1
+		}
+	})
 
 	c.JSON(http.StatusOK, mappedLots)
 }
