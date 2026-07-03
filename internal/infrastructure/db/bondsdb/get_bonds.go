@@ -71,6 +71,7 @@ func makeGetAllBondsQuery(filters []ydbfilter.YdbFilter) string {
 							id,
 							figi,
 							isin,
+							ticker,
 							lot,
 							currency,
 							name,
