@@ -13,27 +13,28 @@ import (
 func Test_mapBondsToDTOs(t *testing.T) {
 	bonds := []bonds.Bond{
 		{
-			Id:                     uuid.New(),
-			Figi:                   "testFigi",
-			Isin:                   "testIsin",
-			Lot:                    10,
-			Currency:               "USD",
-			CouponCountPerYear:     10,
-			MaturityDate:           time.Now(),
-			NominalValue:           1000,
-			NominalCurrency:        "EUR",
-			InitialNominalValue:    5000,
-			InitialNominalCurrency: "USD",
-			PlacementPrice:         1005,
-			PlacementCurrency:      "EUR",
-			AccruedInterest:        5.7,
-			IssueSize:              1_000_000,
-			IssueSizePlan:          5_000_000,
-			RiskLevel:              bonds.HIGH_RISK_LEVEL,
-			BondType:               bonds.BondType_BOND_TYPE_UNSPECIFIED,
-			CallOptionExerciseDate: time.Now(),
-			SimpleYieldToMaturity:        14.3,
-			SimpleYieldToCallOption:      8.3,
+			Id:                      uuid.New(),
+			Figi:                    "testFigi",
+			Isin:                    "testIsin",
+			Ticker:                  "testTicker",
+			Lot:                     10,
+			Currency:                "USD",
+			CouponCountPerYear:      10,
+			MaturityDate:            time.Now(),
+			NominalValue:            1000,
+			NominalCurrency:         "EUR",
+			InitialNominalValue:     5000,
+			InitialNominalCurrency:  "USD",
+			PlacementPrice:          1005,
+			PlacementCurrency:       "EUR",
+			AccruedInterest:         5.7,
+			IssueSize:               1_000_000,
+			IssueSizePlan:           5_000_000,
+			RiskLevel:               bonds.HIGH_RISK_LEVEL,
+			BondType:                bonds.BondType_BOND_TYPE_UNSPECIFIED,
+			CallOptionExerciseDate:  time.Now(),
+			SimpleYieldToMaturity:   14.3,
+			SimpleYieldToCallOption: 8.3,
 			Coupons: []bonds.Coupon{
 				{
 					Figi:            "testFigi",
@@ -55,6 +56,7 @@ func Test_mapBondsToDTOs(t *testing.T) {
 
 	test.AssertEqual(t, "testFigi", mappedDtos[0].Figi)
 	test.AssertEqual(t, "testIsin", mappedDtos[0].Isin)
+	test.AssertEqual(t, "testTicker", mappedDtos[0].Ticker)
 	test.AssertEqual(t, 10, mappedDtos[0].Lot)
 	test.AssertEqual(t, "USD", mappedDtos[0].Currency)
 	test.AssertEqual(t, 10, mappedDtos[0].CouponCountPerYear)

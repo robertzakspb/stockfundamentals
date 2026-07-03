@@ -15,8 +15,9 @@ func Test_mapBondToDbBond(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error when initializing a new UUID")
 	}
-	figi := ""
-	isin := ""
+	figi := "figi"
+	isin := "isin"
+	ticker := "ticker"
 	lot := 5
 	currency := "USD"
 	name := "cool new issue"
@@ -49,6 +50,7 @@ func Test_mapBondToDbBond(t *testing.T) {
 		Id:                      id,
 		Figi:                    figi,
 		Isin:                    isin,
+		Ticker:                  ticker,
 		Lot:                     lot,
 		Currency:                currency,
 		Name:                    name,
@@ -83,6 +85,7 @@ func Test_mapBondToDbBond(t *testing.T) {
 	test.AssertEqual(t, mappedDomain.Id, id)
 	test.AssertEqual(t, mappedDomain.Figi, figi)
 	test.AssertEqual(t, mappedDomain.Isin, isin)
+	test.AssertEqual(t, mappedDomain.Ticker, ticker)
 	test.AssertEqual(t, mappedDomain.Lot, int64(lot))
 	test.AssertEqual(t, mappedDomain.Currency, currency)
 	test.AssertEqual(t, mappedDomain.Name, name)
@@ -111,13 +114,14 @@ func Test_mapBondToDbBond(t *testing.T) {
 	test.AssertEqual(t, mappedDomain.CallOptionExerciseDate, callOptionExerciseDate)
 }
 
-func Test_MapBondToDbBond(t *testing.T) {
+func Test_MapDbBondToBond(t *testing.T) {
 	id, err := uuid.NewUUID()
 	if err != nil {
 		t.Errorf("Unexpected error when initializing a new UUID")
 	}
-	figi := ""
-	isin := ""
+	figi := "figi"
+	isin := "isin"
+	ticker := "ticker"
 	lot := 5
 	currency := "USD"
 	name := "cool new issue"
@@ -150,6 +154,7 @@ func Test_MapBondToDbBond(t *testing.T) {
 		Id:                      id,
 		Figi:                    figi,
 		Isin:                    isin,
+		Ticker:                  ticker,
 		Lot:                     int64(lot),
 		Currency:                currency,
 		Name:                    name,
@@ -184,6 +189,7 @@ func Test_MapBondToDbBond(t *testing.T) {
 	test.AssertEqual(t, mappedDomain.Id, id)
 	test.AssertEqual(t, mappedDomain.Figi, figi)
 	test.AssertEqual(t, mappedDomain.Isin, isin)
+	test.AssertEqual(t, mappedDomain.Ticker, ticker)
 	test.AssertEqual(t, mappedDomain.Lot, lot)
 	test.AssertEqual(t, mappedDomain.Currency, currency)
 	test.AssertEqual(t, mappedDomain.Name, name)

@@ -14,6 +14,7 @@ type Bond struct {
 	Id                      uuid.UUID
 	Figi                    string
 	Isin                    string
+	Ticker                  string
 	Lot                     int
 	Currency                string
 	Name                    string
@@ -43,8 +44,10 @@ type Bond struct {
 	CallOptionExerciseDate  time.Time
 	Coupons                 []Coupon
 	SimpleYieldToMaturity   float64
+	YieldTomaturity         float64
 	SimpleYieldToCallOption float64
 	MarketValueInRUB        float64
+	QuoteInPercentage       float64
 }
 
 type RiskLevel int

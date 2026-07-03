@@ -10,6 +10,7 @@ func mapBondsToDTOs(bondList []bonds.Bond, includeCoupons bool) []BondDTO {
 			Figi:                    bondList[i].Figi,
 			Isin:                    bondList[i].Isin,
 			Lot:                     bondList[i].Lot,
+			Ticker:                  bondList[i].Ticker,
 			Currency:                bondList[i].Currency,
 			Name:                    bondList[i].Name,
 			CountryOfRisk:           bondList[i].CountryOfRisk,
@@ -36,8 +37,8 @@ func mapBondsToDTOs(bondList []bonds.Bond, includeCoupons bool) []BondDTO {
 			RiskLevel:               bonds.RiskLevel_name[int32(bondList[i].RiskLevel)],
 			BondType:                bonds.BondType_name[int32(bondList[i].BondType)],
 			CallOptionExerciseDate:  bondList[i].CallOptionExerciseDate,
-			SimpleYieldToMaturity:         bondList[i].SimpleYieldToMaturity,
-			SimpleYieldToCallOption:       bondList[i].SimpleYieldToCallOption,
+			SimpleYieldToMaturity:   bondList[i].SimpleYieldToMaturity,
+			SimpleYieldToCallOption: bondList[i].SimpleYieldToCallOption,
 		}
 		if includeCoupons {
 			bondDto.Coupons = mapCouponsToCouponDTOs(bondList[i].Coupons)

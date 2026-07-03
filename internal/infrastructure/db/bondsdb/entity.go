@@ -12,6 +12,7 @@ type BondDbModel struct {
 	Id                      uuid.UUID `sql:"id"`
 	Figi                    string    `sql:"figi"`
 	Isin                    string    `sql:"isin"`
+	Ticker                  string    `sql:"ticker"`
 	Lot                     int64     `sql:"lot"`
 	Currency                string    `sql:"currency"`
 	Name                    string    `sql:"name"`
@@ -84,5 +85,4 @@ type BondPositionLotDb struct {
 	AccountId              uuid.UUID `sql:"account_id"`
 	Quantity               float64   `sql:"quantity"`
 	PricePerUnitPercentage float64   `sql:"price_per_unit_percentage"`
-
 }

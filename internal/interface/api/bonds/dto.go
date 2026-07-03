@@ -5,6 +5,7 @@ import "time"
 type BondDTO struct {
 	Figi                    string      `json:"figi"`
 	Isin                    string      `json:"isin"`
+	Ticker                  string      `json:"ticker"`
 	Lot                     int         `json:"lot"`
 	Currency                string      `json:"currency"`
 	Name                    string      `json:"name"`

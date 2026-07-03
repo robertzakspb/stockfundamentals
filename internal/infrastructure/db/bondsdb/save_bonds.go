@@ -26,6 +26,7 @@ func SaveBonds(bonds []BondDbModel) error {
 			types.StructFieldValue("id", types.UuidValue(bond.Id)),
 			types.StructFieldValue("figi", types.TextValue(bond.Figi)),
 			types.StructFieldValue("isin", types.TextValue(bond.Isin)),
+			types.StructFieldValue("ticker", types.TextValue(bond.Ticker)),
 			types.StructFieldValue("lot", types.Int64Value(int64(bond.Lot))),
 			types.StructFieldValue("currency", types.TextValue(bond.Currency)),
 			types.StructFieldValue("name", types.TextValue(bond.Name)),
