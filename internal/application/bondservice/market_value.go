@@ -9,7 +9,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
 
-func CalculateRubMarketValue(bondList []bonds.Bond, quotes []tquoteservice.TQuote) []bonds.Bond {
+func CalculateRubMarketValue(bondList []bonds.Bond, quotes []tquoteservice.BondQuote) []bonds.Bond {
 	pairs := AllCurrencyPairsInBondList(bondList)
 
 	rates, err := forexservice.GetExchangeRates(pairs, time.Now())
@@ -22,19 +22,19 @@ func CalculateRubMarketValue(bondList []bonds.Bond, quotes []tquoteservice.TQuot
 	return bondList
 }
 
-func calculateRubMarketValue(bondList []bonds.Bond, quotes []tquoteservice.TQuote, rates []forexservice.ForexRate) []bonds.Bond {
+func calculateRubMarketValue(bondList []bonds.Bond, quotes []tquoteservice.BondQuote, rates []forexservice.ForexRate) []bonds.Bond {
 	for _, quote := range quotes {
 		for i := range bondList {
-			if quote.Figi() == bondList[i].Figi {
+			if quote.Ticker == bondList[i].Ticker {
 				if bondList[i].NominalCurrency == "RUB" {
-					bondList[i].MarketValueInRUB = bondList[i].MarketValue(quote.Quote(), 1.0)
+					bondList[i].MarketValueInRUB = bondList[i].MarketValue(quote.QuoteAsPercentage, 1.0)
 					continue
 				}
 				fxRate, found := forexservice.FindRate(bondList[i].NominalCurrency, "RUB", rates)
 				if !found {
 					logger.Log("Failed to find the exchange rate for "+bondList[i].NominalCurrency+"/RUB", logger.ERROR)
 				}
-				bondList[i].MarketValueInRUB = bondList[i].MarketValue(quote.Quote(), fxRate.Rate)
+				bondList[i].MarketValueInRUB = bondList[i].MarketValue(quote.QuoteAsPercentage, fxRate.Rate)
 			}
 		}
 	}

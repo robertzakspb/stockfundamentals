@@ -11,8 +11,8 @@ type bondPositionLotDto struct {
 	AccountId               string    `json:"accountId"`
 	Quantity                float64   `json:"quantity"`
 	PricePerUnitPercentage  float64   `json:"pricePerUnitPercentage"`
-	CurrentYtm              float64   `json:"currentYTM"`
-	SimpleYieldToCallOption float64   `json:"yieldToCallOption"`
+	SimpleYtm               float64   `json:"simpleYtm"`
+	SimpleYieldToCallOption float64   `json:"simpleYieldToCallOption"`
 	MarketValueInRUB        float64   `json:"marketValueInRUB"`
 	QuoteInPercentage       float64   `json:"quoteInPercentage"`
 	Ytm                     float64   `json:"ytm"`

@@ -1,12 +1,14 @@
 package bondservice
 
 import (
+	"context"
 	"sort"
 	"sync"
 
 	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
+	"opensource.tbank.ru/invest/invest-go/investgo"
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
 )
 
@@ -15,6 +17,10 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 	config, err := tinkoff.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
 		logger.Log("Failed to initialize the configuration file", logger.ALERT)
+		return []bonds.Bond{}
+	}
+	client, err := investgo.NewClient(context.TODO(), config, nil)
+	if err != nil {
 		return []bonds.Bond{}
 	}
 
@@ -27,16 +33,20 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 		coupons, err = GetCouponsByFigis(figis)
 	})
 
-	var quotes []tquoteservice.TQuote
+	var quotes []tquoteservice.BondQuote
+	var errorList []error
 	wg.Go(func() {
-		quotes, err = tquoteservice.FetchQuotesForFigis(figis, config)
+		quotes, errorList = tquoteservice.GetBondPriceAndYield(client, figis)
+		if len(errorList) > 0 {
+			logger.LogErrors(errorList, logger.ERROR)
+		}
 	})
 
 	wg.Wait()
 
 	bondList = MatchCouponsWithBonds(coupons, bondList)
 	bondList = CalculateYtmForBondsUsingQuotes(bondList, quotes)
-	bondList = CalculateRubMarketValue(bondList, quotes) //FIXME: Need to test this!!!
+	bondList = CalculateRubMarketValue(bondList, quotes)
 
 	sort.Slice(bondList, func(i, j int) bool {
 		return bondList[i].SimpleYieldToMaturity > bondList[i].SimpleYieldToMaturity
@@ -51,22 +61,28 @@ func CalculateYtmForBonds(bondList []bonds.Bond) []bonds.Bond {
 		logger.Log("Failed to initialize the configuration file", logger.ALERT)
 		return []bonds.Bond{}
 	}
-
-	quotes, err := tquoteservice.FetchQuotesForFigis(GetBondFigis(&bondList), config)
+	client, err := investgo.NewClient(context.TODO(), config, nil)
 	if err != nil {
-		logger.Log(err.Error(), logger.ERROR)
+		return []bonds.Bond{}
+	}
+
+	quotes, errorList := tquoteservice.GetBondPriceAndYield(client, GetBondFigis(&bondList))
+	if len(errorList) > 0 {
+		logger.LogErrors(errorList, logger.ERROR)
 	}
 
 	bondsWithYtm := CalculateYtmForBondsUsingQuotes(bondList, quotes)
 	return bondsWithYtm
 }
 
-func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []tquoteservice.TQuote) []bonds.Bond {
+func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []tquoteservice.BondQuote) []bonds.Bond {
 	for _, quote := range quotes {
 		for i, b := range bondList {
-			if quote.Figi() == b.Figi {
+			if quote.Ticker == b.Ticker {
+				bondList[i].QuoteInPercentage = quote.QuoteAsPercentage
+				bondList[i].YieldTomaturity = quote.YTM
 				if b.HasCallOption() {
-					yieldToCallOption, err := b.CalcSimpleYieldToCallOption(b.Coupons, quote.Quote())
+					yieldToCallOption, err := b.CalcSimpleYieldToCallOption(b.Coupons, quote.QuoteAsPercentage)
 					if err != nil {
 						logger.Log(err.Error(), logger.ERROR)
 					}
@@ -74,7 +90,7 @@ func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []tquoteservi
 					continue
 				}
 
-				ytm, err := b.CalcSimpleYieldToMaturity(b.Coupons, quote.Quote())
+				ytm, err := b.CalcSimpleYieldToMaturity(b.Coupons, quote.QuoteAsPercentage)
 				if err != nil {
 					logger.Log(err.Error(), logger.ERROR)
 				}
@@ -84,7 +100,7 @@ func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []tquoteservi
 	}
 
 	sort.Slice(bondList, func(i, j int) bool {
-		return bondList[i].SimpleYieldToMaturity > bondList[j].SimpleYieldToMaturity
+		return bondList[i].YieldTomaturity > bondList[j].YieldTomaturity
 	})
 
 	return bondList

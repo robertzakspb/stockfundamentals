@@ -2,7 +2,6 @@ package bondservice
 
 import (
 	"testing"
-	"time"
 
 	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
@@ -13,23 +12,23 @@ import (
 func Test_calculateRubMarketValue(t *testing.T) {
 	bondList := []bonds.Bond{
 		{
-			Figi:            "figi1",
+			Ticker:          "ticker1",
 			NominalCurrency: "RUB",
 			AccruedInterest: 12,
 			NominalValue:    1000,
 		},
 		{
-			Figi:            "figi2",
+			Ticker:          "ticker2",
 			NominalCurrency: "USD",
 			AccruedInterest: 15,
 			NominalValue:    1000,
 		},
 	}
 
-	quotes := []tquoteservice.TQuote{
-		tquoteservice.New(95, "figi1", "ticker1", time.Now()),
-		tquoteservice.New(102, "figi2", "ticker2", time.Now()),
-		tquoteservice.New(34, "figi3", "ticker3", time.Now()),
+	quotes := []tquoteservice.BondQuote{
+		{QuoteAsPercentage: 95, Ticker: "ticker1"},
+		{QuoteAsPercentage: 102, Ticker: "ticker2"},
+		{QuoteAsPercentage: 34, Ticker: "ticker3"},
 	}
 
 	rates := []forexservice.ForexRate{
