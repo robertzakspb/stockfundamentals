@@ -4,8 +4,10 @@ import (
 	"context"
 	"sort"
 	"sync"
+	"time"
 
 	"github.com/compoundinvest/invest-core/quote/tquoteservice"
+	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"opensource.tbank.ru/invest/invest-go/investgo"
@@ -42,11 +44,20 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 		}
 	})
 
+	currencyPairs := AllCurrencyPairsInBondList(bondList)
+	rates := []forexservice.ForexRate{}
+	wg.Go(func() {
+		rates, err = forexservice.GetExchangeRates(currencyPairs, time.Now())
+		if err != nil {
+			logger.Log(err.Error(), logger.ERROR)
+		}
+	})
+
 	wg.Wait()
 
 	bondList = MatchCouponsWithBonds(coupons, bondList)
 	bondList = CalculateYtmForBondsUsingQuotes(bondList, quotes)
-	bondList = CalculateRubMarketValue(bondList, quotes)
+	bondList = CalculateRubMarketValue(bondList, quotes, rates)
 
 	sort.Slice(bondList, func(i, j int) bool {
 		return bondList[i].SimpleYieldToMaturity > bondList[i].SimpleYieldToMaturity
