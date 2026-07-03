@@ -126,6 +126,7 @@ func mapDbBondToBond(dbModel bondsdb.BondDbModel) bonds.Bond {
 		Figi:                    dbModel.Figi,
 		Id:                      dbModel.Id,
 		Isin:                    dbModel.Isin,
+		Ticker:                  dbModel.Ticker,
 		Lot:                     int(dbModel.Lot),
 		Currency:                dbModel.Currency,
 		Name:                    dbModel.Name,
