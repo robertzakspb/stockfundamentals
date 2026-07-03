@@ -27,6 +27,7 @@ func mapBondLotToDto(lot bonds.BondLot) bondPositionLotDto {
 	dto := bondPositionLotDto{
 		Figi:                    lot.Figi,
 		Isin:                    lot.Isin,
+		Name:                    lot.Bond.Name,
 		OpeningDate:             lot.OpeningDate,
 		ModificationDate:        lot.ModificationDate,
 		AccountId:               lot.AccountId.String(),
@@ -35,6 +36,8 @@ func mapBondLotToDto(lot bonds.BondLot) bondPositionLotDto {
 		CurrentYtm:              lot.Bond.SimpleYieldToMaturity,
 		SimpleYieldToCallOption: lot.Bond.SimpleYieldToCallOption,
 		MarketValueInRUB:        lot.MarketValueInRUB,
+		Ytm:                     lot.Bond.YieldTomaturity,
+		QuoteInPercentage:       lot.Bond.QuoteInPercentage,
 	}
 
 	return dto
