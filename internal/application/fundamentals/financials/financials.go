@@ -2,8 +2,12 @@ package financialsservice
 
 import (
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/fundamentals/financials"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
+
+const FUNDAMENTALS_SOURCE_BASE_URL = "https://smart-lab.ru/forum"
 
 func ExecuteFundamentalsJob() error {
 	securities, err := security_master.GetAllSecuritiesFromDB()
@@ -23,5 +27,10 @@ func ExecuteFundamentalsJob() error {
 }
 
 // func FetchFundamentalsForSecurity(security security.Stock) []financials.FinancialMetric {
+// 	url := FUNDAMENTALS_SOURCE_BASE_URL + "/" + security.Ticker
+// 	metrics := []financials.FinancialMetric{}
+
+
+// 	return metrics
 
 // }
