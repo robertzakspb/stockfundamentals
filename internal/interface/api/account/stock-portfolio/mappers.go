@@ -1,4 +1,4 @@
-package portfolio
+package portfolioapi
 
 import (
 	stockportfolio "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"

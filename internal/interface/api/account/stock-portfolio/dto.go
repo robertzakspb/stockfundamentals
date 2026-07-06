@@ -1,4 +1,4 @@
-package portfolio
+package portfolioapi
 
 import (
 	"time"
