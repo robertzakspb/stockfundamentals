@@ -6,12 +6,17 @@ import (
 )
 
 func mapPortfolioToDto(portfolio stockportfolio.Portfolio) PortfolioDto {
-	dtos := make([]LotDto, len(portfolio.Lots))
-	for i := range portfolio.Lots {
-		dtos[i] = mapLotToDto(portfolio.Lots[i])
+	dtos := MapLotsToDtos(portfolio.Lots)
+	return PortfolioDto{Lots: dtos}
+}
+
+func MapLotsToDtos(lots []lot.Lot) []LotDto {
+	dtos := make([]LotDto, len(lots))
+	for i := range lots {
+		dtos[i] = mapLotToDto(lots[i])
 	}
 
-	return PortfolioDto{Lots: dtos}
+	return dtos
 }
 
 func mapLotToDto(lot lot.Lot) LotDto {
