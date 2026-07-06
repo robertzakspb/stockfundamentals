@@ -55,3 +55,56 @@ func Test_GroupByAccount(t *testing.T) {
 	test.AssertEqual(t, 25, grouped[uuid2][0].PricePerUnit)
 	test.AssertEqual(t, 50, grouped[uuid1][1].PricePerUnit)
 }
+
+func Test_validateTransactions_Negative_EmptySlice(t *testing.T) {
+	transactions := []transaction.Transaction{}
+
+	err := validateTransactions(transactions)
+
+	test.AssertError(t, err)
+}
+
+func Test_validateTransactions_Negative_NonOrderExecution(t *testing.T) {
+	uuid1, uuid2 := uuid.New(), uuid.New()
+	transactions := []transaction.Transaction{
+		{
+			Type:         transaction.OrderExecution,
+			PricePerUnit: 10,
+			AccountId:    uuid1,
+		},
+		{
+			Type:         transaction.Deposit,
+			AccountId:    uuid2,
+			PricePerUnit: 25,
+		},
+	}
+
+	err := validateTransactions(transactions)
+
+	test.AssertError(t, err)
+}
+
+func Test_validateTransactions_Positive(t *testing.T) {
+	uuid1, uuid2 := uuid.New(), uuid.New()
+	transactions := []transaction.Transaction{
+		{
+			Type:         transaction.OrderExecution,
+			PricePerUnit: 10,
+			AccountId:    uuid1,
+		},
+		{
+			Type:         transaction.OrderExecution,
+			AccountId:    uuid2,
+			PricePerUnit: 25,
+		},
+		{
+			Type:         transaction.OrderExecution,
+			AccountId:    uuid1,
+			PricePerUnit: 50,
+		},
+	}
+
+	err := validateTransactions(transactions)
+
+	test.AssertNoError(t, err)
+}
