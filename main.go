@@ -15,6 +15,7 @@ import (
 	bondportfolioapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/bond-portfolio"
 	divcalapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/dividend-calendar"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/stock-portfolio"
+	"github.com/compoundinvest/stockfundamentals/internal/interface/api/account/transactionsapi"
 	dividend "github.com/compoundinvest/stockfundamentals/internal/interface/api/fundamentals/dividend"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -39,6 +40,8 @@ func addEndpoints(router *gin.Engine) {
 	router.GET("account/return", accountreturnapi.GetAccountReturn)
 	router.POST("account/save-market-value-snapshots", accountreturnapi.StartMarketValueSnapshotJob)
 	router.GET("account/bond-portfolio-analysis", accountreturnapi.GetPortfolioOverview)
+
+	router.GET("all-transactions", transactionsapi.GetAllTransactions)
 
 	router.POST("fetch/dividends", dividend.StartDividendFetchingJob)
 	router.GET("all-dividends", dividend.GetAllDividends)

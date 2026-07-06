@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/transaction"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/transactionsdb"
 	"github.com/compoundinvest/stockfundamentals/internal/test"
 	"github.com/google/uuid"
 )
@@ -47,3 +48,99 @@ func Test_mapTransactionsToDbModel(t *testing.T) {
 	test.AssertEqual(t, currency, dbModels[0].Currency)
 	test.AssertEqual(t, description, dbModels[0].Description)
 }
+
+func Test_mapTransactionDbModelsToTransactions_Negative_UnknownType(t *testing.T) {
+	id, accountId := uuid.New(), uuid.New()
+	figi := "figi1"
+	timestamp := time.Now()
+	quantity := 10.0
+	pricePerUnit := 25.5
+	currency := "USD"
+	description := "test"
+
+	sampleTransaction := transactionsdb.TransactionDbModel{
+		Id:           id,
+		AccountId:    accountId,
+		Figi:         figi,
+		Type:         "unknownType",
+		Timestamp:    timestamp,
+		Side:         "BUY",
+		Quantity:     quantity,
+		PricePerUnit: pricePerUnit,
+		Currency:     currency,
+		Description:  description,
+	}
+
+	_, err := mapTransactionDbModelsToTransactions([]transactionsdb.TransactionDbModel{sampleTransaction})
+
+	test.AssertError(t, err)
+}
+
+func Test_mapTransactionDbModelsToTransactions_Negative_UnknownSide(t *testing.T) {
+	id, accountId := uuid.New(), uuid.New()
+	figi := "figi1"
+	timestamp := time.Now()
+	quantity := 10.0
+	pricePerUnit := 25.5
+	currency := "USD"
+	description := "test"
+
+	sampleTransaction := transactionsdb.TransactionDbModel{
+		Id:           id,
+		AccountId:    accountId,
+		Figi:         figi,
+		Type:         "ORDER_EXECUTION",
+		Timestamp:    timestamp,
+		Side:         "unknownSide",
+		Quantity:     quantity,
+		PricePerUnit: pricePerUnit,
+		Currency:     currency,
+		Description:  description,
+	}
+
+	_, err := mapTransactionDbModelsToTransactions([]transactionsdb.TransactionDbModel{sampleTransaction})
+
+	test.AssertError(t, err)
+}
+
+func Test_mapTransactionDbModelsToTransactions_Positive(t *testing.T) {
+	id, accountId := uuid.New(), uuid.New()
+	figi := "figi1"
+	timestamp := time.Now()
+	quantity := 10.0
+	pricePerUnit := 25.5
+	currency := "USD"
+	description := "test"
+
+	sampleTransaction := transactionsdb.TransactionDbModel{
+		Id:           id,
+		AccountId:    accountId,
+		Figi:         figi,
+		Type:         "ORDER_EXECUTION",
+		Timestamp:    timestamp,
+		Side:         "SELL",
+		Quantity:     quantity,
+		PricePerUnit: pricePerUnit,
+		Currency:     currency,
+		Description:  description,
+	}
+
+	transactions, err := mapTransactionDbModelsToTransactions([]transactionsdb.TransactionDbModel{sampleTransaction})
+
+	test.AssertNoError(t, err)
+	test.AssertEqual(t, 1, len(transactions))
+	test.AssertEqual(t, id, transactions[0].Id)
+	test.AssertEqual(t, accountId, transactions[0].AccountId)
+	test.AssertEqual(t, figi, transactions[0].Figi)
+	test.AssertEqual(t, timestamp, transactions[0].Timestamp)
+	test.AssertEqual(t, transaction.OrderExecution, transactions[0].Type)
+	test.AssertEqual(t, transaction.Sell, transactions[0].Side)
+	test.AssertEqual(t, quantity, transactions[0].Quantity)
+	test.AssertEqual(t, pricePerUnit, transactions[0].PricePerUnit)
+	test.AssertEqual(t, currency, transactions[0].Currency)
+	test.AssertEqual(t, description, transactions[0].Description)
+
+
+
+}
+
