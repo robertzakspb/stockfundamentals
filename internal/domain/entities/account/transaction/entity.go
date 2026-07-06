@@ -27,15 +27,18 @@ type OrderSide string
 const (
 	Buy  OrderSide = "BUY"
 	Sell OrderSide = "SELL"
+	None OrderSide = "NONE"
 )
 
 var OrderSideStringValue = map[OrderSide]string{
 	Buy:  "BUY",
 	Sell: "SELL",
+	None: "NONE",
 }
 var OrderSideLookup = map[string]OrderSide{
 	"BUY":  Buy,
 	"SELL": Sell,
+	"NONE": None,
 }
 
 type Type string
