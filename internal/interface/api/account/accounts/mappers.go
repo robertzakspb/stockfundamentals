@@ -2,7 +2,7 @@ package accountsapi
 
 import "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/account"
 
-func mapAccountsToDtos(accounts []account.Account) []AccountDto {
+func MapAccountsToDtos(accounts []account.Account) []AccountDto {
 	dtos := []AccountDto{}
 
 	for i := range accounts {

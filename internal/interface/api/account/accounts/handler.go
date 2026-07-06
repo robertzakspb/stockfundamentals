@@ -14,7 +14,7 @@ func GetAllAccounts(c *gin.Context) {
 		return
 	}
 
-	dtos := mapAccountsToDtos(accounts)
+	dtos := MapAccountsToDtos(accounts)
 
 	c.JSON(http.StatusOK, dtos)
 }

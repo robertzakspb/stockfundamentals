@@ -9,20 +9,20 @@ import (
 	"github.com/google/uuid"
 )
 
-func Test_mapAccountsToDtos(t *testing.T) {
+func Test_MapAccountsToDtos(t *testing.T) {
 	id := uuid.New()
 	date := time.Now()
 	acc := account.Account{
-		Id:          id,
-		OpeningDate: date,
-		Type: account.IIS_3,
-		Broker: "IBKR",
-		Holder: "John Appleseed",
+		Id:              id,
+		OpeningDate:     date,
+		Type:            account.IIS_3,
+		Broker:          "IBKR",
+		Holder:          "John Appleseed",
 		PrimaryCurrency: "EUR",
-		CashBalance: 100,
+		CashBalance:     100,
 	}
 
-	dtos := mapAccountsToDtos([]account.Account{acc})
+	dtos := MapAccountsToDtos([]account.Account{acc})
 
 	test.AssertEqual(t, 1, len(dtos))
 	test.AssertEqual(t, id, dtos[0].Id)
