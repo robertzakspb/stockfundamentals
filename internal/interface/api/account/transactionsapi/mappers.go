@@ -3,6 +3,7 @@ package transactionsapi
 import (
 	"errors"
 
+	tranlotrelation "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/tran-lot-relation"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/transaction"
 )
 
@@ -56,4 +57,22 @@ func mapTransactionDtosToTransactions(dtos []TransactionDto) ([]transaction.Tran
 	}
 
 	return transactions, nil
+}
+
+func mapTranLotRelationsToDtos(relations []tranlotrelation.TransactionLotRelation) []TransactionLotRelationDto {
+	dtos := make([]TransactionLotRelationDto, len(relations))
+
+	for i := range relations {
+		dto := TransactionLotRelationDto{
+			Id:            relations[i].Id.String(),
+			TransactionId: relations[i].TransactionId.String(),
+			StockLotId:    relations[i].StockLotId.String(),
+			BondLotId:     relations[i].BondLotId.String(),
+			Date:          relations[i].Date,
+			Quantity:      relations[i].Quantity,
+		}
+		dtos[i] = dto
+	}
+
+	return dtos
 }
