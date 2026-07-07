@@ -3,6 +3,7 @@ package ydbtemplate
 import (
 	"context"
 	"errors"
+	"path"
 
 	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -17,6 +18,8 @@ func SaveEntity(entity types.Value, tablePath string) error {
 	}
 	defer db.ReleaseDriver(dbConnection)
 
+	tablePath = path.Join(dbConnection.Name(), tablePath)
+
 	err = dbConnection.Table().BulkUpsert(
 		context.TODO(),
 		tablePath,
@@ -25,7 +28,7 @@ func SaveEntity(entity types.Value, tablePath string) error {
 
 	if err != nil {
 		logger.Log(err.Error(), logger.ERROR)
-		return errors.New("Failed to save bond position lots to the database")
+		return errors.New("Failed to save the entity to the database. Reason: " + err.Error())
 	}
 
 	return nil
