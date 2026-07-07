@@ -9,7 +9,7 @@ import (
 func SaveAccountsToDb(dbModels []AccountDbModel) error {
 	mappedAccounts := mapAccountDbModelToYdbEntity(dbModels)
 	tablePath := ydbhelper.GenerateTablePath(db.USER_DIRECTORY_PREFIX, db.ACCOUNT_TABLE_NAME)
-
+	
 	err := ydbtemplate.SaveEntity(mappedAccounts, tablePath)
 	return err
 }
