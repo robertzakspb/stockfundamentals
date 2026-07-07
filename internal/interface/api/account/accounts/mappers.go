@@ -1,6 +1,10 @@
 package accountsapi
 
-import "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/account"
+import (
+	"errors"
+
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/account"
+)
 
 func MapAccountsToDtos(accounts []account.Account) []AccountDto {
 	dtos := []AccountDto{}
@@ -19,4 +23,22 @@ func MapAccountsToDtos(accounts []account.Account) []AccountDto {
 	}
 
 	return dtos
+}
+
+func mapDtoToAccount(dto AccountDto) (account.Account, error) {
+	accType, found := account.AccountType_Map[dto.Type]
+	if !found {
+		return account.Account{}, errors.New("Unknown account type: " + dto.Type)
+	}
+	account := account.Account{
+		Id:              dto.Id,
+		OpeningDate:     dto.OpeningDate,
+		Type:            accType,
+		Broker:          dto.Broker,
+		Holder:          dto.Holder,
+		PrimaryCurrency: dto.PrimaryCurrency,
+		CashBalance:     dto.CashBalance,
+	}
+	return account, nil
+
 }

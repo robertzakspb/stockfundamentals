@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func Test_MapAccountsToDtos(t *testing.T) {
+func Test_MapAccountsToDtos_Positive(t *testing.T) {
 	id := uuid.New()
 	date := time.Now()
 	acc := account.Account{
@@ -30,4 +30,50 @@ func Test_MapAccountsToDtos(t *testing.T) {
 	test.AssertEqual(t, "IIS_3", dtos[0].Type)
 	test.AssertEqual(t, "EUR", dtos[0].PrimaryCurrency)
 	test.AssertEqual(t, 100, dtos[0].CashBalance)
+}
+
+func Test_mapDtoToAccount_Negative_UnknownAccountType(t *testing.T) {
+	id := uuid.New()
+	date := time.Now()
+	dto := AccountDto{
+		Id:              id,
+		OpeningDate:     date,
+		Type:            "fake",
+		Broker:          "IBKR",
+		Holder:          "John Appleseed",
+		PrimaryCurrency: "EUR",
+		CashBalance:     100,
+	}
+
+	_, err := mapDtoToAccount(dto)
+
+	test.AssertError(t, err)
+}
+
+func Test_mapDtoToAccount_Positive(t *testing.T) {
+	id := uuid.New()
+	date := time.Now()
+	broker := "IBKR"
+	holder := "John Appleseed"
+	currency := "EUR"
+	dto := AccountDto{
+		Id:              id,
+		OpeningDate:     date,
+		Type:            "IIS_3",
+		Broker:          broker,
+		Holder:          holder,
+		PrimaryCurrency: currency,
+		CashBalance:     100,
+	}
+
+	mappedAccount, err := mapDtoToAccount(dto)
+
+	test.AssertError(t, err)
+	test.AssertEqual(t, id, mappedAccount.Id)
+	test.AssertEqual(t, date, mappedAccount.OpeningDate)
+	test.AssertEqual(t, account.IIS_3, mappedAccount.Type)
+	test.AssertEqual(t, broker, mappedAccount.Broker)
+	test.AssertEqual(t, holder, mappedAccount.Holder)
+	test.AssertEqual(t, currency, mappedAccount.PrimaryCurrency)
+	test.AssertEqual(t, 100, mappedAccount.CashBalance)
 }
