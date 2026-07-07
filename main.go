@@ -34,6 +34,7 @@ func addEndpoints(router *gin.Engine) {
 	router.GET("health-check", healthCheck)
 
 	router.GET("account", accountsapi.GetAllAccounts)
+	router.POST("account", accountsapi.CreateAccount)
 
 	router.GET("account-portfolio", portfolio.GetAccountPortfolio)
 	router.POST("update-portfolio", portfolio.UpdatePortfolio)
