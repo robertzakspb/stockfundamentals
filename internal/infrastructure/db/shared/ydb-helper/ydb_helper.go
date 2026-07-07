@@ -52,6 +52,10 @@ func ConvertToOptionalYDBdate(date time.Time) types.Value {
 	return ConvertToYdbDate(date)
 }
 
-func GenerateTablePath(prefix string, name string) string {
-	return "`" + path.Join(prefix, name) + "`"
+func GenerateTablePath(prefix, name string) string {
+	return path.Join(prefix, name) 
+}
+
+func GenerateFullTablePath(dbName, prefix, name string) string {
+	return path.Join(dbName, prefix, name)
 }
