@@ -57,5 +57,5 @@ func CreateAccount(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, shared.StringResponse{Message: "The accoung has been successfuly saved!"})
+	c.JSON(http.StatusOK, shared.StringResponse{Message: "The account has been successfuly saved!"})
 }
