@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/account"
+	"github.com/google/uuid"
 )
 
 func MapAccountsToDtos(accounts []account.Account) []AccountDto {
@@ -25,13 +26,13 @@ func MapAccountsToDtos(accounts []account.Account) []AccountDto {
 	return dtos
 }
 
-func mapDtoToAccount(dto AccountDto) (account.Account, error) {
+func mapDtoToAccount(dto NewAccountDto) (account.Account, error) {
 	accType, found := account.AccountType_Map[dto.Type]
 	if !found {
 		return account.Account{}, errors.New("Unknown account type: " + dto.Type)
 	}
 	account := account.Account{
-		Id:              dto.Id,
+		Id:              uuid.New(),
 		OpeningDate:     dto.OpeningDate,
 		Type:            accType,
 		Broker:          dto.Broker,

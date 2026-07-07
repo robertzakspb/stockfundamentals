@@ -33,10 +33,8 @@ func Test_MapAccountsToDtos_Positive(t *testing.T) {
 }
 
 func Test_mapDtoToAccount_Negative_UnknownAccountType(t *testing.T) {
-	id := uuid.New()
 	date := time.Now()
-	dto := AccountDto{
-		Id:              id,
+	dto := NewAccountDto{
 		OpeningDate:     date,
 		Type:            "fake",
 		Broker:          "IBKR",
@@ -51,13 +49,11 @@ func Test_mapDtoToAccount_Negative_UnknownAccountType(t *testing.T) {
 }
 
 func Test_mapDtoToAccount_Positive(t *testing.T) {
-	id := uuid.New()
 	date := time.Now()
 	broker := "IBKR"
 	holder := "John Appleseed"
 	currency := "EUR"
-	dto := AccountDto{
-		Id:              id,
+	dto := NewAccountDto{
 		OpeningDate:     date,
 		Type:            "IIS_3",
 		Broker:          broker,
@@ -69,7 +65,6 @@ func Test_mapDtoToAccount_Positive(t *testing.T) {
 	mappedAccount, err := mapDtoToAccount(dto)
 
 	test.AssertError(t, err)
-	test.AssertEqual(t, id, mappedAccount.Id)
 	test.AssertEqual(t, date, mappedAccount.OpeningDate)
 	test.AssertEqual(t, account.IIS_3, mappedAccount.Type)
 	test.AssertEqual(t, broker, mappedAccount.Broker)

@@ -35,7 +35,7 @@ func CreateAccount(c *gin.Context) {
 		return
 	}
 
-	dto := AccountDto{}
+	dto := NewAccountDto{}
 	err = json.Unmarshal(jsonData, &dto)
 	if err != nil {
 		logger.Log("Failed to unmarshal the account json in the POST payload: "+err.Error(), logger.ERROR)
