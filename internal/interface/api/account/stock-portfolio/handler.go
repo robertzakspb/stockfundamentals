@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
-	"github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
+	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
@@ -17,19 +17,19 @@ func GetAccountPortfolio(c *gin.Context) {
 
 	accountPortfolio, err := portfolio.GetAccountPortfolio(filters)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 
 	accountPortfolio.Lots, err = portfolio.PopulateLotSecurities(accountPortfolio.Lots)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 
 	accountPortfolio, err = portfolio.PopulateLotsWithQuotes(accountPortfolio)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 
@@ -46,7 +46,7 @@ func UpdatePortfolio(c *gin.Context) {
 	wg.Wait()
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 

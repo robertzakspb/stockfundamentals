@@ -22,7 +22,7 @@ func StartBondAccruedInterestUpdateJob(c *gin.Context) {
 func GetRussianGovernmentBondsWithFixedOrConstantCoupon(c *gin.Context) {
 	bonds, err := bondservice.GetRussianGovernmentBondsWithFixedOrConstantCoupon()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 
@@ -34,7 +34,7 @@ func GetRussianGovernmentBondsWithFixedOrConstantCoupon(c *gin.Context) {
 func GetQuasiForeignBonds(c *gin.Context) {
 	bonds, err := bondservice.GetQuasiForeignBonds()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 

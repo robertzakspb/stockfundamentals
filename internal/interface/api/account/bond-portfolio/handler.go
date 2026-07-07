@@ -19,7 +19,7 @@ func AddBondPositionLotToAccount(c *gin.Context) {
 
 	jsonData, err := io.ReadAll(bodyReader)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse{Errors: []string{err.Error()}})
 		logger.Log("Failed to read the bond position lot json from the POST payload: "+err.Error(), logger.ERROR)
 		return
 	}
@@ -28,7 +28,7 @@ func AddBondPositionLotToAccount(c *gin.Context) {
 	err = json.Unmarshal(jsonData, &dto)
 	if err != nil {
 		logger.Log("Failed to unmarshal the dividend forecast json in the POST payload: "+err.Error(), logger.ERROR)
-		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 
@@ -37,7 +37,7 @@ func AddBondPositionLotToAccount(c *gin.Context) {
 	err = bondportfolio.SaveBondPositionLot(domain)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 
@@ -61,7 +61,7 @@ func GetAccountPositionLots(c *gin.Context) {
 
 	lots, err := bondportfolio.GetAllPositionLots()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 
@@ -69,7 +69,7 @@ func GetAccountPositionLots(c *gin.Context) {
 		lots, err = bondportfolio.CalculateYtmForLots(lots)
 	}
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 
@@ -93,7 +93,7 @@ func GetAccountPositionLots(c *gin.Context) {
 func GetAccountBondTimeline(c *gin.Context) {
 	items, err := bondportfolio.GetAccountTimeline()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 

@@ -21,7 +21,7 @@ func GetAccountBondPortfolioOverview(c *gin.Context) {
 	}
 	accountBondPortfolioOverview, err := bondportfolioanalysis.GeneratePortfolioOverview(filters)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 

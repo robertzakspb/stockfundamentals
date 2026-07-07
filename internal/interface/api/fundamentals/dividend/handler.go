@@ -24,7 +24,7 @@ func GetAllDividends(c *gin.Context) {
 
 	dividends, err := appdividend.GetFilteredDividends(parsedFilters)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 
@@ -39,7 +39,7 @@ func CreateNewDividendForecast(c *gin.Context) {
 
 	jsonData, err := io.ReadAll(bodyReader)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse{Errors: []string{err.Error()}})
 		logger.Log("Failed to read the dividend forecast json from the POST payload: "+err.Error(), logger.ERROR)
 		return
 	}
@@ -48,15 +48,15 @@ func CreateNewDividendForecast(c *gin.Context) {
 	err = json.Unmarshal(jsonData, &divForecast)
 	if err != nil {
 		logger.Log("Failed to unmarshal the dividend forecast json in the POST payload: "+err.Error(), logger.ERROR)
-		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 
 	mappedDomain := mapDividendForecastDtoToDomain(divForecast)
-	
+
 	err = appdividend.SaveDividendForecast(mappedDomain)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 

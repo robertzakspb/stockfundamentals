@@ -19,7 +19,7 @@ func ProcessOrderExecutions(c *gin.Context) {
 
 	jsonData, err := io.ReadAll(bodyReader)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse{Errors: []string{err.Error()}})
 		logger.Log("Failed to read the transaction json from the POST payload: "+err.Error(), logger.ERROR)
 		return
 	}
@@ -28,19 +28,19 @@ func ProcessOrderExecutions(c *gin.Context) {
 	err = json.Unmarshal(jsonData, &dtos)
 	if err != nil {
 		logger.Log("Failed to unmarshal the transactions json in the POST payload: "+err.Error(), logger.ERROR)
-		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 
 	transactions, err := mapTransactionDtosToTransactions(dtos)
 	if err != nil {
 		logger.Log("Invalid transaction data was provided: "+err.Error(), logger.ERROR)
-		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse{Errors: []string{err.Error()}})
 	}
 
 	err = transactionprocessor.ProcessStockOrderExecutions(transactions)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 
@@ -53,7 +53,7 @@ func PreviewTransactions(c *gin.Context) {
 
 	jsonData, err := io.ReadAll(bodyReader)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse{Errors: []string{err.Error()}})
 		logger.Log("Failed to read the transaction json from the POST payload: "+err.Error(), logger.ERROR)
 		return
 	}
@@ -62,19 +62,19 @@ func PreviewTransactions(c *gin.Context) {
 	err = json.Unmarshal(jsonData, &dtos)
 	if err != nil {
 		logger.Log("Failed to unmarshal the transactions json in the POST payload: "+err.Error(), logger.ERROR)
-		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 
 	transactions, err := mapTransactionDtosToTransactions(dtos)
 	if err != nil {
 		logger.Log("Invalid transaction data was provided: "+err.Error(), logger.ERROR)
-		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse{Errors: []string{err.Error()}})
 	}
 
 	accounts, transactions, lot, relations, err := transactionprocessor.PreviewTransactionProcessing(transactions)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, shared.ResponseError{Errors: []string{err.Error()}})
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
 
@@ -85,9 +85,9 @@ func PreviewTransactions(c *gin.Context) {
 
 	dto := AccountsTransactionsLotsRelationsDto{
 		AdjustedAccounts: accountDtos,
-		AdjustedLots: lotDtos,
-		Relations: relationDtos,
-		Transactions: transactionDtos,
+		AdjustedLots:     lotDtos,
+		Relations:        relationDtos,
+		Transactions:     transactionDtos,
 	}
 
 	c.JSON(http.StatusOK, dto)

@@ -1,6 +1,6 @@
 package shared
 
-type ResponseError struct {
+type ErrorResponse struct {
 	Errors  []string `json:"errors"`
 	Message string   `json:"message"`
 }
