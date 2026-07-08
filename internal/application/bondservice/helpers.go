@@ -18,6 +18,19 @@ func ExtractBondFigis(bondList *[]bonds.Bond) []string {
 	return figis
 }
 
+func ExtractBondTickers(bondList []bonds.Bond) []string {
+	tickers := []string{}
+
+	for _, bond := range bondList {
+		if bond.Ticker == "" {
+			continue
+		}
+		tickers = append(tickers, bond.Ticker)
+	}
+
+	return tickers
+}
+
 func GetOnlyBondsWithFixedOrConstantCoupons(bondList []bonds.Bond) []bonds.Bond {
 	filteredBonds := []bonds.Bond{}
 	for _, bond := range bondList {
