@@ -12,6 +12,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"opensource.tbank.ru/invest/invest-go/investgo"
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
+	"github.com/compoundinvest/invest-core/quote/entity"
 )
 
 // Optimized method that fetches all data asynchronously
@@ -35,7 +36,7 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 		coupons, err = GetCouponsByFigis(figis)
 	})
 
-	var quotes []tquoteservice.BondQuote
+	var quotes []entity.BondQuote
 	var errorList []error
 	wg.Go(func() {
 		quotes, errorList = tquoteservice.GetBondPriceAndYield(client, figis)
@@ -86,14 +87,14 @@ func CalculateYtmForBonds(bondList []bonds.Bond) []bonds.Bond {
 	return bondsWithYtm
 }
 
-func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []tquoteservice.BondQuote) []bonds.Bond {
+func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []entity.BondQuote) []bonds.Bond {
 	for _, quote := range quotes {
 		for i, b := range bondList {
-			if quote.Ticker == b.Ticker {
-				bondList[i].QuoteInPercentage = quote.QuoteAsPercentage
-				bondList[i].YieldTomaturity = quote.YTM
+			if quote.Ticker() == b.Ticker {
+				bondList[i].QuoteInPercentage = quote.QuoteAsPercentage()
+				bondList[i].YieldTomaturity = quote.Ytm()
 				if b.HasCallOption() {
-					yieldToCallOption, err := b.CalcSimpleYieldToCallOption(b.Coupons, quote.QuoteAsPercentage)
+					yieldToCallOption, err := b.CalcSimpleYieldToCallOption(b.Coupons, quote.QuoteAsPercentage())
 					if err != nil {
 						logger.Log(err.Error(), logger.ERROR)
 					}
@@ -101,7 +102,7 @@ func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []tquoteservi
 					continue
 				}
 
-				ytm, err := b.CalcSimpleYieldToMaturity(b.Coupons, quote.QuoteAsPercentage)
+				ytm, err := b.CalcSimpleYieldToMaturity(b.Coupons, quote.QuoteAsPercentage())
 				if err != nil {
 					logger.Log(err.Error(), logger.ERROR)
 				}

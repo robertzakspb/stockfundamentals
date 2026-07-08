@@ -31,22 +31,22 @@ func FetchAndSaveHistoricalQuotes() error {
 	service := client.NewMarketDataServiceClient()
 
 	for i, quote := range latestQuotes {
-		if quote.Currency != "RUB" {
+		if quote.Currency() != "RUB" {
 			continue
 		}
 
-		startDate := quote.Timestamp
+		startDate := quote.Timestamp()
 		//In case the DB has no latest quote for a security, the default start date is set
 		if startDate.IsZero() {
 			startDate = time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
 		}
 
 		<-tthrottler.MarketDataServiceThrottle
-		tQuotes, err := tinkoffapi.FetchAllHistoricalQuotesFor(service, quote.Figi, startDate, time.Now())
+		tQuotes, err := tinkoffapi.FetchAllHistoricalQuotesFor(service, quote.Figi(), startDate, time.Now())
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 		}
-		logger.Log(strconv.Itoa(i+1)+" out of "+strconv.Itoa(len(latestQuotes))+". Fetched "+strconv.Itoa(len(tQuotes))+" quotes for: "+quote.Figi, logger.INFORMATION)
+		logger.Log(strconv.Itoa(i+1)+" out of "+strconv.Itoa(len(latestQuotes))+". Fetched "+strconv.Itoa(len(tQuotes))+" quotes for: "+quote.Figi(), logger.INFORMATION)
 
 		interfaceStructs := make([]entity.SimpleQuote, len(tQuotes))
 		for i := range tQuotes {

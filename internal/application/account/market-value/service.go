@@ -4,14 +4,12 @@ import (
 	"errors"
 	"time"
 
-	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
+	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/quoteservice"
 	timehelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/time-helpers"
 
-	// "github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
-	// "github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	accountmvdb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/market-value"
@@ -19,7 +17,6 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3/types"
-	"opensource.tbank.ru/invest/invest-go/investgo"
 )
 
 func GetAccountReturn(filters []ydbfilter.YdbFilter, currency string) (accountmvdomain.Return, error) {
@@ -224,12 +221,7 @@ func CalculateBondLotsMarketValue(bondLots []bonds.BondLot, date time.Time, curr
 
 	figis := bondportfolio.GetLotFigis(bondLots)
 
-	config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
-	if err != nil {
-		logger.Log("Failed to initialize the configuration file", logger.ALERT)
-		return accountmvdomain.AccountMarketValue{}, err
-	}
-	quotes, err := tquoteservice.FetchQuotesForFigis(figis, config)
+	quotes, err := quoteservice.FetchStockQuotes(figis)
 
 	totalMarketValue := 0.0
 

@@ -3,6 +3,7 @@ package bondservice
 import (
 	"testing"
 
+	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
@@ -25,10 +26,10 @@ func Test_calculateRubMarketValue(t *testing.T) {
 		},
 	}
 
-	quotes := []tquoteservice.BondQuote{
-		{QuoteAsPercentage: 95, Ticker: "ticker1"},
-		{QuoteAsPercentage: 102, Ticker: "ticker2"},
-		{QuoteAsPercentage: 34, Ticker: "ticker3"},
+	quotes := []entity.BondQuote{
+		tquoteservice.NewBondQuote("ticker1", 95, 10),
+		tquoteservice.NewBondQuote("ticker2", 102, 10),
+		tquoteservice.NewBondQuote("ticker3", 34, 10),
 	}
 
 	rates := []forexservice.ForexRate{

@@ -11,13 +11,8 @@ func mapTQuotesToQuotes(tQuotes []tquoteservice.TQuote) []quote.Quote {
 	quotes := make([]quote.Quote, len(tQuotes))
 
 	for i := range tQuotes {
-		mappedQuoted := quote.Quote{
-			Figi:      tQuotes[i].Figi(),
-			Quote:     tQuotes[i].Quote(),
-			Currency:  tQuotes[i].Currency(),
-			Timestamp: tQuotes[i].Timestamp(),
-		}
-		quotes[i] = mappedQuoted
+		mappedQuote := quote.New(tQuotes[i].Figi(), tQuotes[i].Currency(), tQuotes[i].Timestamp(), tQuotes[i].Quote())
+		quotes[i] = mappedQuote
 	}
 
 	return quotes
@@ -40,12 +35,7 @@ func mapDbQuotesToQuotes(dbQuotes []timeseriesdb.QuoteDB) []quote.Quote {
 			currency = dbQuotes[i].Country
 		}
 
-		mappedQuoted := quote.Quote{
-			Figi:      dbQuotes[i].Figi,
-			Quote:     dbQuotes[i].ClosePrice,
-			Currency:  currency,
-			Timestamp: dbQuotes[i].Date,
-		}
+		mappedQuoted := quote.New(dbQuotes[i].Figi, currency, dbQuotes[i].Date, dbQuotes[i].ClosePrice)
 		quotes[i] = mappedQuoted
 	}
 

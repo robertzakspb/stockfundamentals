@@ -8,8 +8,9 @@ import (
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
-	"github.com/compoundinvest/invest-core/quote/tquoteservice"
+
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
+	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/quoteservice"
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
 	stockportfolio "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
@@ -17,7 +18,6 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/portfoliodb"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	"opensource.tbank.ru/invest/invest-go/investgo"
 )
 
 func SaveLots(lots []lot.Lot) error {
@@ -132,18 +132,13 @@ func PopulateLotsWithQuotes(portfolio portfolio.Portfolio) (portfolio.Portfolio,
 	//Occasionally the MOEX API does not return quotes for ETFs and quote fetching should thus fall back to the Tinkoff API
 	//Condition len(quotes) != len(positions) indicates that these quotes are missing
 	if etfFigis := portfolio.GetEtfLotFigis(); len(etfFigis) > 0 && len(quotes) != len(positions) {
-		config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
-		if err != nil {
-			logger.Log("Failed to initialize the configuration file", logger.ALERT)
-			return portfolio, errors.New("Failed to fetch quotes for ETFs in the portfolio fue to Tinkoff API configuration issues")
-		}
-		etfQuotes, err := tquoteservice.FetchQuotesForFigis(portfolio.GetEtfLotFigis(), config)
+		etfQuotes, err := quoteservice.FetchStockQuotes(portfolio.GetEtfLotFigis())
 		if err != nil {
 			return portfolio, errors.New("Failed to fetch quotes for ETFs in the portfolio")
 		}
 
 		for _, etfQuote := range etfQuotes {
-			quotes = append(quotes, &etfQuote)
+			quotes = append(quotes, etfQuote)
 		}
 	}
 
