@@ -16,9 +16,6 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/types"
 )
 
-const market_date_directory_prefix = "marketdata/"
-const time_series_table_name = "time_series"
-
 func SaveTimeSeriesToDB(quotes *[]entity.SimpleQuote) error {
 	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
@@ -38,7 +35,7 @@ func SaveTimeSeriesToDB(quotes *[]entity.SimpleQuote) error {
 		ydbQuotes[i] = ydbQuote
 	}
 
-	tableName := path.Join(dbConnection.Name(), market_date_directory_prefix, time_series_table_name)
+	tableName := path.Join(dbConnection.Name(), db.MARKET_DATA_DIRECTORY_PREFIX, db.TIME_SERIES_TABLE_NAME)
 	err = dbConnection.Table().BulkUpsert(
 		context.TODO(),
 		tableName,

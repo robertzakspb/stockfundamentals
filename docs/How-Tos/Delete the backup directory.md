@@ -15,5 +15,7 @@ ydb -d "/Root/test" -e "grpc://localhost:2136" scheme rmdir -rf ~backup_20260312
 On MacOS:
 
 ```
-ydb -d "/local" -e "grpc://localhost:2136" scheme rmdir -rf custom
+ydb -d "/local" -e "grpc://localhost:2136" scheme rmdir -rf "custom"
 ```
+
+Note: the directory may occasionally need to be encapsulated in double quotation marks

@@ -9,8 +9,9 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	appdividend "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
-	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
+	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/quoteservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/timeseries"
+	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 )
 
 func StartDailyJobs() {
@@ -23,6 +24,8 @@ func StartDailyJobs() {
 
 	go bondservice.UpdateAllBondsAci()
 
+	go quoteservice.CreateQuoteSnapshot()
+	
 	portfolio.UpdatePortfolio() //The stock & bonds portfolios must be updated before the market value job so that the latest positions are used in MV calculation
 	bondportfolio.ImportTinkoffBondLots()
 

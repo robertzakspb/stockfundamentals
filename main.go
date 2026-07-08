@@ -65,6 +65,7 @@ func addEndpoints(router *gin.Engine) {
 	router.POST("fetch/securities", api_security.StartSecurityMasterImportJob)
 
 	router.POST("fetch/time-series", timeseries.StartTimeSeriesImportJob)
+	router.POST("quote/snapshot", timeseries.StartQuoteSnapShotJob)
 
 	router.POST("fetch/fx-rates", forexapi.StartForexImportJob)
 	router.GET("fx-rates", forexapi.GetFilteredExchangeRates)
