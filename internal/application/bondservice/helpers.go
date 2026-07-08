@@ -5,7 +5,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
 
-func GetBondFigis(bondList *[]bonds.Bond) []string {
+func ExtractBondFigis(bondList *[]bonds.Bond) []string {
 	figis := []string{}
 
 	for _, bond := range *bondList {

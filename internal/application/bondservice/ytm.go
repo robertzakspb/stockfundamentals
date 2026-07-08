@@ -6,13 +6,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"opensource.tbank.ru/invest/invest-go/investgo"
 	tinkoff "opensource.tbank.ru/invest/invest-go/investgo"
-	"github.com/compoundinvest/invest-core/quote/entity"
 )
 
 // Optimized method that fetches all data asynchronously
@@ -27,7 +27,7 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 		return []bonds.Bond{}
 	}
 
-	figis := GetBondFigis(&bondList)
+	figis := ExtractBondFigis(&bondList)
 
 	wg := sync.WaitGroup{}
 
@@ -78,7 +78,7 @@ func CalculateYtmForBonds(bondList []bonds.Bond) []bonds.Bond {
 		return []bonds.Bond{}
 	}
 
-	quotes, errorList := tquoteservice.GetBondPriceAndYield(client, GetBondFigis(&bondList))
+	quotes, errorList := tquoteservice.GetBondPriceAndYield(client, ExtractBondFigis(&bondList))
 	if len(errorList) > 0 {
 		logger.LogErrors(errorList, logger.ERROR)
 	}

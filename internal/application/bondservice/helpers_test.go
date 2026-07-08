@@ -7,7 +7,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/test"
 )
 
-func Test_GetBondFigis(t *testing.T) {
+func Test_ExtractBondFigis(t *testing.T) {
 	bondList := []bonds.Bond{
 		{
 			Figi: "figi1",
@@ -23,7 +23,7 @@ func Test_GetBondFigis(t *testing.T) {
 		},
 	}
 
-	figis := GetBondFigis(&bondList)
+	figis := ExtractBondFigis(&bondList)
 
 	test.AssertEqual(t, 3, len(figis))
 	test.AssertEqual(t, "figi1", figis[0])
