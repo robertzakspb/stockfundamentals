@@ -3,7 +3,7 @@ package timeseries
 import (
 	"net/http"
 
-	"github.com/compoundinvest/stockfundamentals/internal/application/timeseries"
+	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/timeseries"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
 	"github.com/gin-gonic/gin"
 )

@@ -10,7 +10,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	appdividend "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
-	"github.com/compoundinvest/stockfundamentals/internal/application/timeseries"
+	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/timeseries"
 )
 
 func StartDailyJobs() {

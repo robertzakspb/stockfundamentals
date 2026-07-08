@@ -43,6 +43,7 @@ func GetLatestQuotes(figis []string) ([]quote.Quote, error) {
 	return quotes, nil
 }
 
+// Unlike GetLatestQuotes, this function only retrieves local quotes without calls to 3rd parties
 func GetLatestLocalQuotesForAllSecurities() ([]quote.Quote, error) {
 	quotes := []quote.Quote{}
 
