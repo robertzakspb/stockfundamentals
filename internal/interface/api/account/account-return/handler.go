@@ -12,7 +12,11 @@ import (
 )
 
 func GetAccountReturn(c *gin.Context) {
-	parsedFilters := ydbfilter.MapQueryFiltersToYdb[accountmvdomain.Return](c.Request.URL.Query())
+	parsedFilters, err := ydbfilter.MapQueryFiltersToYdb[accountmvdomain.Return](c.Request.URL.Query())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
+		return
+	}
 	accountReturn, err := accountmvservice.GetAccountReturn(parsedFilters, "RUB")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
@@ -25,7 +29,11 @@ func GetAccountReturn(c *gin.Context) {
 }
 
 func GetPortfolioOverview(c *gin.Context) {
-	parsedFilters := ydbfilter.MapQueryFiltersToYdb[accountmvdomain.Return](c.Request.URL.Query())
+	parsedFilters, err := ydbfilter.MapQueryFiltersToYdb[accountmvdomain.Return](c.Request.URL.Query())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
+		return
+	}
 	portfolioOverview, err := bondportfolioanalysis.GeneratePortfolioOverview(parsedFilters)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})

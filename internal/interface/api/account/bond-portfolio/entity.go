@@ -1,6 +1,10 @@
 package bondportfolioapi
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type bondPositionLotDto struct {
 	Figi                    string    `json:"figi" sql:"figi"`
@@ -8,7 +12,7 @@ type bondPositionLotDto struct {
 	Name                    string    `json:"name"`
 	OpeningDate             time.Time `json:"openingDate" sql:"opening_date"`
 	ModificationDate        time.Time `json:"modificationDate" sql:"modification_date"`
-	AccountId               string    `json:"accountId" sql:"account_id"`
+	AccountId               uuid.UUID `json:"accountId" sql:"account_id"`
 	Quantity                float64   `json:"quantity"`
 	PricePerUnitPercentage  float64   `json:"pricePerUnitPercentage"`
 	SimpleYtm               float64   `json:"simpleYtm"`

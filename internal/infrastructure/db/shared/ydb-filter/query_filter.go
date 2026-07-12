@@ -13,12 +13,16 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/types"
 )
 
-func MapQueryFiltersToYdb[API any](filters map[string][]string) []YdbFilter {
+func MapQueryFiltersToYdb[API any](filters map[string][]string) ([]YdbFilter, error) {
 	ydbFilters := []YdbFilter{}
 
 	for parameter, queryValues := range filters {
 		for _, queryValue := range queryValues {
 			values := strings.Split(queryValue, ",") //We assume that any given query parameter has only 1 string
+			//The parameter must contain at least two parameters: 1) the condition, 2) the filter value
+			if len(values) < 2 || values[1] == "" {
+				return ydbFilters, errors.New("Expected at least two comma-delineated parameters in the query value: " + parameter + ": " + queryValue)
+			}
 			filter, err := convertQueryParamToYdbFilter[API](parameter, values)
 			if err != nil {
 				logger.Log(err.Error(), logger.ERROR)
@@ -28,7 +32,7 @@ func MapQueryFiltersToYdb[API any](filters map[string][]string) []YdbFilter {
 		}
 	}
 
-	return ydbFilters
+	return ydbFilters, nil
 }
 
 func convertQueryParamToYdbFilter[API any](parameter string, values []string) (YdbFilter, error) {
@@ -56,7 +60,7 @@ func convertQueryParamToYdbFilter[API any](parameter string, values []string) (Y
 			continue
 		}
 
-		filterValues, err := mapQueryValuesToYdbFilterValues(condition, values[1:])
+		filterValues, err := mapQueryValuesToYdbFilterValues(condition, values[1:], jsonReflection.Type().Field(i).Type.String())
 		if err != nil {
 			logger.Log("Failed to generate filter values", logger.ERROR)
 			continue
@@ -83,128 +87,71 @@ func mapQueryConditionToYdb(condition string) (YdbFilterCondition, error) {
 	return ydbCondition, nil
 }
 
-func mapQueryValuesToYdbFilterValues(condition YdbFilterCondition, values []string) (types.Value, error) {
-	switch condition {
-	case GreaterThan, GreaterThanOrEqualTo, LessThan, LessThanOrEqualTo:
-		date, err := time.Parse("2006-01-02", values[0])
-		if err == nil {
-			return ydbhelper.ConvertToYdbDate(date), nil
-		}
+func mapQueryValuesToYdbFilterValues(condition YdbFilterCondition, values []string, typeName string) (types.Value, error) {
+	if condition == Contains {
+		return parseArrayFromQueryParameters(values[1:], typeName)
+	}
 
-		f, err := strconv.ParseFloat(values[0], 64)
-		if err == nil {
-			return types.DoubleValue(f), nil
-		}
+	ydbTypeValue, err := convertParameterToYdbTypeValue(typeName, values[0])
+	return ydbTypeValue, err
+}
 
-		i, err := strconv.Atoi(values[0])
-		if err == nil {
-			return types.Int64Value(int64(i)), nil
-		}
-
-		id, err := uuid.Parse(values[0])
-		if err == nil {
-			return types.UuidValue(id), nil
-		}
-
-		return types.TextValue(values[0]), nil
-
-	case Equal:
-		date, err := time.Parse("2006-01-02", values[0])
-		if err == nil {
-			return ydbhelper.ConvertToYdbDate(date), nil
-		}
-
-		b, err := strconv.ParseBool(values[0])
+func convertParameterToYdbTypeValue(typeName string, value string) (types.Value, error) {
+	switch typeName {
+	case "bool":
+		b, err := strconv.ParseBool(value)
 		if err == nil {
 			return types.BoolValue(b), nil
 		}
-
-		f, err := strconv.ParseFloat(values[0], 64)
-		if err == nil {
-			return types.DoubleValue(f), nil
+	case "string":
+		return types.TextValue(value), nil
+	case "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64":
+		i, err := strconv.Atoi(value)
+		if err != nil {
+			return types.TextValue(value), err
 		}
-
-		id, err := uuid.Parse(values[0])
-		if err == nil {
-			return types.UuidValue(id), nil
+		return types.Int64Value(int64(i)), nil
+	case "float32", "float64":
+		f, err := strconv.ParseFloat(value, 64)
+		if err != nil {
+			return types.TextValue(value), err
 		}
+		return types.DoubleValue(f), nil
 
-		i, err := strconv.Atoi(values[0])
+	case "time.Time":
+		date, err := time.Parse("2006-01-02", value)
 		if err == nil {
-			return types.Int64Value(int64(i)), nil
+			return ydbhelper.ConvertToYdbDate(date), nil
 		}
+		timestamp, err := time.Parse(time.RFC3339, value)
+		if err == nil {
+			return ydbhelper.ConvertToYdbDateTime(timestamp), nil
+		}
+		return types.TextValue(value), err
 
-		return types.TextValue(values[0]), nil
-	case Contains:
-		return parseArrayFromQueryParameters(values)
+	case "uuid.UUID":
+		id, err := uuid.Parse(value)
+		if err != nil {
+			return types.TextValue(value), err
+		}
+		return types.UuidValue(id), nil
 	}
 
-	return types.NullValue(types.TypeBool), errors.New("failed to map query parameters to Ydb filter values")
+	return types.TextValue(value), nil
 }
 
-func parseArrayFromQueryParameters(values []string) (types.Value, error) {
+func parseArrayFromQueryParameters(values []string, typeName string) (types.Value, error) {
 	if len(values) == 0 {
 		return types.NullValue(types.TypeInt8), errors.New("Failed to parse query parameters, as the array is empty")
 	}
+	ydbValues := make([]types.Value, len(values))
 
-	ydbValues := []types.Value{}
-
-	//First see if it's a float
-	_, err := strconv.ParseFloat(values[0], 64)
-	if err == nil {
-		for _, value := range values {
-			f, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				return types.ListValue(), errors.New("First element in the array is a float but one subsequent value is not a float")
-			}
-			ydbValues = append(ydbValues, types.DoubleValue(f))
+	for i := range values {
+		ydbTypeValue, err := convertParameterToYdbTypeValue(typeName, values[i])
+		if err != nil {
+			return types.NullValue(types.TypeBool), err
 		}
-		return types.ListValue(ydbValues...), nil
-	}
-
-	//Then see if it's an int
-	_, err = strconv.Atoi(values[0])
-	if err == nil {
-		for _, value := range values {
-			i, err := strconv.Atoi(value)
-			if err != nil {
-				return types.ListValue(), errors.New("First element in the array is an integer but one subsequent value is not an integer")
-			}
-			ydbValues = append(ydbValues, types.Int64Value(int64(i)))
-		}
-		return types.ListValue(ydbValues...), nil
-
-	}
-
-	_, err = uuid.Parse(values[0])
-	if err == nil {
-		for _, value := range values {
-			id, err := uuid.Parse(value)
-			if err != nil {
-				return types.ListValue(), errors.New("First element in the array is a UUID but one subsequent value is not an UUID")
-			}
-			ydbValues = append(ydbValues, types.UuidValue(id))
-		}
-		return types.ListValue(ydbValues...), nil
-
-	}
-
-	_, err = time.Parse(time.RFC3339, values[0])
-	if err == nil {
-		for _, value := range values {
-			date, err := time.Parse(time.RFC3339, value)
-			if err != nil {
-				return types.ListValue(), errors.New("First element in the array is a date but one subsequent value is not an date")
-			}
-			ydbValues = append(ydbValues, ydbhelper.ConvertToYdbDate(date))
-		}
-		return types.ListValue(ydbValues...), nil
-
-	}
-
-	//Then assume it's a string. Other parameter types will be implemented later
-	for _, value := range values {
-		ydbValues = append(ydbValues, types.TextValue(value))
+		ydbValues[i] = ydbTypeValue
 	}
 
 	return types.ListValue(ydbValues...), nil

@@ -7,14 +7,13 @@ import (
 )
 
 func mapBondLotDtoToDomain(dto bondPositionLotDto) bonds.BondLot {
-	accountId, _ := uuid.Parse(dto.AccountId)
 	domain := bonds.BondLot{
 		Id:                     uuid.New(),
 		Figi:                   dto.Figi,
 		Isin:                   dto.Isin,
 		OpeningDate:            dto.OpeningDate,
 		ModificationDate:       dto.ModificationDate,
-		AccountId:              accountId,
+		AccountId:              dto.AccountId,
 		Quantity:               dto.Quantity,
 		PricePerUnitPercentage: dto.PricePerUnitPercentage,
 		MarketValueInRUB:       dto.MarketValueInRUB,
@@ -30,7 +29,7 @@ func mapBondLotToDto(lot bonds.BondLot) bondPositionLotDto {
 		Name:                    lot.Bond.Name,
 		OpeningDate:             lot.OpeningDate,
 		ModificationDate:        lot.ModificationDate,
-		AccountId:               lot.AccountId.String(),
+		AccountId:               lot.AccountId,
 		Quantity:                lot.Quantity,
 		PricePerUnitPercentage:  lot.PricePerUnitPercentage,
 		SimpleYtm:               lot.Bond.SimpleYieldToMaturity,

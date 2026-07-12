@@ -20,7 +20,11 @@ func StartDividendFetchingJob(c *gin.Context) {
 }
 
 func GetAllDividends(c *gin.Context) {
-	parsedFilters := ydbfilter.MapQueryFiltersToYdb[dividend.Dividend](c.Request.URL.Query())
+	parsedFilters, err := ydbfilter.MapQueryFiltersToYdb[dividend.Dividend](c.Request.URL.Query())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
+		return
+	}
 
 	dividends, err := appdividend.GetFilteredDividends(parsedFilters)
 	if err != nil {

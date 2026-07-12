@@ -46,19 +46,10 @@ func AddBondPositionLotToAccount(c *gin.Context) {
 }
 
 func GetAccountPositionLots(c *gin.Context) {
-	queryParameters := c.Request.URL.Query()
-	filters := ydbfilter.MapQueryFiltersToYdb[bondPositionLotDto](c.Request.URL.Query())
-
-	withYTM := false
-	for key, param := range queryParameters {
-		if key == "withYTM" {
-			if len(param) == 0 {
-				continue
-			}
-			if param[0] == "true" {
-				withYTM = true
-			}
-		}
+	filters, err := ydbfilter.MapQueryFiltersToYdb[bondPositionLotDto](c.Request.URL.Query())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
+		return
 	}
 
 	lots, err := bondportfolio.GetFilteredPositionLots(filters)
@@ -67,9 +58,8 @@ func GetAccountPositionLots(c *gin.Context) {
 		return
 	}
 
-	if withYTM {
-		lots, err = bondportfolio.CalculateYtmForLots(lots)
-	}
+	lots, err = bondportfolio.CalculateYtmForLots(lots)
+	
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return

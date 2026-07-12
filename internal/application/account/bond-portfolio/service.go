@@ -73,6 +73,10 @@ func GetFilteredPositionLots(filters []ydbfilter.YdbFilter) ([]bonds.BondLot, er
 }
 
 func CalculateYtmForLots(lots []bonds.BondLot) ([]bonds.BondLot, error) {
+	if len(lots) == 0 {
+		return lots, nil
+	}
+
 	figis := []string{}
 	for _, bond := range lots {
 		figis = append(figis, bond.Figi)

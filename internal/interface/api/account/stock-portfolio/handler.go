@@ -6,14 +6,17 @@ import (
 
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
-	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
 	"github.com/gin-gonic/gin"
 )
 
 func GetAccountPortfolio(c *gin.Context) {
-	filters := ydbfilter.MapQueryFiltersToYdb[lot.Lot](c.Request.URL.Query())
+	filters, err := ydbfilter.MapQueryFiltersToYdb[LotDto](c.Request.URL.Query())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
+		return
+	}
 
 	accountPortfolio, err := portfolio.GetAccountPortfolio(filters)
 	if err != nil {
