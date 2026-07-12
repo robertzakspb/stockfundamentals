@@ -8,7 +8,9 @@ import (
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
+	ydbtemplate "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-template"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
@@ -115,4 +117,12 @@ func GetLatestQuotesForAllSecurities() ([]QuoteDB, error) {
 	}
 
 	return dbQuotes, nil
+}
+
+func GetLatestBondQuotes(filters []ydbfilter.YdbFilter) ([]BondQuoteDB, error) {
+	yql := makeLatestBondQuoteQuery()
+
+	bondQuotes, err := ydbtemplate.GetEntityWithCustomQuery[BondQuoteDB](filters, yql)
+
+	return bondQuotes, err
 }

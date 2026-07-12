@@ -30,13 +30,31 @@ func GetEntity[T any](filters []ydbfilter.YdbFilter, tablePath string) ([]T, err
 		return dbValues, err
 	}
 
+	dbValues, err = GetEntityWithCustomQuery[T](filters, yql)
+	if err != nil {
+		return dbValues, err
+	}
+
+	return dbValues, nil
+}
+
+func GetEntityWithCustomQuery[T any](filters []ydbfilter.YdbFilter, yqlQuery string) ([]T, error) {
+	dbValues := []T{}
+	dbConnection, err := db.GetReusableYdbDriver()
+	if err != nil {
+		return dbValues, err
+	}
+	defer db.ReleaseDriver(dbConnection)
+
+	params := ydbfilter.SetQueryParams(filters)
+
 	err = dbConnection.Query().Do(context.TODO(),
 		func(ctx context.Context, s query.Session) (err error) {
 			result, err := s.Query(
 				ctx,
-				yql,
+				yqlQuery,
 				query.WithTxControl(query.TxControl(query.BeginTx(query.WithSnapshotReadOnly()))),
-				query.WithParameters(ydbfilter.SetQueryParams(filters)))
+				query.WithParameters(params))
 
 			if err != nil {
 				return err

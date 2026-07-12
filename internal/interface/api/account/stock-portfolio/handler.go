@@ -13,7 +13,7 @@ import (
 )
 
 func GetAccountPortfolio(c *gin.Context) {
-	filters := ydbfilter.MapQueryFiltersToYdb(c.Request.URL.Query(), lot.Lot{})
+	filters := ydbfilter.MapQueryFiltersToYdb[lot.Lot](c.Request.URL.Query())
 
 	accountPortfolio, err := portfolio.GetAccountPortfolio(filters)
 	if err != nil {

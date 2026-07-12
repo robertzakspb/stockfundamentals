@@ -1,16 +1,18 @@
-package quoteservice
+package jobservice
 
 import (
 	"sync"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
+	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/quoteservice"
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	timeseriesdb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/marketdata"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
 
-func CreateQuoteSnapshot() error {
+func ExecuteQuoteSnapshotJob() error {
+
 	stocks, err := security_master.GetAllSecuritiesFromDB()
 	if err != nil {
 		return err
@@ -28,13 +30,13 @@ func CreateQuoteSnapshot() error {
 
 	wg := sync.WaitGroup{}
 	wg.Go(func() {
-		bondQuotes, err = FetchBondQuotes(bondFigis)
+		bondQuotes, err = quoteservice.FetchBondQuotes(bondFigis)
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 		}
 	})
 	wg.Go(func() {
-		stockQuotes, err = FetchStockQuotes(stockFigis)
+		stockQuotes, err = quoteservice.FetchStockQuotes(stockFigis)
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 		}
@@ -50,7 +52,7 @@ func CreateQuoteSnapshot() error {
 		return err
 	}
 
-	bondDbQuotes := mapBondQuotesToDbModels(bondQuotes)
+	bondDbQuotes := quoteservice.MapBondQuotesToDbModels(bondQuotes)
 	err = timeseriesdb.SaveBondQuotes(bondDbQuotes)
 	if err != nil {
 		return err

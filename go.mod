@@ -3,14 +3,14 @@ module github.com/compoundinvest/stockfundamentals
 go 1.26.4
 
 require (
-	github.com/compoundinvest/invest-core v1.3.8
+	github.com/compoundinvest/invest-core v1.4.0
 	github.com/gin-contrib/cors v1.7.7
 	github.com/gin-gonic/gin v1.12.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/xuri/excelize/v2 v2.11.0
 	github.com/ydb-platform/ydb-go-sdk/v3 v3.143.0
-	golang.org/x/net v0.56.0
+	golang.org/x/net v0.57.0
 	opensource.tbank.ru/invest/invest-go v1.48.0
 )
 
@@ -49,9 +49,9 @@ require (
 	github.com/xuri/efp v0.0.1 // indirect
 	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20260428144813-1c07baab7f7b // indirect
-	go.mongodb.org/mongo-driver/v2 v2.7.0 // indirect
+	go.mongodb.org/mongo-driver/v2 v2.8.0 // indirect
 	golang.org/x/arch v0.29.0 // indirect
-	golang.org/x/crypto v0.53.0 // indirect
+	golang.org/x/crypto v0.54.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect

@@ -10,7 +10,7 @@ import (
 )
 
 func GetFilteredExchangeRates(c *gin.Context) {
-	filters := ydbfilter.MapQueryFiltersToYdb(c.Request.URL.Query(), forexservice.ForexRate{})
+	filters := ydbfilter.MapQueryFiltersToYdb[forexservice.ForexRate](c.Request.URL.Query())
 
 	rates, err := forexservice.GetFilteredExchangeRates(filters)
 	if err != nil {

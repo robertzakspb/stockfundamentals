@@ -9,6 +9,7 @@ import (
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
 
+	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/gin-gonic/gin"
 )
@@ -46,6 +47,7 @@ func AddBondPositionLotToAccount(c *gin.Context) {
 
 func GetAccountPositionLots(c *gin.Context) {
 	queryParameters := c.Request.URL.Query()
+	filters := ydbfilter.MapQueryFiltersToYdb[bondPositionLotDto](c.Request.URL.Query())
 
 	withYTM := false
 	for key, param := range queryParameters {
@@ -59,7 +61,7 @@ func GetAccountPositionLots(c *gin.Context) {
 		}
 	}
 
-	lots, err := bondportfolio.GetAllPositionLots()
+	lots, err := bondportfolio.GetFilteredPositionLots(filters)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return

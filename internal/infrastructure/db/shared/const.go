@@ -1,5 +1,7 @@
 package db
 
+import "path"
+
 const STOCK_DIRECTORY_PREFIX = "stockfundamentals/stocks"
 const BOND_DIRECTORY_PREFIX = "bonds"
 const USER_DIRECTORY_PREFIX = "user"
@@ -21,3 +23,7 @@ const TRANSACTION_TABLE_NAME = "transaction"
 const TRANSACTION_LOT_RELATIONSHIP_TABLE_NAME = "transaction_lot"
 const TIME_SERIES_TABLE_NAME = "time_series"
 const BOND_TIME_SERIES_TABLE_NAME = "bond_quote"
+
+func BackTickPath(prefix, tableName string) string {
+	return "`" + path.Join(prefix, tableName) + "`"
+}

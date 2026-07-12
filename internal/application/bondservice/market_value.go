@@ -10,16 +10,16 @@ import (
 func CalculateRubMarketValue(bondList []bonds.Bond, quotes []entity.BondQuote, rates []forexservice.ForexRate) []bonds.Bond {
 	for _, quote := range quotes {
 		for i := range bondList {
-			if quote.Ticker() == bondList[i].Ticker {
+			if quote.GetTicker() == bondList[i].Ticker {
 				if bondList[i].NominalCurrency == "RUB" {
-					bondList[i].MarketValueInRUB = bondList[i].MarketValue(quote.QuoteAsPercentage(), 1.0)
+					bondList[i].MarketValueInRUB = bondList[i].MarketValue(quote.GetQuoteAsPercentage(), 1.0)
 					continue
 				}
 				fxRate, found := forexservice.FindRate(bondList[i].NominalCurrency, "RUB", rates)
 				if !found {
 					logger.Log("Failed to find the exchange rate for "+bondList[i].NominalCurrency+"/RUB", logger.ERROR)
 				}
-				bondList[i].MarketValueInRUB = bondList[i].MarketValue(quote.QuoteAsPercentage(), fxRate.Rate)
+				bondList[i].MarketValueInRUB = bondList[i].MarketValue(quote.GetQuoteAsPercentage(), fxRate.Rate)
 			}
 		}
 	}

@@ -6,12 +6,14 @@ import (
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/timeseries"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	stringhelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/string-helpers"
 	"opensource.tbank.ru/invest/invest-go/investgo"
 )
 
-func FetchBondQuotes(tickers []string) ([]entity.BondQuote, error) {
+// Only fetches bond quotes from the T Bank API
+func FetchBondQuotes(figis []string) ([]entity.BondQuote, error) {
 	config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
 		logger.Log("Failed to initialize the configuration file", logger.ALERT)
@@ -23,7 +25,7 @@ func FetchBondQuotes(tickers []string) ([]entity.BondQuote, error) {
 	}
 
 	//T Bank API does not return more than 100 quotes in a given call; hence the batching
-	batches := stringhelpers.SplitInBatchesOf(40, tickers)
+	batches := stringhelpers.SplitInBatchesOf(100, figis)
 	bondQuotes := []entity.BondQuote{}
 
 	for i := range batches {
@@ -37,6 +39,7 @@ func FetchBondQuotes(tickers []string) ([]entity.BondQuote, error) {
 	return bondQuotes, nil
 }
 
+// Only fetches stock quotes from the T Bank API
 func FetchStockQuotes(figis []string) ([]entity.SimpleQuote, error) {
 	config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
@@ -64,34 +67,64 @@ func FetchStockQuotes(figis []string) ([]entity.SimpleQuote, error) {
 }
 
 // This function will attempt to fetch the latest quotes from the database and, if any are missing, attempt to fetch them from supported 3rd parties
-func GetLatestQuotes(figis []string) ([]entity.SimpleQuote, error) {
-	quotes := []entity.SimpleQuote{}
-
-	dbQuotes, err := timeseries.GetLatestLocalQuotesForFigis(figis)
-
+func GetCachedAndExternalStockQuotes(figis []string) ([]entity.SimpleQuote, error) {
+	quotes, err := timeseries.GetLatestLocalQuotesForFigis(figis)
 	if err != nil {
 		return []entity.SimpleQuote{}, err
 	}
 
-	quotes = append(quotes, dbQuotes...)
+	if len(quotes) == len(figis) {
+		return quotes, nil
+	}
 
-	tickersWithMissingQuotes := []string{}
+	figisWithMissingQuotes := []string{}
 	for i := range figis {
 		foundQuote := false
-		for j := range dbQuotes {
-			if figis[i] == dbQuotes[j].Figi() {
+		for j := range quotes {
+			if figis[i] == quotes[j].Figi() {
 				foundQuote = true
 			}
 		}
 		if !foundQuote {
-			tickersWithMissingQuotes = append(tickersWithMissingQuotes, figis[i])
+			figisWithMissingQuotes = append(figisWithMissingQuotes, figis[i])
 		}
 	}
 
-	missingQuotes, err := FetchStockQuotes(tickersWithMissingQuotes)
+	missingQuotes, err := FetchStockQuotes(figisWithMissingQuotes)
+
+	quotes = append(quotes, missingQuotes...)
+
+	return quotes, err
+}
+
+func GetCachedAndExternalBondQuotes(bondList []bonds.Bond) ([]entity.BondQuote, error) {
+	tickers := make([]string, len(bondList))
+	for i := range bondList {
+		tickers[i] = bondList[i].Ticker
+	}
+	quotes, err := timeseries.GetLatestLocalBondQuotes(tickers)
 	if err != nil {
 		return quotes, err
 	}
+
+	if len(quotes) == len(tickers) {
+		return quotes, nil
+	}
+
+	figisWithMissingQuotes := []string{}
+	for i := range bondList {
+		foundQuote := false
+		for j := range quotes {
+			if bondList[i].Ticker == quotes[j].GetTicker() {
+				foundQuote = true
+			}
+		}
+		if !foundQuote {
+			figisWithMissingQuotes = append(figisWithMissingQuotes, tickers[i])
+		}
+	}
+
+	missingQuotes, err := FetchBondQuotes(figisWithMissingQuotes)
 
 	quotes = append(quotes, missingQuotes...)
 

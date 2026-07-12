@@ -64,7 +64,7 @@ func Test_mapDtoToAccount_Positive(t *testing.T) {
 
 	mappedAccount, err := mapDtoToAccount(dto)
 
-	test.AssertError(t, err)
+	test.AssertNoError(t, err)
 	test.AssertEqual(t, date, mappedAccount.OpeningDate)
 	test.AssertEqual(t, account.IIS_3, mappedAccount.Type)
 	test.AssertEqual(t, broker, mappedAccount.Broker)

@@ -57,7 +57,7 @@ func Test_convertQueryParamToYdbFilter_ListOFStrings(t *testing.T) {
 	}
 	queryValues := []string{"IN", "id1", "id2"}
 
-	filter, err := convertQueryParamToYdbFilter(jsonParameter, Foo{}, queryValues)
+	filter, err := convertQueryParamToYdbFilter[Foo](jsonParameter, queryValues)
 
 	test.AssertNoError(t, err)
 	test.AssertEqual(t, Contains, filter.Condition)
@@ -72,7 +72,7 @@ func Test_convertQueryParamToYdbFilter_SingleInteger(t *testing.T) {
 	}
 	queryValues := []string{"=", "5"}
 
-	filter, err := convertQueryParamToYdbFilter(jsonParameter, Foo{}, queryValues)
+	filter, err := convertQueryParamToYdbFilter[Foo](jsonParameter, queryValues)
 
 	test.AssertNoError(t, err)
 	test.AssertEqual(t, Equal, filter.Condition)

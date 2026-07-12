@@ -3,12 +3,12 @@ package bondportfolioapi
 import "time"
 
 type bondPositionLotDto struct {
-	Figi                    string    `json:"figi"`
-	Isin                    string    `json:"isin"`
+	Figi                    string    `json:"figi" sql:"figi"`
+	Isin                    string    `json:"isin" sql:"isin"`
 	Name                    string    `json:"name"`
-	OpeningDate             time.Time `json:"openingDate"`
-	ModificationDate        time.Time `json:"modificationDate"`
-	AccountId               string    `json:"accountId"`
+	OpeningDate             time.Time `json:"openingDate" sql:"opening_date"`
+	ModificationDate        time.Time `json:"modificationDate" sql:"modification_date"`
+	AccountId               string    `json:"accountId" sql:"account_id"`
 	Quantity                float64   `json:"quantity"`
 	PricePerUnitPercentage  float64   `json:"pricePerUnitPercentage"`
 	SimpleYtm               float64   `json:"simpleYtm"`

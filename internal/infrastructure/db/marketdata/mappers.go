@@ -9,9 +9,9 @@ func mapBondQuoteDbModelToYdbEntity(dbModels []BondQuoteDB) types.Value {
 	dbQuotes := make([]types.Value, len(dbModels))
 	for i, quote := range dbModels {
 		dbQuote := types.StructValue(
-			types.StructFieldValue("ticker", types.TextValue(quote.Ticker)),
-			types.StructFieldValue("timestamp", ydbhelper.ConvertToYdbDateTime(quote.Timestamp)),
-			types.StructFieldValue("price_as_percentage", types.DoubleValue(quote.PriceAsPercentage)),
+			types.StructFieldValue("ticker", types.TextValue(quote.GetTicker())),
+			types.StructFieldValue("timestamp", ydbhelper.ConvertToYdbDateTime(quote.GetTimestamp())),
+			types.StructFieldValue("price_as_percentage", types.DoubleValue(quote.GetQuoteAsPercentage())),
 		)
 		dbQuotes[i] = dbQuote
 	}
