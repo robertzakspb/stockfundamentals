@@ -13,5 +13,6 @@ type AccountDbModel struct {
 	Broker          string    `sql:"broker"`
 	Holder          string    `sql:"holder"`
 	PrimaryCurrency string    `sql:"primary_currency"`
-	CashBalance     float64    `sql:"cash_balance"`
+	CashBalance     float64   `sql:"cash_balance"`
+	IsOpen          bool      `sql:"is_open"`
 }

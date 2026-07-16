@@ -15,6 +15,7 @@ type Account struct {
 	Holder          string
 	PrimaryCurrency string
 	CashBalance     float64
+	IsOpen          bool
 }
 
 type AccountType string

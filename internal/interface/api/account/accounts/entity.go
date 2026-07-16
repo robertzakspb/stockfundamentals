@@ -14,6 +14,7 @@ type AccountDto struct {
 	Holder          string    `json:"holder"`
 	PrimaryCurrency string    `json:"primaryCurrency"`
 	CashBalance     float64   `json:"cashBalance"`
+	IsOpen          bool      `json:"isopen"`
 }
 
 type NewAccountDto struct {
@@ -23,4 +24,5 @@ type NewAccountDto struct {
 	Holder          string    `json:"holder"`
 	PrimaryCurrency string    `json:"primaryCurrency"`
 	CashBalance     float64   `json:"cashBalance"`
+	IsOpen          bool      `json:"isOpen"`
 }

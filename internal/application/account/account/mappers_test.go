@@ -26,6 +26,7 @@ func Test_mapDbAccountsToAccounts(t *testing.T) {
 		Holder:          holder,
 		PrimaryCurrency: primaryCurrency,
 		CashBalance:     250,
+		IsOpen:          false,
 	}
 
 	mappedAccount := mapDbAccountsToAccounts([]accountdb.AccountDbModel{dbAccount})[0]
@@ -37,6 +38,7 @@ func Test_mapDbAccountsToAccounts(t *testing.T) {
 	test.AssertEqual(t, holder, mappedAccount.Holder)
 	test.AssertEqual(t, primaryCurrency, mappedAccount.PrimaryCurrency)
 	test.AssertEqual(t, 250, mappedAccount.CashBalance)
+	test.AssertEqual(t, false, mappedAccount.IsOpen)
 }
 
 func Test_mapDbAccountsToAccounts_IIS2(t *testing.T) {
@@ -91,6 +93,7 @@ func Test_mapAccountsToDbAccounts(t *testing.T) {
 		Holder:          holder,
 		PrimaryCurrency: primaryCurrency,
 		CashBalance:     250,
+		IsOpen:          true,
 	}
 
 	mappedAccount := mapAccountsToDbAccounts([]account.Account{sample})[0]
@@ -102,4 +105,5 @@ func Test_mapAccountsToDbAccounts(t *testing.T) {
 	test.AssertEqual(t, holder, mappedAccount.Holder)
 	test.AssertEqual(t, primaryCurrency, mappedAccount.PrimaryCurrency)
 	test.AssertEqual(t, 250, mappedAccount.CashBalance)
+	test.AssertEqual(t, true, mappedAccount.IsOpen)
 }

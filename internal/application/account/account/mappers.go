@@ -17,6 +17,7 @@ func mapDbAccountsToAccounts(dbAccounts []accountdb.AccountDbModel) []account.Ac
 			Holder:          dbAccount.Holder,
 			PrimaryCurrency: dbAccount.PrimaryCurrency,
 			CashBalance:     dbAccount.CashBalance,
+			IsOpen:          dbAccount.IsOpen,
 		}
 		accounts[i] = account
 	}
@@ -36,6 +37,7 @@ func mapAccountsToDbAccounts(accounts []account.Account) []accountdb.AccountDbMo
 			Holder:          account.Holder,
 			PrimaryCurrency: account.PrimaryCurrency,
 			CashBalance:     account.CashBalance,
+			IsOpen:          account.IsOpen,
 		}
 		dbAccounts[i] = account
 	}

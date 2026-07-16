@@ -16,6 +16,7 @@ func mapAccountDbModelToYdbEntity(dbModels []AccountDbModel) types.Value {
 			types.StructFieldValue("holder", types.TextValue(account.Holder)),
 			types.StructFieldValue("primary_currency", types.TextValue(account.PrimaryCurrency)),
 			types.StructFieldValue("cash_balance", types.DoubleValue(account.CashBalance)),
+			types.StructFieldValue("is_open", types.BoolValue(account.IsOpen)),
 		)
 		dbAccounts[i] = dbAccount
 	}

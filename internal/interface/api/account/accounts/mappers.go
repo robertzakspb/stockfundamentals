@@ -19,6 +19,7 @@ func MapAccountsToDtos(accounts []account.Account) []AccountDto {
 			Holder:          accounts[i].Holder,
 			PrimaryCurrency: accounts[i].PrimaryCurrency,
 			CashBalance:     accounts[i].CashBalance,
+			IsOpen:          accounts[i].IsOpen,
 		}
 		dtos = append(dtos, dto)
 	}
@@ -39,6 +40,7 @@ func mapDtoToAccount(dto NewAccountDto) (account.Account, error) {
 		Holder:          dto.Holder,
 		PrimaryCurrency: dto.PrimaryCurrency,
 		CashBalance:     dto.CashBalance,
+		IsOpen: dto.IsOpen,
 	}
 	return account, nil
 

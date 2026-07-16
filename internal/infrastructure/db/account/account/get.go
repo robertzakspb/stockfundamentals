@@ -11,9 +11,17 @@ import (
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
+	"github.com/ydb-platform/ydb-go-sdk/v3/types"
 )
 
 func GetAccounts(filters []ydbfilter.YdbFilter) ([]AccountDbModel, error) {
+	defaultFilter := ydbfilter.YdbFilter{
+		YqlColumnName:  "is_open",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: types.BoolValue(true),
+	}
+	filters = append(filters, defaultFilter)
+
 	dbConnection, err := db.GetReusableYdbDriver()
 	if err != nil {
 		return []AccountDbModel{}, err
@@ -70,6 +78,7 @@ func makeGetAccountsQuery(filters []ydbfilter.YdbFilter) string {
 						SELECT
 							id,
 							opening_date,
+							is_open,
 							type,
 							broker,
 							holder,

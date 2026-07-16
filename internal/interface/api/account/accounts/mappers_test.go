@@ -20,6 +20,7 @@ func Test_MapAccountsToDtos_Positive(t *testing.T) {
 		Holder:          "John Appleseed",
 		PrimaryCurrency: "EUR",
 		CashBalance:     100,
+		IsOpen:          true,
 	}
 
 	dtos := MapAccountsToDtos([]account.Account{acc})
@@ -30,6 +31,7 @@ func Test_MapAccountsToDtos_Positive(t *testing.T) {
 	test.AssertEqual(t, "IIS_3", dtos[0].Type)
 	test.AssertEqual(t, "EUR", dtos[0].PrimaryCurrency)
 	test.AssertEqual(t, 100, dtos[0].CashBalance)
+	test.AssertEqual(t, true, dtos[0].IsOpen)
 }
 
 func Test_mapDtoToAccount_Negative_UnknownAccountType(t *testing.T) {
@@ -41,6 +43,7 @@ func Test_mapDtoToAccount_Negative_UnknownAccountType(t *testing.T) {
 		Holder:          "John Appleseed",
 		PrimaryCurrency: "EUR",
 		CashBalance:     100,
+		IsOpen:          false,
 	}
 
 	_, err := mapDtoToAccount(dto)
@@ -60,6 +63,7 @@ func Test_mapDtoToAccount_Positive(t *testing.T) {
 		Holder:          holder,
 		PrimaryCurrency: currency,
 		CashBalance:     100,
+		IsOpen:          false,
 	}
 
 	mappedAccount, err := mapDtoToAccount(dto)
@@ -71,4 +75,5 @@ func Test_mapDtoToAccount_Positive(t *testing.T) {
 	test.AssertEqual(t, holder, mappedAccount.Holder)
 	test.AssertEqual(t, currency, mappedAccount.PrimaryCurrency)
 	test.AssertEqual(t, 100, mappedAccount.CashBalance)
+	test.AssertEqual(t, false, mappedAccount.IsOpen)
 }
