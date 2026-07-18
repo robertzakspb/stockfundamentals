@@ -3,7 +3,7 @@ package accountreturnapi
 import (
 	"time"
 
-	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
+	"github.com/google/uuid"
 )
 
 type AccountReturnDto struct {
@@ -16,14 +16,9 @@ type AccountReturnDto struct {
 	EndDate                  time.Time `json:"endDate"`
 }
 
-func mapDomainToDto(domain accountmvdomain.Return) AccountReturnDto {
-	return AccountReturnDto{
-		AccountId:                domain.AccountId.String(),
-		Currency:                 domain.Currency,
-		AbsoluteReturn:           domain.AbsoluteReturn,
-		AbsoluteReturnPercentage: domain.AbsoluteReturnPercentage,
-		AnnualizedReturn:         domain.AnnualizedReturnPercentage,
-		StartDate:                domain.StartDate,
-		EndDate:                  domain.EndDate,
-	}
+type AccountMarketValueDto struct {
+	AccountId uuid.UUID `json:"accountId"`
+	Currency  string    `json:"currency"`
+	Date      time.Time `json:"date"`
+	EodValue  float64   `json:"eodValue"`
 }

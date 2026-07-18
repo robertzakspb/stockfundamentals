@@ -68,7 +68,7 @@ func Test_convertQueryParamToYdbFilter_ListOFStrings(t *testing.T) {
 func Test_convertQueryParamToYdbFilter_SingleInteger(t *testing.T) {
 	jsonParameter := "quantity"
 	type Foo struct {
-		Quantity string `json:"quantity" sql:"quantity_db"`
+		Quantity float64 `json:"quantity" sql:"quantity_db"`
 	}
 	queryValues := []string{"=", "5"}
 

@@ -20,12 +20,12 @@ func GetAccountDividendCalendar(accountIds uuid.UUIDs) (divcal.DividendCalendar,
 		Condition:      ydbfilter.Contains,
 		ConditionValue: ydbhelper.ConvertUUIDsToYdbList(accountIds),
 	}
-	portfolio, err := portfolio.GetAccountPortfolio([]ydbfilter.YdbFilter{accountIdFilter})
+	lots, err := portfolio.GetFilteredLots([]ydbfilter.YdbFilter{accountIdFilter})
 	if err != nil {
 		return divcal.DividendCalendar{}, err
 	}
 
-	securityIds := stockportfolio.LotFigis(portfolio.Lots)
+	securityIds := stockportfolio.LotFigis(lots)
 	securities, err := security_master.GetSecuritiesFilteredByFigi(securityIds)
 	if err != nil {
 		return divcal.DividendCalendar{}, err
@@ -53,6 +53,7 @@ func GetAccountDividendCalendar(accountIds uuid.UUIDs) (divcal.DividendCalendar,
 
 	divCal := divcal.DividendCalendar{AccountIds: accountIds}
 
+	portfolio := stockportfolio.Portfolio{Lots: lots}
 	for _, relevantDiv := range relevantDivs {
 		for _, lot := range portfolio.UniquePositions() {
 			if relevantDiv.Figi == lot.Figi {

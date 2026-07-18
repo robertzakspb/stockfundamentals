@@ -11,10 +11,8 @@ import (
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
-	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
-	"github.com/ydb-platform/ydb-go-sdk/v3/types"
 )
 
 func SaveDividendForecast(forecast dividend.DividendForecast) error {
@@ -53,12 +51,7 @@ func GetDividendForecastsForAccount(accountId uuid.UUID) ([]dividend.Payout, err
 	}
 	forecasts := mapDividendForecastDbModelToDomain(dbForecasts)
 
-	accountFilter := ydbfilter.YdbFilter{
-		YqlColumnName:  "account_id",
-		Condition:      ydbfilter.Equal,
-		ConditionValue: types.UuidValue(accountId),
-	}
-	portfolio, err := portfolio.GetAccountPortfolio([]ydbfilter.YdbFilter{accountFilter})
+	portfolio, err := portfolio.GetAccountPortfolio(accountId)
 
 	//We are using the dividend.Payout entity because it contains the distributed amount per account
 	payouts, err := matchDivForecastsWithPositions(forecasts, portfolio.UniquePositions())

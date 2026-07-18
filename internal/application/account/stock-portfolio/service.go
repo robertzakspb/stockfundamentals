@@ -8,6 +8,8 @@ import (
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
+	"github.com/google/uuid"
+	"github.com/ydb-platform/ydb-go-sdk/v3/types"
 
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/quoteservice"
@@ -44,11 +46,17 @@ func GetFilteredLots(filters []ydbfilter.YdbFilter) ([]lot.Lot, error) {
 	return mappedLots, nil
 }
 
-func GetAccountPortfolio(filters []ydbfilter.YdbFilter) (stockportfolio.Portfolio, error) {
-	if len(filters) == 0 {
-		return stockportfolio.Portfolio{}, errors.New("Zero filters were provided; at least the account filter must be provided")
+func GetAccountPortfolio(accountId uuid.UUID) (stockportfolio.Portfolio, error) {
+	if accountId == uuid.Nil {
+		return stockportfolio.Portfolio{}, errors.New("Attempting to fetch stock lots for a nil account ID")
 	}
-	dbLots, err := portfoliodb.GetFilteredLots(filters)
+
+	accountFilter := ydbfilter.YdbFilter{
+		YqlColumnName:  "account_id",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: types.UuidValue(accountId),
+	}
+	dbLots, err := portfoliodb.GetFilteredLots([]ydbfilter.YdbFilter{accountFilter})
 	if err != nil {
 		return stockportfolio.Portfolio{}, err
 	}
