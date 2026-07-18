@@ -39,6 +39,7 @@ func addEndpoints(router *gin.Engine) {
 	router.GET("account-portfolio", portfolio.GetAccountPortfolio)
 	router.POST("update-portfolio", portfolio.UpdatePortfolio)
 	router.GET("account/return", accountreturnapi.GetAccountReturn)
+	router.GET("account/market-value", accountreturnapi.GetAccountMarketValueInRUB)
 	router.POST("account/save-market-value-snapshots", accountreturnapi.StartMarketValueSnapshotJob)
 	router.GET("account/bond-portfolio-analysis", accountreturnapi.GetPortfolioOverview)
 
