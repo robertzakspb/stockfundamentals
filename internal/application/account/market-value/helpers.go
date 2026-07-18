@@ -19,7 +19,7 @@ func ExtractMarketValueCurrencies(mvMap1, mvMap2 map[string]accountmvdomain.Acco
 	return currenciesSansDuplicates
 }
 
-func MarketValueCurrencyPairs(targetCurrency string, mvs []accountmvdomain.AccountMarketValue) []string {
+func marketValueCurrencyPairs(targetCurrency string, mvs []accountmvdomain.AccountMarketValue) []string {
 	currencies := []string{}
 
 	for _, mv := range mvs {
