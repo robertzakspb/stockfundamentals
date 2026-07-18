@@ -23,8 +23,17 @@ func GetCurrentAccountMarketValue(accountId uuid.UUID, currency string) (account
 
 	wg.Go(func() {
 		bondPortfolio, e := bondportfolio.GetAccountPositions(accountId)
+		bondPortfolio, e = bondportfolio.PopulateLotsWithBonds(bondPortfolio)
 		err = e //For some reason cannot assign the return error above to the err variable declared outside of the scope
-		bondMV, err = CalculateBondLotsMarketValue(bondPortfolio, time.Now(), currency)
+		bondMVs := []accountmvdomain.AccountMarketValue{}
+		lotsGroupedByNominalCurrency := bondportfolio.GroupByNominalCurrency(bondPortfolio)
+		for cur, lots := range lotsGroupedByNominalCurrency {
+			bondMV, e = CalculateBondLotsMarketValue(lots, time.Now(), cur)
+			err = e
+			bondMVs = append(bondMVs, bondMV)
+		}
+		bondMV, e = ConvertAccountMVsToCurrency(bondMVs, currency)
+		err = e
 	})
 	wg.Go(func() {
 		stockPortfolio, e := portfolio.GetAccountPortfolio(accountId)
