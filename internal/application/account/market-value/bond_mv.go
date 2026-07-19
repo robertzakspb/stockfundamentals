@@ -53,7 +53,7 @@ func CalculateBondLotsMarketValue(bondLots []bonds.BondLot, date time.Time, curr
 
 	figis := bondportfolio.GetLotFigis(bondLots)
 
-	quotes, err := quoteservice.FetchStockQuotes(figis)
+	quotes, err := quoteservice.FetchBondQuotes(figis)
 
 	totalMarketValue := 0.0
 
@@ -65,14 +65,14 @@ func CalculateBondLotsMarketValue(bondLots []bonds.BondLot, date time.Time, curr
 	for _, quote := range quotes {
 		foundQuote := false
 		for _, lot := range bondLots {
-			if lot.Figi == quote.Figi() {
+			if lot.Figi == quote.GetFigi() {
 				foundQuote = true
-				lotMarketValue := lot.MarketValue(quote.Quote(), 1.0)
+				lotMarketValue := lot.MarketValue(quote.GetQuoteAsPercentage(), 1.0)
 				totalMarketValue += lotMarketValue
 			}
 		}
 		if !foundQuote {
-			return accountmvdomain.AccountMarketValue{}, errors.New("Failed to find the quote for figi: " + quote.Figi() + ". Terminating the market value calculation")
+			return accountmvdomain.AccountMarketValue{}, errors.New("Failed to find the quote for figi: " + quote.GetFigi() + ". Terminating the market value calculation")
 		}
 	}
 
