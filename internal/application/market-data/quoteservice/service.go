@@ -31,6 +31,14 @@ func FetchBondQuotes(figis []string) ([]entity.BondQuote, error) {
 	for i := range batches {
 		quotes, errorList := tquoteservice.GetBondPriceAndYield(client, batches[i])
 		if len(errorList) > 0 {
+			//The error "The YTM was not found in the response" is actually not that critical and can be just a warning
+			for i := range errorList {
+				if errorList[i].Error() == "The YTM was not found in the response" {
+					logger.Log(errorList[i].Error(), logger.WARNING)
+				} else {
+					logger.Log(errorList[i].Error(), logger.ERROR)
+				}
+			}
 			logger.Log("Failed to fetch bond quotes due to: "+errorList[0].Error(), logger.ERROR)
 		}
 		bondQuotes = append(bondQuotes, quotes...)

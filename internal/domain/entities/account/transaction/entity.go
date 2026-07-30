@@ -44,20 +44,33 @@ var OrderSideLookup = map[string]OrderSide{
 type Type string
 
 const (
-	OrderExecution Type = "ORDER_EXECUTION"
-	Deposit        Type = "DEPOSIT"
-	Withdrawal     Type = "WITHDRAWAL"
+	OrderExecution        Type = "ORDER_EXECUTION"
+	Deposit               Type = "DEPOSIT"
+	Withdrawal            Type = "WITHDRAWAL"
+	CouponTax             Type = "COUPON_TAX"
+	Tax                   Type = "TAX"
+	DividendTax           Type = "DIVIDEND_TAX"
+	BondRedemption        Type = "BOND_REDEMPTION"
+	PartialBondRedemption Type = "PARTIAL_BOND_REDEMPTION"
+	BrokerFee             Type = "BROKER_FEE"
+	Dividend              Type = "DIVIDEND"
+	CouponPayment         Type = "COUPON_PAYMENT"
+	Unknown               Type = "UNKNOWN"
 )
 
-var TypeStringValue = map[Type]string{
-	OrderExecution: "ORDER_EXECUTION",
-	Deposit:        "DEPOSIT",
-	Withdrawal:     "WITHDRAWAL",
-}
 var TypeLookup = map[string]Type{
-	"ORDER_EXECUTION": OrderExecution,
-	"DEPOSIT":         Deposit,
-	"WITHDRAWAL":      Withdrawal,
+	"ORDER_EXECUTION":         OrderExecution,
+	"DEPOSIT":                 Deposit,
+	"WITHDRAWAL":              Withdrawal,
+	"COUPON_TAX":              CouponTax,
+	"TAX":                     Tax,
+	"DIVIDEND_TAX":            DividendTax,
+	"UNKNOWN":                 Unknown,
+	"BOND_REDEMPTION":         BondRedemption,
+	"BROKER_FEE":              BrokerFee,
+	"DIVIDEND":                Dividend,
+	"COUPON_PAYMENT":          CouponPayment,
+	"PARTIAL_BOND_REDEMPTION": PartialBondRedemption,
 }
 
 func New(accountId uuid.UUID, figi string, timestamp time.Time, quantity, price float64, description, side, transactionType, currency string) (Transaction, error) {

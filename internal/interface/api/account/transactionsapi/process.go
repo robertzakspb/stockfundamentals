@@ -92,3 +92,9 @@ func PreviewTransactions(c *gin.Context) {
 
 	c.JSON(http.StatusOK, dto)
 }
+
+func StartTBankTransactionsImportJob(c *gin.Context) {
+	go transactionprocessor.ImportTBankTransactions()
+
+	c.JSON(http.StatusOK, shared.StringResponse{Message: "The T Bank transactions import job has been started"})
+}

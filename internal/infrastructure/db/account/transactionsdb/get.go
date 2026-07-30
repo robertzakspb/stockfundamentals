@@ -8,7 +8,7 @@ import (
 )
 
 func GetAllTransactions() ([]TransactionDbModel, error) {
-	tablePath := ydbhelper.GenerateTablePath(db.USER_DIRECTORY_PREFIX, db.TRANSACTION_TABLE_NAME)
+	tablePath := "`" + ydbhelper.GenerateTablePath(db.USER_DIRECTORY_PREFIX, db.TRANSACTION_TABLE_NAME) + "`"
 	filters := []ydbfilter.YdbFilter{}
 
 	transactions, err := ydbtemplate.GetEntity[TransactionDbModel](filters, tablePath)
