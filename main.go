@@ -43,7 +43,7 @@ func addEndpoints(router *gin.Engine) {
 	router.POST("account/save-market-value-snapshots", accountreturnapi.StartMarketValueSnapshotJob)
 	router.GET("account/bond-portfolio-analysis", accountreturnapi.GetPortfolioOverview)
 
-	router.GET("transactions/", transactionsapi.GetAllTransactions)
+	router.GET("transactions", transactionsapi.GetAllTransactions)
 	router.POST("transactions/start-tbank-import-job", transactionsapi.StartTBankTransactionsImportJob)
 	router.DELETE("transactions/t-bank", transactionsapi.DeleteTbankTransactions)
 
