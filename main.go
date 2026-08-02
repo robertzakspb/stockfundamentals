@@ -45,6 +45,7 @@ func addEndpoints(router *gin.Engine) {
 
 	router.GET("transactions/", transactionsapi.GetAllTransactions)
 	router.POST("transactions/start-tbank-import-job", transactionsapi.StartTBankTransactionsImportJob)
+	router.DELETE("transactions/t-bank", transactionsapi.DeleteTbankTransactions)
 
 	router.POST("fetch/dividends", dividend.StartDividendFetchingJob)
 	router.GET("all-dividends", dividend.GetAllDividends)
