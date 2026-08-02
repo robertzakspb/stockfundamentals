@@ -8,7 +8,7 @@ import (
 func AssertEqual[T comparable](t testing.TB, expected, actual T) {
 	t.Helper()
 	if expected != actual {
-		t.Errorf("expected: %v;\n got: %v", expected, actual)
+		t.Errorf("expected: %v\n got: %v", expected, actual)
 	}
 }
 
