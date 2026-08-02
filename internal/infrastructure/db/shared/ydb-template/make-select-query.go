@@ -20,7 +20,6 @@ func generateGetQuery[T any](filters []ydbfilter.YdbFilter, tablePath string) (s
 	if err != nil {
 		return sb.String(), err
 	}
-
 	slices.Sort(columnNames)
 
 	//Ensuring the provided filters' column names are present in T's sql tag values
