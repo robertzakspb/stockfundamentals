@@ -29,7 +29,7 @@ func mapToYdbList(dbModels []TransactionDbModel) types.Value {
 			types.StructFieldValue("account_id", types.UuidValue(transaction.AccountId)),
 			types.StructFieldValue("figi", types.TextValue(transaction.Figi)),
 			types.StructFieldValue("type", types.TextValue(string(transaction.Type))),
-			types.StructFieldValue("timestamp", ydbhelper.ConvertToYdbDate(transaction.Timestamp)),
+			types.StructFieldValue("timestamp", ydbhelper.ConvertToYdbDateTime(transaction.Timestamp)),
 			types.StructFieldValue("side", types.TextValue(transaction.Side)),
 			types.StructFieldValue("quantity", types.DoubleValue(transaction.Quantity)),
 			types.StructFieldValue("price_per_unit", types.DoubleValue(transaction.PricePerUnit)),
