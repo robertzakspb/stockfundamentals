@@ -89,7 +89,7 @@ func mapQueryConditionToYdb(condition string) (YdbFilterCondition, error) {
 
 func mapQueryValuesToYdbFilterValues(condition YdbFilterCondition, values []string, typeName string) (types.Value, error) {
 	if condition == Contains {
-		return parseArrayFromQueryParameters(values[1:], typeName)
+		return parseArrayFromQueryParameters(values, typeName)
 	}
 
 	ydbTypeValue, err := convertParameterToYdbTypeValue(typeName, values[0])
