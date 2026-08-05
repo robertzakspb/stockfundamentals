@@ -36,7 +36,7 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 
 	sb.WriteString("\n")
 
-	sb.WriteString("Разбиение по активам: ")
+	sb.WriteString("Разбиение по валютам: ")
 	sb.WriteString("\n")
 	hardcodedAccountId := uuid.MustParse("129274f9-ee80-4e74-aa1c-fea578bac6e6")
 	mvs, err := accountmvservice.CalculateAccountMarketValue(hardcodedAccountId, time.Now())
@@ -82,19 +82,18 @@ func generateAccountReturnOverview(sb *strings.Builder, accountReturn accountmvd
 	absoluteReturn, _ := stringhelpers.BeautifyNumber(accountReturn.AbsoluteReturn)
 	sb.WriteString(absoluteReturn)
 
-	sb.WriteString("( ")
+	sb.WriteString(" (")
 	absoluteReturnPercentage, _ := stringhelpers.BeatufityPercentage(accountReturn.AbsoluteReturnPercentage)
 	sb.WriteString(absoluteReturnPercentage)
 	if accountReturn.AbsoluteReturn <= 0 {
-		sb.WriteString(")")
-		return sb
+		sb.WriteString(") ")
+	} else {
+		sb.WriteString("; или ")
+		annualized := compoundinterest.CalcAnnualizedReturn(accountReturn.AbsoluteReturnPercentage, accountReturn.StartDate, accountReturn.EndDate)
+		annualizedFormatted, _ := stringhelpers.BeatufityPercentage(annualized)
+		sb.WriteString(annualizedFormatted)
+		sb.WriteString(" годовых). ")
 	}
-
-	sb.WriteString("; или ")
-	annualized := compoundinterest.CalcAnnualizedReturn(accountReturn.AbsoluteReturnPercentage, accountReturn.StartDate, accountReturn.EndDate)
-	annualizedFormatted, _ := stringhelpers.BeatufityPercentage(annualized)
-	sb.WriteString(annualizedFormatted)
-	sb.WriteString(" годовых). ")
 
 	sb.WriteString(forexservice.GetCurrencySymbol(accountReturn.Currency))
 	startingDateAccountValue, _ := stringhelpers.BeautifyNumber(accountReturn.StartDateMV)
