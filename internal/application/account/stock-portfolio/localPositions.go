@@ -105,7 +105,7 @@ func vtbLots() []lot.Lot {
 		Id:           uuid.New(),
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
-		Quantity:     715172,
+		Quantity:     718212,
 		PricePerUnit: 2.0035,
 		Currency:     "RUB",
 		Figi:         "TCS60A1014L8",
