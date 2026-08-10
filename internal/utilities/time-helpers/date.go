@@ -58,8 +58,9 @@ func ConvertTimeToMidnightUTC(timestamp time.Time) time.Time {
 	return date
 }
 
-func TodayInDDMMYYYFormat() string {
-	year, month, day := time.Now().Date()
+//Converts a timestamp into a date in the 31.12.2026 format
+func DateInDDMMYYYFormat(date time.Time) string {
+	year, month, day := date.Date()
 	return strconv.Itoa(day) + "." + strconv.Itoa(int(month)) + "." + strconv.Itoa(year)
 }
 
