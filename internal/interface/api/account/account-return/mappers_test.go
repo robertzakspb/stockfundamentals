@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func test_mapAccountMarketValueToDto_Positive(t *testing.T) {
+func Test_mapAccountMarketValueToDto_Positive(t *testing.T) {
 	accountId := uuid.UUID{}
 	currency := "EUR"
 	date := time.Now()
