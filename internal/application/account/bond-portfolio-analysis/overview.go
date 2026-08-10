@@ -24,7 +24,7 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 
 	//Adding the currency-based asset market values
 	sb.WriteString("Стоимость активов на ")
-	sb.WriteString(timehelpers.TodayInDDMMYYYFormat())
+	sb.WriteString(timehelpers.DateInDDMMYYYFormat(time.Now()))
 	sb.WriteString(": ")
 
 	accountReturn, err := accountmvservice.GetAccountReturn(filters, "RUB")
