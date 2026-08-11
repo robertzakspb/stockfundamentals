@@ -16,10 +16,6 @@ import (
 )
 
 func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {
-	if cur2 != "RUB" {
-		return errors.New("Unable to fetch pair quotes for non-Ruble currencies due to a missing implementation")
-	}
-
 	earliestDateInDb, latestDateInDb, err := forexdb.GetEarliestAndLatestDbRateFor(cur1, cur2)
 	if err != nil {
 		return err
@@ -30,8 +26,11 @@ func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {
 		needToSkipDatesAlreadyInDb = false
 	}
 
-	rateLimit := time.Second / 2
-	throttle := time.Tick(rateLimit)
+	cbrRateLimit := time.Second / 2
+	cbrThrottle := time.Tick(cbrRateLimit)
+
+	nbsRateLimit := time.Second / 2
+	nbsThrottle := time.Tick(nbsRateLimit)
 
 	rates := []ForexRate{}
 	targetDate := time.Now().Add(-time.Hour * 24 * 365)
@@ -47,7 +46,20 @@ func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {
 			}
 		}
 
-		rate, err := getCurrencyToRubRate(cur1, targetDate)
+		var rate ForexRate
+		var err error
+
+		switch cur2 {
+		case "RUB":
+			<-cbrThrottle
+			rate, err = getCurrencyToRubRate(cur1, targetDate)
+		case "RSD":
+			<-nbsThrottle
+			rate, err = fetchUsdToRsdRate(targetDate)
+		default:
+			return errors.New("Unsupported currency: " + cur2)
+		}
+
 		if err != nil {
 			//The rate for the following day may or may not be provided; hence, a warning is sufficient. Otherwise, an error.
 			if timehelpers.AreEqualDates(time.Now().AddDate(0, 0, 1), targetDate) {
@@ -59,17 +71,10 @@ func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {
 			targetDate = targetDate.Add(time.Hour * 24)
 			continue
 		}
-		rates = append(rates, ForexRate{
-			Currency1: currencyName[cur1],
-			Currency2: currencyName[cur2],
-			Date:      targetDate,
-			Rate:      rate,
-		})
+		rates = append(rates, rate)
 		logger.Log("Fetched the rate for "+cur1+"/"+cur2+". Value: "+fmt.Sprint(rate)+" for "+targetDate.String(), logger.INFORMATION)
 
 		targetDate = targetDate.Add(time.Hour * 24)
-
-		<-throttle
 	}
 
 	mappedDbModels := mapFxRatesToDbModel(rates)

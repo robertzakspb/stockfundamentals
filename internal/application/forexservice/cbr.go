@@ -28,23 +28,29 @@ type cbrCurrency struct {
 	Value    string  `xml:"Value"`
 }
 
-func getCurrencyToRubRate(currency string, targetDate time.Time) (float64, error) {
+func getCurrencyToRubRate(currency string, targetDate time.Time) (ForexRate, error) {
 	rates, err := getDailyRates(context.TODO(), targetDate.Year(), targetDate.Month(), targetDate.Day())
 	if err != nil {
-		return -1, err
+		return ForexRate{}, err
 	}
 
 	for _, rate := range rates.Rates {
 		if rate.CharCode == currency {
 			parsedValue, err := strconv.ParseFloat(strings.Join(strings.Split(rate.Value, ","), "."), 64)
 			if err != nil {
-				return -1, err
+				return ForexRate{}, err
 			}
-			return parsedValue, nil
+			rate := ForexRate{
+				Currency1: Currency(currency),
+				Currency2: currencyName["RUB"],
+				Date:      targetDate,
+				Rate:      parsedValue,
+			}
+			return rate, nil
 		}
 	}
 
-	return -1, errors.New("Failed to find the target forex rate")
+	return ForexRate{}, errors.New("Failed to find the target forex rate")
 }
 
 func getDailyRates(ctx context.Context, year int, month time.Month, day int) (*cbrFxRate, error) {
