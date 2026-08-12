@@ -108,6 +108,30 @@ func Test_DateIsLater_EarlierDate(t *testing.T) {
 	test.AssertFalse(t, DateIsLater(time1, time2))
 }
 
+func Test_DateInDDMMYYYFormat_Positive_SingleDigitMonth(t *testing.T) {
+	date := time.Date(2026, 8, 12, 0, 0, 0, 0, time.UTC)
+
+	str := DateInDDMMYYYFormat(date)
+
+	test.AssertEqual(t, "12.08.2026", str)
+}
+
+func Test_DateInDDMMYYYFormat_Positive_SingleDigitDay(t *testing.T) {
+	date := time.Date(2026, 8, 4, 0, 0, 0, 0, time.UTC)
+
+	str := DateInDDMMYYYFormat(date)
+
+	test.AssertEqual(t, "04.08.2026", str)
+}
+
+func Test_DateInDDMMYYYFormat_Positive_EdgeCase(t *testing.T) {
+	var date time.Time
+
+	str := DateInDDMMYYYFormat(date)
+
+	test.AssertEqual(t, "01.01.1", str)
+}
+
 func Test_DateFromISOstring_Positive(t *testing.T) {
 	expectedDate, err := time.Parse("2006-01-02", "2026-05-03")
 	test.AssertNoError(t, err)
@@ -119,5 +143,5 @@ func Test_DateFromISOstring_Positive(t *testing.T) {
 
 func Test_DateFromISOstring_Negative(t *testing.T) {
 	_, err := DateFromISOstring("foo")
-	test.AssertError(t,err)
+	test.AssertError(t, err)
 }

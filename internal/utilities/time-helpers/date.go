@@ -2,6 +2,7 @@ package timehelpers
 
 import (
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -58,13 +59,24 @@ func ConvertTimeToMidnightUTC(timestamp time.Time) time.Time {
 	return date
 }
 
-//Converts a timestamp into a date in the 31.12.2026 format
+// Converts a timestamp into a date in the 31.12.2026 format
 func DateInDDMMYYYFormat(date time.Time) string {
 	year, month, day := date.Date()
-	return strconv.Itoa(day) + "." + strconv.Itoa(int(month)) + "." + strconv.Itoa(year)
+
+	dayStr := strconv.Itoa(day)
+	if len(dayStr) == 1 { //It should be 02.03.2025 instead of 2.03.2025
+		dayStr = "0" + dayStr
+	}
+
+	monthStr := strconv.Itoa(int(month))
+	if len(monthStr) == 1 { //It should be 02.03.2025 instead of 02.3.2025
+		monthStr = "0" + monthStr
+	}
+
+	return strings.Join([]string{dayStr, monthStr, strconv.Itoa(year)}, ".")
 }
 
-//Converts a string like "2026-12-30" into a corresponding timestamp in UTC
+// Converts a string like "2026-12-30" into a corresponding timestamp in UTC
 func DateFromISOstring(isoDate string) (time.Time, error) {
 	return time.Parse("2006-01-02", isoDate)
 }
