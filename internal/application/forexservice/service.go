@@ -91,25 +91,14 @@ func GetExchangeRates(currencyPairs []string, date time.Time) ([]ForexRate, erro
 	if len(currencyPairs) == 0 {
 		return []ForexRate{}, nil
 	}
+
+	cur1s, cur2s := generateCurrency1AndCurrency2Slices(currencyPairs)
+
 	filters := []ydbfilter.YdbFilter{{
 		YqlColumnName:  "date",
 		Condition:      ydbfilter.Equal,
 		ConditionValue: ydbhelper.ConvertToYdbDate(date),
 	}}
-
-	cur1s := []string{}
-	cur2s := []string{}
-	for _, pair := range currencyPairs {
-		split := strings.Split(pair, "/")
-		cur1, cur2 := strings.ToUpper(split[0]), strings.ToUpper(split[1])
-		if cur2 != "RUB" {
-			logger.Log("Skipping the currency pair "+cur1+"/"+cur2+" due to missing rates", logger.INFORMATION)
-			continue
-		}
-		cur1s = append(cur1s, cur1)
-		cur2s = append(cur2s, cur2)
-	}
-
 	filters = append(filters, ydbfilter.YdbFilter{
 		YqlColumnName:  "currency_1",
 		Condition:      ydbfilter.Contains,
@@ -127,6 +116,11 @@ func GetExchangeRates(currencyPairs []string, date time.Time) ([]ForexRate, erro
 	}
 
 	rates := mapDbModelsToDomain(dbRates)
+
+	rates, err = collapseRatesIntoTargetCrossRates(currencyPairs, rates)
+	if err != nil {
+		return rates, err
+	}
 
 	return rates, nil
 }

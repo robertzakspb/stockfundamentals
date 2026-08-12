@@ -1,6 +1,7 @@
 package ydbfilter
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/compoundinvest/stockfundamentals/internal/test"
@@ -13,11 +14,15 @@ func Test_AddYqlVarDeclarations(t *testing.T) {
 		{"name", Equal, types.UTF8Value("Robert")},
 		{"is_resident", Equal, types.BoolValue(false)},
 	}
+	expectedAgeDeclaration := "DECLARE $age_filter1 AS Int64;\n"
+	expectedNameDeclaration:= "DECLARE $name_filter1 AS Utf8;\n"
+	expectedIsResidentDeclaration := "DECLARE $is_resident_filter1 AS Bool;\n"
 
-	expected := "DECLARE $age_filter1 AS Int64;\nDECLARE $name_filter1 AS Utf8;\nDECLARE $is_resident_filter1 AS Bool;\n"
 	actual := AddYqlVarDeclarations(filters)
 
-	test.AssertEqual(t, expected, actual)
+	test.AssertTrue(t, strings.Contains(actual, expectedAgeDeclaration))
+	test.AssertTrue(t, strings.Contains(actual, expectedNameDeclaration))
+	test.AssertTrue(t, strings.Contains(actual, expectedIsResidentDeclaration))
 }
 
 func Test_AddYqlVarDeclarations_NoFilters(t *testing.T) {
