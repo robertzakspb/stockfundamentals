@@ -85,7 +85,8 @@ func collapseRatesIntoTargetCrossRates(currencyPairs []string, rates []ForexRate
 
 	//Adding the USD/X rates first
 	for i := range rates {
-		if rates[i].Currency1 == "USD" && slices.Contains(currencyPairs, strings.Join([]string{string(rates[i].Currency1), string(rates[i].Currency2)}, "/")) {
+		pairHasAlreadyBeenAdded := slices.Contains(currencyPairs, strings.Join([]string{string(rates[i].Currency1), string(rates[i].Currency2)}, "/"))
+		if rates[i].Currency1 == "USD" && !pairHasAlreadyBeenAdded {
 			cleanRates = append(cleanRates, rates[i])
 		}
 	}
