@@ -5,11 +5,16 @@ import (
 	"slices"
 
 	"github.com/compoundinvest/stockfundamentals/internal/application/account/transactionprocessor"
+	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
 	"github.com/gin-gonic/gin"
 )
 
-func GetAllTransactions(c *gin.Context) {
-	transactions, err := transactionprocessor.GetAllTransactions()
+func GetFilteredTransactions(c *gin.Context) {
+	parsedQuery, err := shared.ParseFiltrationPaginationAndSorting[TransactionDto](c.Request.URL.Query())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+	}
+	transactions, err := transactionprocessor.GetFilteredTransactions(parsedQuery)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
