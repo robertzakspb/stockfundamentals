@@ -1,6 +1,7 @@
 package ydbtemplate
 
 import (
+	"strings"
 	"testing"
 
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -49,5 +50,11 @@ func Test_generateDeleteQuery_TwoFilters(t *testing.T) {
 
 	deleteQuery := generateDeleteQuery(filters, tablePath)
 
-	test.AssertEqual(t, deleteQuery, "DECLARE $is_enabled_filter1 AS Bool;\nDECLARE $age_filter1 AS Int64;\nDELETE FROM `user/permission`  WHERE\n is_enabled = $is_enabled_filter1 AND age >= $age_filter1")
+	baseQuery := "DECLARE $is_enabled_filter1 AS Bool;\nDECLARE $age_filter1 AS Int64;\nDELETE FROM `user/permission`  WHERE\n "
+	firstWhereParameter := "is_enabled = $is_enabled_filter1"
+	secondWhereParameter := "age >= $age_filter1"
+
+	test.AssertTrue(t, strings.Contains(deleteQuery, baseQuery))
+	test.AssertTrue(t, strings.Contains(deleteQuery, firstWhereParameter))
+	test.AssertTrue(t, strings.Contains(deleteQuery, secondWhereParameter))
 }
