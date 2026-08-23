@@ -68,7 +68,7 @@ func MakeYdbDriver() (*ydb.Driver, error) {
 		return nil, err
 	}
 
-	db, err := ydb.Open(ctx, config.DB.ConnectionString)
+	db, err := ydb.Open(ctx, config.DB.ConnectionString, ydb.WithAnonymousCredentials())
 	if err != nil {
 		logger.Log(err.Error(), logger.ALERT)
 

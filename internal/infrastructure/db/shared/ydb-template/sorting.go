@@ -1,12 +1,23 @@
 package ydbtemplate
 
-func addSortingToQuery(yql, sortBy string) string {
+import "strings"
+
+func addSortingToQuery(sb *strings.Builder, sortBy, direction string) {
 	if sortBy == "" {
-		return yql
+		return
 	}
 
-	sortByQuery := "\nORDER BY " + sortBy + "\n"
-	yql += sortByQuery
+	sortByQuery := "\nORDER BY " + sortBy
 
-	return yql
+	switch direction {
+	case ">":
+		sortByQuery += " ASC\n"
+
+	case "<":
+		sortByQuery += " DESC\n"
+	default:
+		sortByQuery += " DESC\n"
+	}
+
+	sb.WriteString(sortByQuery)
 }

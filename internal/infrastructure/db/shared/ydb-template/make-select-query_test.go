@@ -1,6 +1,7 @@
 package ydbtemplate
 
 import (
+	"strings"
 	"testing"
 
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -17,7 +18,7 @@ func Test_GenerateGetQuery_NoFilters(t *testing.T) {
 	tableName := "fooStore"
 	expectedQuery := "SELECT a, b, FROM fooStore "
 
-	query, err := generateGetQuery[Foo]([]ydbfilter.YdbFilter{}, tableName)
+	query, err := generateGetQuery[Foo]([]ydbfilter.YdbFilter{}, "", "", tableName, 0)
 
 	test.AssertNoError(t, err)
 	test.AssertEqual(t, expectedQuery, query)
@@ -39,7 +40,7 @@ func Test_GenerateGetQuery_MissingSqlTag(t *testing.T) {
 		},
 	}
 
-	_, err := generateGetQuery[Foo](filters, tableName)
+	_, err := generateGetQuery[Foo](filters, "", "", tableName, 0)
 
 	test.AssertError(t, err)
 }
@@ -50,7 +51,13 @@ func Test_GenerateGetQuery_TwoFilters(t *testing.T) {
 		b float64 `sql:"b"`
 		c bool
 	}
-	expectedQuery := "DECLARE $a_filter1 AS Utf8;\nDECLARE $b_filter1 AS Double;\nSELECT a, b, FROM fooStore  WHERE\n a > $a_filter1 AND b <= $b_filter1"
+	firstDeclaration := "DECLARE $a_filter1 AS Utf8;\n"
+	secondDeclaration := "DECLARE $b_filter1 AS Double;\n"
+	selectPart := "SELECT a, b, FROM fooStore  WHERE\n"
+	firstWhereArgument := "a > $a_filter1"
+	secondWhereArgument := "b <= $b_filter1"
+
+
 	tableName := "fooStore"
 	filters := []ydbfilter.YdbFilter{
 		{
@@ -65,7 +72,55 @@ func Test_GenerateGetQuery_TwoFilters(t *testing.T) {
 		},
 	}
 
-	query, err := generateGetQuery[Foo](filters, tableName)
+	query, err := generateGetQuery[Foo](filters, "", "", tableName, 0)
+
+	test.AssertNoError(t, err)
+	test.AssertTrue(t, strings.Contains(query, firstDeclaration))
+	test.AssertTrue(t, strings.Contains(query, secondDeclaration))
+	test.AssertTrue(t, strings.Contains(query, selectPart))
+	test.AssertTrue(t, strings.Contains(query, firstWhereArgument))
+	test.AssertTrue(t, strings.Contains(query, secondWhereArgument))
+}
+
+func Test_generatePaginatedGetQuery_Negative_NoSortByParameter(t *testing.T) {
+	type Foo struct{}
+	sortBy := ""
+	pageSize := 5
+
+	_, err := generateGetQuery[Foo]([]ydbfilter.YdbFilter{}, sortBy, "", "", pageSize)
+
+	test.AssertError(t, err)
+}
+
+func Test_generatePaginatedGetQuery_Positive_OnlySorting(t *testing.T) {
+	type Foo struct {
+		Age  int    `sql:"age"`
+		Name string `sql:"name"`
+	}
+	sortBy := "age"
+	sortDirection := "<"
+	pageSize := 0
+	tableName := "user"
+	expectedQuery := "SELECT age, name, FROM user \nORDER BY age DESC\n"
+
+	query, err := generateGetQuery[Foo]([]ydbfilter.YdbFilter{}, sortBy, sortDirection, tableName, pageSize)
+
+	test.AssertNoError(t, err)
+	test.AssertEqual(t, expectedQuery, query)
+}
+
+func Test_generatePaginatedGetQuery_Positive_SortingAndPagination(t *testing.T) {
+	type Foo struct {
+		Age  int    `json:"age" sql:"age"`
+		Name string `sql:"name"`
+	}
+	sortBy := "age"
+	sortDirection := "<"
+	pageSize := 5
+	tableName := "user"
+	expectedQuery := "$pageSize = 5;\nSELECT age, name, FROM user \nORDER BY age DESC\n\nLIMIT $pageSize;"
+
+	query, err := generateGetQuery[Foo]([]ydbfilter.YdbFilter{}, sortBy, sortDirection, tableName, pageSize)
 
 	test.AssertNoError(t, err)
 	test.AssertEqual(t, expectedQuery, query)

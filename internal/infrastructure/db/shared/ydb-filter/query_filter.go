@@ -3,6 +3,7 @@ package ydbfilter
 import (
 	"errors"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -17,13 +18,17 @@ func MapQueryFiltersToYdb[API any](filters map[string][]string) ([]YdbFilter, er
 	ydbFilters := []YdbFilter{}
 
 	for parameter, queryValues := range filters {
+		if slices.Contains([]string{"sortBy", "pageSize"}, parameter) {
+			logger.Log("Skipping the "+parameter+"parameter in the filter mapping operation because it is handled elsewhere", logger.INFORMATION)
+			continue
+		}
 		for _, queryValue := range queryValues {
 			values := strings.Split(queryValue, ",") //We assume that any given query parameter has only 1 string
 			//The parameter must contain at least two parameters: 1) the condition, 2) the filter value
 			if len(values) < 2 || values[1] == "" {
 				return ydbFilters, errors.New("Expected at least two comma-delineated parameters in the query value: " + parameter + ": " + queryValue)
 			}
-			filter, err := convertQueryParamToYdbFilter[API](parameter, values)
+			filter, err := ConvertQueryParamToYdbFilter[API](parameter, values)
 			if err != nil {
 				logger.Log(err.Error(), logger.ERROR)
 				continue
@@ -35,8 +40,8 @@ func MapQueryFiltersToYdb[API any](filters map[string][]string) ([]YdbFilter, er
 	return ydbFilters, nil
 }
 
-func convertQueryParamToYdbFilter[API any](parameter string, values []string) (YdbFilter, error) {
-	var jsonEntity API
+func ConvertQueryParamToYdbFilter[DTO any](parameter string, values []string) (YdbFilter, error) {
+	var jsonEntity DTO
 	jsonReflection := reflect.ValueOf(jsonEntity)
 	for i := 0; i < jsonReflection.NumField(); i++ {
 		jsonTagValue, found := jsonReflection.Type().Field(i).Tag.Lookup("json")
@@ -92,11 +97,11 @@ func mapQueryValuesToYdbFilterValues(condition YdbFilterCondition, values []stri
 		return parseArrayFromQueryParameters(values, typeName)
 	}
 
-	ydbTypeValue, err := convertParameterToYdbTypeValue(typeName, values[0])
+	ydbTypeValue, err := ConvertParameterToYdbTypeValue(typeName, values[0])
 	return ydbTypeValue, err
 }
 
-func convertParameterToYdbTypeValue(typeName string, value string) (types.Value, error) {
+func ConvertParameterToYdbTypeValue(typeName string, value string) (types.Value, error) {
 	switch typeName {
 	case "bool":
 		b, err := strconv.ParseBool(value)
@@ -147,7 +152,7 @@ func parseArrayFromQueryParameters(values []string, typeName string) (types.Valu
 	ydbValues := make([]types.Value, len(values))
 
 	for i := range values {
-		ydbTypeValue, err := convertParameterToYdbTypeValue(typeName, values[i])
+		ydbTypeValue, err := ConvertParameterToYdbTypeValue(typeName, values[i])
 		if err != nil {
 			return types.NullValue(types.TypeBool), err
 		}

@@ -13,7 +13,7 @@ type TransactionDto struct {
 	AccountId    uuid.UUID `json:"accountId"`
 	Figi         string    `json:"figi"`
 	Type         string    `json:"type"`
-	Timestamp    time.Time `json:"timestamp"`
+	Timestamp    time.Time `json:"timestamp" sql:"timestamp"`
 	Side         string    `json:"side"`
 	Quantity     float64   `json:"quantity"`
 	PricePerUnit float64   `json:"pricePerUnit"`
