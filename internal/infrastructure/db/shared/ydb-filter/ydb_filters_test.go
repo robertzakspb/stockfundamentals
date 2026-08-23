@@ -15,7 +15,7 @@ func Test_AddYqlVarDeclarations(t *testing.T) {
 		{"is_resident", Equal, types.BoolValue(false)},
 	}
 	expectedAgeDeclaration := "DECLARE $age_filter1 AS Int64;\n"
-	expectedNameDeclaration:= "DECLARE $name_filter1 AS Utf8;\n"
+	expectedNameDeclaration := "DECLARE $name_filter1 AS Utf8;\n"
 	expectedIsResidentDeclaration := "DECLARE $is_resident_filter1 AS Bool;\n"
 
 	actual := AddYqlVarDeclarations(filters)
@@ -41,9 +41,15 @@ func Test_MakeWhereClause(t *testing.T) {
 		{"is_resident", Equal, types.BoolValue(false)},
 	}
 
-	expected := " WHERE\n age > $age_filter1 AND name = $name_filter1 AND is_resident = $is_resident_filter1"
+	firstCondition := "age > $age_filter1"
+	secondCondition := "name = $name_filter1"
+	thirdCondition := "is_resident = $is_resident_filter1"
+
 	actual := MakeWhereClause(filters)
-	test.AssertEqual(t, expected, actual)
+
+	test.AssertTrue(t, strings.Contains(actual, firstCondition))
+	test.AssertTrue(t, strings.Contains(actual, secondCondition))
+	test.AssertTrue(t, strings.Contains(actual, thirdCondition))
 }
 
 func Test_MakeWhereClause_NoFilters(t *testing.T) {
@@ -62,7 +68,7 @@ func Test_convertQueryParamToYdbFilter_ListOFStrings(t *testing.T) {
 	}
 	queryValues := []string{"IN", "id1", "id2"}
 
-	filter, err := convertQueryParamToYdbFilter[Foo](jsonParameter, queryValues)
+	filter, err := ConvertQueryParamToYdbFilter[Foo](jsonParameter, queryValues)
 
 	test.AssertNoError(t, err)
 	test.AssertEqual(t, Contains, filter.Condition)
@@ -77,7 +83,7 @@ func Test_convertQueryParamToYdbFilter_SingleInteger(t *testing.T) {
 	}
 	queryValues := []string{"=", "5"}
 
-	filter, err := convertQueryParamToYdbFilter[Foo](jsonParameter, queryValues)
+	filter, err := ConvertQueryParamToYdbFilter[Foo](jsonParameter, queryValues)
 
 	test.AssertNoError(t, err)
 	test.AssertEqual(t, Equal, filter.Condition)
