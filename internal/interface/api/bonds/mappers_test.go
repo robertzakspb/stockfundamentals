@@ -35,8 +35,8 @@ func Test_mapBondsToDTOs(t *testing.T) {
 			CallOptionExerciseDate:  time.Now(),
 			SimpleYieldToMaturity:   14.3,
 			SimpleYieldToCallOption: 8.3,
-			YieldTomaturity: 25.6,
-			QuoteInPercentage: 90.3,
+			YieldTomaturity:         25.6,
+			QuoteInPercentage:       90.3,
 			Coupons: []bonds.Coupon{
 				{
 					Figi:            "testFigi",
@@ -77,6 +77,7 @@ func Test_mapBondsToDTOs(t *testing.T) {
 	test.AssertEqual(t, 14.3, mappedDtos[0].SimpleYieldToMaturity)
 	test.AssertEqual(t, 25.6, mappedDtos[0].Ytm)
 	test.AssertEqual(t, 90.3, mappedDtos[0].QuoteInPercentage)
+	test.AssertEqual(t, 0.11406423034330011, mappedDtos[0].CurrentCouponYield)
 
 	test.AssertEqual(t, 1, len(mappedDtos[0].Coupons))
 

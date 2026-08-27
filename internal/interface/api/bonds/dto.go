@@ -38,6 +38,7 @@ type BondDTO struct {
 	Ytm                     float64     `json:"ytm"`
 	QuoteInPercentage       float64     `json:"quoteInPercentage"`
 	Coupons                 []CouponDTO `json:"coupons"`
+	CurrentCouponYield      float64     `json:"currentCouponYield"`
 }
 
 type CouponDTO struct {

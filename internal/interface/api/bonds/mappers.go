@@ -45,6 +45,7 @@ func mapBondsToDTOs(bondList []bonds.Bond, includeCoupons bool) []BondDTO {
 			SimpleYieldToCallOption: bondList[i].SimpleYieldToCallOption,
 			QuoteInPercentage:       bondList[i].QuoteInPercentage,
 			Ytm:                     bondList[i].YieldTomaturity,
+			CurrentCouponYield:      bondList[i].CurrentCouponYield(),
 		}
 		if includeCoupons {
 			bondDto.Coupons = mapCouponsToCouponDTOs(bondList[i].Coupons)
