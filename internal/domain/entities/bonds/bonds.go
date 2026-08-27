@@ -168,20 +168,20 @@ func (b *Bond) IsBondWithDifferentNominalCurrencyAndCurrency() bool {
 }
 
 func (b *Bond) MarketValue(quoteAsPercentage, fxRate float64) float64 {
-	mv := b.MarketPriceInCurrency() + b.AccruedInterest
+	mv := b.MarketPriceInCurrency(quoteAsPercentage) + b.AccruedInterest
 	mvInCurrency := mv * fxRate
 	return mvInCurrency
 }
 
-func (b *Bond) MarketPriceInCurrency() float64 {
-	marketPriceInCurrency := b.QuoteInPercentage * b.NominalValue / 100
+func (b *Bond) MarketPriceInCurrency(quoteAsPercentage float64) float64 {
+	marketPriceInCurrency := quoteAsPercentage * b.NominalValue / 100
 	return marketPriceInCurrency
 }
 
 func (b *Bond) CurrentCouponYield() float64 {
-	if len(b.Coupons) == 0 {
+	if len(b.Coupons) == 0 || b.MarketPriceInCurrency(b.QuoteInPercentage) == 0 {
 		return 0
 	}
-	currentCouponYield := float64(b.CouponCountPerYear) * b.Coupons[0].PerBondAmount / b.MarketPriceInCurrency()
+	currentCouponYield := float64(b.CouponCountPerYear) * b.Coupons[0].PerBondAmount / b.MarketPriceInCurrency(b.QuoteInPercentage)
 	return currentCouponYield
 }

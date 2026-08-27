@@ -193,27 +193,28 @@ func Test_IsRubleBond_Positive(t *testing.T) {
 
 func generateMockValidBond() Bond {
 	bond := Bond{
-		Id:                     uuid.New(),
-		Figi:                   "testFigi",
-		Isin:                   "testIsin",
-		Lot:                    10,
-		Currency:               "USD",
-		CouponCountPerYear:     10,
-		MaturityDate:           time.Now(),
-		NominalValue:           1000,
-		NominalCurrency:        "EUR",
-		InitialNominalValue:    1000,
-		InitialNominalCurrency: "EUR",
-		PlacementPrice:         1005,
-		PlacementCurrency:      "EUR",
-		AccruedInterest:        10,
-		IssueSize:              1_000_000,
-		IssueSizePlan:          5_000_000,
-		RiskLevel:              HIGH_RISK_LEVEL,
-		BondType:               BondType_BOND_TYPE_UNSPECIFIED,
-		CallOptionExerciseDate: time.Now(),
-		SimpleYieldToMaturity:        14.3,
-		SimpleYieldToCallOption:      8.3,
+		Id:                      uuid.New(),
+		Figi:                    "testFigi",
+		Isin:                    "testIsin",
+		Lot:                     10,
+		Currency:                "USD",
+		CouponCountPerYear:      10,
+		MaturityDate:            time.Now(),
+		NominalValue:            1000,
+		NominalCurrency:         "EUR",
+		InitialNominalValue:     1000,
+		InitialNominalCurrency:  "EUR",
+		PlacementPrice:          1005,
+		PlacementCurrency:       "EUR",
+		AccruedInterest:         10,
+		IssueSize:               1_000_000,
+		IssueSizePlan:           5_000_000,
+		RiskLevel:               HIGH_RISK_LEVEL,
+		BondType:                BondType_BOND_TYPE_UNSPECIFIED,
+		CallOptionExerciseDate:  time.Now(),
+		SimpleYieldToMaturity:   14.3,
+		SimpleYieldToCallOption: 8.3,
+		QuoteInPercentage:       90.3,
 		Coupons: []Coupon{
 			{
 				Figi:            "testFigi",
@@ -229,4 +230,16 @@ func generateMockValidBond() Bond {
 	}
 
 	return bond
+}
+
+func Test_CurrentCouponYield_Positive(t *testing.T) {
+	bond := generateMockValidBond()
+
+	test.AssertEqual(t, 0.11406423034330011, bond.CurrentCouponYield())
+}
+
+func Test_MarketPriceInCurrency_Positive(t *testing.T) {
+	bond := generateMockValidBond()
+
+	test.AssertEqual(t, 903, bond.MarketPriceInCurrency(90.3))
 }
