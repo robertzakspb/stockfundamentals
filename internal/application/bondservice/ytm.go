@@ -26,7 +26,7 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 
 	var quotes []entity.BondQuote
 	wg.Go(func() {
-		quotes, err = quoteservice.GetCachedAndExternalBondQuotes(bondList)
+		quotes, err = quoteservice.FetchBondQuotes(ExtractBondFigis(&bondList))
 		if err != nil {
 			logger.LogError(err, logger.ERROR)
 		}
@@ -89,6 +89,7 @@ func CalculateYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []entity.Bond
 					logger.Log(err.Error(), logger.ERROR)
 				}
 				bondList[i].SimpleYieldToMaturity = ytm
+				bondList[i].YieldTomaturity = quote.GetYtm()
 			}
 		}
 	}
