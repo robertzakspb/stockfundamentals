@@ -38,7 +38,6 @@ func FetchBondQuotes(figis []string) ([]entity.BondQuote, error) {
 					logger.Log(errorList[i].Error(), logger.ERROR)
 				}
 			}
-			logger.Log("Failed to fetch bond quotes due to: "+errorList[0].Error(), logger.ERROR)
 		}
 		bondQuotes = append(bondQuotes, quotes...)
 	}
