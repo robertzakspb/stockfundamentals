@@ -15,15 +15,15 @@ type AccountMarketValue struct {
 }
 
 type Return struct {
-	AccountId                uuid.UUID `json:"accountId" sql:"account_id"`
-	Currency                 string
-	AbsoluteReturn           float64
-	AbsoluteReturnPercentage float64   //12% would be set as 0.12
-	AnnualizedReturnPercentage         float64   //12% would be set as 0.12
-	StartDate                time.Time `json:"startDate" sql:"date"`
-	EndDate                  time.Time `json:"endDate" sql:"date"`
-	StartDateMV              float64
-	EndDateMV                float64
+	AccountId                  uuid.UUID `json:"accountId" sql:"account_id"`
+	Currency                   string
+	AbsoluteReturn             float64
+	AbsoluteReturnPercentage   float64   //12% would be set as 0.12
+	AnnualizedReturnPercentage float64   //12% would be set as 0.12
+	StartDate                  time.Time `json:"startDate"`
+	EndDate                    time.Time `json:"endDate"`
+	StartDateMV                float64
+	EndDateMV                  float64
 }
 
 // Returns the difference between two market values along with the currency
@@ -38,14 +38,14 @@ func CalculateAccountReturn(accountId uuid.UUID, startDateMV, endDateMV AccountM
 	annualizedReturn := compoundinterest.CalcAnnualizedReturn(absoluteReturnPercentage, startDateMV.Date, endDateMV.Date)
 
 	return Return{
-		AccountId:                accountId,
-		Currency:                 startDateMV.Currency,
-		AbsoluteReturn:           absoluteReturn,
-		AbsoluteReturnPercentage: absoluteReturnPercentage,
-		AnnualizedReturnPercentage:         annualizedReturn,
-		StartDate:                startDateMV.Date,
-		EndDate:                  endDateMV.Date,
-		StartDateMV:              startDateMV.EodValue,
-		EndDateMV:                endDateMV.EodValue,
+		AccountId:                  accountId,
+		Currency:                   startDateMV.Currency,
+		AbsoluteReturn:             absoluteReturn,
+		AbsoluteReturnPercentage:   absoluteReturnPercentage,
+		AnnualizedReturnPercentage: annualizedReturn,
+		StartDate:                  startDateMV.Date,
+		EndDate:                    endDateMV.Date,
+		StartDateMV:                startDateMV.EodValue,
+		EndDateMV:                  endDateMV.EodValue,
 	}
 }
