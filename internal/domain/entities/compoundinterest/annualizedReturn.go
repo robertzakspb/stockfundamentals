@@ -12,6 +12,9 @@ func CalcAnnualizedReturn(totalReturnPercentage float64, startDate, endDate time
 	}
 
 	daysHeld := endDate.Sub(startDate).Hours() / 24
+	if daysHeld == 0 {
+		return -1
+	}
 	annualizedReturn := math.Pow(1+totalReturnPercentage, 365/daysHeld) - 1
 
 	return annualizedReturn
