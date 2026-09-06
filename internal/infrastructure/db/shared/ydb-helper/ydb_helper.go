@@ -28,7 +28,7 @@ func ConvertUUIDsToYdbList(uuids []uuid.UUID) types.Value {
 	return types.ListValue(uuidValues...)
 }
 
-func ConvertTimestampsToYdbDates(timestamps []time.Time) types.Value {
+func ConvertTimestampsToYdbDates(timestamps ...time.Time) types.Value {
 	dateValues := make([]types.Value, len(timestamps))
 	for i := range timestamps {
 		dateValues[i] = ConvertToYdbDate(timestamps[i])

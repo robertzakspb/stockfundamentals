@@ -31,9 +31,7 @@ func Test_ConverTimestampsToYdbDates(t *testing.T) {
 	date1, _ := timehelpers.DateFromISOstring("2026-05-03")
 	date2, _ := timehelpers.DateFromISOstring("2026-05-10")
 
-	timestamps := []time.Time{date1, date2}
-
-	ydbDates := ConvertTimestampsToYdbDates(timestamps)
+	ydbDates := ConvertTimestampsToYdbDates(date1, date2)
 
 	test.AssertEqual(t, "[Date(\"2026-05-03\"),Date(\"2026-05-10\")]", ydbDates.Yql())
 }
