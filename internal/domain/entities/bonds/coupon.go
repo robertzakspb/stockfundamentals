@@ -67,7 +67,7 @@ func TotalCouponIncome(coupons []Coupon, includePastCoupons bool, includeCoupons
 	totalCouponIncome := 0.0
 	for _, coupon := range coupons {
 		//Disregarding past coupons if not necessary
-		if includePastCoupons == false && coupon.CouponDate.Before(time.Now()) {
+		if !includePastCoupons && coupon.CouponDate.Before(time.Now()) {
 			continue
 		}
 		//Ensuring we don't include coupons past the target date
