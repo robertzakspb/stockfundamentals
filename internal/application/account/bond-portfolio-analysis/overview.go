@@ -27,7 +27,9 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 	sb.WriteString(timehelpers.DateInDDMMYYYFormat(time.Now()))
 	sb.WriteString(": ")
 
-	accountReturn, err := accountmvservice.GetAccountReturn(filters, "RUB")
+	//Hardcoding the values for the VTB account. Fix this and fetch the values from the DB
+	vtbStartDate := time.Date(2026, 3, 2, 0, 0, 0, 0, time.UTC)
+	accountReturn, err := accountmvservice.GetAccountReturn(filters, "RUB", vtbStartDate, time.Now())
 	if err != nil {
 		return sb.String(), err
 	}
@@ -56,7 +58,7 @@ func GeneratePortfolioOverview(filters []ydbfilter.YdbFilter) (string, error) {
 	sb.WriteString("\n")
 	for _, mv := range mvs {
 		//Adding the current profit in the required currencies
-		accountReturn, err := accountmvservice.GetAccountReturn(filters, mv.Currency)
+		accountReturn, err := accountmvservice.GetAccountReturn(filters, mv.Currency, vtbStartDate, time.Now())
 		if err != nil {
 			return "", err
 		}

@@ -48,6 +48,8 @@ func (b Bond) CalcSimpleYieldToCallOption(coupons []Coupon, marketPrice float64)
 	return yield, nil
 }
 
+
+
 func calculateSimpleYield(b Bond, coupons []Coupon, marketPricePercentage float64, acquisitionDate, redemptionDate, latestCouponDate time.Time) (float64, error) {
 	if len(coupons) == 0 {
 		return -1, errors.New("Failed to calculate the yield due to missing coupons")
@@ -72,6 +74,8 @@ func calculateSimpleYield(b Bond, coupons []Coupon, marketPricePercentage float6
 	return yield, nil
 }
 
+//TODO: Refactor
+//American formula that assumes semi-annual compounding. Must be modified to account for monthly/quarterly coupons (i.e be universal)
 func calculateYTM(b Bond, coupons []Coupon, marketPricePercentage float64, acquisitionDate, redemptionDate time.Time) (float64, error) {
 	if len(coupons) == 0 {
 		return -1, errors.New("Failed to calculate the yield due to missing coupons")

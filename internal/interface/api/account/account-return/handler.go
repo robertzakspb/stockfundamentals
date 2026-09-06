@@ -2,6 +2,7 @@ package accountreturnapi
 
 import (
 	"net/http"
+	"time"
 
 	bondportfolioanalysis "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio-analysis"
 	accountmvservice "github.com/compoundinvest/stockfundamentals/internal/application/account/market-value"
@@ -18,7 +19,21 @@ func GetAccountReturn(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return
 	}
-	accountReturn, err := accountmvservice.GetAccountReturn(parsedFilters, "RUB")
+
+	startDateStr, err := shared.GetFromQueryParams("startDate", c.Request.URL.Query())
+	endDateStr, err := shared.GetFromQueryParams("endDate", c.Request.URL.Query())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
+		return
+	}
+	startDate, err := time.Parse(time.RFC3339, startDateStr)
+	endDate, err := time.Parse(time.RFC3339, endDateStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
+		return
+	}
+
+	accountReturn, err := accountmvservice.GetAccountReturn(parsedFilters, "RUB", startDate, endDate)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
 		return

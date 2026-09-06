@@ -1,13 +1,23 @@
 package accountmvservice
 
 import (
+	"time"
+
 	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
 	accountmvdb "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/account/market-value"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
 	timehelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/time-helpers"
 )
 
-func GetAccountReturn(filters []ydbfilter.YdbFilter, currency string) (accountmvdomain.Return, error) {
+func GetAccountReturn(filters []ydbfilter.YdbFilter, currency string, startDate, endDate time.Time) (accountmvdomain.Return, error) {
+	startDateAndEndDateFilter := ydbfilter.YdbFilter{
+		YqlColumnName: "date",
+		Condition: ydbfilter.Contains,
+		ConditionValue: ydbhelper.ConvertTimestampsToYdbDates(startDate, endDate),
+	}
+	filters = append(filters, startDateAndEndDateFilter)
+
 	dbMarketValues, err := accountmvdb.GetAccountMarketValues(filters)
 	if err != nil {
 		return accountmvdomain.Return{}, err
