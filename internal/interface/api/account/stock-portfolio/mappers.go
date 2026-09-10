@@ -22,21 +22,22 @@ func MapLotsToDtos(lots []lot.Lot) []LotDto {
 func mapLotToDto(lot lot.Lot) LotDto {
 	mv, _ := lot.MarketValue()
 	dto := LotDto{
-		Id:            lot.Id,
-		CreatedAt:     lot.CreatedAt,
-		UpdatedAt:     lot.UpdatedAt,
-		Quantity:      lot.Quantity,
-		PricePerUnit:  lot.PricePerUnit,
-		Currency:      lot.Currency,
-		AccountId:     lot.AccountId,
-		Figi:          lot.Figi,
-		Quote:         lot.Quote,
-		CurrentPL:     lot.CurrentPL(),
-		CurrentReturn: lot.CurrentReturn(),
-		MarketValue:   mv,
-		Isin:          lot.Stock.Isin,
-		Ticker:        lot.Stock.Ticker,
-		IsClosed:      lot.IsClosed,
+		Id:               lot.Id,
+		CreatedAt:        lot.CreatedAt,
+		UpdatedAt:        lot.UpdatedAt,
+		Quantity:         lot.Quantity,
+		PricePerUnit:     lot.PricePerUnit,
+		Currency:         lot.Currency,
+		AccountId:        lot.AccountId,
+		Figi:             lot.Figi,
+		Quote:            lot.Quote,
+		CurrentPL:        lot.CurrentPL(),
+		CurrentReturn:    lot.CurrentReturn(),
+		AnnualizedReturn: lot.AnnualizedReturn(),
+		MarketValue:      mv,
+		Isin:             lot.Stock.Isin,
+		Ticker:           lot.Stock.Ticker,
+		IsClosed:         lot.IsClosed,
 	}
 
 	return dto

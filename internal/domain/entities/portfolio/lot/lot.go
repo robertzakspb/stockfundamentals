@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/compoundinterest"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 	"github.com/google/uuid"
@@ -79,22 +80,29 @@ func (lot *Lot) MergeWith(newLot Lot) (Lot, error) {
 	return validatedLot, err
 }
 
-// Returns the current profit on the lot given a quote (expressed as a percentage)
-func (lot Lot) CurrentReturn() float64 {
+// Returns the current non-annualized return on the lot
+func (lot *Lot) CurrentReturn() float64 {
 	if lot.PricePerUnit == 0 {
 		return 0
 	}
 	return (lot.Quote - lot.PricePerUnit) / lot.PricePerUnit
 }
 
-func (lot Lot) CurrentPL() float64 {
+// Returns the current annualized return on the lot
+func (lot *Lot) AnnualizedReturn() float64 {
+	annualizedReturn := compoundinterest.CalcAnnualizedReturn(lot.CurrentReturn(), lot.CreatedAt, time.Now())
+	return annualizedReturn
+}
+
+// Returns the current unrealized profit on the lot in monetary terms
+func (lot *Lot) CurrentPL() float64 {
 	if lot.PricePerUnit == 0 {
 		return 0
 	}
 	return (lot.Quote - lot.PricePerUnit) * lot.Quantity
 }
 
-func (lot Lot) MarketValue() (float64, error) {
+func (lot *Lot) MarketValue() (float64, error) {
 	if lot.Quote == 0 {
 		logger.Log("Quote is 0 for position "+lot.Figi, logger.ERROR)
 		return -1, errors.New("Missing quote for position " + lot.Figi)
@@ -102,3 +110,4 @@ func (lot Lot) MarketValue() (float64, error) {
 
 	return lot.Quantity * lot.Quote, nil
 }
+
