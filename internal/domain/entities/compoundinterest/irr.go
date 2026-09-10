@@ -10,7 +10,7 @@ import (
 
 const initialGuess = 0.2
 const accuracy = 0.00000001
-const maxIterations = 50
+const maxIterations = 30
 
 //Nice write-up on IRR: https://medium.com/@_orcaman/package-financial-for-golang-the-math-behind-the-irr-function-1eedf225d9f
 //XIRR formula in LibreOffice: https://wiki.openoffice.org/wiki/Documentation/How_Tos/Calc:_XIRR_function
