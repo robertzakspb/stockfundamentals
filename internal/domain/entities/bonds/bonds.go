@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
+	timehelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/time-helpers"
 	"github.com/google/uuid"
 )
 
@@ -44,8 +45,9 @@ type Bond struct {
 	CallOptionExerciseDate  time.Time
 	Coupons                 []Coupon
 	SimpleYieldToMaturity   float64
-	YieldTomaturity         float64
 	SimpleYieldToCallOption float64
+	YieldTomaturity         float64
+	YieldToCallOption       float64
 	MarketValueInRUB        float64
 	QuoteInPercentage       float64
 }
@@ -78,8 +80,8 @@ var (
 type BondType int
 
 const (
-	BondType_BOND_TYPE_UNSPECIFIED BondType = 0 // Тип облигации не определен.
-	BondType_BOND_TYPE_REPLACED    BondType = 1 // Замещающая облигация.
+	BondType_BOND_TYPE_UNSPECIFIED BondType = 0
+	BondType_BOND_TYPE_REPLACED    BondType = 1 // Replaced bonds (2022)
 )
 
 // Enum value maps for BondType.
@@ -178,10 +180,109 @@ func (b *Bond) MarketPriceInCurrency(quoteAsPercentage float64) float64 {
 	return marketPriceInCurrency
 }
 
+func (b *Bond) HasFixedCoupon() (bool, error) {
+	if len(b.Coupons) < 1 {
+		return false, errors.New("Unable to determine whether a bond has a fixed coupon due to missing coupons")
+	}
+
+	isFixedCoupon := b.Coupons[0].CouponType == CouponType_COUPON_TYPE_FIX || b.Coupons[0].CouponType == CouponType_COUPON_TYPE_CONSTANT
+	return isFixedCoupon, nil
+}
+
 func (b *Bond) CurrentCouponYield() float64 {
 	if len(b.Coupons) == 0 || b.MarketPriceInCurrency(b.QuoteInPercentage) == 0 {
 		return 0
 	}
+	hasFixedCoupon, err := b.HasFixedCoupon()
+	if err != nil || !hasFixedCoupon {
+		return 0
+	}
 	currentCouponYield := float64(b.CouponCountPerYear) * b.Coupons[0].PerBondAmount / b.MarketPriceInCurrency(b.QuoteInPercentage)
 	return currentCouponYield
+}
+
+// Returns the sum total of all future coupon payments.
+func (b *Bond) TotalFutureCoupons(onlyTillCallOptionExerciseDate bool) (float64, error) {
+	if len(b.Coupons) == 0 {
+		return -1, errors.New("Unable to calculate cumulative cashflows due to missing coupons")
+	}
+	isFixed, err := b.HasFixedCoupon()
+	if err != nil {
+		return -1, err
+	}
+	if !isFixed {
+		return -1, errors.New("Cashflows can be calculated only for fixed or constant coupons")
+	}
+
+	var tillDate time.Time
+	if onlyTillCallOptionExerciseDate {
+		tillDate = b.CallOptionExerciseDate
+	} else {
+		tillDate = b.MaturityDate
+	}
+	futureCoupons := TotalCouponIncome(b.Coupons, false, tillDate)
+
+	return futureCoupons, nil
+}
+
+// Returns the sum total of all future cash flows of a bond if it were purchased today, including redemption, adjusted for the accrued interest for maximum accuracy
+func (b *Bond) TotalFutureCashflows(onlyTillCallOptionExerciseDate bool, quote float64) (float64, error) {
+	futureCashFlows := 0.0
+	futureCashFlows += -(quote + b.AccruedInterest) //The full market price of the bond
+
+	futureCoupons, err := b.TotalFutureCoupons(onlyTillCallOptionExerciseDate)
+	if err != nil {
+		return futureCoupons, err
+	}
+	futureCashFlows += futureCoupons
+
+	futureCashFlows += b.NominalValue
+
+	return futureCashFlows, nil
+}
+
+func (b *Bond) FutureCouponsTillDate(tillDate time.Time) ([]Coupon, error) {
+	if len(b.Coupons) == 0 {
+		return []Coupon{}, errors.New("Unable to get future coupons due to missing coupons")
+	}
+	coupons := []Coupon{}
+
+	for i := range b.Coupons {
+		cd := b.Coupons[i].CouponDate
+		//Skipping the past coupons and coupons past the provided latest date
+		if timehelpers.DateIsEarlierOrSameDate(cd, time.Now()) || timehelpers.DateIsLater(cd, tillDate) {
+
+			continue
+		}
+		coupons = append(coupons, b.Coupons[i])
+	}
+	return coupons, nil
+}
+
+// Returns all cashflows of a bond, starting from its acquisition on the provided date and ending with redemption on the maturity date or call option exercise date
+func (b *Bond) FutureCashflowsWithDates(onlyTillCallOptionExerciseDate bool, quote float64, acquisitionDate time.Time) (cashflows []float64, dates []time.Time, err error) {
+	cashflows = append(cashflows, -(quote + b.AccruedInterest)) //Full market price of the bond
+	dates = append(dates, acquisitionDate)                                 //THe date on which the bond is to be acquired
+
+	//Adding each future coupon to the cashflow stream
+	var tillDate time.Time
+	if onlyTillCallOptionExerciseDate {
+		tillDate = b.CallOptionExerciseDate
+	} else {
+		tillDate = b.MaturityDate
+	}
+	coupons, err := b.FutureCouponsTillDate(tillDate)
+	if err != nil {
+		return cashflows, dates, err
+	}
+	for i := range coupons {
+		cashflows = append(cashflows, coupons[i].PerBondAmount)
+		dates = append(dates, coupons[i].CouponDate)
+	}
+
+	//Adding the redemption
+	cashflows = append(cashflows, b.NominalValue)
+	dates = append(dates, tillDate)
+
+	return cashflows, dates, nil
 }
