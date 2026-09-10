@@ -16,7 +16,7 @@ func Test_InternalRateOfReturn_GovernmentBond(t *testing.T) {
 	cashFlows := []float64{-(marketPrice + acruedInterest), coupon, coupon, coupon, coupon, coupon, coupon, nominalPrice}
 
 	dates := []time.Time{}
-	dates = append(dates, time.Now())
+	dates = append(dates, time.Date(2026, 9, 7, 0, 0, 0, 0, time.UTC))
 	dates = append(dates, time.Date(2026, 9, 16, 0, 0, 0, 0, time.UTC))
 	dates = append(dates, time.Date(2027, 3, 17, 0, 0, 0, 0, time.UTC))
 	dates = append(dates, time.Date(2027, 9, 15, 0, 0, 0, 0, time.UTC))
