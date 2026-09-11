@@ -3,6 +3,7 @@ package portfolioapi
 import (
 	stockportfolio "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
 
 func mapPortfolioToDto(portfolio stockportfolio.Portfolio) PortfolioDto {
@@ -21,6 +22,10 @@ func MapLotsToDtos(lots []lot.Lot) []LotDto {
 
 func mapLotToDto(lot lot.Lot) LotDto {
 	mv, _ := lot.MarketValue()
+	annualizedReturn, err := lot.AnnualizedReturn()
+	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
+	}
 	dto := LotDto{
 		Id:               lot.Id,
 		CreatedAt:        lot.CreatedAt,
@@ -33,7 +38,7 @@ func mapLotToDto(lot lot.Lot) LotDto {
 		Quote:            lot.Quote,
 		CurrentPL:        lot.CurrentPL(),
 		CurrentReturn:    lot.CurrentReturn(),
-		AnnualizedReturn: lot.AnnualizedReturn(),
+		AnnualizedReturn: annualizedReturn,
 		MarketValue:      mv,
 		Isin:             lot.Stock.Isin,
 		Ticker:           lot.Stock.Ticker,

@@ -89,9 +89,13 @@ func (lot *Lot) CurrentReturn() float64 {
 }
 
 // Returns the current annualized return on the lot
-func (lot *Lot) AnnualizedReturn() float64 {
-	annualizedReturn := compoundinterest.CalcAnnualizedReturn(lot.CurrentReturn(), lot.CreatedAt, time.Now())
-	return annualizedReturn
+func (lot *Lot) AnnualizedReturn() (float64, error) {
+	annualizedReturn, err := compoundinterest.CalcAnnualizedReturn(lot.CurrentReturn(), lot.CreatedAt, time.Now())
+	if err != nil {
+		return -1, err
+	}
+
+	return annualizedReturn, nil
 }
 
 // Returns the current unrealized profit on the lot in monetary terms
@@ -110,4 +114,3 @@ func (lot *Lot) MarketValue() (float64, error) {
 
 	return lot.Quantity * lot.Quote, nil
 }
-

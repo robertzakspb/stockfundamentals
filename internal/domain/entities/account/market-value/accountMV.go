@@ -35,7 +35,7 @@ func CalculateAccountReturn(accountId uuid.UUID, startDateMV, endDateMV AccountM
 		absoluteReturnPercentage = absoluteReturn / startDateMV.EodValue
 	}
 
-	annualizedReturn := compoundinterest.CalcAnnualizedReturn(absoluteReturnPercentage, startDateMV.Date, endDateMV.Date)
+	annualizedReturn, _ := compoundinterest.CalcAnnualizedReturn(absoluteReturnPercentage, startDateMV.Date, endDateMV.Date)
 
 	return Return{
 		AccountId:                  accountId,

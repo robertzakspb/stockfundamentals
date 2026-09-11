@@ -91,7 +91,7 @@ func generateAccountReturnOverview(sb *strings.Builder, accountReturn accountmvd
 		sb.WriteString(") ")
 	} else {
 		sb.WriteString("; или ")
-		annualized := compoundinterest.CalcAnnualizedReturn(accountReturn.AbsoluteReturnPercentage, accountReturn.StartDate, accountReturn.EndDate)
+		annualized, _ := compoundinterest.CalcAnnualizedReturn(accountReturn.AbsoluteReturnPercentage, accountReturn.StartDate, accountReturn.EndDate)
 		annualizedFormatted, _ := stringhelpers.BeatufityPercentage(annualized)
 		sb.WriteString(annualizedFormatted)
 		sb.WriteString(" годовых). ")
