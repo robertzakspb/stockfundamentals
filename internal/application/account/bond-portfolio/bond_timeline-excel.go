@@ -15,7 +15,7 @@ func GenerateTimeLineExcel() error {
 	f := excelize.NewFile()
 	defer func() {
 		if err := f.Close(); err != nil {
-			fmt.Println(err)
+			logger.Log(err.Error(), logger.ERROR)
 		}
 	}()
 
@@ -47,8 +47,8 @@ func GenerateTimeLineExcel() error {
 
 	timeline, err := generateTimeLineForLots(lots, false)
 
-	currentRow := 2 //The first row is reserved for headers
-	currentRow = EnterTimelineInformationIntoSpreadsheet(f, timeline, currentRow)
+	currentRow := 2 //The first row is reserved for headers; count starts from 1
+	EnterTimelineInformationIntoSpreadsheet(f, timeline, currentRow)
 
 	if err := f.SaveAs("Portfolio_Calendar.xlsx"); err != nil {
 		logger.Log(err.Error(), logger.ERROR)
@@ -56,7 +56,7 @@ func GenerateTimeLineExcel() error {
 	return nil
 }
 
-func EnterTimelineInformationIntoSpreadsheet(f *excelize.File, timeline []TimeLineItem, currentRow int) int {
+func EnterTimelineInformationIntoSpreadsheet(f *excelize.File, timeline []TimeLineItem, currentRow int) {
 	totalRubPayout := 0.0
 	totalRubTaxes := 0.0
 	totalUsdPayout := 0.0
@@ -119,6 +119,4 @@ func EnterTimelineInformationIntoSpreadsheet(f *excelize.File, timeline []TimeLi
 	f.SetCellValue(CALENDAR_SHEET_TITLE, "F"+strconv.Itoa(currentRow), "$"+fmt.Sprintf("%.1f", totalUsdPayout))
 	f.SetCellValue(CALENDAR_SHEET_TITLE, "G"+strconv.Itoa(currentRow), "$"+fmt.Sprintf("%.1f", totalUsdTaxes))
 	currentRow++
-
-	return currentRow
 }

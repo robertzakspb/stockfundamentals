@@ -37,7 +37,7 @@ func makeTimeLine(lots []bonds.BondLot, includePastEvents bool) []TimeLineItem {
 	for _, lot := range lots {
 		bond := lot.Bond
 
-		if bond.RegistrationDate.IsZero() == false {
+		if !bond.RegistrationDate.IsZero() {
 			event := TimeLineItem{
 				Timestamp: bond.RegistrationDate,
 				EventName: "Дата Регистрации Облигации",
