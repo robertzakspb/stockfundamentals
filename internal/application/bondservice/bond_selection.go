@@ -27,7 +27,7 @@ func GetRussianGovernmentBondsWithFixedOrConstantCoupon() ([]bonds.Bond, error) 
 
 	bondList = GetOnlyBondsWithFixedOrConstantCoupons(bondList)
 
-	bondsWithYtm := CalculateSimpleYtmForBonds(bondList)
+	bondsWithYtm := PopulateBondsWithCouponsAndCalculateYtm(bondList)
 
 	return bondsWithYtm, nil
 }
