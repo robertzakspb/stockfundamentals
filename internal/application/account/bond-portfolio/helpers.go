@@ -1,7 +1,9 @@
 package bondportfolio
 
 import (
+	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
+	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
 
 func matchLotsWithBonds(lots []bonds.BondLot, bonds []bonds.Bond) []bonds.BondLot {
@@ -77,4 +79,21 @@ func GetLotIsins(lots []bonds.BondLot) []string {
 		}
 	}
 	return isins
+}
+
+func MatchLotsWithQuotes(lots []bonds.BondLot, quotes []entity.BondQuote) []bonds.BondLot {
+	for i := range lots {
+		foundQuote := false
+		for j := range quotes {
+			if quotes[j].GetTicker() != lots[i].Bond.Ticker {
+				continue
+			}
+			foundQuote = true
+			lots[i].Bond.QuoteInPercentage = quotes[j].GetQuoteAsPercentage()
+		}
+		if !foundQuote {
+			logger.Log("Failed to find a quote for bond lot "+lots[i].Isin, logger.ERROR)
+		}
+	}
+	return lots
 }
