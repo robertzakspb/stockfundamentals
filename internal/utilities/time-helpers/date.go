@@ -76,6 +76,23 @@ func DateInDDMMYYYFormat(date time.Time) string {
 	return strings.Join([]string{dayStr, monthStr, strconv.Itoa(year)}, ".")
 }
 
+//Converts a time.Time instance into a string in the ISO format; e.g. 2026-12-31
+func DateInIsoFormat(date time.Time) string {
+	year, month, day := date.Date()
+
+	dayStr := strconv.Itoa(day)
+	if len(dayStr) == 1 { //It should be 02.03.2025 instead of 2.03.2025
+		dayStr = "0" + dayStr
+	}
+
+	monthStr := strconv.Itoa(int(month))
+	if len(monthStr) == 1 { //It should be 02.03.2025 instead of 02.3.2025
+		monthStr = "0" + monthStr
+	}
+
+	return strings.Join([]string{strconv.Itoa(year), monthStr, dayStr}, "-")
+}
+
 // Converts a string like "2026-12-30" into a corresponding timestamp in UTC
 func DateFromISOstring(isoDate string) (time.Time, error) {
 	return time.Parse("2006-01-02", isoDate)

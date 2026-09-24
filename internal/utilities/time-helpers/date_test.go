@@ -145,3 +145,11 @@ func Test_DateFromISOstring_Negative(t *testing.T) {
 	_, err := DateFromISOstring("foo")
 	test.AssertError(t, err)
 }
+
+func Test_DateInIsoFormat_Positive(t *testing.T) {
+	date := time.Date(2026,5,25,0,0,0,0,time.UTC)
+
+	formattedDate := DateInIsoFormat(date)
+
+	test.AssertEqual(t, "2026-05-25", formattedDate)
+}
