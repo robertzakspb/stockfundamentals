@@ -1,7 +1,6 @@
 package bondservice
 
 import (
-	"fmt"
 	"sort"
 	"sync"
 	"time"
@@ -44,8 +43,12 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 
 	wg.Wait()
 
+	var errorList []error
 	bondList = MatchCouponsWithBonds(coupons, bondList)
-	bondList = CalculateSimpleYtmForBondsUsingQuotes(bondList, quotes)
+	bondList = CalculateBondYtmsUsingInternalIrrFormula(bondList, quotes)
+	bondList, errorList = bonds.MatchBondWithQuotes(bondList, quotes)
+	logger.LogErrors(errorList, logger.ERROR)
+
 	bondList = CalculateRubMarketValue(bondList, quotes, rates)
 
 	sort.Slice(bondList, func(i, j int) bool {
@@ -55,6 +58,67 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 	return bondList
 }
 
+// Given a list of bonds and their corresponding percentage quotes, calculates the bonds' YTM or YTCO using the internal IRR formula
+func CalculateBondYtmsUsingInternalIrrFormula(bondList []bonds.Bond, quotes []entity.BondQuote) []bonds.Bond {
+	for i := range bondList {
+		foundQuote := false
+		for j := range quotes {
+			if bondList[i].Ticker != quotes[j].GetTicker() {
+				continue
+			}
+			foundQuote = true
+			quoteInCurrency := bondList[i].MarketPriceInCurrency(quotes[j].GetQuoteAsPercentage())
+			//Calculating either the current yield-to-maturity or the yield-to-call-option
+			if bondList[i].HasCallOption() {
+				err := bondList[i].CalculateYieldToCallOption(quoteInCurrency)
+				if err != nil {
+					break //If something went wrong, move on to the next bond
+				}
+			} else {
+				err := bondList[i].CalculateYTM(quoteInCurrency)
+				if err != nil {
+					break //If something went wrong, move on to the next bond
+				}
+			}
+			break //Once the yield are calculated for a bond, move on to the next bond
+		}
+		if !foundQuote {
+			logger.Log("Failed to find a quote for bond "+bondList[i].Isin, logger.ERROR)
+		}
+	}
+	return bondList
+}
+
+// This function is used primarily for benchmarking -- it compares the internal bond YTMs to MOEX's YTM yields
+// func CompareYTMs() {
+// 	bondList, err := GetRussianGovernmentBondsWithFixedOrConstantCoupon()
+// 	if err != nil {
+// 		logger.Log(err.Error(), logger.ERROR)
+// 	}
+
+// 	bondsCopy := make([]bonds.Bond, len(bondList))
+// 	copy(bondsCopy, bondList)
+
+// 	quotes, err := quoteservice.FetchBondQuotesFromTapi(ExtractBondFigis(&bondList))
+// 	if err != nil {
+// 		logger.LogError(err, logger.ERROR)
+// 		return
+// 	}
+
+// 	bondsCopy = CalculateBondYtmsUsingInternalIrrFormula(bondsCopy, quotes)
+
+//		for i := range bondsCopy {
+//			if bondsCopy[i].HasCallOption() {
+//				difference := bondList[i].YieldToCallOption - bondsCopy[i].YieldToCallOption*100
+//				fmt.Println(bondList[i].Name+". MOEX YTM: ", bondList[i].YieldToCallOption, ". Internal: ", bondsCopy[i].YieldToCallOption*100, ". Difference: ", difference, "%")
+//			} else {
+//				difference := bondList[i].YieldTomaturity - bondsCopy[i].YieldTomaturity*100
+//				fmt.Println(bondList[i].Name+". MOEX YTM: ", bondList[i].YieldTomaturity, ". Internal: ", bondsCopy[i].YieldTomaturity*100, ". Difference: ", difference, "%")
+//			}
+//		}
+//	}
+//
+// Deprecated: Use the CalculateBondYtmsUsingInternalIrrFormula function instead – unless you specifcally need the simple yield to maturity
 func CalculateSimpleYtmForBonds(bondList []bonds.Bond) []bonds.Bond {
 	figis := make([]string, len(bondList))
 	for i := range bondList {
@@ -99,65 +163,5 @@ func CalculateSimpleYtmForBondsUsingQuotes(bondList []bonds.Bond, quotes []entit
 		return bondList[i].YieldTomaturity > bondList[j].YieldTomaturity
 	})
 
-	return bondList
-}
-
-// This function is used primarily for benchmarking -- it compares the internal bond YTMs to MOEX's YTM yields
-func CompareYTMs() {
-	bondList, err := GetRussianGovernmentBondsWithFixedOrConstantCoupon()
-	if err != nil {
-		logger.Log(err.Error(), logger.ERROR)
-	}
-
-	bondsCopy := make([]bonds.Bond, len(bondList))
-	copy(bondsCopy, bondList)
-
-	quotes, err := quoteservice.FetchBondQuotesFromTapi(ExtractBondFigis(&bondList))
-	if err != nil {
-		logger.LogError(err, logger.ERROR)
-		return
-	}
-
-	bondsCopy = CalculateBondYtmsUsingInternalIrrFormula(bondsCopy, quotes)
-
-	for i := range bondsCopy {
-		if bondsCopy[i].HasCallOption() {
-			difference := bondList[i].YieldToCallOption - bondsCopy[i].YieldToCallOption*100
-			fmt.Println(bondList[i].Name+". MOEX YTM: ", bondList[i].YieldToCallOption, ". Internal: ", bondsCopy[i].YieldToCallOption*100, ". Difference: ", difference, "%")
-		} else {
-			difference := bondList[i].YieldTomaturity - bondsCopy[i].YieldTomaturity*100
-			fmt.Println(bondList[i].Name+". MOEX YTM: ", bondList[i].YieldTomaturity, ". Internal: ", bondsCopy[i].YieldTomaturity*100, ". Difference: ", difference, "%")
-		}
-	}
-}
-
-// Given a list of bonds and their corresponding percentage quotes, calculates the bonds' YTM or YTCO using the internal IRR formula
-func CalculateBondYtmsUsingInternalIrrFormula(bondList []bonds.Bond, quotes []entity.BondQuote) []bonds.Bond {
-	for i := range bondList {
-		foundQuote := false
-		for j := range quotes {
-			if bondList[i].Ticker != quotes[j].GetTicker() {
-				continue
-			}
-			foundQuote = true
-			quoteInCurrency := bondList[i].MarketPriceInCurrency(quotes[j].GetQuoteAsPercentage())
-			//Calculating either the current yield-to-maturity or the yield-to-call-option
-			if bondList[i].HasCallOption() {
-				err := bondList[i].CalculateYieldToCallOption(quoteInCurrency)
-				if err != nil {
-					break //If something went wrong, move on to the next bond
-				}
-			} else {
-				err := bondList[i].CalculateYTM(quoteInCurrency)
-				if err != nil {
-					break //If something went wrong, move on to the next bond
-				}
-			}
-			break //Once the yield are calculated for a bond, move on to the next bond
-		}
-		if !foundQuote {
-			logger.Log("Failed to find a quote for bond "+bondList[i].Isin, logger.ERROR)
-		}
-	}
 	return bondList
 }
