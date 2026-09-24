@@ -12,7 +12,6 @@ import (
 func getHardCodedStockPositions() []lot.Lot {
 	//TODO: Move this to the position_lot table:
 
-	rosselHozId, _ := uuid.Parse(shared.ROSSELHOZ_ACCOUNT_ID)
 	nlbId, _ := uuid.Parse(shared.NLB_ACCOUNT_ID_ID)
 
 	jesvId := "BBG000BS7XH7"
@@ -20,7 +19,6 @@ func getHardCodedStockPositions() []lot.Lot {
 	mtlcId := "BBG000HP5RC7"
 	nisId := "BBG0015L55D4"
 	impolId := "BBG000HGH3F4"
-	etalonId := "TCS50A10C1L6"
 
 	serbianStocks := []lot.Lot{
 
@@ -81,19 +79,7 @@ func getHardCodedStockPositions() []lot.Lot {
 		},
 	}
 
-	rosselhozStocks := lot.Lot{
-		Id:           uuid.New(),
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
-		Quantity:     3459,
-		PricePerUnit: 84,
-		Currency:     "RUB",
-		AccountId:    rosselHozId,
-		Figi:         etalonId,
-		IsClosed:     false,
-	}
-
-	allStocks := append(serbianStocks, rosselhozStocks)
+	allStocks := serbianStocks
 	allStocks = append(allStocks, vtbLots()...)
 
 	return allStocks
@@ -105,7 +91,7 @@ func vtbLots() []lot.Lot {
 		Id:           uuid.New(),
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
-		Quantity:     735422,
+		Quantity:     736499,
 		PricePerUnit: 2.0035,
 		Currency:     "RUB",
 		Figi:         "TCS60A1014L8",
