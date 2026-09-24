@@ -53,7 +53,7 @@ func CalculateBondLotsMarketValue(bondLots []bonds.BondLot, date time.Time, curr
 
 	figis := bondportfolio.GetLotFigis(bondLots)
 
-	quotes, err := quoteservice.FetchBondQuotes(figis)
+	quotes, err := quoteservice.FetchBondQuotesFromTapi(figis)
 
 	totalMarketValue := 0.0
 

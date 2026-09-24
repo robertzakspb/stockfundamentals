@@ -26,7 +26,7 @@ type Lot struct {
 	Stock        security.Stock
 }
 
-func NewLot(figi string, quantity float64, pricePerUnit float64, currency string, accountId uuid.UUID) (Lot, error) {
+func NewLot(figi, isin string, quantity float64, pricePerUnit float64, currency string, accountId uuid.UUID) (Lot, error) {
 	newLot := Lot{
 		Id:           uuid.New(),
 		CreatedAt:    time.Now(),
@@ -37,6 +37,9 @@ func NewLot(figi string, quantity float64, pricePerUnit float64, currency string
 		AccountId:    accountId,
 		Figi:         figi,
 		IsClosed:     false,
+		Stock: security.Stock{
+			Isin: isin,
+		},
 	}
 
 	if err := newLot.validate(); err != nil {
@@ -72,12 +75,12 @@ func (lot *Lot) MergeWith(newLot Lot) (Lot, error) {
 		return Lot{}, fmt.Errorf("attempting to merge two lots with a different underlying security")
 	}
 
-	newQuantity := lot.Quantity + newLot.Quantity
+	newQuantity := float64(lot.Quantity + newLot.Quantity)
 	newOpeningPrice := (lot.Quantity*lot.PricePerUnit + newLot.Quantity*newLot.PricePerUnit) / newQuantity
 
-	validatedLot, err := NewLot(lot.Figi, newQuantity, newOpeningPrice, lot.Currency, lot.AccountId)
+	validatedLot, _ := NewLot(lot.Figi, lot.Stock.Isin, newQuantity, newOpeningPrice, lot.Currency, lot.AccountId)
 
-	return validatedLot, err
+	return validatedLot, nil
 }
 
 // Returns the current non-annualized return on the lot

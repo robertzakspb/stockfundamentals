@@ -14,7 +14,7 @@ import (
 func recalculateLotsAndCashBalances(account account.Account, transactions []transaction.Transaction, lots []lot.Lot) (account.Account, []lot.Lot, []tranlotrelation.TransactionLotRelation, error) {
 	relations := []tranlotrelation.TransactionLotRelation{}
 	if account.Id == uuid.Nil || len(transactions) == 0 || len(lots) == 0 {
-		return account, lots, relations, errors.New("Invalid date was provided to the recalculate lots and balances function")
+		return account, lots, relations, errors.New("Invalid data was provided to the recalculate lots and balances function")
 	}
 	//Transactions must be processed in chronological order, reenacting the user's behavior in the OMS
 	sort.Slice(transactions, func(i, j int) bool {
@@ -34,7 +34,7 @@ func recalculateLotsAndCashBalances(account account.Account, transactions []tran
 		}
 		if t.IsBuyOrder() {
 			//Each buy transaction begets a separate position lot
-			newLot, err := lot.NewLot(t.Figi, t.Quantity, t.PricePerUnit, t.Currency, t.AccountId)
+			newLot, err := lot.NewLot(t.Figi, "", t.Quantity, t.PricePerUnit, t.Currency, t.AccountId)
 			if err != nil {
 				return account, lots, relations, err
 			}
@@ -93,7 +93,6 @@ func recalculateLotsAndCashBalances(account account.Account, transactions []tran
 					account.CashBalance += lot.Quantity * t.PricePerUnit //Increasing the balance by the lot's quantity multiplied by the sale price
 					lot.Quantity = 0                                     // Setting the lot's quantity to 0, as it's being closed
 					lot.IsClosed = true
-
 				}
 			}
 

@@ -23,9 +23,27 @@ var currencyToSymbolMap = map[string]string{
 }
 
 func FindRate(cur1, cur2 string, rates []ForexRate) (ForexRate, bool) {
+	if cur1 == cur2 {
+		rate := ForexRate {
+			Currency1: Currency(cur1),
+			Currency2: Currency(cur2),
+			Rate: 1.0,
+			Date: rates[0].Date,
+		}
+		return rate, true
+	}
 	for _, rate := range rates {
 		if string(rate.Currency1) == strings.ToUpper(cur1) && string(rate.Currency2) == strings.ToUpper(cur2) {
 			return rate, true
+		}
+		if strings.EqualFold(string(rate.Currency1), cur2) && strings.EqualFold(string(rate.Currency2), cur1) {
+			invertedRate := ForexRate{
+				Currency1: rate.Currency2,
+				Currency2: rate.Currency1,
+				Date:      rate.Date,
+				Rate:      1 / rate.Rate,
+			}
+			return invertedRate, true
 		}
 	}
 

@@ -3,7 +3,7 @@ package forexservice
 import "strings"
 
 func ImportForexRatesJob() {
-	var requiredCurrencyPairs = []string{"USD/RUB", "EUR/RUB", "USD/RSD"}
+	var requiredCurrencyPairs = []string{"USD/RUB", "EUR/RUB", "USD/RSD", "USD/EUR"}
 
 	for _, currencyPair := range requiredCurrencyPairs {
 		split := strings.Split(currencyPair, "/")

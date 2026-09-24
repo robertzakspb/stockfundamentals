@@ -5,6 +5,7 @@ import (
 
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	accountmvservice "github.com/compoundinvest/stockfundamentals/internal/application/account/market-value"
+	positionsnapshot "github.com/compoundinvest/stockfundamentals/internal/application/account/position-snapshot"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
@@ -25,10 +26,13 @@ func StartDailyJobs() {
 
 	go ExecuteQuoteSnapshotJob()
 
+	go bondportfolio.ImportTinkoffBondLots()
+
 	portfolio.UpdatePortfolio() //The stock & bonds portfolios must be updated before the market value job so that the latest positions are used in MV calculation
-	bondportfolio.ImportTinkoffBondLots()
 
 	go accountmvservice.SaveAccountMarketValueSnapshots()
+
+	go positionsnapshot.SaveStockPositionLotSnapshots()
 }
 
 func StartHeavyJobs() {

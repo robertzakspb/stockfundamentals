@@ -30,13 +30,13 @@ func ExecuteQuoteSnapshotJob() error {
 
 	wg := sync.WaitGroup{}
 	wg.Go(func() {
-		bondQuotes, err = quoteservice.FetchBondQuotes(bondFigis)
+		bondQuotes, err = quoteservice.FetchBondQuotesFromTapi(bondFigis)
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 		}
 	})
 	wg.Go(func() {
-		stockQuotes, err = quoteservice.FetchStockQuotes(stockFigis)
+		stockQuotes, err = quoteservice.FetchStockQuotesFromTapi(stockFigis)
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 		}

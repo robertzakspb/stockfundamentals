@@ -46,6 +46,10 @@ func GetFilteredLots(filters []ydbfilter.YdbFilter) ([]lot.Lot, error) {
 	return mappedLots, nil
 }
 
+func GetAllStockLots() ([]lot.Lot, error) {
+	return GetFilteredLots([]ydbfilter.YdbFilter{})
+}
+
 func GetAccountPortfolio(accountId uuid.UUID) (stockportfolio.Portfolio, error) {
 	if accountId == uuid.Nil {
 		return stockportfolio.Portfolio{}, errors.New("Attempting to fetch stock lots for a nil account ID")
@@ -140,7 +144,7 @@ func PopulateLotsWithQuotes(portfolio portfolio.Portfolio) (portfolio.Portfolio,
 	//Occasionally the MOEX API does not return quotes for ETFs and quote fetching should thus fall back to the Tinkoff API
 	//Condition len(quotes) != len(positions) indicates that these quotes are missing
 	if etfFigis := portfolio.GetEtfLotFigis(); len(etfFigis) > 0 && len(quotes) != len(positions) {
-		etfQuotes, err := quoteservice.FetchStockQuotes(portfolio.GetEtfLotFigis())
+		etfQuotes, err := quoteservice.FetchStockQuotesFromTapi(portfolio.GetEtfLotFigis())
 		if err != nil {
 			return portfolio, errors.New("Failed to fetch quotes for ETFs in the portfolio")
 		}
@@ -182,4 +186,17 @@ func PopulateLotSecurities(lots []lot.Lot) ([]lot.Lot, error) {
 	}
 
 	return lots, nil
+}
+
+func ExtractSecuritiesFromLots(lots []lot.Lot) []entity.Security {
+	entitySecurities := []entity.Security{}
+	for _, l := range lots {
+		entitySecurities = append(entitySecurities, entity.Security{
+			Figi:   l.Stock.Figi,
+			ISIN:   l.Stock.Isin,
+			Ticker: l.Stock.Ticker,
+			MIC:    l.Stock.MIC,
+		})
+	}
+	return entitySecurities
 }

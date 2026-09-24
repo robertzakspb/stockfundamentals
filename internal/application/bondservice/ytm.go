@@ -27,7 +27,7 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 
 	var quotes []entity.BondQuote
 	wg.Go(func() {
-		quotes, err = quoteservice.FetchBondQuotes(ExtractBondFigis(&bondList))
+		quotes, err = quoteservice.FetchBondQuotesFromTapi(ExtractBondFigis(&bondList))
 		if err != nil {
 			logger.LogError(err, logger.ERROR)
 		}
@@ -60,7 +60,7 @@ func CalculateSimpleYtmForBonds(bondList []bonds.Bond) []bonds.Bond {
 	for i := range bondList {
 		figis[i] = bondList[i].Figi
 	}
-	quotes, err := quoteservice.FetchBondQuotes(figis)
+	quotes, err := quoteservice.FetchBondQuotesFromTapi(figis)
 	if err != nil {
 		logger.LogError(err, logger.ERROR)
 		return bondList
@@ -112,7 +112,7 @@ func CompareYTMs() {
 	bondsCopy := make([]bonds.Bond, len(bondList))
 	copy(bondsCopy, bondList)
 
-	quotes, err := quoteservice.FetchBondQuotes(ExtractBondFigis(&bondList))
+	quotes, err := quoteservice.FetchBondQuotesFromTapi(ExtractBondFigis(&bondList))
 	if err != nil {
 		logger.LogError(err, logger.ERROR)
 		return

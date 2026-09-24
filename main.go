@@ -12,6 +12,7 @@ import (
 
 	accountreturnapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/account-return"
 	accountsapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/accounts"
+	aumapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/aum"
 	bondportfolioapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/bond-portfolio"
 	divcalapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/dividend-calendar"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/stock-portfolio"
@@ -35,6 +36,8 @@ func addEndpoints(router *gin.Engine) {
 
 	router.GET("account", accountsapi.GetAllAccounts)
 	router.POST("account", accountsapi.CreateAccount)
+
+	router.GET("aum", aumapi.GetAssetsUnderManagement)
 
 	router.GET("account-portfolio", portfolio.GetAccountPortfolio)
 	router.POST("update-portfolio", portfolio.UpdatePortfolio)

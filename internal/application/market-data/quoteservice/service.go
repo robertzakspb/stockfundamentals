@@ -2,7 +2,10 @@ package quoteservice
 
 import (
 	"context"
+	"errors"
+	"sync"
 
+	"github.com/compoundinvest/invest-core/quote/belex"
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/tquoteservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/timeseries"
@@ -12,8 +15,85 @@ import (
 	"opensource.tbank.ru/invest/invest-go/investgo"
 )
 
+func FetchInternationalStockAndBondQuotes(securities []entity.Security, bondFigis []string) ([]entity.SimpleQuote, []entity.BondQuote, error) {
+	var stockQuotes []entity.SimpleQuote
+	var bondQuotes []entity.BondQuote
+	var wg sync.WaitGroup
+	var err error
+
+	wg.Go(func() {
+		stockQuotes, err = FetchInternationalStockQuotes(securities)
+	})
+	wg.Go(func() {
+		bondQuotes, err = FetchBondQuotesFromTapi(bondFigis)
+	})
+	wg.Wait()
+
+	return stockQuotes, bondQuotes, err
+}
+
+func FetchInternationalStockQuotes(securities []entity.Security) ([]entity.SimpleQuote, error) {
+	var quotes, tApiQuotes []entity.SimpleQuote
+	tApiFigis := []string{}
+	belexTickers := []string{}
+	belexFigis := []string{}
+	var wg sync.WaitGroup
+	var err error
+
+	for _, security := range securities {
+		switch security.MIC {
+		case "MISX":
+			tApiFigis = append(tApiFigis, security.Figi)
+		case "XBEL":
+			belexTickers = append(belexTickers, security.Ticker)
+			belexFigis = append(belexFigis, security.Figi)
+		default:
+			return quotes, errors.New("Unsupported MIC: " + security.MIC)
+		}
+	}
+
+	wg.Go(func() {
+		tApiQuotes, err = FetchStockQuotesFromTapi(tApiFigis)
+		quotes = append(quotes, tApiQuotes...)
+	})
+	wg.Go(func() {
+		for i := range belexFigis {
+			belexQuote, err := belex.FetchQuoteFor(belexTickers[i], belexFigis[i])
+			if err != nil {
+				continue
+			}
+			quotes = append(quotes, belexQuote)
+		}
+	})
+	wg.Wait()
+
+	if err != nil {
+		return quotes, err
+	}
+
+	return quotes, nil
+}
+
+// Fetches the stock and bond quotes in parallel for better performance
+func GetTinvestmentStockAndBondQuotes(stockFigis, bondFigis []string) ([]entity.SimpleQuote, []entity.BondQuote, error) {
+	var stockQuotes []entity.SimpleQuote
+	var bondQuotes []entity.BondQuote
+	var err error
+	var wg sync.WaitGroup
+
+	wg.Go(func() {
+		stockQuotes, err = FetchStockQuotesFromTapi(stockFigis)
+	})
+	wg.Go(func() {
+		bondQuotes, err = FetchBondQuotesFromTapi(stockFigis)
+	})
+	wg.Wait()
+
+	return stockQuotes, bondQuotes, err
+}
+
 // Only fetches bond quotes from the T Bank API
-func FetchBondQuotes(figis []string) ([]entity.BondQuote, error) {
+func FetchBondQuotesFromTapi(figis []string) ([]entity.BondQuote, error) {
 	config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
 		logger.Log("Failed to initialize the configuration file", logger.ALERT)
@@ -46,7 +126,7 @@ func FetchBondQuotes(figis []string) ([]entity.BondQuote, error) {
 }
 
 // Only fetches stock quotes from the T Bank API
-func FetchStockQuotes(figis []string) ([]entity.SimpleQuote, error) {
+func FetchStockQuotesFromTapi(figis []string) ([]entity.SimpleQuote, error) {
 	config, err := investgo.LoadConfig("tinkoffAPIconfig.yaml")
 	if err != nil {
 		logger.Log("Failed to initialize the configuration file", logger.ALERT)
@@ -96,7 +176,7 @@ func GetCachedAndExternalStockQuotes(figis []string) ([]entity.SimpleQuote, erro
 		}
 	}
 
-	missingQuotes, err := FetchStockQuotes(figisWithMissingQuotes)
+	missingQuotes, err := FetchStockQuotesFromTapi(figisWithMissingQuotes)
 
 	quotes = append(quotes, missingQuotes...)
 
@@ -130,9 +210,9 @@ func GetCachedAndExternalBondQuotes(bondList []bonds.Bond) ([]entity.BondQuote, 
 		}
 	}
 
-	missingQuotes, err := FetchBondQuotes(figisWithMissingQuotes)
+	missingQuotes, err := FetchBondQuotesFromTapi(figisWithMissingQuotes)
 
-	quotes = append(quotes, missingQuotes...)
+	quotes = append(quotes, missingQuotes...)	
 
 	return quotes, nil
 }

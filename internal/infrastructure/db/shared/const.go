@@ -23,6 +23,7 @@ const TRANSACTION_TABLE_NAME = "transaction"
 const TRANSACTION_LOT_RELATIONSHIP_TABLE_NAME = "transaction_lot"
 const TIME_SERIES_TABLE_NAME = "time_series"
 const BOND_TIME_SERIES_TABLE_NAME = "bond_quote"
+const STOCK_LOT_SNAPSHOT_TABLE_NAME = "stock_lot_snapshot"
 
 func BackTickPath(prefix, tableName string) string {
 	return "`" + path.Join(prefix, tableName) + "`"

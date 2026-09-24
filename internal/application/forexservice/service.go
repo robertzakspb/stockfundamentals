@@ -77,6 +77,14 @@ func FetchAndSaveCurrencyPairQuotes(cur1, cur2 string) error {
 		targetDate = targetDate.Add(time.Hour * 24)
 	}
 
+	
+	usdToEurRates, err := FetchUsdToEurRate(time.Now().Add(-time.Hour * 24 * 365), time.Now())
+	if err != nil {
+		logger.Log(err.Error(), logger.ERROR)
+	} else {
+		rates = append(rates, usdToEurRates...)
+	}
+
 	mappedDbModels := mapFxRatesToDbModel(rates)
 	err = forexdb.SaveForexRates(mappedDbModels)
 	if err != nil {

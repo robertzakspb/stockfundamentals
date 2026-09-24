@@ -82,10 +82,11 @@ func getTinkoffStockPositions() ([]lot.Lot, error) {
 			continue //Skipping the cash position until it is handled separately
 		}
 
-		var stockId string
+		var stockId, isin string
 		for _, s := range securities {
 			if s.GetFigi() == position.Figi {
 				stockId = s.Figi
+				isin = s.Isin
 			}
 		}
 		if stockId == "" {
@@ -93,7 +94,9 @@ func getTinkoffStockPositions() ([]lot.Lot, error) {
 		}
 
 		var tinkoffIisId, _ = uuid.Parse(shared.TINKOFF_IIS_ACCOUNT_ID)
-		newLot, err := lot.NewLot(stockId,
+		newLot, err := lot.NewLot(
+			stockId,
+			isin,
 			float64(position.Quantity.ToFloat()),
 			position.AveragePositionPrice.ToFloat(),
 			position.AveragePositionPrice.Currency,

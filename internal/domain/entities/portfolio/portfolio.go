@@ -7,6 +7,7 @@ import (
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/security"
 	stringhelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/string-helpers"
+	"github.com/google/uuid"
 )
 
 type Portfolio struct {
@@ -34,6 +35,34 @@ func (portfolio Portfolio) UniquePositions() []lot.Lot {
 				uniquePositions = append(uniquePositions, uniquePositions[lotWithSameTickerIndex])
 			}
 			uniquePositions[lotWithSameTickerIndex] = mergedLot
+		} else {
+			uniquePositions = append(uniquePositions, lot)
+		}
+	}
+
+	return uniquePositions
+}
+
+func CollapseLotsIntoPositionsUsingFigi(lots []lot.Lot) []lot.Lot {
+	uniquePositions := []lot.Lot{}
+	for _, lot := range lots {
+		foundLotWithSameFigi := false
+		lotWithSameFigiIndex := 0
+		for i, uniquePosition := range uniquePositions {
+			if lot.Figi == uniquePosition.Figi {
+				foundLotWithSameFigi = true
+				lotWithSameFigiIndex = i
+			}
+		}
+
+		if foundLotWithSameFigi {
+			mergedLot, err := uniquePositions[lotWithSameFigiIndex].MergeWith(lot)
+			if err != nil {
+				//If there was an error, add both positions
+				uniquePositions = append(uniquePositions, lot)
+				uniquePositions = append(uniquePositions, uniquePositions[lotWithSameFigiIndex])
+			}
+			uniquePositions[lotWithSameFigiIndex] = mergedLot
 		} else {
 			uniquePositions = append(uniquePositions, lot)
 		}
@@ -125,4 +154,14 @@ func LotStocks(lots []lot.Lot) []security.Stock {
 		stocks = append(stocks, lots[i].Stock)
 	}
 	return stocks
+}
+
+func GroupLotsByAccount(lots []lot.Lot) map[uuid.UUID][]lot.Lot {
+	accountLots := map[uuid.UUID][]lot.Lot{}
+
+	for i := range lots {
+		accountLots[lots[i].AccountId] = append(accountLots[lots[i].AccountId], lots[i])
+	}
+
+	return accountLots
 }
