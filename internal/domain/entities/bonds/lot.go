@@ -31,3 +31,10 @@ func (lot *BondLot) TotalPrincipalRedemption(bond Bond) float64 {
 func (lot *BondLot) MarketValue(quoteAsPercentage, fxRate float64) float64 {
 	return lot.Quantity * lot.Bond.MarketValue(quoteAsPercentage, fxRate)
 }
+
+func (lot *BondLot) CurrentProfitOrLossPercentage() float64 {
+	if lot.PricePerUnitPercentage == 0 {
+		return 0
+	}
+	return (lot.Bond.QuoteInPercentage - lot.PricePerUnitPercentage) / lot.PricePerUnitPercentage
+}

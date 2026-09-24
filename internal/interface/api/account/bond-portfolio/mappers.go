@@ -24,19 +24,20 @@ func mapBondLotDtoToDomain(dto bondPositionLotDto) bonds.BondLot {
 
 func mapBondLotToDto(lot bonds.BondLot) bondPositionLotDto {
 	dto := bondPositionLotDto{
-		Figi:                   lot.Figi,
-		Isin:                   lot.Isin,
-		Name:                   lot.Bond.Name,
-		OpeningDate:            lot.OpeningDate,
-		ModificationDate:       lot.ModificationDate,
-		AccountId:              lot.AccountId,
-		Quantity:               lot.Quantity,
-		PricePerUnitPercentage: lot.PricePerUnitPercentage,
-		MarketValueInRUB:       lot.MarketValueInRUB,
-		Ytm:                    lot.Bond.YieldTomaturity,
-		YieldToCallOption:      lot.Bond.YieldToCallOption,
-		QuoteInPercentage:      lot.Bond.QuoteInPercentage,
-		CurrentCouponYield:     lot.Bond.CurrentCouponYield(),
+		Figi:                          lot.Figi,
+		Isin:                          lot.Isin,
+		Name:                          lot.Bond.Name,
+		OpeningDate:                   lot.OpeningDate,
+		ModificationDate:              lot.ModificationDate,
+		AccountId:                     lot.AccountId,
+		Quantity:                      lot.Quantity,
+		PricePerUnitPercentage:        lot.PricePerUnitPercentage,
+		MarketValueInRUB:              lot.MarketValueInRUB,
+		Ytm:                           lot.Bond.YieldTomaturity,
+		YieldToCallOption:             lot.Bond.YieldToCallOption,
+		QuoteInPercentage:             lot.Bond.QuoteInPercentage,
+		CurrentCouponYield:            lot.Bond.CurrentCouponYield(),
+		CurrentProfitOrLossPercentage: lot.CurrentProfitOrLossPercentage(),
 	}
 
 	return dto
