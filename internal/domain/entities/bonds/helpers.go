@@ -1,8 +1,10 @@
 package bonds
 
 import (
+	"errors"
 	"strings"
 
+	"github.com/compoundinvest/invest-core/quote/entity"
 	stringhelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/string-helpers"
 )
 
@@ -18,4 +20,22 @@ func GetCurrencyPairs(cur2 string, lots []BondLot) []string {
 	}
 	pairs = stringhelpers.RemoveDuplicatesFrom(pairs)
 	return pairs
+}
+
+func MatchBondWithQuotes(bonds []Bond, quotes []entity.BondQuote) ([]Bond, []error) {
+	var errorList []error
+	for i := range bonds {
+		foundQuote := false
+		for j := range quotes {
+			if quotes[j].GetTicker() != bonds[i].Ticker {
+				continue
+			}
+			foundQuote = true
+			bonds[i].QuoteInPercentage = quotes[j].GetQuoteAsPercentage()
+		}
+		if !foundQuote {
+			errorList = append(errorList, errors.New("Failed to find a quote for bond lot "+bonds[i].Isin))
+		}
+	}
+	return bonds, errorList
 }
