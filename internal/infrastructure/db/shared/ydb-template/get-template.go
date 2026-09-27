@@ -19,7 +19,16 @@ code for the simple filtered data retrieval of a particular entity.
 
 If pagination is not required, simply provide the zero values for the query parameter (shared.ParsedApiQuery{})
 */
-func GetFilteredEntity[T any](filters []ydbfilter.YdbFilter, query shared.ParsedApiQuery, tablePath string) ([]T, error) {
+func GetFilteredEntity[T any](query shared.ParsedApiQuery, tablePath string) ([]T, error) {
+	//Table path should have at least 2 characters
+	if len(tablePath) < 2 {
+		return []T{}, errors.New("The table path appears to be invalid")
+	}
+	tablePathIsWrappedInQuotationMarks := string(tablePath[0]) == "`" && string(tablePath[len(tablePath)-1]) == "`"
+	if !tablePathIsWrappedInQuotationMarks {
+		tablePath = "`" + tablePath + "`"
+	}
+
 	if query.PageSize == 0 { //No pagination required
 		return GetEntity[T](query.Filters, tablePath)
 	} else {
