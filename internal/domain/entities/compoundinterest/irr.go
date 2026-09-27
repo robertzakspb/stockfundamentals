@@ -2,9 +2,7 @@ package compoundinterest
 
 import (
 	"errors"
-	"fmt"
 	"math"
-	"strconv"
 	"time"
 )
 
@@ -33,7 +31,7 @@ func internalRateOfReturn(cashflows []float64, dates []time.Time) (float64, erro
 	x0 := initialGuess
 	var x1 float64
 
-	for i := range maxIterations {
+	for range maxIterations {
 		var fValue, fDerivative float64
 		for k := range cashflows {
 			fValue += fx_xirr(cashflows[k], x0, dates[k], dates[0])
@@ -45,7 +43,6 @@ func internalRateOfReturn(cashflows []float64, dates []time.Time) (float64, erro
 		x1 = x0 - fValue/fDerivative
 
 		if math.Abs(x1-x0) < accuracy {
-			fmt.Println("Iteration count: ", strconv.Itoa(i))
 			return x1, nil
 		}
 		x0 = x1
