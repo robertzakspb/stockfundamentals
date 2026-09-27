@@ -19,6 +19,6 @@ func GetAllTransactions() ([]TransactionDbModel, error) {
 func GetFilteredTransactions(query shared.ParsedApiQuery) ([]TransactionDbModel, error) {
 	tablePath := "`" + ydbhelper.GenerateTablePath(db.USER_DIRECTORY_PREFIX, db.TRANSACTION_TABLE_NAME) + "`"
 
-	transactions, err := ydbtemplate.GetFilteredEntity[TransactionDbModel](query.Filters, query, tablePath)
+	transactions, err := ydbtemplate.GetFilteredEntity[TransactionDbModel](query, tablePath)
 	return transactions, err
 }
