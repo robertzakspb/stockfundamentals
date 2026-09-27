@@ -4,7 +4,6 @@ import (
 	"errors"
 	"sort"
 	"strconv"
-	"time"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/invest-core/quote/quotefetcher"
@@ -84,7 +83,7 @@ func CalculatePortfolioMarketValue(portfolio stockportfolio.Portfolio, currency 
 			currencyPairs = append(currencyPairs, positionCurrency+"/"+currency)
 		}
 	}
-	forexRates, err := forexservice.GetExchangeRates(currencyPairs, time.Now())
+	forexRates, err := forexservice.GetLatestAvailableRates(currencyPairs)
 	if err != nil {
 		return -1, currency, err
 	}

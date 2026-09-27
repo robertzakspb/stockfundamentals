@@ -6,15 +6,22 @@ import (
 	"fmt"
 	"io"
 	"path"
+	"slices"
+	"strings"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
+	db "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	utilities "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
+	ydbhelper "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-helper"
+	ydbtemplate "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-template"
+	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
+	timehelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/time-helpers"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/sugar"
 )
 
+// Strict function that returns forex rates with the exact filters applied. If you're satisfied with any rate for a currency in the last 7 days, use the
 func GetAllFxRates(filters []ydbfilter.YdbFilter) ([]ForexRateDb, error) {
 	db, err := utilities.MakeYdbDriver()
 	if err != nil {
@@ -65,6 +72,50 @@ func GetAllFxRates(filters []ydbfilter.YdbFilter) ([]ForexRateDb, error) {
 	}
 
 	return rates, nil
+}
+
+// Returns the latest available forex rates in the DB given the filters. Do not pass any date filters in the arguments
+func GetLatestAvailableRates(filters []ydbfilter.YdbFilter) ([]ForexRateDb, error) {
+	//To get the latest forex rates, we fetch the rates for the last 7 days and get the latest available in the selection
+	sevenDaysAgo := time.Now().AddDate(0, 0, -7)
+	dateRangeFilter := []ydbfilter.YdbFilter{
+		{
+			YqlColumnName:  "date",
+			Condition:      ydbfilter.GreaterThanOrEqualTo,
+			ConditionValue: ydbhelper.ConvertToYdbDate(sevenDaysAgo),
+		},
+		{
+			YqlColumnName:  "date",
+			Condition:      ydbfilter.LessThanOrEqualTo,
+			ConditionValue: ydbhelper.ConvertToYdbDate(time.Now()),
+		},
+	}
+	filters = append(filters, dateRangeFilter...)
+
+	tablePath := "`" + path.Join(db.FOREX_DIRECTORY_PREFIX, db.FX_RATE_TABLE_NAME) + "`"
+	rates, err := ydbtemplate.GetFilteredEntity[ForexRateDb](shared.ParsedApiQuery{Filters: filters}, tablePath)
+
+	//The fetched rates contain the rates for the last 7 days, we need to find the latest one for each pair and return it
+	ratesGroupedByCurrency := map[string][]ForexRateDb{}
+	for i := range rates {
+		pair := strings.Join([]string{rates[i].Currency1, rates[i].Currency2}, "/")
+		ratesGroupedByCurrency[pair] = append(ratesGroupedByCurrency[pair], rates[i])
+	}
+	latestRates := []ForexRateDb{}
+	for _, rates := range ratesGroupedByCurrency {
+		slices.SortFunc(rates, func(r1, r2 ForexRateDb) int {
+			if timehelpers.DateIsLater(r1.Date, r2.Date) {
+				return 1
+			} else if timehelpers.DateIsEarlier(r1.Date, r2.Date) {
+				return -1
+			} else {
+				return 0
+			}
+		})
+		latestRates = append(latestRates, rates[len(rates)-1])
+	}
+
+	return latestRates, err
 }
 
 func makeGetAllForexRatesQuery(filters []ydbfilter.YdbFilter) string {

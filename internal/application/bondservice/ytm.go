@@ -3,7 +3,6 @@ package bondservice
 import (
 	"sort"
 	"sync"
-	"time"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
@@ -35,7 +34,7 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 	currencyPairs := AllCurrencyPairsInBondList(bondList)
 	rates := []forexservice.ForexRate{}
 	wg.Go(func() {
-		rates, err = forexservice.GetExchangeRates(currencyPairs, time.Now())
+		rates, err = forexservice.GetLatestAvailableRates(currencyPairs)
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 		}

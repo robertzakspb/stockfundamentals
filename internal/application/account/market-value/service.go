@@ -19,7 +19,7 @@ func ConvertAccountMVsToCurrency(MVs []accountmvdomain.AccountMarketValue, curre
 	totalMV := 0.0
 	currencyPairs := marketValueCurrencyPairs(currency, MVs)
 
-	rates, err := forexservice.GetExchangeRates(currencyPairs, MVs[0].Date)
+	rates, err := forexservice.GetLatestAvailableRates(currencyPairs)
 	if err != nil {
 		return accountmvdomain.AccountMarketValue{}, err
 	}

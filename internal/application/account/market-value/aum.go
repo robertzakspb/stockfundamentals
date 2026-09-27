@@ -58,7 +58,7 @@ func GetTotalAssetsUnderManagement(currencies ...string) ([]AUM, error) {
 		}
 
 		currencyPairs = stringhelpers.RemoveDuplicatesFrom(currencyPairs)
-		rates, err = forexservice.GetExchangeRates(currencyPairs, time.Now())
+		rates, err = forexservice.GetLatestAvailableRates(currencyPairs)
 	})
 	wg.Wait()
 
