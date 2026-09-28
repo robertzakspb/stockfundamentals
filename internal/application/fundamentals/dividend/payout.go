@@ -25,7 +25,7 @@ func GetDividendPayoutsForAccount(accountId uuid.UUID) ([]dividend.Payout, error
 			ConditionValue: ydbhelper.ConvertToOptionalYDBdate(time.Now().AddDate(0, 0, -21)), //We fetch dividends with the record date as early as 3 weeks ago to account for the payout delay (~2 weeks on average)
 		},
 		{
-			YqlColumnName:  "figi",
+			YqlColumnName:  "stock_id",
 			Condition:      ydbfilter.Contains,
 			ConditionValue: ydbhelper.ConvertStringsToYdbList(figis),
 		},
