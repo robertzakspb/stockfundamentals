@@ -13,13 +13,17 @@ import (
 
 // Optimized method that fetches all data asynchronously
 func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond {
-	figis := ExtractBondFigis(&bondList)
-
 	wg := sync.WaitGroup{}
 	var err error
 
 	var coupons []bonds.Coupon
 	wg.Go(func() {
+		figis := []string{}
+		for i := range bondList {
+			if len(bondList[i].Coupons) == 0 { //We don't need to fetch coupons for a bond that already has them
+				figis = append(figis, bondList[i].Figi)
+			}
+		}
 		coupons, err = GetCouponsByFigis(figis)
 	})
 
