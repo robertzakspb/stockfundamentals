@@ -56,6 +56,7 @@ func addEndpoints(router *gin.Engine) {
 	router.GET("dividend/forecasts", dividend.GetDividendForecasts)
 	router.GET("dividend/account/forecasted-payouts", dividend.GetDividendForecastsForAccount)
 	router.GET("dividend/forecasts-grouped-by-security", dividend.GetDividendForecastsGroupedBySecurity)
+	router.GET("dividend/future-payouts", dividend.GetFutureDividendPayoutsForAccount)
 
 	router.GET("dividend/calendar", divcalapi.GetAccountDividendCalendar)
 
