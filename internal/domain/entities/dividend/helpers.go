@@ -36,8 +36,9 @@ func MakePayoutsFromDividendsAndLots(lots []lot.Lot, dividends []Dividend) []Pay
 				Figi:      lots[j].Figi,
 				Ticker:    dividends[i].Security.Ticker,
 				AccountId: lots[j].AccountId,
-				Amount:    lots[j].Quantity * dividends[i].ExpectedDPS,
+				Amount:    lots[j].Quantity * dividends[i].ActualDPS,
 				Date:      dividends[i].PayoutDate,
+				Dividend:  dividends[i],
 			}
 			payouts = append(payouts, payout)
 
