@@ -12,24 +12,34 @@ func GetRussianGovernmentBondsWithFixedOrConstantCoupon() ([]bonds.Bond, error) 
 		Condition:      ydbfilter.Like,
 		ConditionValue: types.TextValue("%ОФЗ%"),
 	}
+	currencyFilter := ydbfilter.YdbFilter{
+		YqlColumnName:  "nominal_currency",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: types.TextValue("RUB"),
+	}
+	//Removing amortized bonds because YTM cannot be calculated for them
 	amortizationFilter := ydbfilter.YdbFilter{
 		YqlColumnName:  "has_amortization",
 		Condition:      ydbfilter.Equal,
 		ConditionValue: types.BoolValue(false),
 	}
+	//Removing bonds with indexed nominal value because YTM cannot be calculated for them
+	nominalValueFilter := ydbfilter.YdbFilter{
+		YqlColumnName:  "nominal_value",
+		Condition:      ydbfilter.Equal,
+		ConditionValue: types.DoubleValue(1000),
+	}
 
-	bondList, err := GetFilteredBonds([]ydbfilter.YdbFilter{governmentFilter, amortizationFilter})
+	bondList, err := GetFilteredBonds([]ydbfilter.YdbFilter{governmentFilter, amortizationFilter, nominalValueFilter, currencyFilter})
 	if err != nil {
 		return bondList, err
 	}
 
-	bondList = PopulateBondCoupons(bondList)
+	bondList = PopulateBondsWithCouponsAndCalculateYtm(bondList)
 
 	bondList = GetOnlyBondsWithFixedOrConstantCoupons(bondList)
 
-	bondsWithYtm := PopulateBondsWithCouponsAndCalculateYtm(bondList)
-
-	return bondsWithYtm, nil
+	return bondList, nil
 }
 
 func GetQuasiForeignBonds() ([]bonds.Bond, error) {
