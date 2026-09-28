@@ -70,7 +70,7 @@ func MatchCouponsWithBonds(coupons []bonds.Coupon, bonds []bonds.Bond) []bonds.B
 			if coupon.Figi == "" && bonds[i].Figi == "" {
 				continue
 			}
-			if coupon.Figi == b.Figi {
+			if coupon.Figi == bonds[i].Figi {
 				bonds[i].Coupons = append(bonds[i].Coupons, coupon)
 			}
 		}
