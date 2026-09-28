@@ -184,6 +184,10 @@ func GetCouponsByFigis(figis []string) ([]bonds.Coupon, error) {
 func PopulateBondCoupons(bondList []bonds.Bond) []bonds.Bond {
 	figis := []string{}
 	for _, bond := range bondList {
+		if len(bond.Coupons) > 0 {
+			logger.Log("The provided bond appears to have coupons, will not populate its coupons", logger.WARNING)
+			continue
+		}
 		figis = append(figis, bond.Figi)
 	}
 	coupons, err := GetCouponsByFigis(figis)
