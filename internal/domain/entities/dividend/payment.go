@@ -8,14 +8,15 @@ import (
 )
 
 type Payout struct {
-	Id         uuid.UUID
-	Figi       string
-	Ticker     string
-	DividendId uuid.UUID
-	AccountId  uuid.UUID
-	Amount     float64
-	Date       time.Time
-	Dividend   Dividend
+	Id             uuid.UUID
+	Figi           string
+	Ticker         string
+	DividendId     uuid.UUID
+	AccountId      uuid.UUID
+	Amount         float64
+	Date           time.Time
+	Dividend       Dividend
+	HasBeenPaidOut bool
 }
 
 func NewDividendPayment(divId uuid.UUID, accountId uuid.UUID, amount float64) (Payout, error) {
@@ -29,4 +30,9 @@ func NewDividendPayment(divId uuid.UUID, accountId uuid.UUID, amount float64) (P
 		AccountId:  accountId,
 		Amount:     amount,
 	}, nil
+}
+
+func (p *Payout) IsForecast() bool {
+	//If the payout does not have a corresponding dividend entity, we can assume it's a forecast
+	return p.Dividend.Id == uuid.Nil
 }

@@ -20,7 +20,7 @@ func Test_mapPayoutToDto(t *testing.T) {
 	recordDate := time.Now().AddDate(0, 0, 10)
 	payoutDate := time.Now().AddDate(0, 0, 20)
 
-	payout := Payout{
+	payout := dividend.Payout{
 		Id:         id,
 		DividendId: divId,
 		AccountId:  accountId,
@@ -59,7 +59,7 @@ func Test_mapDivCalToDto(t *testing.T) {
 	recordDate := time.Now().AddDate(0, 0, 10)
 	payoutDate := time.Now().AddDate(0, 0, 20)
 
-	payout := Payout{
+	payout := dividend.Payout{
 		Id:         id,
 		DividendId: divId,
 		AccountId:  accountId,

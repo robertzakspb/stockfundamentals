@@ -9,7 +9,6 @@ import (
 )
 
 type DividendCalendar dividendcalendar.DividendCalendar
-type Payout dividend.Payout
 
 type DividendCalendarDto struct {
 	AccountIds    uuid.UUIDs  `json:"accountIds"`
@@ -28,12 +27,14 @@ type PayoutDto struct {
 	AnnouncementDate time.Time `json:"announcementDate"`
 	RecordDate       time.Time `json:"recordDate"`
 	PayoutDate       time.Time `json:"payoutDate"`
+	IsForecast       bool      `json:"isForecast"`
+	HasBeenPaidOut   bool      `json:"hasBeenPaidOut"`
 }
 
 func mapDivCalToDto(divcal DividendCalendar) DividendCalendarDto {
 	payoutDtos := make([]PayoutDto, len(divcal.FuturePayouts))
 	for i, payout := range divcal.FuturePayouts {
-		dto := MapPayoutToDto(Payout(payout))
+		dto := MapPayoutToDto(payout)
 		payoutDtos[i] = dto
 	}
 	divCalDto := DividendCalendarDto{
@@ -44,9 +45,9 @@ func mapDivCalToDto(divcal DividendCalendar) DividendCalendarDto {
 	return divCalDto
 }
 
-func MapPayoutToDto(payout Payout) PayoutDto {
+func MapPayoutToDto(payout dividend.Payout) PayoutDto {
 	payoutDate := payout.Date
-	if payoutDate.IsZero(){
+	if payoutDate.IsZero() {
 		payoutDate = payout.Dividend.PayoutDate
 	}
 	dto := PayoutDto{
@@ -61,6 +62,8 @@ func MapPayoutToDto(payout Payout) PayoutDto {
 		AnnouncementDate: payout.Dividend.AnnouncementDate,
 		RecordDate:       payout.Dividend.RecordDate,
 		PayoutDate:       payoutDate,
+		HasBeenPaidOut:   payout.HasBeenPaidOut,
+		IsForecast:       payout.IsForecast(),
 	}
 
 	return dto
