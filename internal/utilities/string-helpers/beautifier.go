@@ -55,7 +55,8 @@ func BeatufityPercentage(percentage float64) (string, error) {
 		fmt.Fprintf(&sb, "%.1f", percentage*100)
 		sb.WriteString("%")
 	} else {
-		sb.WriteString("x" + fmt.Sprintf("%.1f", percentage+1.0))
+		sb.WriteString("x")
+		fmt.Fprintf(&sb, "%.1f", percentage+1.0)
 	}
 
 	return sb.String(), nil
