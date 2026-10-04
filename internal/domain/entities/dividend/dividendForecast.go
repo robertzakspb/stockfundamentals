@@ -63,8 +63,3 @@ func GroupForecastsBySecurity(forecasts []DividendForecast) []SecurityDivForecas
 
 	return secDivForecasts
 }
-
-// func (f SecurityDivForecasts) AnnualizedReturn() float64 {
-// 	totalReturn := f.TotalReturn()
-// 	annualizedReturn := compoundinterest.CalcAnnualizedReturn(totalReturn, )
-// }
