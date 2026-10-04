@@ -1,6 +1,6 @@
 module github.com/compoundinvest/stockfundamentals
 
-go 1.26.4
+go 1.27.1
 
 require (
 	github.com/compoundinvest/invest-core v1.4.2
@@ -9,12 +9,10 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/xuri/excelize/v2 v2.11.0
-	github.com/ydb-platform/ydb-go-sdk/v3 v3.152.1
+	github.com/ydb-platform/ydb-go-sdk/v3 v3.153.2
 	golang.org/x/net v0.59.0
 	opensource.tbank.ru/invest/invest-go v1.51.0
 )
-
-require github.com/kr/pretty v0.3.1 // indirect
 
 require (
 	cloud.google.com/go/compute/metadata v0.10.0 // indirect
@@ -27,13 +25,14 @@ require (
 	github.com/go-playground/locales v0.14.2 // indirect
 	github.com/go-playground/universal-translator v0.18.2 // indirect
 	github.com/go-playground/validator/v10 v10.30.5 // indirect
-	github.com/goccy/go-json v0.11.1 // indirect
+	github.com/goccy/go-json v0.11.2 // indirect
 	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.4 // indirect
 	github.com/jonboulle/clockwork v0.5.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
+	github.com/kr/pretty v0.3.1 // indirect
 	github.com/leodido/go-urn v1.5.0 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
