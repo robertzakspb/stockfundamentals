@@ -7,6 +7,7 @@ import (
 	accountmvservice "github.com/compoundinvest/stockfundamentals/internal/application/account/market-value"
 	positionsnapshot "github.com/compoundinvest/stockfundamentals/internal/application/account/position-snapshot"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
+	"github.com/compoundinvest/stockfundamentals/internal/application/account/transactionprocessor"
 	"github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	appdividend "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
@@ -18,7 +19,7 @@ func StartDailyJobs() {
 	wg := sync.WaitGroup{}
 
 	wg.Go(func() { security_master.FetchAndSaveSecurities() })
-	wg.Go(func() { forexservice.ImportForexRatesJob() })
+	wg.Go(func() { forexservice.ImportForexRates() })
 
 	wg.Wait() //Need to fetch the latest forex rates before proceeding to update the bonds' ACI. The security master must also be updated before any other stock-related jobs are executed
 
@@ -33,6 +34,11 @@ func StartDailyJobs() {
 	go accountmvservice.SaveAccountMarketValueSnapshots()
 
 	go positionsnapshot.SaveStockPositionLotSnapshots()
+
+	go func() {
+		transactionprocessor.DeleteTbankTransactions()
+		transactionprocessor.ImportTBankTransactions()
+	}()
 }
 
 func StartHeavyJobs() {
