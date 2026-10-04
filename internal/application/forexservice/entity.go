@@ -28,6 +28,10 @@ var currencyName = map[string]Currency{
 	"RSD": RSD,
 }
 
+func SupportedCurrencyPairs() []string {
+	return []string{"USD/RUB", "EUR/RUB", "USD/RSD", "USD/EUR"}
+}
+
 func IsSupportedCurrency(currency string) bool {
 	_, found := currencyName[strings.ToUpper(currency)]
 	return found

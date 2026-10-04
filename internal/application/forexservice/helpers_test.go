@@ -96,7 +96,7 @@ func Test_collapseRatesIntoTargetCrossRates_Positive(t *testing.T) {
 		},
 	}
 
-	cleanRates, err := collapseRatesIntoTargetCrossRates(currencyPairs, rates)
+	cleanRates, err := СollapseRatesIntoTargetCrossRates(currencyPairs, rates)
 
 	test.AssertNoError(t, err)
 

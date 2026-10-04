@@ -11,10 +11,12 @@ import (
 	timehelpers "github.com/compoundinvest/stockfundamentals/internal/utilities/time-helpers"
 )
 
-func ImportForexRatesJob() {
-	var requiredCurrencyPairs = []string{"USD/RUB", "EUR/RUB", "USD/RSD", "USD/EUR"}
+func StartImportForexRatesJob() {
+	go ImportForexRates()
+}
 
-	for _, currencyPair := range requiredCurrencyPairs {
+func ImportForexRates() {
+	for _, currencyPair := range SupportedCurrencyPairs() {
 		split := strings.Split(currencyPair, "/")
 		cur1 := split[0]
 		cur2 := split[1]
