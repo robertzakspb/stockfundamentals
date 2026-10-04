@@ -12,14 +12,14 @@ import (
 func SaveStockPositionLotSnapshots() error {
 	lots, err := portfolio.GetAllStockLots()
 	if err != nil {
-		logger.LogError(err, logger.ERROR)
+		logger.LogError(err)
 		return err
 	}
 
 	//Need to populate securities to extract ISINs
 	lots, err = portfolio.PopulateLotSecurities(lots)
 	if err != nil {
-		logger.LogError(err, logger.ERROR)
+		logger.LogError(err)
 		return err
 	}
 
@@ -48,7 +48,7 @@ func SaveStockPositionLotSnapshots() error {
 
 	err = positionsnapshotdb.SaveStockPositionSnapshots(dbModels)
 	if err != nil {
-		logger.LogError(err, logger.ERROR)
+		logger.LogError(err)
 	}
 
 	return err

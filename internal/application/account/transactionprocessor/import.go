@@ -61,7 +61,7 @@ func ImportTBankTransactions() error {
 				logger.Log("Unexpectedly received a nil response from investgo API", logger.ALERT)
 			}
 			if err != nil {
-				logger.LogError(err, logger.ERROR)
+				logger.LogError(err)
 				return err
 			}
 
@@ -79,7 +79,7 @@ func ImportTBankTransactions() error {
 
 	err = SaveTransactions(mappedTransactions)
 	if err != nil {
-		logger.LogError(err, logger.ERROR)
+		logger.LogError(err)
 	}
 	logger.Log("The T Bank Transactions import job has been successfully executed", logger.ERROR)
 

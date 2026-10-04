@@ -31,7 +31,7 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 	wg.Go(func() {
 		quotes, err = quoteservice.FetchBondQuotesFromTapi(ExtractBondFigis(&bondList))
 		if err != nil {
-			logger.LogError(err, logger.ERROR)
+			logger.LogError(err)
 		}
 	})
 
@@ -50,7 +50,7 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 	bondList = MatchCouponsWithBonds(coupons, bondList)
 	bondList = CalculateBondYtmsUsingInternalIrrFormula(bondList, quotes)
 	bondList, errorList = bonds.MatchBondWithQuotes(bondList, quotes)
-	logger.LogErrors(errorList, logger.ERROR)
+	logger.LogErrors(errorList)
 
 	bondList = CalculateRubMarketValue(bondList, quotes, rates)
 
@@ -129,7 +129,7 @@ func CalculateSimpleYtmForBonds(bondList []bonds.Bond) []bonds.Bond {
 	}
 	quotes, err := quoteservice.FetchBondQuotesFromTapi(figis)
 	if err != nil {
-		logger.LogError(err, logger.ERROR)
+		logger.LogError(err)
 		return bondList
 	}
 
