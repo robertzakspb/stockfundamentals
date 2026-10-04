@@ -44,13 +44,13 @@ func FetchUsdToEurRate(startDate, endDate time.Time) ([]ForexRate, error) {
 		dateString := records[i][6]
 		date, err := timehelpers.DateFromISOstring(dateString)
 		if err != nil {
-			logger.LogError(err, logger.ERROR)
+			logger.LogError(err)
 			continue
 		}
 		rateString := records[i][7]
 		rate, err := typeconverter.GetFloat(rateString)
 		if err != nil {
-			logger.LogError(err, logger.ERROR)
+			logger.LogError(err)
 			continue
 		}
 		if rate == 0.0 {
