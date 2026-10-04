@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	appdividend "github.com/compoundinvest/stockfundamentals/internal/application/fundamentals/dividend"
+	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
 	divcalapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/account/dividend-calendar"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/shared"
 	"github.com/gin-gonic/gin"
@@ -53,7 +54,7 @@ func GetDividendForecastsForAccount(c *gin.Context) {
 	dtos := []divcalapi.PayoutDto{}
 
 	for i := range accountPayouts {
-		dto := divcalapi.MapPayoutToDto(divcalapi.Payout(accountPayouts[i]))
+		dto := divcalapi.MapPayoutToDto(dividend.Payout(accountPayouts[i]))
 		dtos = append(dtos, dto)
 	}
 
@@ -86,7 +87,7 @@ func GetFutureDividendPayoutsForAccount(c *gin.Context) {
 
 	dtos := []divcalapi.PayoutDto{}
 	for i := range payouts {
-		dto := divcalapi.MapPayoutToDto(divcalapi.Payout(payouts[i]))
+		dto := divcalapi.MapPayoutToDto(dividend.Payout(payouts[i]))
 		dtos = append(dtos, dto)
 	}
 
