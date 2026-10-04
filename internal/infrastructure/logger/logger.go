@@ -28,14 +28,14 @@ var level_name = map[LOG_LEVEL]string{
 	ALERT:       "ALERT",
 }
 
-func LogErrors(errorList []error, level LOG_LEVEL) {
+func LogErrors(errorList []error) {
 	for i := range errorList {
-		LogError(errorList[i], level)
+		LogError(errorList[i])
 	}
 }
 
-func LogError(err error, level LOG_LEVEL) {
-	Log(err.Error(), level)
+func LogError(err error) {
+	Log(err.Error(), ERROR)
 }
 
 func Log(message string, level LOG_LEVEL) {
