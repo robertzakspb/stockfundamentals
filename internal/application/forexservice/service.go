@@ -42,7 +42,7 @@ func GetExchangeRates(currencyPairs []string, date time.Time) ([]ForexRate, erro
 
 	rates := mapDbModelsToDomain(dbRates)
 
-	rates, err = collapseRatesIntoTargetCrossRates(currencyPairs, rates)
+	rates, err = СollapseRatesIntoTargetCrossRates(currencyPairs, rates)
 	if err != nil {
 		return rates, err
 	}
@@ -74,7 +74,7 @@ func GetLatestAvailableRates(currencyPairs []string) ([]ForexRate, error) {
 
 	rates := mapDbModelsToDomain(dbRates)
 
-	rates, err = collapseRatesIntoTargetCrossRates(currencyPairs, rates)
+	rates, err = СollapseRatesIntoTargetCrossRates(currencyPairs, rates)
 	if err != nil {
 		return rates, err
 	}

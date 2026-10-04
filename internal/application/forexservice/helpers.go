@@ -98,7 +98,7 @@ func calculateCrossRateViaUsdRates(usdRate1, usdRate2 ForexRate) (ForexRate, err
 
 // If, for instance, the EUR/RSD rate is required, the app will fetch two rates: USD/RSD and USD/EUR.
 // These two rates must be collapsed into the cross rate (EUR/RSD) when returning the values
-func collapseRatesIntoTargetCrossRates(currencyPairs []string, rates []ForexRate) ([]ForexRate, error) {
+func СollapseRatesIntoTargetCrossRates(currencyPairs []string, rates []ForexRate) ([]ForexRate, error) {
 	cleanRates := []ForexRate{}
 
 	//Adding the USD/X rates first
