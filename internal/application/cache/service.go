@@ -12,7 +12,7 @@ func StartCacheUpdateLoop() {
 	//Initial load
 	LoadAllCache()
 
-	//Looping the updates
+	//Looping the quote cache updates
 	go startQuoteCacheUpdateLoop()
 
 	//Forex rates are updated daily and hence do not require constant cache updating beyond the initial load
