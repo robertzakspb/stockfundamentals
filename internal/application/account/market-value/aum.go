@@ -8,6 +8,7 @@ import (
 	"github.com/compoundinvest/invest-core/quote/entity"
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
+	"github.com/compoundinvest/stockfundamentals/internal/application/cache"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/quoteservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
@@ -56,9 +57,8 @@ func GetTotalAssetsUnderManagement(currencies ...string) ([]AUM, error) {
 			currencyPairs = append(currencyPairs, bonds.GetCurrencyPairs(currency, bondLots)...)
 			currencyPairs = append(currencyPairs, lot.GetCurrencyPairs(currency, stockLots)...)
 		}
-
 		currencyPairs = stringhelpers.RemoveDuplicatesFrom(currencyPairs)
-		rates, err = forexservice.GetLatestAvailableRates(currencyPairs)
+		rates, err = cache.GetForexRateCacheForCurrencyPairs(currencyPairs...)
 	})
 	wg.Wait()
 
