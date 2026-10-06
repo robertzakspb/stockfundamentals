@@ -30,3 +30,42 @@ func Test_MatchLotsWithBonds_ByFigi(t *testing.T) {
 
 	test.AssertEqual(t, bond.Figi, matchedLots[0].Bond.Figi)
 }
+
+func Test_GetLotTickers_Positive_MissingTicker(t *testing.T) {
+	lots := []bonds.BondLot{
+		{
+			Bond: bonds.Bond{Ticker: "testTicker1"},
+		},
+		{
+			Bond: bonds.Bond{Ticker: ""},
+		},
+		{
+			Bond: bonds.Bond{Ticker: "testTicker3"},
+		},
+	}
+	tickers := GetLotTickers(lots)
+
+	test.AssertEqual(t, 2, len(tickers))
+	test.AssertEqual(t, "testTicker1", tickers[0])
+	test.AssertEqual(t, "testTicker3", tickers[1])
+}
+
+func Test_GetLotTickers_Positive(t *testing.T) {
+	lots := []bonds.BondLot{
+		{
+			Bond: bonds.Bond{Ticker: "testTicker1"},
+		},
+		{
+			Bond: bonds.Bond{Ticker: "testTicker2"},
+		},
+		{
+			Bond: bonds.Bond{Ticker: "testTicker3"},
+		},
+	}
+	tickers := GetLotTickers(lots)
+
+	test.AssertEqual(t, 3, len(tickers))
+	test.AssertEqual(t, "testTicker1", tickers[0])
+	test.AssertEqual(t, "testTicker2", tickers[1])
+	test.AssertEqual(t, "testTicker3", tickers[2])
+}

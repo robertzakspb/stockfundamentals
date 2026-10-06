@@ -81,6 +81,16 @@ func GetLotIsins(lots []bonds.BondLot) []string {
 	return isins
 }
 
+func GetLotTickers(lots []bonds.BondLot) []string {
+	tickers := []string{}
+	for _, lot := range lots {
+		if lot.Bond.Ticker != "" {
+			tickers = append(tickers, lot.Bond.Ticker)
+		}
+	}
+	return tickers
+}
+
 func MatchLotsWithQuotes(lots []bonds.BondLot, quotes []entity.BondQuote) []bonds.BondLot {
 	for i := range lots {
 		foundQuote := false
