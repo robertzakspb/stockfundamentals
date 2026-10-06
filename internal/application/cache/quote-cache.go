@@ -71,23 +71,23 @@ func GetCachedStockQuotes(figis []string) ([]entity.SimpleQuote, error) {
 	return targetQuotes, nil
 }
 
-func GetCachedBondQuotes(figis []string) ([]entity.BondQuote, error) {
+func GetCachedBondQuotes(tickers []string) ([]entity.BondQuote, error) {
 	bondQuoteMx.Lock()
 	defer bondQuoteMx.Unlock()
 
 	targetQuotes := []entity.BondQuote{}
 
-	for i := range figis {
+	for i := range tickers {
 		foundQuote := false
 		for j := range cachedBondQuotes {
-			if figis[i] == cachedBondQuotes[j].GetFigi() {
+			if tickers[i] == cachedBondQuotes[j].GetTicker() {
 				foundQuote = true
 				targetQuotes = append(targetQuotes, cachedBondQuotes[j])
 				break
 			}
 		}
 		if !foundQuote {
-			return targetQuotes, errors.New("Failed to find a cached bond quote for " + figis[i])
+			return targetQuotes, errors.New("Failed to find a cached bond quote for " + tickers[i])
 		}
 	}
 
