@@ -10,6 +10,8 @@ import (
 )
 
 var CURRENT_LOGGING_LEVELS = [4]LOG_LEVEL{INFORMATION, ERROR, ALERT, ERROR}
+var logFile *os.File
+var mutex sync.Mutex
 
 type LOG_LEVEL int
 
@@ -39,6 +41,9 @@ func LogError(err error) {
 }
 
 func Log(message string, level LOG_LEVEL) {
+	mutex.Lock() //Locking the shared CURRENT_LOGGING_LEVELS
+	defer mutex.Unlock()
+
 	logTime := time.Now()
 	shouldLog := false
 	for _, l := range CURRENT_LOGGING_LEVELS {
@@ -65,13 +70,11 @@ func Log(message string, level LOG_LEVEL) {
 	}
 }
 
-var mutex = sync.Mutex{}
-var logFile *os.File
-
 func writeLogToFile(config config.Config, message string, level LOG_LEVEL, logTime time.Time) error {
 	// open input file
 	mutex.Lock()
 	defer mutex.Unlock()
+
 	if logFile == nil {
 		logFile, _ = os.OpenFile(config.Logger.FileLocation, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	}
