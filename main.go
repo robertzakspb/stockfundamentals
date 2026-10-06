@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/compoundinvest/stockfundamentals/internal/application/cache"
 	bondsapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/bonds"
 	forexapi "github.com/compoundinvest/stockfundamentals/internal/interface/api/forex"
 	"github.com/compoundinvest/stockfundamentals/internal/interface/api/jobs"
@@ -25,8 +26,9 @@ import (
 func main() {
 	router := gin.Default()
 	router.Use(cors.Default())
-
 	addEndpoints(router)
+
+	cache.StartCacheUpdateLoop()
 
 	router.Run("localhost:8080")
 }
