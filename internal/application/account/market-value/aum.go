@@ -10,7 +10,6 @@ import (
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/application/cache"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
-	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/quoteservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	stockportfolio "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio/lot"
@@ -47,9 +46,10 @@ func GetTotalAssetsUnderManagement(currencies ...string) ([]AUM, error) {
 
 	//For the second parallel batch, we fetch stock and bond quotes as well as the forex rates
 	wg.Go(func() {
-		stockSecurities := portfolio.ExtractSecuritiesFromLots(stockLots)
-		bondFigis := bondportfolio.GetLotFigis(bondLots)
-		stockQuotes, bondQuotes, err = quoteservice.FetchInternationalStockAndBondQuotes(stockSecurities, bondFigis)
+		stockFigis := stockportfolio.LotFigis(stockLots)
+		bondTickers := bondportfolio.GetLotTickers(bondLots)
+		// stockQuotes, bondQuotes, err = quoteservice.FetchInternationalStockAndBondQuotes(stockSecurities, bondFigis)
+		stockQuotes, bondQuotes, err = cache.GetCachedStockAndBondQuotes(stockFigis, bondTickers)
 	})
 	wg.Go(func() {
 		var currencyPairs []string
