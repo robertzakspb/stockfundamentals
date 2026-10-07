@@ -2,6 +2,7 @@ package cacheorchestrator
 
 import (
 	"errors"
+	"time"
 
 	"github.com/compoundinvest/stockfundamentals/internal/application/cache/cache"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
@@ -16,13 +17,13 @@ func LoadForexCache() error {
 	}
 
 	supportedCurrencyPairs := forexservice.SupportedCurrencyPairs()
-	rates, err := forexservice.GetLatestAvailableRates(supportedCurrencyPairs)
+	rates, err := forexservice.GetExchangeRates(supportedCurrencyPairs, time.Now())
 	if err != nil {
 		logger.LogError(err)
 	}
 	if len(rates) == 0 {
 		forexservice.ImportForexRates()
-		rates, err = forexservice.GetLatestAvailableRates(supportedCurrencyPairs)
+		rates, err = forexservice.GetExchangeRates(supportedCurrencyPairs, time.Now())
 	}
 
 	cache.UpdateForexCache(rates)
