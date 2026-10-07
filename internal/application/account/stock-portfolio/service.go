@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/ydb-platform/ydb-go-sdk/v3/types"
 
+	"github.com/compoundinvest/stockfundamentals/internal/application/cache/cache"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/quoteservice"
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
@@ -83,7 +84,7 @@ func CalculatePortfolioMarketValue(portfolio stockportfolio.Portfolio, currency 
 			currencyPairs = append(currencyPairs, positionCurrency+"/"+currency)
 		}
 	}
-	forexRates, err := forexservice.GetLatestAvailableRates(currencyPairs)
+	forexRates, err := cache.GetForexRateCacheForCurrencyPairs(currencyPairs...)
 	if err != nil {
 		return -1, currency, err
 	}

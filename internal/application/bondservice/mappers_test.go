@@ -1,4 +1,4 @@
-package security_master
+package bondservice
 
 import (
 	"testing"

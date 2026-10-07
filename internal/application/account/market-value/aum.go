@@ -8,7 +8,7 @@ import (
 	"github.com/compoundinvest/invest-core/quote/entity"
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
-	"github.com/compoundinvest/stockfundamentals/internal/application/cache"
+	"github.com/compoundinvest/stockfundamentals/internal/application/cache/cache"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	stockportfolio "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"

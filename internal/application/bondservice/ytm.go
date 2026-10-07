@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
-	"github.com/compoundinvest/stockfundamentals/internal/application/cache"
+	"github.com/compoundinvest/stockfundamentals/internal/application/cache/cache"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -38,7 +38,7 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 	currencyPairs := AllCurrencyPairsInBondList(bondList)
 	rates := []forexservice.ForexRate{}
 	wg.Go(func() {
-		rates, err = forexservice.GetLatestAvailableRates(currencyPairs)
+		rates, err = cache.GetForexRateCacheForCurrencyPairs(currencyPairs...)
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)
 		}

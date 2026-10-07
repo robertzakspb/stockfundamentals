@@ -1,7 +1,6 @@
 package bondservice
 
 import (
-	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
 	"github.com/ydb-platform/ydb-go-sdk/v3/types"
@@ -31,7 +30,7 @@ func GetRussianGovernmentBondsWithFixedOrConstantCoupon() ([]bonds.Bond, error) 
 		ConditionValue: types.DoubleValue(1000),
 	}
 
-	bondList, err := security_master.GetFilteredBonds([]ydbfilter.YdbFilter{governmentFilter, amortizationFilter, nominalValueFilter, currencyFilter})
+	bondList, err := GetFilteredBonds([]ydbfilter.YdbFilter{governmentFilter, amortizationFilter, nominalValueFilter, currencyFilter})
 	if err != nil {
 		return bondList, err
 	}
@@ -65,7 +64,7 @@ func GetQuasiForeignBonds() ([]bonds.Bond, error) {
 		ConditionValue: types.TextValue("RU"),
 	}
 
-	bondList, err := security_master.GetFilteredBonds([]ydbfilter.YdbFilter{foreignNominalFilter, rubleCurrencyFilter, riskFilter, countryFilter})
+	bondList, err := GetFilteredBonds([]ydbfilter.YdbFilter{foreignNominalFilter, rubleCurrencyFilter, riskFilter, countryFilter})
 	if err != nil {
 		return bondList, err
 	}

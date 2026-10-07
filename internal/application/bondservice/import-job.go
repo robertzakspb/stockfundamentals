@@ -5,7 +5,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	tthrottler "github.com/compoundinvest/stockfundamentals/internal/application/tinkoff-throttler"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -38,7 +37,7 @@ func ImportAllBondsAndCoupons() error {
 	}
 
 	mappedBonds := mapTinkoffBondsToBonds(response.Instruments)
-	dbBonds := security_master.MapBondsToDbBonds(mappedBonds)
+	dbBonds := MapBondsToDbBonds(mappedBonds)
 
 	err = bondsdb.SaveBonds(dbBonds)
 	if err != nil {

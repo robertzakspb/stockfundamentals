@@ -6,7 +6,7 @@ import (
 
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
-	"github.com/compoundinvest/stockfundamentals/internal/application/cache"
+	"github.com/compoundinvest/stockfundamentals/internal/application/cache/cache"
 	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"

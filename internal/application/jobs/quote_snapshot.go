@@ -12,14 +12,13 @@ import (
 )
 
 func ExecuteQuoteSnapshotJob() error {
-
 	stocks, err := security_master.GetAllSecuritiesFromDB()
 	if err != nil {
 		return err
 	}
 	stockFigis := security_master.ExtractFigisFromSecurities(stocks)
 
-	bondList, err := security_master.GetAllBonds()
+	bondList, err := bondservice.GetAllBonds()
 	if err != nil {
 		return err
 	}

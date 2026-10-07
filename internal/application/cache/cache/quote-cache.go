@@ -2,13 +2,9 @@ package cache
 
 import (
 	"errors"
-	"strconv"
 	"sync"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
-	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/quoteservice"
-	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
-	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
 
 var cachedStockQuotes []entity.SimpleQuote
@@ -17,16 +13,17 @@ var stockQuoteMx sync.Mutex
 var cachedBondQuotes []entity.BondQuote
 var bondQuoteMx sync.Mutex
 
-func LoadQuoteCache() {
-	err := loadStockQuoteCache()
-	if err != nil {
-		logger.LogError(err)
+func UpdateStockAndBondsCache(stockQuotes []entity.SimpleQuote, bondQuotes []entity.BondQuote) {
+	stockQuoteMx.Lock()
+	bondQuoteMx.Lock()
+	defer stockQuoteMx.Unlock()
+	defer bondQuoteMx.Unlock()
+	if len(stockQuotes) != 0 {
+		cachedStockQuotes = stockQuotes
 	}
-	err = loadBondQuoteCache()
-	if err != nil {
-		logger.LogError(err)
+	if len(bondQuotes) != 0 {
+		cachedBondQuotes = bondQuotes
 	}
-	logger.Log("Cached "+strconv.Itoa(len(cachedStockQuotes))+" stock quotes and "+strconv.Itoa(len(cachedBondQuotes))+" bond quotes", logger.INFORMATION)
 }
 
 func GetCachedStockAndBondQuotes(stockFigis, bondFigis []string) ([]entity.SimpleQuote, []entity.BondQuote, error) {
@@ -91,44 +88,4 @@ func GetCachedBondQuotes(tickers []string) ([]entity.BondQuote, error) {
 	}
 
 	return targetQuotes, nil
-}
-
-func loadStockQuoteCache() error {
-	stockQuoteMx.Lock()
-	defer stockQuoteMx.Unlock()
-
-	stocks, err := security_master.GetAllSecuritiesFromDB()
-	if err != nil {
-		return err
-	}
-	securities := security_master.ConvertStocksToSecurities(stocks)
-
-	quotes, err := quoteservice.FetchInternationalStockQuotes(securities)
-	if err != nil {
-		return err
-	}
-
-	cachedStockQuotes = quotes
-
-	return nil
-}
-
-func loadBondQuoteCache() error {
-	bondQuoteMx.Lock()
-	defer bondQuoteMx.Unlock()
-
-	bondList, err := security_master.GetAllBonds()
-	if err != nil {
-		return err
-	}
-
-	figis := make([]string, len(bondList))
-	for i := range bondList {
-		figis = append(figis, bondList[i].Figi)
-	}
-	quotes, err := quoteservice.FetchBondQuotesFromTapi(figis)
-
-	cachedBondQuotes = quotes
-
-	return nil
 }

@@ -2,7 +2,6 @@ package cache
 
 import (
 	"errors"
-	"strconv"
 	"sync"
 
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
@@ -12,29 +11,10 @@ import (
 var forexRates []forexservice.ForexRate
 var fxMutex sync.Mutex
 
-func LoadForexCache() error {
+func UpdateForexCache(rates []forexservice.ForexRate) {
 	fxMutex.Lock()
 	defer fxMutex.Unlock()
-
-	if len(forexRates) > 0 {
-		err := errors.New("Cache is already populated")
-		logger.LogError(err)
-		return err
-	}
-
-	supportedCurrencyPairs := forexservice.SupportedCurrencyPairs()
-	rates, err := forexservice.GetLatestAvailableRates(supportedCurrencyPairs)
-	if err != nil {
-		logger.LogError(err)
-	}
-	if len(rates) == 0 {
-		forexservice.ImportForexRates()
-		rates, err = forexservice.GetLatestAvailableRates(supportedCurrencyPairs)
-	}
-
 	forexRates = rates
-	logger.Log("Successfuly loaded the forex rate cache ("+strconv.Itoa(len(forexRates))+" rates)", logger.INFORMATION)
-	return nil
 }
 
 func GetForexRateCacheForCurrencyPairs(pairs ...string) ([]forexservice.ForexRate, error) {
@@ -63,4 +43,11 @@ func GetForexRateCacheForCurrencyPair(pair string) (forexservice.ForexRate, erro
 		return forexservice.ForexRate{}, errors.New("Failed to find a cached forex rate for " + pair)
 	}
 	return rates[0], nil
+}
+
+func ForexCacheIsLoaded() bool {
+	fxMutex.Lock()
+	defer fxMutex.Unlock()
+
+	return len(forexRates) > 0
 }

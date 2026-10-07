@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/compoundinvest/stockfundamentals/internal/application/cache/cache"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
 
 	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
@@ -19,7 +20,7 @@ func ConvertAccountMVsToCurrency(MVs []accountmvdomain.AccountMarketValue, curre
 	totalMV := 0.0
 	currencyPairs := marketValueCurrencyPairs(currency, MVs)
 
-	rates, err := forexservice.GetLatestAvailableRates(currencyPairs)
+	rates, err := cache.GetForexRateCacheForCurrencyPairs(currencyPairs...)
 	if err != nil {
 		return accountmvdomain.AccountMarketValue{}, err
 	}
