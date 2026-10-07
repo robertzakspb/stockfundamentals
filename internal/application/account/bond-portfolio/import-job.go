@@ -6,7 +6,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
+	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/application/shared"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 
@@ -85,7 +85,7 @@ func FetchTinkoffBondLots() ([]bonds.BondLot, error) {
 			logger.Log("Missing the bond position's figi "+position.Figi, logger.ERROR)
 		}
 
-		bond, err := bondservice.GetBondByFigi(position.GetFigi())
+		bond, err := security_master.GetBondByFigi(position.GetFigi())
 
 		if err != nil {
 			logger.Log(err.Error(), logger.ERROR)

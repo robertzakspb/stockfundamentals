@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
-	"github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
 	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/quoteservice"
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
@@ -118,12 +117,16 @@ func loadBondQuoteCache() error {
 	bondQuoteMx.Lock()
 	defer bondQuoteMx.Unlock()
 
-	bondList, err := bondservice.GetAllBonds()
+	bondList, err := security_master.GetAllBonds()
 	if err != nil {
 		return err
 	}
 
-	quotes, err := quoteservice.FetchBondQuotesFromTapi(bondservice.ExtractBondFigis(&bondList))
+	figis := make([]string, len(bondList))
+	for i := range bondList {
+		figis = append(figis, bondList[i].Figi)
+	}
+	quotes, err := quoteservice.FetchBondQuotesFromTapi(figis)
 
 	cachedBondQuotes = quotes
 

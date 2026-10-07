@@ -5,7 +5,8 @@ import (
 	"time"
 
 	bondportfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/bond-portfolio"
-	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/quoteservice"
+	"github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
+	"github.com/compoundinvest/stockfundamentals/internal/application/cache"
 	accountmvdomain "github.com/compoundinvest/stockfundamentals/internal/domain/entities/account/market-value"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -51,9 +52,8 @@ func CalculateBondLotsMarketValue(bondLots []bonds.BondLot, date time.Time, curr
 		return accountmvdomain.AccountMarketValue{}, errors.New("Attempting to calculate the market value of 0 bonds")
 	}
 
-	figis := bondportfolio.GetLotFigis(bondLots)
-
-	quotes, err := quoteservice.FetchBondQuotesFromTapi(figis)
+	tickers := bondservice.ExtractBondTickers(bondportfolio.GetLotBonds(bondLots))
+	quotes, err := cache.GetCachedBondQuotes(tickers)
 
 	totalMarketValue := 0.0
 

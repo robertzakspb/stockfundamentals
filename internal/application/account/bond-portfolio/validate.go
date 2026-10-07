@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
+	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 )
 
@@ -30,7 +30,7 @@ func validateLot(lot bonds.BondLot) (bonds.BondLot, error) {
 
 func addMissingInformationToLot(lot bonds.BondLot) (bonds.BondLot, error) {
 	if lot.Figi == "" {
-		bond, err := bondservice.GetBondByIsin(lot.Isin)
+		bond, err := security_master.GetBondByIsin(lot.Isin)
 		if err != nil {
 			return lot, err
 		}
@@ -39,7 +39,7 @@ func addMissingInformationToLot(lot bonds.BondLot) (bonds.BondLot, error) {
 	}
 
 	if lot.Isin == "" {
-		bond, err := bondservice.GetBondByFigi(lot.Figi)
+		bond, err := security_master.GetBondByFigi(lot.Figi)
 		if err != nil {
 			return lot, err
 		}

@@ -5,8 +5,8 @@ import (
 	"sync"
 
 	"github.com/compoundinvest/invest-core/quote/entity"
+	"github.com/compoundinvest/stockfundamentals/internal/application/cache"
 	"github.com/compoundinvest/stockfundamentals/internal/application/forexservice"
-	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/quoteservice"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
@@ -29,7 +29,7 @@ func PopulateBondsWithCouponsAndCalculateYtm(bondList []bonds.Bond) []bonds.Bond
 
 	var quotes []entity.BondQuote
 	wg.Go(func() {
-		quotes, err = quoteservice.FetchBondQuotesFromTapi(ExtractBondFigis(&bondList))
+		quotes, err = cache.GetCachedBondQuotes(ExtractBondTickers(bondList))
 		if err != nil {
 			logger.LogError(err)
 		}
@@ -123,11 +123,11 @@ func CalculateBondYtmsUsingInternalIrrFormula(bondList []bonds.Bond, quotes []en
 //
 // Deprecated: Use the CalculateBondYtmsUsingInternalIrrFormula function instead – unless you specifcally need the simple yield to maturity
 func CalculateSimpleYtmForBonds(bondList []bonds.Bond) []bonds.Bond {
-	figis := make([]string, len(bondList))
+	tickers := make([]string, len(bondList))
 	for i := range bondList {
-		figis[i] = bondList[i].Figi
+		tickers[i] = bondList[i].Ticker
 	}
-	quotes, err := quoteservice.FetchBondQuotesFromTapi(figis)
+	quotes, err := cache.GetCachedBondQuotes(tickers)
 	if err != nil {
 		logger.LogError(err)
 		return bondList

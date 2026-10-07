@@ -1,4 +1,4 @@
-package bondservice
+package security_master
 
 import (
 	"testing"
@@ -80,7 +80,7 @@ func Test_mapBondToDbBond(t *testing.T) {
 		CallOptionExerciseDate:  callOptionExerciseDate,
 	}
 
-	mappedDomain := mapBondsToDbBonds([]bonds.Bond{bond})[0]
+	mappedDomain := MapBondsToDbBonds([]bonds.Bond{bond})[0]
 
 	test.AssertEqual(t, mappedDomain.Id, id)
 	test.AssertEqual(t, mappedDomain.Figi, figi)

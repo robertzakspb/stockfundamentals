@@ -4,6 +4,7 @@ import (
 	"sort"
 
 	bondservice "github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
+	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/bonds"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/bondsdb"
 	ydbfilter "github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/shared/ydb-filter"
@@ -49,7 +50,7 @@ func CalculateYtmForLots(lots []bonds.BondLot) ([]bonds.BondLot, error) {
 		figis = append(figis, bond.Figi)
 	}
 
-	bondList, err := bondservice.GetBondsByFigi(figis)
+	bondList, err := security_master.GetBondsByFigi(figis)
 	if err != nil {
 		return []bonds.BondLot{}, err
 	}
@@ -71,7 +72,7 @@ func CalculateYtmForLots(lots []bonds.BondLot) ([]bonds.BondLot, error) {
 
 func PopulateLotsWithBonds(lots []bonds.BondLot) ([]bonds.BondLot, error) {
 	figis := GetLotFigis(lots)
-	bondList, err := bondservice.GetBondsByFigi(figis)
+	bondList, err := security_master.GetBondsByFigi(figis)
 	if err != nil {
 		return []bonds.BondLot{}, err
 	}

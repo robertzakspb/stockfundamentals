@@ -19,7 +19,7 @@ func ExecuteQuoteSnapshotJob() error {
 	}
 	stockFigis := security_master.ExtractFigisFromSecurities(stocks)
 
-	bondList, err := bondservice.GetAllBonds()
+	bondList, err := security_master.GetAllBonds()
 	if err != nil {
 		return err
 	}
