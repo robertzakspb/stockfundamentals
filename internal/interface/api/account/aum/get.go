@@ -13,11 +13,13 @@ func GetAssetsUnderManagement(c *gin.Context) {
 	currencies, err := shared.GetFromQueryParams("currencies", c.Request.URL.Query())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
+		return
 	}
 
 	aum, err := accountmvservice.GetTotalAssetsUnderManagement(strings.Split(currencies, ",")...)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, shared.ErrorResponse{Errors: []string{err.Error()}})
+		return
 	}
 
 	aumDto := mapAumsToDtos(aum)
