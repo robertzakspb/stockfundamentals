@@ -10,9 +10,9 @@ import (
 	portfolio "github.com/compoundinvest/stockfundamentals/internal/application/account/stock-portfolio"
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/domain/entities/dividend"
+	stockportfolio "github.com/compoundinvest/stockfundamentals/internal/domain/entities/portfolio"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/db/fundamentals/dbdividend"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
-	"github.com/google/uuid"
 )
 
 func SaveDividendForecast(forecast dividend.DividendForecast) error {
@@ -44,14 +44,15 @@ func GetDividendForecasts() ([]dividend.DividendForecast, error) {
 	return forecastsWithYields, nil
 }
 
-func GetDividendForecastsForAccount(accountId uuid.UUID) ([]dividend.Payout, error) {
+func GetDividendForecastsForAllAccounts() ([]dividend.Payout, error) {
 	dbForecasts, err := dbdividend.GetDividendForecasts()
 	if err != nil {
 		return []dividend.Payout{}, err
 	}
 	forecasts := mapDividendForecastDbModelToDomain(dbForecasts)
 
-	portfolio, err := portfolio.GetAccountPortfolio(accountId)
+	lots, err := portfolio.GetAllStockLots()
+	portfolio := stockportfolio.Portfolio{Lots: lots}
 
 	//We are using the dividend.Payout entity because it contains the distributed amount per account
 	payouts, err := matchDivForecastsWithPositions(forecasts, portfolio.UniquePositions())
