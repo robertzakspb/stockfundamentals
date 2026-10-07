@@ -13,14 +13,20 @@ var stockQuoteMx sync.Mutex
 var cachedBondQuotes []entity.BondQuote
 var bondQuoteMx sync.Mutex
 
-func UpdateStockAndBondsCache(stockQuotes []entity.SimpleQuote, bondQuotes []entity.BondQuote) {
+func UpdateStockCache(stockQuotes []entity.SimpleQuote) {
 	stockQuoteMx.Lock()
-	bondQuoteMx.Lock()
 	defer stockQuoteMx.Unlock()
-	defer bondQuoteMx.Unlock()
+
 	if len(stockQuotes) != 0 {
 		cachedStockQuotes = stockQuotes
 	}
+
+}
+
+func UpdateBondsCache(bondQuotes []entity.BondQuote) {
+	bondQuoteMx.Lock()
+	defer bondQuoteMx.Unlock()
+
 	if len(bondQuotes) != 0 {
 		cachedBondQuotes = bondQuotes
 	}

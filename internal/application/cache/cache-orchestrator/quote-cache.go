@@ -1,21 +1,12 @@
 package cacheorchestrator
 
 import (
-	"strconv"
-	"sync"
-
-	"github.com/compoundinvest/invest-core/quote/entity"
 	"github.com/compoundinvest/stockfundamentals/internal/application/bondservice"
+	"github.com/compoundinvest/stockfundamentals/internal/application/cache/cache"
 	"github.com/compoundinvest/stockfundamentals/internal/application/market-data/quoteservice"
 	security_master "github.com/compoundinvest/stockfundamentals/internal/application/security-master"
 	"github.com/compoundinvest/stockfundamentals/internal/infrastructure/logger"
 )
-
-var cachedStockQuotes []entity.SimpleQuote
-var stockQuoteMx sync.Mutex
-
-var cachedBondQuotes []entity.BondQuote
-var bondQuoteMx sync.Mutex
 
 func LoadQuoteCache() {
 	err := loadStockQuoteCache()
@@ -26,13 +17,10 @@ func LoadQuoteCache() {
 	if err != nil {
 		logger.LogError(err)
 	}
-	logger.Log("Cached "+strconv.Itoa(len(cachedStockQuotes))+" stock quotes and "+strconv.Itoa(len(cachedBondQuotes))+" bond quotes", logger.INFORMATION)
+	logger.Log("Cached stock quotes and bond quotes", logger.INFORMATION)
 }
 
 func loadStockQuoteCache() error {
-	stockQuoteMx.Lock()
-	defer stockQuoteMx.Unlock()
-
 	stocks, err := security_master.GetAllSecuritiesFromDB()
 	if err != nil {
 		return err
@@ -44,15 +32,12 @@ func loadStockQuoteCache() error {
 		return err
 	}
 
-	cachedStockQuotes = quotes
+	cache.UpdateStockCache(quotes)
 
 	return nil
 }
 
 func loadBondQuoteCache() error {
-	bondQuoteMx.Lock()
-	defer bondQuoteMx.Unlock()
-
 	bondList, err := bondservice.GetAllBonds()
 	if err != nil {
 		return err
@@ -64,7 +49,7 @@ func loadBondQuoteCache() error {
 	}
 	quotes, err := quoteservice.FetchBondQuotesFromTapi(figis)
 
-	cachedBondQuotes = quotes
+	cache.UpdateBondsCache(quotes)
 
 	return nil
 }
