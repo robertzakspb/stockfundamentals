@@ -83,6 +83,6 @@ func calculateSimpleYield(b Bond, coupons []Coupon, marketPricePercentage float6
 	tci := TotalCouponIncome(coupons, false, latestCouponDate)
 
 	//Standard simple formula for the calculation of bond yields (coupon reinvestment is not assumed)
-	yield := (b.NominalValue - marketPrice + tci) / marketPrice * 365 / holdingPeriodInDays * 100
+	yield := (b.NominalValue - marketPrice + tci) / marketPrice * 360 / holdingPeriodInDays * 100
 	return yield, nil
 }

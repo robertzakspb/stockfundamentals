@@ -54,14 +54,14 @@ func internalRateOfReturn(cashflows []float64, dates []time.Time) (float64, erro
 // Calculates the value of the XIRR function given the cashflow, its date, and the initial date
 func fx_xirr(cashflow, x0 float64, cashflowDate, startDate time.Time) float64 {
 	daysSinceStartUntilCashflow := startDate.Sub(cashflowDate).Hours() / 24
-	fx := cashflow * math.Pow(1.0+x0, daysSinceStartUntilCashflow/365.0)
+	fx := cashflow * math.Pow(1.0+x0, daysSinceStartUntilCashflow/360.0)
 	return fx
 }
 
 // Calculates the deriviative of the function
 func fx_d_xirr(cashflow, x0 float64, cashflowDate, startDate time.Time) float64 {
 	daysSinceStartUntilCashflow := startDate.Sub(cashflowDate).Hours() / 24
-	dfx := (1.0 / 365.0) * (daysSinceStartUntilCashflow) * cashflow * math.Pow((x0+1.0), ((daysSinceStartUntilCashflow/365.0)-1.0))
+	dfx := (1.0 / 360.0) * (daysSinceStartUntilCashflow) * cashflow * math.Pow((x0+1.0), ((daysSinceStartUntilCashflow/360.0)-1.0))
 	return dfx
 }
 

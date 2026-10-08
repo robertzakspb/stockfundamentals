@@ -16,7 +16,7 @@ func CalcAnnualizedReturn(totalReturnPercentage float64, startDate, endDate time
 	if int(daysHeld) == 0 {
 		return -1, errors.New("Unable to calculate the return, as the position has been held for 0 days")
 	}
-	annualizedReturn := math.Pow(1+totalReturnPercentage, 365/daysHeld) - 1
+	annualizedReturn := math.Pow(1+totalReturnPercentage, 360/daysHeld) - 1
 
 	if math.IsInf(annualizedReturn, 0) {
 		return -1, errors.New("Found infinity when calculating the annualized return")
