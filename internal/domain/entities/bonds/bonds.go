@@ -262,7 +262,7 @@ func (b *Bond) FutureCouponsTillDate(tillDate time.Time) ([]Coupon, error) {
 // Returns all cashflows of a bond, starting from its acquisition on the provided date and ending with redemption on the maturity date or call option exercise date
 func (b *Bond) FutureCashflowsWithDates(onlyTillCallOptionExerciseDate bool, quote float64, acquisitionDate time.Time) (cashflows []float64, dates []time.Time, err error) {
 	cashflows = append(cashflows, -(quote + b.AccruedInterest)) //Full market price of the bond
-	dates = append(dates, acquisitionDate)                                 //THe date on which the bond is to be acquired
+	dates = append(dates, acquisitionDate)                      //THe date on which the bond is to be acquired
 
 	//Adding each future coupon to the cashflow stream
 	var tillDate time.Time
