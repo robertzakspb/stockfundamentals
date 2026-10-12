@@ -21,7 +21,8 @@ func LoadForexCache() error {
 	if err != nil {
 		logger.LogError(err)
 	}
-	if len(rates) == 0 {
+	//Because the DB could contain several (but not all) exchange rates for today, we should ensure that we fetch the remaining ones before populating the cache
+	if len(rates) != len(supportedCurrencyPairs) {
 		forexservice.ImportForexRates()
 		rates, err = forexservice.GetExchangeRates(supportedCurrencyPairs, time.Now())
 	}
